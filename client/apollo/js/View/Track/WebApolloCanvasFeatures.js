@@ -46,84 +46,76 @@ return declare( CanvasFeaturesTrack,
                 }
             });
         var thisB=this;
+        var atrack=thisB.webapollo.getAnnotTrack();
+        var official = atrack.getApollo().isOfficialTrack(thisB.key);
+        console.log('is official track',thisB,official)
         config.menuTemplate.push(            {
               "label" : "Create new annotation",
               "children" : [
                 {
                   "label" : "gene",
                   "action":  function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
                      atrack.createAnnotations({x1:{feature:this.feature}},true);
                   }
                 },
                 {
                   "label" : "pseudogene",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "transcript", null, "pseudogene");
+                     atrack.createGenericAnnotations([this.feature], "transcript", null, "pseudogene",official);
                   }
                 },
                 {
                   "label" : "tRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "tRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "tRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "snRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "snRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "snRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "snoRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "snoRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "snoRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "ncRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "ncRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "ncRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "rRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "rRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "rRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "miRNA",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "miRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "miRNA", null, "gene",official);
                    }
                 },
                 {
                   "label" : "Repeat region",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericOneLevelAnnotations([this.feature], "repeat_region", true);
+                     atrack.createGenericOneLevelAnnotations([this.feature], "repeat_region", true,official);
                    }
                 },
                 {
                   "label" : "Terminator",
                   "action" : function() {
-                      var atrack=thisB.webapollo.getAnnotTrack();
-                      atrack.createGenericOneLevelAnnotations([this.feature], "terminator", true);
+                      atrack.createGenericOneLevelAnnotations([this.feature], "terminator", true,official);
                   }
                 },
                 {
                   "label" : "Transposable element",
                   "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericOneLevelAnnotations([this.feature], "transposable_element", true);
+                     atrack.createGenericOneLevelAnnotations([this.feature], "transposable_element", true,official);
                    }
                 }
               ]

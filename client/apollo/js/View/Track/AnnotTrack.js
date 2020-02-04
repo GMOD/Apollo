@@ -1034,9 +1034,10 @@ define([
                             target_track.addToAnnotation(target_track.annot_under_mouse.feature, dropped_feats);
                         }
                         else if (target_track.track_under_mouse_drag) {
-                            if (target_track.verbose_drop) {
+                            if (target_track.verbose_drop || true) {
                                 console.log("draggable dropped on AnnotTrack");
                             }
+                            console.log('droping dropped on target rack',target_track,dropped_feats);
                             target_track.createAnnotations(dropped_feats,false);
                         }
                         // making sure annot_under_mouse is cleared
@@ -1051,7 +1052,7 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records,force_type) {
+            createAnnotations: function (selection_records,force_type,is_official) {
                 var target_track = this;
                 var featuresToAdd = [];
                 var parentFeatures = {};
@@ -1059,9 +1060,17 @@ define([
                 var strand;
                 var parentFeature;
                 var variantSelectionRecords = [];
+                // maybe unnecessary, but making explicitly false
+                var official = is_official===undefined ? false : is_official;
+                console.log('creating annotations official ',official)
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
+                    console.log('track record',selection_records[i].track)
+                    var sourceTrack = selection_records[i].track.key;
+                    // console.log('source track',sourceTrack,'name',sourceTrack.key)
+                    official = target_track.getApollo().isOfficialTrack(sourceTrack ) ? true : official;
+                    console.log('final official',sourceTrack,'name',official,target_track.getApollo().isOfficialTrack(sourceTrack ))
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
@@ -1123,6 +1132,7 @@ define([
                     var keys = Object.keys(parentFeatures);
                   console.log('parentFeatures',parentFeatures);
                   console.log('keys',keys);
+                  console.log('processing with ',official)
                     var singleParent = keys.length === 1;
                     var featureToAdd;
                     if (singleParent) {
@@ -1205,18 +1215,18 @@ define([
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                       console.log('biotype mRNA',featureToAdd,JSON.stringify(featureToAdd))
-                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true,undefined,official);
                       console.log('biotype mRNA afeat',afeat,JSON.stringify(afeat))
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                       console.log('biotype RNA',featureToAdd,JSON.stringify(featureToAdd))
-                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
+                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene',official);
                     }
                     else {
                       console.log('biotype one-level genericl',featureToAdd,JSON.stringify(featureToAdd))
-                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0,official);
                     }
                     console.log('output featureToAdd',featureToAdd,JSON.stringify(featureToAdd));
                   console.log('afeat',afeat,JSON.stringify(afeat));
@@ -1311,10 +1321,12 @@ define([
                 }
             },
 
-            createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
+            createGenericAnnotations: function (feats, type, subfeatType, topLevelType,is_official) {
                 var target_track = this;
                 var featuresToAdd = [];
                 var parentFeatures = {};
+                var official = is_official===undefined ? false : is_official;
+                console.log('creating generic annotations official ',official)
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1391,7 +1403,10 @@ define([
                 target_track.executeUpdateOperation(postData);
             },
 
-            createGenericOneLevelAnnotations: function (feats, type, strandless) {
+            createGenericOneLevelAnnotations: function (feats, type, strandless,is_official) {
+
+                var official = is_official===undefined ? false : is_official;
+                console.log('creating generic one level annotations official ',official)
 
 
                 var target_track = this;

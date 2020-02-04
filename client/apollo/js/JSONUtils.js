@@ -9,7 +9,7 @@ define([ 'dojo/_base/declare',
 function JSONUtils() {
 }
 
-JSONUtils.verbose_conversion = false ;
+JSONUtils.verbose_conversion = true ;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
 JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
@@ -359,13 +359,16 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
 *    ignoring JBrowse ID / name fields for now
 *    currently, for features with lazy-loaded children, ignores children
 */
-JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-  console.log('creating apollo feature !')
+JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype ,is_official)   {
+    var official = is_official === undefined ? false : is_official;
+    console.log('creating apollo feature !',is_official,official)
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose || true)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type + " " + specified_subtype);
         console.log(jfeature,JSON.stringify(jfeature));
     }
+
+    console.log('creating offical apollo features',official);
 
 
     var afeature = {};
@@ -394,7 +397,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         typename = specified_type;
         var preferredSubFeature = this.getPreferredSubFeature(specified_type,jfeature);
         if(preferredSubFeature){
-            return this.createApolloFeature(preferredSubFeature,specified_type,useName,specified_subtype)
+            return this.createApolloFeature(preferredSubFeature,specified_type,useName,specified_subtype,official)
         }
     }
     else
@@ -536,7 +539,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     foundExons = true;
                 }
                 if (converted_subtype)  {
-                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ) );
+                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ,) );
                     if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
                 }
                 else {

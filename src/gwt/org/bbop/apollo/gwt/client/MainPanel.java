@@ -1097,6 +1097,15 @@ public class MainPanel extends Composite {
         return currentOrganism.toJSON().toString();
     }
 
+    public static boolean isOfficialTrack(String trackName){
+        String officialTracks = currentOrganism.getOfficialGeneSetTrack();
+        if(officialTracks==null) return false ;
+        for(String officialTrack : officialTracks.split(",")){
+            if(officialTrack.equals(trackName)) return true ;
+        }
+        return false ;
+    }
+
     /**
      */
     public static Boolean viewInAnnotationPanel(String parentName) {
@@ -1192,6 +1201,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.isOfficialTrack = $entry(@org.bbop.apollo.gwt.client.MainPanel::isOfficialTrack(Ljava/lang/String;));
         $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
         $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
