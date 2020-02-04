@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -20,6 +17,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -47,10 +45,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -58,13 +53,17 @@ import java.util.TreeMap;
  */
 public class TrackPanel extends Composite {
 
-    interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
+  private TrackInfo selectedTrackObject;
+
+  interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
     }
 
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
 
     @UiField
     static TextBox nameSearchBox;
+    @UiField
+    CheckBox isOfficialTrack;
     @UiField
     HTML trackName;
     @UiField
@@ -77,7 +76,7 @@ public class TrackPanel extends Composite {
     Button addTrackButton;
 
     @UiField
-    ToggleSwitch trackListToggle;
+    org.gwtbootstrap3.client.ui.CheckBox trackListToggle;
 
     @UiField
     DockLayoutPanel layoutPanel;
@@ -149,8 +148,10 @@ public class TrackPanel extends Composite {
     HTML topTypeHTML;
     @UiField
     com.google.gwt.user.client.ui.TextBox topTypeName;
+  @UiField
+  Column officialTrackColumn;
 
-    public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
+  public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
 
@@ -176,10 +177,7 @@ public class TrackPanel extends Composite {
             public boolean execute() {
                 if (canAdminTracks()) {
                     handleAdminState();
-                    GWT.log("can admin tracks");
                     return false;
-                } else {
-                    GWT.log("can not admin tracks, retryting");
                 }
                 return true ;
             }
@@ -274,7 +272,10 @@ public class TrackPanel extends Composite {
 
 
     private void setTrackInfo(TrackInfo selectedObject) {
+        this.selectedTrackObject = selectedObject;
         if (selectedObject == null) {
+            officialTrackColumn.setVisible(false);
+            southTabs.setVisible(false);
             trackName.setVisible(false);
             trackType.setVisible(false);
             optionTree.setVisible(false);
@@ -283,6 +284,9 @@ public class TrackPanel extends Composite {
             optionTree.clear();
             locationRow.setVisible(false);
         } else {
+            southTabs.setVisible(true);
+            officialTrackColumn.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+            isOfficialTrack.setValue(selectedObject.isOfficialTrack());
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -358,6 +362,26 @@ public class TrackPanel extends Composite {
     private TrackTypeEnum getTrackType() {
         return TrackTypeEnum.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
+
+  @UiHandler("isOfficialTrack")
+  public void toggleOfficialTrack(ClickEvent clickEvent) {
+      String trackName = this.selectedTrackObject.getName();
+      selectedTrackObject.setOfficialTrack(isOfficialTrack.getValue());
+      // TODO: call rest service and reload on success
+      // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
+    RequestCallback requestCallback = new RequestCallback() {
+      @Override
+      public void onResponseReceived(Request request, Response response) {
+        reload();
+      }
+
+      @Override
+      public void onError(Request request, Throwable exception) {
+        Bootbox.alert("Problem setting official track:" + exception.getMessage());
+      }
+    };
+     OrganismRestService.updateOfficialTrack(requestCallback,MainPanel.getInstance().getCurrentOrganism(),trackName,selectedTrackObject.isOfficialTrack());
+  }
 
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
@@ -607,11 +631,16 @@ public class TrackPanel extends Composite {
 
 //            final InputGroupAddon label = new InputGroupAddon();
             HTML trackNameHTML = new HTML(trackInfo.getName());
-            trackNameHTML.addStyleName("text-html-left");
             label.add(trackNameHTML);
+          inputGroup.add(label);
+          if(trackInfo.isOfficialTrack()){
+            trackNameHTML.addStyleName("official-track-entry");
+          }
+          else{
+            trackNameHTML.addStyleName("text-html-left");
             label.addStyleName("text-left");
-            inputGroup.add(label);
-            if (trackInfo.getApollo() != null && canAdminTracks()) {
+          }
+          if (trackInfo.getApollo() != null && canAdminTracks()) {
 //                InputGroupAddon editLabel = new InputGroupAddon();
                 Button removeButton = new Button("Remove");
                 removeButton.setPull(Pull.RIGHT);
@@ -875,6 +904,7 @@ public class TrackPanel extends Composite {
     }
 
     public static void updateTracks(JSONArray array) {
+        Set<String> officialGeneSetTrackSet = MainPanel.getInstance().getCurrentOrganism().getOfficialGeneSetTrackSet();
         trackInfoList.clear();
         try {
             for (int i = 0; i < array.size(); i++) {
@@ -905,6 +935,8 @@ public class TrackPanel extends Composite {
                 else trackInfo.setVisible(false);
 
                 if (object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
+
+                trackInfo.setOfficialTrack(officialGeneSetTrackSet.contains(trackInfo.getName())|| officialGeneSetTrackSet.contains(trackInfo.getLabel()));
 
                 trackInfo.setPayload(object);
                 trackInfoList.add(trackInfo);

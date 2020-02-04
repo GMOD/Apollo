@@ -1097,16 +1097,31 @@ public class MainPanel extends Composite {
         return currentOrganism.toJSON().toString();
     }
 
+    public static boolean isOfficialTrack(String trackName){
+        String officialTracks = currentOrganism.getOfficialGeneSetTrack();
+        if(officialTracks==null) return false ;
+        for(String officialTrack : officialTracks.split(",")){
+            if(officialTrack.equals(trackName)) return true ;
+        }
+        return false ;
+    }
+
     /**
      */
     public static Boolean viewInAnnotationPanel(String parentName) {
         try {
+            // ids are registered with clone for some reason in JSONUtils.js for RR and TE . . not sure if it will break other things, so correcting here
+            if(parentName.endsWith("-clone")){
+                parentName = parentName.substring(0,parentName.length()-6);
+            }
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.uniqueNameCheckBox.setValue(true);
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
+            MainPanel.getInstance().addOpenTranscript(parentName);
+            MainPanel.getInstance().selectOpenTranscript(parentName);
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
@@ -1115,8 +1130,13 @@ public class MainPanel extends Composite {
         }
     }
 
+    private void selectOpenTranscript(String parentName) {
+        annotatorPanel.selectTranscriptPanel();
+        detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+    }
 
-  /**
+
+    /**
    * Features array handed in
    *
    * @param parentName
@@ -1192,6 +1212,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.isOfficialTrack = $entry(@org.bbop.apollo.gwt.client.MainPanel::isOfficialTrack(Ljava/lang/String;));
         $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
         $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));

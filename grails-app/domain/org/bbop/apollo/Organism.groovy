@@ -22,6 +22,7 @@ class Organism implements JsonMetadata {
         nonDefaultTranslationTable nullable: true, blank: false
         dataAddedViaWebServices nullable: true
         metadata(display: false, blank: true,nullable: true)
+        officialGeneSetTrack nullable: true, blank: false
     }
 
     String abbreviation;
@@ -39,6 +40,7 @@ class Organism implements JsonMetadata {
     String nonDefaultTranslationTable
     String metadata
     Boolean dataAddedViaWebServices
+    String officialGeneSetTrack
 
     static hasMany = [
             organismProperties: OrganismProperty

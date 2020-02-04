@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -63,7 +64,8 @@ class AnnotatorService {
                         obsolete                  : organism.obsolete,
                         nonDefaultTranslationTable: organism.nonDefaultTranslationTable,
                         currentOrganism           : defaultOrganismId != null ? organism.id == defaultOrganismId : false,
-                        editable                  : organismBooleanMap.get(organism) ?: false
+                        editable                  : organismBooleanMap.get(organism) ?: false,
+                        officialGeneSetTrack      : organism.officialGeneSetTrack
 
                 ] as JSONObject
                 organismArray.add(jsonObject)
@@ -77,11 +79,12 @@ class AnnotatorService {
                     currentOrganism.annotationCount = getAnnotationCount(userOrganismPreference.organism)
                     currentOrganism.variantEffectCount = variantService.getSequenceAlterationEffectsCountForOrgansim(userOrganismPreference.organism)
                 }
+                Organism organism = Organism.findById(currentOrganism.id)
+                currentOrganism.officialGeneSetTrack = organism?.officialGeneSetTrack
                 appStateObject.put("currentOrganism", currentOrganism)
 
 
                 if (!currentUserOrganismPreferenceDTO.sequence) {
-                    Organism organism = Organism.findById(currentOrganism.id)
                     Sequence sequence = Sequence.findByOrganism(organism, [sort: "name", order: "asc", max: 1])
                     // often the case when creating it
                     currentUserOrganismPreferenceDTO.sequence = preferenceService.getDTOFromSequence(sequence)

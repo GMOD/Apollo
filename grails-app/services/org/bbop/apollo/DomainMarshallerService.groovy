@@ -29,7 +29,8 @@ class DomainMarshallerService {
             returnArray['species'] = it?.species
             returnArray['directory'] = it.directory
             returnArray['metadata'] = it?.metadata
-            return returnArray
+            returnArray['officialGeneSetTrack'] = it?.officialGeneSetTrack
+          return returnArray
         }
 
         JSON.registerObjectMarshaller(OrganismDTO) {
@@ -39,6 +40,7 @@ class DomainMarshallerService {
             returnArray['directory'] = it.directory
             returnArray['annotationCount'] = it.annotationCount
             returnArray['variantEffectCount'] = it.variantEffectCount
+            returnArray['officialGeneSetTrack'] = it?.officialGeneSetTrack
             return returnArray
         }
 

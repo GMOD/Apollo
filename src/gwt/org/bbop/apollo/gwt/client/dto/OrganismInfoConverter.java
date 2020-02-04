@@ -58,6 +58,9 @@ public class OrganismInfoConverter {
         if (object.get("editable") != null) {
             organismInfo.setEditable(object.get("editable").isBoolean().booleanValue());
         }
+        if (object.get("officialGeneSetTrack") != null && object.get("officialGeneSetTrack").isString()!=null) {
+          organismInfo.setOfficialGeneSetTrack(object.get("officialGeneSetTrack").isString().stringValue());
+        }
         organismInfo.setCurrent(object.get("currentOrganism") != null && object.get("currentOrganism").isBoolean().booleanValue());
         return organismInfo;
     }

@@ -1349,6 +1349,67 @@ class OrganismController {
     }
   }
 
+  @RestApiMethod(description = "Set official gene set track name", path = "/organism/setOfficialGeneSetTrack", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "(required) unique id of organism to change")
+    , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "(required) Official track name, if empty string or not specified the official track will be removed")
+    , @RestApiParam(name = "trackCommand", type = "string", paramType = RestApiParamType.QUERY, description = "(required) ADD, REMOVE, CLEAR")
+  ])
+  @Transactional
+  def updateOfficialGeneSetTrack(){
+    log.debug "updating organism official track name ${params}"
+    try {
+      JSONObject organismJson = permissionService.handleInput(request, params)
+      permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+      Organism organism = Organism.findById(organismJson.id as Long)
+      if (organism) {
+        String startTrackName = organism.officialGeneSetTrack
+        log.debug "Updating organism official track name ${organismJson as JSON}"
+        if(organismJson.trackCommand == "CLEAR" || organismJson.trackLabel==null || organismJson.trackLabel.trim().size()==0 ){
+          startTrackName = null
+        }
+        else
+        if(organismJson.trackCommand == "ADD"){
+          if(startTrackName==null) {
+            startTrackName = organismJson.trackLabel.trim()
+          }
+          else{
+            Set<String> trackStringSet = (startTrackName.split(",") as Set<String>)
+            trackStringSet.add(organismJson.trackLabel.trim() as String)
+            startTrackName = trackStringSet.join(",")
+          }
+        }
+        else
+        if(organismJson.trackCommand == "REMOVE"){
+          if(startTrackName==null) {
+            startTrackName = null
+          }
+          else{
+            startTrackName =  startTrackName.split(",").findAll{ it!=organismJson.trackLabel.trim()}.join(",")
+            if(startTrackName.trim().size()==0) startTrackName = null
+          }
+        }
+        else{
+          log.error("Not sure what is going on when updating the official track name ${organismJson as JSON}, results in ${startTrackName}")
+        }
+        println "setting the new track name ${startTrackName}"
+        organism.officialGeneSetTrack = startTrackName
+        organism.save(flush: true, insert: false, failOnError: true)
+      } else {
+        throw new Exception('Organism not found')
+      }
+//      render new JSONObject() as JSON
+      render organism  as JSON
+    }
+    catch (e) {
+      def error = [error: 'problem saving organism: ' + e]
+      render error as JSON
+      log.error(error.error)
+    }
+  }
+
   @RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -1536,5 +1597,7 @@ class OrganismController {
       '*' { render status: NOT_FOUND }
     }
   }
+
+
 
 }

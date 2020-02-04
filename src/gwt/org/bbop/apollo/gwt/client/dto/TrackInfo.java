@@ -20,8 +20,9 @@ public class TrackInfo implements Comparable<TrackInfo> {
     private JSONObject apollo;
 
     private JSONObject payload ;
+  private boolean officialTrack;
 
-    public TrackInfo(){}
+  public TrackInfo(){}
 
     @Override
     public int compareTo(TrackInfo o) {
@@ -137,4 +138,12 @@ public class TrackInfo implements Comparable<TrackInfo> {
     public void setApollo(JSONObject apollo) {
         this.apollo = apollo;
     }
+
+  public void setOfficialTrack(boolean officialTrack) {
+    this.officialTrack = officialTrack;
+  }
+
+  public boolean isOfficialTrack() {
+    return officialTrack;
+  }
 }

@@ -7,5 +7,6 @@ class OrganismDTO {
     String directory
     Integer annotationCount
     Integer variantEffectCount
+    String officialGeneSetTrack
 
 }
