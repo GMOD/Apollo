@@ -40,7 +40,6 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
-import org.gwtbootstrap3.extras.bootbox.client.callback.SimpleCallback;
 import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 
@@ -460,7 +459,7 @@ public class SequencePanel extends Composite {
                     Bootbox.confirm("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences.  Reload if effect not visible?", new ConfirmCallback() {
                         @Override
                         public void callback(boolean result) {
-                            if(result){
+                            if (result) {
                                 Window.Location.reload();
                             }
                         }
@@ -495,10 +494,12 @@ public class SequencePanel extends Composite {
                     final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
                     JSONObject returnObject = AnnotationRestService.deleteAnnotationsFromSequences(requestCallback, sequenceInfoSet);
                     loadingDialog.hide();
-                    Bootbox.alert("Annotations deleted from " + sequenceInfoSet.size() + " sequences, reloading", new SimpleCallback() {
+                    Bootbox.confirm("Annotations deleted from " + sequenceInfoSet.size() + " sequences, reloading", new ConfirmCallback() {
                         @Override
-                        public void callback() {
-                            Window.Location.reload();
+                        public void callback(boolean result) {
+                            if (result) {
+                                Window.Location.reload();
+                            }
                         }
                     });
                 }

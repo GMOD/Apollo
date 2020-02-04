@@ -76,7 +76,7 @@ public class TrackPanel extends Composite {
     Button addTrackButton;
 
     @UiField
-    ToggleSwitch trackListToggle;
+    org.gwtbootstrap3.client.ui.CheckBox trackListToggle;
 
     @UiField
     DockLayoutPanel layoutPanel;
