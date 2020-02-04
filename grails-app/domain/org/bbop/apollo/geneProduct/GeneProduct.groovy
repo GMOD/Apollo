@@ -1,7 +1,6 @@
-package org.bbop.apollo.go
+package org.bbop.apollo.geneProduct
 
 import org.bbop.apollo.Feature
-import org.bbop.apollo.Transcript
 import org.bbop.apollo.User
 
 
@@ -16,18 +15,16 @@ class GeneProduct {
     evidenceRef nullable: false, blank: false
     evidenceRefLabel nullable: true, blank: true
     withOrFromArray nullable: true, blank: true
+    alternate nullable: false
 
 
-    goRef nullable: false, blank: false
-    goRefLabel nullable: true, blank: true
-    geneProductRelationshipRef nullable: true, blank: false
   }
 
   static hasMany = [
     owners: User
   ]
 
-  Transcript feature
+  Feature feature
   String productName // this is new
   String reference
   Date lastUpdated
@@ -35,10 +32,7 @@ class GeneProduct {
   String evidenceRef
   String evidenceRefLabel
   String withOrFromArray
+  Boolean alternate = false
 
-
-  String goRef
-  String goRefLabel
-  String geneProductRelationshipRef
 
 }
