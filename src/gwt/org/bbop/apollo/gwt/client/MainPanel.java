@@ -1110,6 +1110,10 @@ public class MainPanel extends Composite {
      */
     public static Boolean viewInAnnotationPanel(String parentName) {
         try {
+            // ids are registered with clone for some reason in JSONUtils.js for RR and TE . . not sure if it will break other things, so correcting here
+            if(parentName.endsWith("-clone")){
+                parentName = parentName.substring(0,parentName.length()-6);
+            }
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.uniqueNameCheckBox.setValue(true);
