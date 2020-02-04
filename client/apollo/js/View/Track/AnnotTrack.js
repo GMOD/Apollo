@@ -8252,6 +8252,7 @@ define([
 
             updateHistoryMenuItem: function () {
                 var menuItem = this.getMenuItem("history");
+                if(!menuItem) return ;
                 var selected = this.selectionManager.getSelection();
                 var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
