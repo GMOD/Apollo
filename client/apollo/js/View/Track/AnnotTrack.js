@@ -1062,15 +1062,17 @@ define([
                 var variantSelectionRecords = [];
                 // maybe unnecessary, but making explicitly false
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating annotations official ',official)
+                console.log('creating annotations official ',official,selection_records)
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
-                    console.log('track record',selection_records[i].track)
-                    var sourceTrack = selection_records[i].track.key;
-                    // console.log('source track',sourceTrack,'name',sourceTrack.key)
-                    official = target_track.getApollo().isOfficialTrack(sourceTrack ) ? true : official;
-                    console.log('final official',sourceTrack,'name',official,target_track.getApollo().isOfficialTrack(sourceTrack ))
+                    // console.log('A track record',selection_records[i])
+                    // console.log('B track record',selection_records[i].track)
+                    if(selection_records[i].track){
+                        var sourceTrack = selection_records[i].track.key;
+                        official = target_track.getApollo().isOfficialTrack(sourceTrack ) ? true : official;
+                        console.log('final official',sourceTrack,'name',official,target_track.getApollo().isOfficialTrack(sourceTrack ))
+                    }
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
