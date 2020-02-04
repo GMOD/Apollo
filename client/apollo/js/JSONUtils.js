@@ -340,9 +340,12 @@ function copyOfficialData(fromFeature,toFeature){
         // var key = fromFeature.data[keyIndex];
         console.log('index',key,fromFeature.data[key]);
         // toFeature[key] = fromFeature.data[key];
-        if (key === 'note' || key === 'description') {
+        if (key.toLowerCase() === 'note' || key.toLowerCase() === 'description') {
             toFeature['description'] = fromFeature.data[key];
         }
+        // else{
+        //     toFeature[key] = fromFeature.data[key];
+        // }
         // this is set for the output GFF3
         // if(key === 'source'){
         //     toFeature['source'] = fromFeature.data[key];
