@@ -300,7 +300,7 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowData(start, annotationInfoList);
                             if (annotationInfoList.size() == 1) {
                                 String type = annotationInfoList.get(0).getType();
-                                if (!type.equals("gene") && !type.equals("pseudogene")) {
+                                if ( (!type.equals("gene") && !type.equals("pseudogene")) || uniqueNameCheckBox.getValue()) {
                                     selectedAnnotationInfo = annotationInfoList.get(0);
                                     updateAnnotationInfo(selectedAnnotationInfo);
                                 }
@@ -479,6 +479,14 @@ public class AnnotatorPanel extends Composite {
         });
 
 
+    }
+    void selectTranscriptPanel() {
+//        transcriptDetailPanel.redraw();
+        AnnotationInfo selectedObject = singleSelectionModel.getSelectedObject();
+//        dataGrid.setSelected(selectedObject,true)
+        GWT.log("selected object: "+selectedObject);
+        updateAnnotationInfo(selectedObject);
+        tabPanel.selectTab(0);
     }
 
     void selectGoPanel() {

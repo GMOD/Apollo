@@ -36,6 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import sun.applet.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1120,6 +1121,8 @@ public class MainPanel extends Composite {
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
+            MainPanel.getInstance().addOpenTranscript(parentName);
+            MainPanel.getInstance().selectOpenTranscript(parentName);
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
@@ -1128,8 +1131,13 @@ public class MainPanel extends Composite {
         }
     }
 
+    private void selectOpenTranscript(String parentName) {
+        annotatorPanel.selectTranscriptPanel();
+        detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+    }
 
-  /**
+
+    /**
    * Features array handed in
    *
    * @param parentName
