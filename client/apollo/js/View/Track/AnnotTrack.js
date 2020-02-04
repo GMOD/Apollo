@@ -1458,7 +1458,8 @@ define([
                         if (strandless) {
                             featureToAdd.set("strand", 0);
                         }
-                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true,official);
+                        console.log('creating geneic subfeature one-level',official);
+                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true,undefined,official);
                         /*
                          * if (topLevelType) { var topLevel = new Object();
                          * topLevel.location = dojo.clone(afeat.location);
@@ -1479,7 +1480,8 @@ define([
                                 dragfeat.set("strand", 0);
                             }
                             dragfeat.set("name", featArray[k].get("name"));
-                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true,official);
+                            console.log('no subfeature, creating geneic subfeature one-level',official);
+                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true,undefined,official);
                             /*
                              * if (topLevelType) { var topLevel = new
                              * Object(); topLevel.location =
