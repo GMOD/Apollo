@@ -481,10 +481,7 @@ public class AnnotatorPanel extends Composite {
 
     }
     void selectTranscriptPanel() {
-//        transcriptDetailPanel.redraw();
         AnnotationInfo selectedObject = singleSelectionModel.getSelectedObject();
-//        dataGrid.setSelected(selectedObject,true)
-        GWT.log("selected object: "+selectedObject);
         updateAnnotationInfo(selectedObject);
         tabPanel.selectTab(0);
     }

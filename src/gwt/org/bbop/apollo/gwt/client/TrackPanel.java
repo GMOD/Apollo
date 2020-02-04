@@ -177,10 +177,7 @@ public class TrackPanel extends Composite {
             public boolean execute() {
                 if (canAdminTracks()) {
                     handleAdminState();
-                    GWT.log("can admin tracks");
                     return false;
-                } else {
-                    GWT.log("can not admin tracks, retryting");
                 }
                 return true ;
             }
@@ -370,7 +367,6 @@ public class TrackPanel extends Composite {
   public void toggleOfficialTrack(ClickEvent clickEvent) {
       String trackName = this.selectedTrackObject.getName();
       selectedTrackObject.setOfficialTrack(isOfficialTrack.getValue());
-      GWT.log("value for "+trackName + " " + isOfficialTrack.getValue());
       // TODO: call rest service and reload on success
       // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
     RequestCallback requestCallback = new RequestCallback() {
@@ -908,7 +904,6 @@ public class TrackPanel extends Composite {
     }
 
     public static void updateTracks(JSONArray array) {
-//      GWT.log("Current organism: " +MainPanel.getCurrentOrganismAsJson());
         Set<String> officialGeneSetTrackSet = MainPanel.getInstance().getCurrentOrganism().getOfficialGeneSetTrackSet();
         trackInfoList.clear();
         try {

@@ -230,7 +230,7 @@ define([
                         var responseFeatures = response.features;
                         if (!responseFeatures) {
                             alert("Error: " + JSON.stringify(response));
-                            console.log(response);
+                            console.error(response);
                             return;
                         }
 
@@ -243,7 +243,7 @@ define([
                         standby.hide();
 
                     }, function (response, ioArgs) {
-                        console.log("Annotation server error--maybe you forgot to login to the server?");
+                        console.error("Annotation server error--maybe you forgot to login to the server?");
                         track.handleError({responseText: response.response.text});
                         return response;
                     });
@@ -377,11 +377,11 @@ define([
                     }
                 };
                 browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
-                    console.log("show update");
+                    console.debug("show update");
                     handleTrackVisibility({command: "list", labels: labels});
                 });
                 browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
-                    console.log("hide update");
+                    console.debug("hide update");
                     handleTrackVisibility({command: "list"});
                 });
 
@@ -410,7 +410,7 @@ define([
                         handleTrackVisibility(event.data);
                     }
                     else{
-                        console.log("Unknown command: "+event.data.description);
+                        console.error("Unknown command: "+event.data.description);
                     }
                 }
                 window.addEventListener("message",handleMessage,true);
@@ -545,12 +545,12 @@ define([
 
                     }
                     else {
-                        console.log('unknown command: ', changeData.operation);
+                        console.error('unknown command: ', changeData.operation);
                     }
 
                     track.changed();
                 } catch (e) {
-                    console.log(e);
+                    console.error(e);
                 }
             },
 
@@ -1062,16 +1062,12 @@ define([
                 var variantSelectionRecords = [];
                 // maybe unnecessary, but making explicitly false
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating annotations official ',official,selection_records)
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
-                    // console.log('A track record',selection_records[i])
-                    // console.log('B track record',selection_records[i].track)
                     if(selection_records[i].track){
                         var sourceTrack = selection_records[i].track.key;
                         official = target_track.getApollo().isOfficialTrack(sourceTrack ) ? true : official;
-                        console.log('final official',sourceTrack,'name',official,target_track.getApollo().isOfficialTrack(sourceTrack ))
                     }
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
@@ -1080,7 +1076,7 @@ define([
                     }
                     else if (type == "INDEL") {
                         // feature is an indel and is not supported
-                        console.log("unsupported variant type: INDEL");
+                        console.error("unsupported variant type: INDEL");
                         continue;
                     }
 
@@ -1132,20 +1128,13 @@ define([
 
                 function process() {
                     var keys = Object.keys(parentFeatures);
-                  console.log('parentFeatures',parentFeatures);
-                  console.log('keys',keys);
-                  console.log('processing with ',official)
                     var singleParent = keys.length === 1;
                     var featureToAdd;
                     if (singleParent) {
-                      console.log('processing the singl eparent');
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
-                        console.log('adding single parent feature to add ',featureToAdd,JSON.stringify(featureToAdd));
                     }
                     else {
-                      console.log('processing the ELSE parent');
                         featureToAdd = new SimpleFeature({data: {strand: strand}});
-                      console.log('adding default feature to add ',featureToAdd,JSON.stringify(featureToAdd));
                     }
                     if (!featureToAdd.get('name')) {
                         // TODO: We can't guarantee that the featureToAdd has an id, this may end up undefined.
@@ -1153,7 +1142,6 @@ define([
                     }
                     featureToAdd.set('orig_id', featureToAdd.get('id'));
                     featureToAdd.set("strand", strand);
-                    console.log('output feature to add',featureToAdd,JSON.stringify(featureToAdd));
                   var fmin;
                     var fmax;
                     featureToAdd.set('subfeatures', []);
@@ -1187,10 +1175,7 @@ define([
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
 
-                    console.log('pre biotype feature to add',featureToAdd,JSON.stringify(featureToAdd))
-
                     var biotype ;
-
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
                     var recognizedBioType = [
@@ -1201,7 +1186,6 @@ define([
                     if(force_type) {
                         biotype = featureToAdd.get('type');
                         if(!recognizedBioType[biotype]){
-                            console.log('biotype not found ['+biotype + '] converting to mRNA');
                             biotype = 'mRNA';
                         }
                     }
@@ -1216,23 +1200,16 @@ define([
                     var afeat ;
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                      console.log('biotype mRNA',featureToAdd,JSON.stringify(featureToAdd))
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true,undefined,official);
-                      console.log('biotype mRNA afeat',afeat,JSON.stringify(afeat))
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                      console.log('biotype RNA',featureToAdd,JSON.stringify(featureToAdd))
                         target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene',official);
                     }
                     else {
-                      console.log('biotype one-level genericl',featureToAdd,JSON.stringify(featureToAdd))
                         target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0,official);
                     }
-                    console.log('output featureToAdd',featureToAdd,JSON.stringify(featureToAdd));
-                  console.log('afeat',afeat,JSON.stringify(afeat));
-                  console.log('featuers to add',featuresToAdd,JSON.stringify(featuresToAdd));
 
                   var postData = {
                         "track": target_track.getUniqueTrackName(),
@@ -1313,7 +1290,6 @@ define([
                                             features: featuresToAdd,
                                             operation: "add_variant"
                                         };
-                                        console.log("PostData: ", postData);
                                         target_track.executeUpdateOperation(JSON.stringify(postData));
                                     }
                                 }
@@ -1328,7 +1304,6 @@ define([
                 var featuresToAdd = [];
                 var parentFeatures = {};
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating generic annotations official ',is_official,official)
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1408,8 +1383,6 @@ define([
             createGenericOneLevelAnnotations: function (feats, type, strandless,is_official) {
 
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating generic one level annotations official ',is_official,official)
-
 
                 var target_track = this;
                 var featuresToAdd = new Array();
@@ -1458,7 +1431,6 @@ define([
                         if (strandless) {
                             featureToAdd.set("strand", 0);
                         }
-                        console.log('creating geneic subfeature one-level',official);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true,undefined,official);
                         /*
                          * if (topLevelType) { var topLevel = new Object();
@@ -1480,7 +1452,6 @@ define([
                                 dragfeat.set("strand", 0);
                             }
                             dragfeat.set("name", featArray[k].get("name"));
-                            console.log('no subfeature, creating geneic subfeature one-level',official);
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true,undefined,official);
                             /*
                              * if (topLevelType) { var topLevel = new
@@ -1806,11 +1777,6 @@ define([
                 var track = this;
                 var trackName = this.getUniqueTrackName();
                 var selected = this.selectionManager.getSelection();
-                console.log('selected',selected);
-                // var feature = selected[0].feature ;
-                // var location = feature.afeature.location ;
-                // var variant_type = feature.data.type;
-                console.log('feature to remove variant from',selected);
                 var featureUniqueName;
                 if (selected[0].feature.parent()) {
                     //selected is an exon, get its parent
@@ -1837,7 +1803,6 @@ define([
                 var track = this;
                 var trackName = this.getUniqueTrackName();
                 var selected = this.selectionManager.getSelection();
-                console.log('selected',selected)
                 var feature = selected[0].feature ;
                 // var location = feature.afeature.location ;
                 var variant_type = feature.data.type;
@@ -2089,11 +2054,8 @@ define([
                 for (var i in records) {
                     var record = records[i];
                     var selfeat = record.feature;
-                    // console.log('this feagture',selfeat)
                     var seltrack = record.track;
                     var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
-                    // console.log('top feature',topfeat)
-                    // var uniqueName = topfeat.id();
                     var uniqueName = topfeat.id();
                     // just checking to ensure that all features in selection are from
                     // this track
@@ -2455,7 +2417,7 @@ define([
                 var track = this;
                 var record = records[0];
                 if(!record){
-                    console.log('No record selected');
+                    console.error('No record selected');
                 }
                 var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
                 var seltrack = record.track;
@@ -2921,7 +2883,6 @@ define([
                         timeout: 5000 * 1000, // Time in milliseconds
                         load: function (response, ioArgs) {
                             var feature = response.features[0];
-                            console.log(track.annotationInfoEditorConfigs);
                             var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
                             initType(feature);
                             initName(feature);
@@ -3117,8 +3078,6 @@ define([
 
                 // initialize alternate alleles
                 var initAltAlleles = function (feature) {
-                    console.log("@initAltAlleles");
-                    console.log("feature: ", feature);
                     var oldAltBases;
                     //var oldAltAlleleFrequency;
                     //var oldProvenance;
@@ -3192,92 +3151,6 @@ define([
                     if (reload) {
                         initTable(altAlleleTable.domNode, altAllelesTable, altAlleleTable, timeout);
                     }
-
-//                    var dirty = false;
-//                    dojo.connect(altAlleleTable, "onStartEdit", function (inCell, inRowIndex) {
-//                        console.log("onStartEdit");
-//                        if (!dirty) {
-//                            oldAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
-//                            //oldAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
-//                            //oldProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
-//                            dirty = true;
-//                        }
-//                    });
-//
-//                    dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
-//                        console.log("onCancelEdit");
-//                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
-//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
-//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", oldProvenance);
-//                        dirty = false;
-//                    });
-
-//                    dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
-//                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
-//                        var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
-//                        var newProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
-//                       var altFreq = parseFloat(newAltAlleleFrequency);
-//                        if (altFreq < 0 || altFreq > 1.0) {
-//                            // sanity check for frequency value
-//                            new ConfirmDialog({
-//                                title: 'Improper value for AF field',
-//                                message: "The value for AF field should be within the range of 0.0 - 1.0",
-//                                confirmLabel: 'OK',
-//                                denyLabel: 'Cancel'
-//                            }).show(function(confirmed) {});
-//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
-//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
-//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", newProvenance);
-//                        }
-//                        else {
-//                            if (newProvenance === undefined || newProvenance == "undefined" || newProvenance == "") {
-//                                console.log("provenance not provided");
-//                                // frequency must always be associated with a provenance
-//                                new ConfirmDialog({
-//                                    title: 'No provenance provided',
-//                                    message: 'No provenance provided to support the entered AF value',
-//                                    confirmLabel: 'OK',
-//                                    denyLabel: 'Cancel'
-//                                }).show(function(confirmed) {});
-//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
-//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", newAltAlleleFrequency);
-//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", "");
-//                            }
-//                            else {
-//                                if (!newAltBases || !newAltAlleleFrequency || !newProvenance) {
-//                                    // no changes
-//                                }
-//                                else if (!oldAltBases) {
-//                                    addAltAlleles(newAltBases, newAltAlleleFrequency, newProvenance);
-//                                }
-//                                else {
-//                                    if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency || newProvenance != oldProvenance) {
-//                                        updateAltAlleles(oldAltBases, oldAltAlleleFrequency, oldProvenance, newAltBases, newAltAlleleFrequency, newProvenance);
-//                                    }
-//                                }
-//                                dirty = false;
-//                            }
-//                        }
-//                    });
-
-//                    dojo.connect(addAltAlleleButton, "onclick", function() {
-//                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
-//                        altAlleleTable.scrollToRow(altAlleleTable.rowCount);
-//                    });
-//
-//                    dojo.connect(deleteAltAlleleButton, "onclick", function() {
-//                        var toBeDeleted = new Array();
-//                        var selected = altAlleleTable.selection.getSelected();
-//                        for (var i = 0; i < selected.length; ++i) {
-//                            var item = selected[i];
-//                            var altBases = altAlleleTable.store.getValue(item, "bases");
-//                            //var altAlleleFrequency = altAlleleTable.store.getValue(item, "allele_frequency");
-//                            //var provenance = altAlleleTable.store.getValue(item, "provenance");
-//                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency, provenance: provenance});
-//                        }
-//                        altAlleleTable.removeSelectedRows();
-//                        deleteAltAlleles(toBeDeleted);
-//                    });
                };
 
                 // initialize Dbxref
@@ -3847,7 +3720,6 @@ define([
                     dojo.connect(addPhenotypeOntologyButton, "onclick", function () {
                         phenotypeOntologyIdTable.store.newItem({phenotype_ontology_id: ""});
                         phenotypeOntologyIdTable.scrollToRow(phenotypeOntologyIdTable.rowCount);
-                        console.log("add button click");
                     });
 
                     dojo.connect(deletePhenotypeOntologyButton, "onclick", function () {
@@ -3859,7 +3731,6 @@ define([
                             var parts = phenotypeOntologyId.split(":");
                             toBeDeleted.push({db: parts[0], accession: parts[1]});
                         }
-                        console.log("To Be Del: ", toBeDeleted);
                         phenotypeOntologyIdTable.removeSelectedRows();
                         deletePhenotypeOntologyIds(toBeDeleted);
                     });
@@ -4099,7 +3970,6 @@ define([
                 };
 
                 var addAltAlleles = function(altBases, alleleFrequency, provenance) {
-                    console.log("@addAltAlleles: " + altBases);
                     var features = [{ uniquename: uniqueName }];
                     var alternateAllele = {bases: altBases};
                     if (alleleFrequency) alternateAllele.allele_frequency = alleleFrequency;
@@ -4113,7 +3983,6 @@ define([
                 };
 
                 var updateAltAlleles = function(oldBases, oldAlleleFrequency, oldProvenance, newBases, newAlleleFrequency, newProvenance) {
-                    console.log("@updateAltAlleles: " + newBases);
                     var feature = { uniquename: uniqueName };
                     var oldAlternateAllele = {};
                     oldAlternateAllele.bases = oldBases;
@@ -4128,13 +3997,11 @@ define([
 
                     var operation = "update_alternate_alleles";
                     var postData = { track: trackName, features: [feature], operation: operation };
-                    console.log("PostData: ", postData);
                     track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 
                 var deleteAltAlleles = function(altAllelesToBeDeleted) {
-                    console.log("@deleteAltAlleles");
                     var alternateAlleles = [];
                     for (var i = 0; i < altAllelesToBeDeleted.length; ++i) {
                         var alternateAllele = {};
@@ -4147,7 +4014,6 @@ define([
                     var features = [{ uniquename: uniqueName, alternate_alleles: alternateAlleles }];
                     var operation = "delete_alternate_alleles";
                     var postData = {track: trackName, features: features, operation: operation};
-                    console.log("PostData: ", postData);
                     track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
@@ -4221,7 +4087,6 @@ define([
                 //};
 
                 var addAlleleInfo = function(allele, tag, value) {
-                    console.log("addAlleleInfo: ", allele, tag, value);
                     allele = escapeString(allele);
                     tag = escapeString(tag);
                     value = escapeString(value);
@@ -6218,7 +6083,7 @@ define([
                     // The ERROR function will be called in an error case.
                     error: function (response, ioArgs) {
                         track.handleError(response);
-                        console.log("Annotation server error--maybe you forgot to login to the server?");
+                        console.error("Annotation server error--maybe you forgot to login to the server?");
                         console.error("HTTP status code: ", ioArgs.xhr.status);
                         //
                         // dojo.byId("replace").innerHTML = 'Loading the resource
@@ -6275,8 +6140,8 @@ define([
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) {
                             track.handleError(response);
-                            console.log(response);
-                            console.log("Annotation server error--maybe you forgot to login to the server?");
+                            console.error(response);
+                            console.error("Annotation server error--maybe you forgot to login to the server?");
                             console.error("HTTP status code: ", ioArgs.xhr.status);
                             //
                             // dojo.byId("replace").innerHTML = 'Loading the
@@ -6446,7 +6311,7 @@ define([
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) {
                             track.handleError(response);
-                            console.log("Annotation server error--maybe you forgot to login to the server?");
+                            console.error("Annotation server error--maybe you forgot to login to the server?");
                             console.error("HTTP status code: ", ioArgs.xhr.status);
                             //
                             // dojo.byId("replace").innerHTML = 'Loading the
@@ -6817,13 +6682,13 @@ define([
             },
 
             handleError: function (response) {
-                console.log("ERROR: ");
-                console.log(response);  // in Firebug, allows retrieval of stack trace,
+                console.error("ERROR: ");
+                console.error(response);  // in Firebug, allows retrieval of stack trace,
                                         // jump to code, etc.
                 var error = response.responseText && response.responseText.match("^<") != "<" ? JSON.parse(response.responseText) : response.response.data;
                 if (error && error.error) {
                     alert(error.error);
-                    console.log(error.error);
+                    console.error(error.error);
                     return false;
                 }
             },
@@ -6847,7 +6712,7 @@ define([
                         }
                     },
                     error: function (response, ioArgs) { //
-                        console.log('Failed to log out cleanly.  May already be logged out.');
+                        console.error('Failed to log out cleanly.  May already be logged out.');
                     }
                 });
             },
@@ -6915,7 +6780,7 @@ define([
                         new dijitMenuItem({
                             label: 'Logout',
                             onClick: function () {
-                                console.log("clicked stub for logging out");
+                                console.debug("clicked stub for logging out");
                                 // attempted to do
                                 // client-side session
                                 // cookie deletion, but
@@ -7139,7 +7004,6 @@ define([
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "Terminator",
                         onClick: function(event) {
-                            console.log('selecting terminator')
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;

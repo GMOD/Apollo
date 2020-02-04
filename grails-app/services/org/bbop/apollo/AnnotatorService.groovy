@@ -79,10 +79,8 @@ class AnnotatorService {
                     currentOrganism.annotationCount = getAnnotationCount(userOrganismPreference.organism)
                     currentOrganism.variantEffectCount = variantService.getSequenceAlterationEffectsCountForOrgansim(userOrganismPreference.organism)
                 }
-                println "A current organism is ${currentOrganism as JSON}"
                 Organism organism = Organism.findById(currentOrganism.id)
                 currentOrganism.officialGeneSetTrack = organism?.officialGeneSetTrack
-                println "B current organism is ${currentOrganism as JSON}"
                 appStateObject.put("currentOrganism", currentOrganism)
 
 

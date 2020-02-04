@@ -9,7 +9,7 @@ define([ 'dojo/_base/declare',
 function JSONUtils() {
 }
 
-JSONUtils.verbose_conversion = true ;
+JSONUtils.verbose_conversion = false;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
 JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
@@ -165,16 +165,11 @@ JSONUtils.flattenFeature = function(feature, descendants) {
 JSONUtils.makeSimpleFeature = function(feature, parent)  {
     var result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
     var ftags = feature.tags();
-    console.log('making a simple feature',feature,parent)
-    console.log('ftags',ftags);
-    console.log('initial results 2',result,JSON.stringify(result));
     for (var tindex = 0; tindex < ftags.length; tindex++)  {
         var tag = ftags[tindex];
-        console.log('feature tag',tag,feature.get(tag.toLowerCase()))
     // forcing lower case, since still having case issues with NCList features
         result.set(tag.toLowerCase(), feature.get(tag.toLowerCase()));
     }
-    console.log('output results',result,JSON.stringify(result));
     var subfeats = feature.get('subfeatures');
     if (subfeats && (subfeats.length > 0))  {
         var simple_subfeats = [];
@@ -184,8 +179,6 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
         }
         result.set('subfeatures', simple_subfeats);
     }
-    console.log('input feature 2',feature,JSON.stringify(feature));
-    console.log('final result 2',result,JSON.stringify(result));
     return result;
 };
 
@@ -332,13 +325,8 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
 };
 
 function copyOfficialData(fromFeature,toFeature){
-    console.log('OFFICIAL input fromFeature',fromFeature,JSON.stringify(fromFeature),JSON.stringify(fromFeature.data));
-    console.log('input fromFeature data keys',Object.keys(fromFeature.data),JSON.stringify(Object.keys(fromFeature.data)));
-    console.log('input toFeature',toFeature,JSON.stringify(toFeature));
-    console.log('copying over official stuff',fromFeature)
     for(var key of Object.keys(fromFeature.data)) {
         // var key = fromFeature.data[keyIndex];
-        console.log('index',key,fromFeature.data[key]);
         // toFeature[key] = fromFeature.data[key];
         if (key.toLowerCase() === 'note' || key.toLowerCase() === 'description') {
             toFeature['description'] = fromFeature.data[key];
@@ -351,7 +339,6 @@ function copyOfficialData(fromFeature,toFeature){
         //     toFeature['source'] = fromFeature.data[key];
         // }
     }
-    console.log('offical afeature output',toFeature,JSON.stringify(toFeature));
 
 
     return toFeature;
@@ -387,15 +374,11 @@ function copyOfficialData(fromFeature,toFeature){
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype ,is_official)   {
     var official = is_official === undefined ? false : is_official;
-    console.log('creating apollo feature !',is_official,official)
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose || true)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type + " " + specified_subtype);
         console.log(jfeature,JSON.stringify(jfeature));
     }
-
-    console.log('creating offical apollo features',official);
-
 
     var afeature = {};
     var astrand;
@@ -458,7 +441,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
       copyOfficialData(jfeature,afeature);
   }
 
-  console.log('output afeature',afeature,JSON.stringify(afeature));
   /*
   afeature.properties = [];
   var property = { value : "source_id=" + jfeature.get('id'),
@@ -721,7 +703,6 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     }
 
     afeature.variant_info = metadata;
-    console.log("created Apollo feature: ", afeature);
     return afeature;
 };
 
@@ -755,7 +736,6 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
             type = "deletion"
         }
     }
-    console.log("variant type inferred: ", type);
     return type;
 };
 
