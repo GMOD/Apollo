@@ -539,7 +539,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     foundExons = true;
                 }
                 if (converted_subtype)  {
-                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ,) );
+                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype , official) );
                     if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
                 }
                 else {
@@ -547,10 +547,10 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                 }
         }
         if (cds) {
-            afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS"));
+            afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS",official));
             if (!foundExons) {
                 for (var i = 0; i < cdsFeatures.length; ++i) {
-                    afeature.children.push(JSONUtils.createApolloFeature(cdsFeatures[i], "exon"));
+                    afeature.children.push(JSONUtils.createApolloFeature(cdsFeatures[i], "exon",official));
                 }
             }
         }
@@ -564,7 +564,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         fake_exon.set('end', jfeature.get('end'));
         fake_exon.set('strand', jfeature.get('strand'));
         fake_exon.set('type', 'exon');
-        afeature.children = [ JSONUtils.createApolloFeature( fake_exon ) ];
+        afeature.children = [ JSONUtils.createApolloFeature( fake_exon , undefined,official) ];
     }
     if (diagnose)  { console.log("result:"); console.log(afeature); }
     return afeature;

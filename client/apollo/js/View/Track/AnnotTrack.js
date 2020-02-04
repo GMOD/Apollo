@@ -1328,7 +1328,7 @@ define([
                 var featuresToAdd = [];
                 var parentFeatures = {};
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating generic annotations official ',official)
+                console.log('creating generic annotations official ',is_official,official)
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1370,7 +1370,7 @@ define([
                         }
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
-                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
+                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType,official);
                         if (topLevelType) {
                             var topLevel = {};
                             topLevel.orig_id = dojo.clone(afeat.id);
@@ -1386,7 +1386,7 @@ define([
                     else {
                         for (var k = 0; k < featArray.length; ++k) {
                             var dragfeat = featArray[k];
-                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
+                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType,official);
                             if (topLevelType) {
                                 var topLevel = new Object();
                                 topLevel.orig_id = dojo.clone(afeat.id);
@@ -1408,7 +1408,7 @@ define([
             createGenericOneLevelAnnotations: function (feats, type, strandless,is_official) {
 
                 var official = is_official===undefined ? false : is_official;
-                console.log('creating generic one level annotations official ',official)
+                console.log('creating generic one level annotations official ',is_official,official)
 
 
                 var target_track = this;
@@ -1458,7 +1458,7 @@ define([
                         if (strandless) {
                             featureToAdd.set("strand", 0);
                         }
-                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true);
+                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true,official);
                         /*
                          * if (topLevelType) { var topLevel = new Object();
                          * topLevel.location = dojo.clone(afeat.location);
@@ -1479,7 +1479,7 @@ define([
                                 dragfeat.set("strand", 0);
                             }
                             dragfeat.set("name", featArray[k].get("name"));
-                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true);
+                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true,official);
                             /*
                              * if (topLevelType) { var topLevel = new
                              * Object(); topLevel.location =
