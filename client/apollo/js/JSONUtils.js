@@ -325,12 +325,61 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
 };
 
 function copyOfficialData(fromFeature,toFeature){
+    console.log('copying official data ',fromFeature.data,toFeature)
     for(var key of Object.keys(fromFeature.data)) {
         // var key = fromFeature.data[keyIndex];
         // toFeature[key] = fromFeature.data[key];
-        if (key.toLowerCase() === 'note' || key.toLowerCase() === 'description') {
-            toFeature['description'] = fromFeature.data[key];
+
+        // already added:
+        // location: {fmin: 624103, fmax: 624520, strand: 1}
+        // type: "mRNA"
+        // name: "Group11.18-00001"
+        // orig_id: "0142b9b4-e884-47b2-ab1b-67022d96e61b"
+        // seq_id: "Group11.18"
+        // start: 624103
+        // end: 624520
+        // strand: 1
+        // owner: "ndunn@me.com"
+        // parent: "59d90cc0-7f96-4627-bda2-7f6b10661734"
+        // id: "0142b9b4-e884-47b2-ab1b-67022d96e61b"
+        // children: (3) [{…}, {…}, {…
+
+
+
+        // need to add explicitly
+        // (works) description: "transcript description"
+
+
+        // TODO: still need to get to work
+        // note: "transcript comment"
+        // alias: (2) ["transcript_syn2", "transcript_syn1"]
+        // dbxref: "PMID:23193287"
+        // status: "accepted"
+        // date_creation: "2020-02-03"
+        // date_last_modified: "2020-02-05"??
+
+        // TODO: still need to get to work
+        // (arbitrary attributes)
+        // tarns key: "trans value"
+        if(key === 'description'
+            || key === 'note'
+            || key === 'dbxref'
+            || key === 'alias'
+            || key === 'status'
+        ){
+        // if(key !== 'subfeatures'
+        //     && key !== 'children'
+        //     && key !== 'source'
+        //     && key !== 'score'
+        //     && key !== 'phase'
+        // ){
+            console.log('copying key',key,fromFeature.data[key]);
+            toFeature[key] = fromFeature.data[key];
         }
+        else{
+            console.log('NOT copying key',key,fromFeature.data[key]);
+        }
+        // }
         // else{
         //     toFeature[key] = fromFeature.data[key];
         // }
@@ -341,6 +390,7 @@ function copyOfficialData(fromFeature,toFeature){
     }
 
 
+    console.log('to feature ',toFeature)
     return toFeature;
 }
 
