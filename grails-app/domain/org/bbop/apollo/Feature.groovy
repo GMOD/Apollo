@@ -57,6 +57,7 @@ class Feature implements Ontological{
     ]
 
     static mapping = {
+            featureSynonyms cascade: 'all-delete-orphan'
             childFeatureRelationships cascade: 'all-delete-orphan'
             parentFeatureRelationships cascade: 'all-delete-orphan'
             featureLocations cascade: 'all-delete-orphan' // lazy: false  since most / all feature locations have a single element join is more efficient
