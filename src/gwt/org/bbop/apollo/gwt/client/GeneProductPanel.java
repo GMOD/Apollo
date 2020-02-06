@@ -20,14 +20,13 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
+import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.GoRestService;
-import org.bbop.apollo.gwt.shared.go.Aspect;
-import org.bbop.apollo.gwt.shared.go.GoAnnotation;
-import org.bbop.apollo.gwt.shared.go.Reference;
-import org.bbop.apollo.gwt.shared.go.WithOrFrom;
+import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
+import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
+import org.bbop.apollo.gwt.shared.geneProduct.Reference;
+import org.bbop.apollo.gwt.shared.geneProduct.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.SuggestBox;
@@ -41,26 +40,22 @@ import java.util.List;
 /**
  * Created by ndunn on 1/9/15.
  */
-public class GoPanel extends Composite {
+public class GeneProductPanel extends Composite {
 
-  private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
   private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-  private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
-  interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
+  interface GoPanelUiBinder extends UiBinder<Widget, GeneProductPanel> {
   }
 
   private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
 
   DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
   @UiField(provided = true)
-  DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
+  DataGrid<GeneProduct> dataGrid = new DataGrid<>(200, tablecss);
   @UiField
   TextBox noteField;
-  @UiField(provided = true)
-  SuggestBox goTermField;
   @UiField
-  org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
+  TextBox geneProductField;
   @UiField(provided = true)
   SuggestBox evidenceCodeField;
   @UiField
@@ -72,9 +67,9 @@ public class GoPanel extends Composite {
   @UiField
   Modal editGoModal;
   @UiField
-  Button saveNewGoAnnotation;
+  Button saveNewGeneProduct;
   @UiField
-  Button cancelNewGoAnnotation;
+  Button cancelNewGeneProduct;
   @UiField
   Button editGoButton;
   @UiField
@@ -86,21 +81,13 @@ public class GoPanel extends Composite {
   @UiField
   Button addNoteButton;
   @UiField
-  org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
-  @UiField
-  Anchor goTermLink;
-  @UiField
-  Anchor geneProductRelationshipLink;
+  org.gwtbootstrap3.client.ui.CheckBox alternateCheckBox;
   @UiField
   Anchor evidenceCodeLink;
   @UiField
   TextBox referenceFieldPrefix;
   @UiField
   FlexTable annotationsFlexTable;
-  //    @UiField
-//    Button addExtensionButton;
-//    @UiField
-//    TextBox annotationsField;
   @UiField
   TextBox withFieldId;
   @UiField
@@ -108,20 +95,15 @@ public class GoPanel extends Composite {
   //    @UiField
 //    Button referenceValidateButton;
   @UiField
-  HTML goAnnotationTitle;
-  @UiField
-  org.gwtbootstrap3.client.ui.ListBox aspectField;
-  @UiField
-  HTML aspectLabel;
+  HTML geneProductTitle;
 
-  private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
-  private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
-  private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
+  private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
+  private static List<GeneProduct> annotationInfoList = dataProvider.getList();
+  private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
 
   private AnnotationInfo annotationInfo;
-  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle("GO");
 
-  public GoPanel() {
+  public GeneProductPanel() {
 
     initLookups();
     dataGrid.setWidth("100%");
@@ -131,17 +113,6 @@ public class GoPanel extends Composite {
 
     initWidget(ourUiBinder.createAndBindUi(this));
 
-    aspectField.addItem("Choose", "");
-    for (Aspect aspect : Aspect.values()) {
-      aspectField.addItem(aspect.name(), aspect.getLookup());
-    }
-
-    aspectField.addChangeHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        handleAspectChange();
-      }
-    });
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
@@ -167,21 +138,12 @@ public class GoPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        goAnnotationTitle.setText("Edit GO Annotation for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+        geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
         handleSelection();
         editGoModal.show();
       }
     }, DoubleClickEvent.getType());
 
-
-    goTermField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
-      @Override
-      public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-        SuggestOracle.Suggestion suggestion = event.getSelectedItem();
-        goTermLink.setHTML(suggestion.getDisplayString());
-        goTermLink.setHref(GO_BASE + suggestion.getReplacementString());
-      }
-    });
 
     evidenceCodeField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
       @Override
@@ -192,34 +154,20 @@ public class GoPanel extends Composite {
       }
     });
 
-    geneProductRelationshipField.addChangeHandler(new ChangeHandler() {
+    geneProductField.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        String selectedItemText = geneProductRelationshipField.getSelectedItemText();
-        geneProductRelationshipLink.setHTML(selectedItemText + " (" + geneProductRelationshipField.getSelectedValue() + ")");
-        geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
+        String selectedItemText = geneProductField.getText();
       }
     });
 
     redraw();
   }
 
-  private void handleAspectChange() {
-    goTermField.setText("");
-    goTermLink.setText("");
-    aspectLabel.setText(aspectField.getSelectedValue());
-    goLookup.setCategory(aspectField.getSelectedValue());
-
-    setRelationValues(aspectField.getSelectedItemText(), aspectField.getSelectedValue());
-    enableFields(aspectField.getSelectedValue().length() > 0);
-    geneProductRelationshipLink.setText("");
-  }
-
   private void enableFields(boolean enabled) {
-    saveNewGoAnnotation.setEnabled(enabled);
-    goTermField.setEnabled(enabled);
+    saveNewGeneProduct.setEnabled(enabled);
     evidenceCodeField.setEnabled(enabled);
-    geneProductRelationshipField.setEnabled(enabled);
+    geneProductField.setEnabled(enabled);
     referenceFieldPrefix.setEnabled(enabled);
     referenceFieldId.setEnabled(enabled);
     withFieldPrefix.setEnabled(enabled);
@@ -227,40 +175,7 @@ public class GoPanel extends Composite {
     noteField.setEnabled(enabled);
   }
 
-  private void setRelationValues(String selectedItemText, String selectedItemValue) {
-    Aspect aspect = selectedItemValue.length() > 0 ? Aspect.valueOf(selectedItemText) : null;
-    geneProductRelationshipField.clear();
-    if (aspect == null) return;
-    switch (aspect) {
-      case BP:
-        geneProductRelationshipField.addItem("involved in", "RO:0002331");
-        geneProductRelationshipField.addItem("acts upstream of", "RO:0002263");
-        geneProductRelationshipField.addItem("acts upstream of positive effect", "RO:0004034");
-        geneProductRelationshipField.addItem("acts upstream of negative effect", "RO:0004035");
-        geneProductRelationshipField.addItem("acts upstream of or within", "RO:0002264");
-        geneProductRelationshipField.addItem("acts upstream of or within positive effect", "RO:0004032");
-        geneProductRelationshipField.addItem("acts upstream of or within negative effect", "RO:0004033");
-        break;
-      case MF:
-        geneProductRelationshipField.addItem("enables", "RO:0002327");
-        geneProductRelationshipField.addItem("contributes to", "RO:0002326");
-        break;
-      case CC:
-        geneProductRelationshipField.addItem("part of", "BFO:0000050");
-        geneProductRelationshipField.addItem("colocalizes with", "RO:0002325");
-        geneProductRelationshipField.addItem("is active in", "RO:0002432");
-        break;
-      default:
-        Bootbox.alert("A problem has occurred");
-
-
-    }
-
-  }
-
   private void initLookups() {
-    goTermField = new SuggestBox(goLookup);
-
     // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
     BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
     ecoLookup.addPreferredSuggestion("experimental evidence used in manual assertion (EXP)", "http://www.evidenceontology.org/term/ECO:0000269/", "ECO:0000269");
@@ -296,7 +211,7 @@ public class GoPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GoRestService.getGoAnnotation(requestCallback, annotationInfo.getUniqueName());
+      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo.getUniqueName());
     }
   }
 
@@ -348,13 +263,7 @@ public class GoPanel extends Composite {
   }
 
   private void clearModal() {
-    aspectField.setItemSelected(0, true);
-    handleAspectChange();
-    aspectLabel.setText("");
-    goTermField.setText("");
-    goTermLink.setText("");
-    geneProductRelationshipField.clear();
-    geneProductRelationshipLink.setText("");
+    geneProductField.clear();
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
@@ -364,54 +273,31 @@ public class GoPanel extends Composite {
     notesFlexTable.removeAllRows();
     referenceFieldPrefix.setText("");
     referenceFieldId.setText("");
-    notQualifierCheckBox.setValue(false);
+    alternateCheckBox.setValue(false);
   }
 
   private void handleSelection() {
     if (selectionModel.getSelectedSet().isEmpty()) {
       clearModal();
     } else {
-      GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
+      GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
 
-      for (int i = 0; i < aspectField.getItemCount(); i++) {
-        aspectField.setItemSelected(i, aspectField.getItemText(i).equals(selectedGoAnnotation.getAspect().name()));
-      }
-
-      setRelationValues(aspectField.getSelectedItemText(), aspectField.getSelectedValue());
-      enableFields(aspectField.getSelectedValue().length() > 0);
-
-      goTermField.setText(selectedGoAnnotation.getGoTerm());
-      goTermLink.setHref(GO_BASE + selectedGoAnnotation.getGoTerm());
-      GoRestService.lookupTerm(goTermLink, selectedGoAnnotation.getGoTerm());
-
-      for (int i = 0; i < geneProductRelationshipField.getItemCount(); i++) {
-        geneProductRelationshipField.setItemSelected(i, geneProductRelationshipField.getValue(i).equals(selectedGoAnnotation.getGeneRelationship()));
-      }
-
-
-      geneProductRelationshipLink.setHref(RO_BASE + selectedGoAnnotation.getGeneRelationship().replaceAll(":", "_"));
-      GoRestService.lookupTerm(geneProductRelationshipLink, selectedGoAnnotation.getGeneRelationship());
-
-      evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode());
-      GoRestService.lookupTerm(evidenceCodeLink, selectedGoAnnotation.getEvidenceCode());
-
-      notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
+      geneProductField.setText(selectedGeneProduct.getProductName());
+      alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
+//      alternateCheckBox.setValue(selectedGeneProduct.get());
+      evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
+      GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
 
       withEntriesFlexTable.removeAllRows();
-      for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
+      for (WithOrFrom withOrFrom : selectedGeneProduct.getWithOrFromList()) {
         addWithSelection(withOrFrom);
       }
       withFieldPrefix.setText("");
 
-      referenceFieldPrefix.setText(selectedGoAnnotation.getReference().getPrefix());
-      referenceFieldId.setText(selectedGoAnnotation.getReference().getLookupId());
+      referenceFieldPrefix.setText(selectedGeneProduct.getReference().getPrefix());
+      referenceFieldId.setText(selectedGeneProduct.getReference().getLookupId());
 
-      notesFlexTable.removeAllRows();
-      for (String noteString : selectedGoAnnotation.getNoteList()) {
-        addReferenceSelection(noteString);
-      }
-      noteField.setText("");
     }
 
   }
@@ -421,8 +307,8 @@ public class GoPanel extends Composite {
   }
 
   @UiHandler("newGoButton")
-  public void newGoAnnotation(ClickEvent e) {
-    goAnnotationTitle.setText("Add new GO Annotation to " + AnnotatorPanel.selectedAnnotationInfo.getName());
+  public void newGeneProduct(ClickEvent e) {
+    geneProductTitle.setText("Add new Gene Product to " + AnnotatorPanel.selectedAnnotationInfo.getName());
     withEntriesFlexTable.removeAllRows();
     notesFlexTable.removeAllRows();
     selectionModel.clear();
@@ -430,7 +316,7 @@ public class GoPanel extends Composite {
   }
 
   @UiHandler("editGoButton")
-  public void editGoAnnotation(ClickEvent e) {
+  public void editGeneProduct(ClickEvent e) {
     editGoModal.show();
   }
 
@@ -465,22 +351,22 @@ public class GoPanel extends Composite {
     JSONArray annotationsArray = inputObject.get("annotations").isArray();
     annotationInfoList.clear();
     for (int i = 0; i < annotationsArray.size(); i++) {
-      GoAnnotation goAnnotationInstance = GoAnnotationConverter.convertFromJson(annotationsArray.get(i).isObject());
-      annotationInfoList.add(goAnnotationInstance);
+      GeneProduct geneProductInstance = GeneProductConverter.convertFromJson(annotationsArray.get(i).isObject());
+      annotationInfoList.add(geneProductInstance);
     }
   }
 
 
-  @UiHandler("saveNewGoAnnotation")
-  public void saveNewGoAnnotationButton(ClickEvent e) {
-    GoAnnotation goAnnotation = getEditedGoAnnotation();
-    GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
-    if (selectedGoAnnotation != null) {
-      goAnnotation.setId(selectedGoAnnotation.getId());
+  @UiHandler("saveNewGeneProduct")
+  public void saveNewGeneProductButton(ClickEvent e) {
+    GeneProduct geneProduct = getEditedGeneProduct();
+    GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
+    if (selectedGeneProduct != null) {
+      geneProduct.setId(selectedGeneProduct.getId());
     }
-    List<String> validationErrors = validateGoAnnotation(goAnnotation);
+    List<String> validationErrors = validateGeneProduct(geneProduct);
     if (validationErrors.size() > 0) {
-      String errorString = "Invalid GO Annotation <br/>";
+      String errorString = "Invalid Gene Product <br/>";
       for (String error : validationErrors) {
         errorString += "&bull; " + error + "<br/>";
       }
@@ -502,61 +388,48 @@ public class GoPanel extends Composite {
         Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
       }
     };
-    if (goAnnotation.getId() != null) {
-      GoRestService.updateGoAnnotation(requestCallback, goAnnotation);
+    if (geneProduct.getId() != null) {
+      GeneProductRestService.updateGeneProduct(requestCallback, geneProduct);
     } else {
-      GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
+      GeneProductRestService.saveGeneProduct(requestCallback, geneProduct);
     }
     editGoModal.hide();
   }
 
-  private List<String> validateGoAnnotation(GoAnnotation goAnnotation) {
+  private List<String> validateGeneProduct(GeneProduct geneProduct) {
     List<String> validationErrors = new ArrayList<>();
-    if (goAnnotation.getGene() == null) {
+    if (geneProduct.getFeature() == null) {
       validationErrors.add("You must provide a gene name");
     }
-    if (goAnnotation.getGoTerm() == null) {
-      validationErrors.add("You must provide a GO term");
+    if (geneProduct.getProductName() == null) {
+      validationErrors.add("You must provide a product name");
     }
-    if (!goAnnotation.getGoTerm().contains(":")) {
-      validationErrors.add("You must provide a prefix and suffix for the GO term");
-    }
-    if (goAnnotation.getEvidenceCode() == null) {
+    if (geneProduct.getEvidenceCode() == null) {
       validationErrors.add("You must provide an ECO term");
     }
-    if (!goAnnotation.getEvidenceCode().contains(":")) {
+    if (!geneProduct.getEvidenceCode().contains(":")) {
       validationErrors.add("You must provide a prefix and suffix for the ECO term");
     }
-    if (goAnnotation.getGeneRelationship() == null) {
-      validationErrors.add("You must provide a Gene Relationship");
-    }
-    if (!goAnnotation.getGeneRelationship().contains(":")) {
-      validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
-    }
-    if (goAnnotation.getReference().getPrefix().length() == 0) {
+    if (geneProduct.getReference().getPrefix().length() == 0) {
       validationErrors.add("You must provide at least a reference prefix.");
     }
-    if (goAnnotation.getReference().getLookupId().length() == 0) {
+    if (geneProduct.getReference().getLookupId().length() == 0) {
       validationErrors.add("You must provide at least a reference id.");
     }
     return validationErrors;
   }
 
-  private GoAnnotation getEditedGoAnnotation() {
-    GoAnnotation goAnnotation = new GoAnnotation();
-    goAnnotation.setAspect(Aspect.valueOf(aspectField.getSelectedItemText()));
-    goAnnotation.setGene(annotationInfo.getUniqueName());
-    goAnnotation.setGoTerm(goTermField.getText());
-    goAnnotation.setGoTermLabel(goTermLink.getText());
-    goAnnotation.setGeneRelationship(geneProductRelationshipField.getSelectedValue());
-    goAnnotation.setEvidenceCode(evidenceCodeField.getText());
-    goAnnotation.setEvidenceCodeLabel(evidenceCodeLink.getText());
-    goAnnotation.setNegate(notQualifierCheckBox.getValue());
-    goAnnotation.setWithOrFromList(getWithList());
+  private GeneProduct getEditedGeneProduct() {
+    GeneProduct geneProduct = new GeneProduct();
+    geneProduct.setFeature(annotationInfo.getUniqueName());
+    geneProduct.setProductName(geneProductField.getText().trim());
+    geneProduct.setAlternate(alternateCheckBox.getValue());
+    geneProduct.setEvidenceCode(evidenceCodeField.getText());
+    geneProduct.setEvidenceCodeLabel(evidenceCodeLink.getText());
+    geneProduct.setWithOrFromList(getWithList());
     Reference reference = new Reference(referenceFieldPrefix.getText(), referenceFieldId.getText());
-    goAnnotation.setReference(reference);
-    goAnnotation.setNoteList(getNoteList());
-    return goAnnotation;
+    geneProduct.setReference(reference);
+    return geneProduct;
   }
 
   private List<WithOrFrom> getWithList() {
@@ -591,16 +464,16 @@ public class GoPanel extends Composite {
 //        GWT.log("not sure what to do here ");
 //    }
 
-  @UiHandler("cancelNewGoAnnotation")
-  public void cancelNewGoAnnotationButton(ClickEvent e) {
+  @UiHandler("cancelNewGeneProduct")
+  public void cancelNewGeneProductButton(ClickEvent e) {
     clearModal();
     editGoModal.hide();
   }
 
   @UiHandler("deleteGoButton")
-  public void deleteGoAnnotation(ClickEvent e) {
-    final GoAnnotation goAnnotation = selectionModel.getSelectedObject();
-    Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm(), new ConfirmCallback() {
+  public void deleteGeneProduct(ClickEvent e) {
+    final GeneProduct geneProduct = selectionModel.getSelectedObject();
+    Bootbox.confirm("Remove Gene Product: " + geneProduct.getProductName(), new ConfirmCallback() {
       @Override
       public void callback(boolean result) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -613,11 +486,11 @@ public class GoPanel extends Composite {
 
           @Override
           public void onError(Request request, Throwable exception) {
-            Bootbox.alert("Failed to DELETE new go anntation");
+            Bootbox.alert("Failed to DELETE new Gene Product");
           }
         };
         if(result){
-          GoRestService.deleteGoAnnotation(requestCallback, goAnnotation);
+          GeneProductRestService.deleteGeneProduct(requestCallback, geneProduct);
         }
       }
     });
@@ -642,42 +515,36 @@ public class GoPanel extends Composite {
     // TODO: probably want a link here
 //      curl -X GET "http://api.geneontology.org/api/bioentity/GO%3A0008015?rows=1&facet=false&unselect_evidence=false&exclude_automatic_assertions=false&fetch_objects=false&use_compact_associations=false" -H "accept: application/json"
 //      GO:0008015
-    TextColumn<GoAnnotation> goTermColumn = new TextColumn<GoAnnotation>() {
+    TextColumn<GeneProduct> geneProductTextColumn = new TextColumn<GeneProduct>() {
       @Override
-      public String getValue(GoAnnotation annotationInfo) {
-        String returnValue = annotationInfo.getGoTermLabel() != null ? annotationInfo.getGoTermLabel() : annotationInfo.getGoTerm();
-        if (annotationInfo.isNegate()) {
-          returnValue += " (not) ";
-        }
-
-        return returnValue;
+      public String getValue(GeneProduct annotationInfo) {
+        return annotationInfo.getProductName() != null ? annotationInfo.getProductName() : annotationInfo.getProductName();
       }
     };
-    goTermColumn.setSortable(true);
+    geneProductTextColumn.setSortable(true);
 
-    TextColumn<GoAnnotation> withColumn = new TextColumn<GoAnnotation>() {
+    TextColumn<GeneProduct> withColumn = new TextColumn<GeneProduct>() {
       @Override
-      public String getValue(GoAnnotation annotationInfo) {
+      public String getValue(GeneProduct annotationInfo) {
         return annotationInfo.getWithOrFromString();
       }
     };
     withColumn.setSortable(true);
 
-    TextColumn<GoAnnotation> referenceColumn = new TextColumn<GoAnnotation>() {
+    TextColumn<GeneProduct> referenceColumn = new TextColumn<GeneProduct>() {
       @Override
-      public String getValue(GoAnnotation annotationInfo) {
+      public String getValue(GeneProduct annotationInfo) {
         return annotationInfo.getReference().getReferenceString();
       }
     };
     referenceColumn.setSortable(true);
 
-    TextColumn<GoAnnotation> evidenceColumn = new TextColumn<GoAnnotation>() {
+    TextColumn<GeneProduct> evidenceColumn = new TextColumn<GeneProduct>() {
       @Override
-      public String getValue(GoAnnotation annotationInfo) {
+      public String getValue(GeneProduct annotationInfo) {
         if (annotationInfo.getEvidenceCodeLabel() != null) {
           String label = annotationInfo.getEvidenceCodeLabel();
           String substring = getInnerCode(label);
-//          String substring = StringUtils.substringBetween(label, "(", ")");
           if (substring != null) {
             return substring;
           }
@@ -688,7 +555,7 @@ public class GoPanel extends Composite {
     evidenceColumn.setSortable(true);
 
 
-    dataGrid.addColumn(goTermColumn, "Name");
+    dataGrid.addColumn(geneProductTextColumn, "Name");
     dataGrid.addColumn(evidenceColumn, "Evidence");
     dataGrid.addColumn(withColumn, "Based On");
     dataGrid.addColumn(referenceColumn, "Reference");

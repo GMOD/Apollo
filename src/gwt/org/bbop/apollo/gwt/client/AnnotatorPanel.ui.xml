@@ -194,6 +194,10 @@
                     <apollo:GoPanel ui:field="goPanel"/>
                 </gwt:tab>
                 <gwt:tab>
+                    <gwt:header>Gene Product</gwt:header>
+                    <apollo:GeneProductPanel ui:field="geneProductPanel"/>
+                </gwt:tab>
+                <gwt:tab>
                     <gwt:header>DbXref</gwt:header>
                     <apollo:DbXrefPanel ui:field="dbXrefPanel"/>
                 </gwt:tab>

@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.go.GoAnnotation
 
 class Feature implements Ontological{
@@ -47,6 +48,7 @@ class Feature implements Ontological{
             ,featureProperties: FeatureProperty
             ,owners:User
             ,goAnnotations: GoAnnotation
+            ,geneProducts: GeneProduct
     ]
 
     static mappedBy = [
@@ -70,7 +72,7 @@ class Feature implements Ontological{
             User
     ]
 
-    public User getOwner(){
+    User getOwner(){
         if(owners?.size()>0){
             return owners.iterator().next()
         }
@@ -78,7 +80,7 @@ class Feature implements Ontological{
     }
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         Feature castOther = ( Feature ) other;
@@ -87,14 +89,14 @@ class Feature implements Ontological{
                    &&  (this?.getUniqueName()==castOther?.getUniqueName())
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
         result = 37 * result + ( ontologyId == null ? 0 : this.ontologyId.hashCode() );
         result = 37 * result + ( getUniqueName() == null ? 0 : this.getUniqueName().hashCode() );
         return result;
     }
 
-    public Feature generateClone() {
+    Feature generateClone() {
         Feature cloned = this.getClass().newInstance()
         cloned.dbxref = this.dbxref;
         cloned.name = this.name;
@@ -126,7 +128,7 @@ class Feature implements Ontological{
      *
      * @return FeatureLocation of this object
      */
-    public FeatureLocation getFeatureLocation() {
+    FeatureLocation getFeatureLocation() {
         Collection<FeatureLocation> locs = getFeatureLocations();
         return locs ? locs.first() : null
     }
@@ -136,25 +138,25 @@ class Feature implements Ontological{
      *
      * @return Length of feature
      */
-    public int getLength() {
+    int getLength() {
         return getFeatureLocation().calculateLength()
     }
 
-    public Integer getFmin(){
+    Integer getFmin(){
         featureLocation.fmin
     }
 
-    public Integer getFmax(){
+    Integer getFmax(){
         featureLocation.fmax
     }
 
-    public Integer getStrand(){
+    Integer getStrand(){
         featureLocation.strand
     }
 
 
     @Override
-    public String toString() {
+    String toString() {
         return "Feature{" +
                 "id=" + id +
                 ", symbol='" + symbol + '\'' +
