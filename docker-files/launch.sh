@@ -33,6 +33,7 @@ export WEBAPOLLO_DB_HOST="${WEBAPOLLO_DB_HOST:-127.0.0.1}"
 export WEBAPOLLO_DB_NAME="${WEBAPOLLO_DB_NAME:-apollo}"
 export WEBAPOLLO_DB_USERNAME="${WEBAPOLLO_DB_USERNAME:-apollo}"
 export WEBAPOLLO_DB_PASSWORD="${WEBAPOLLO_DB_PASSWORD:-apollo}"
+export WEBAPOLLO_USE_SSL="${WEBAPOLLO_USE_SSL:false}"
 
 
 # TODO: use variable throughout
@@ -42,6 +43,7 @@ export CHADO_DB_HOST="${CHADO_DB_HOST:-127.0.0.1}"
 export CHADO_DB_NAME="${CHADO_DB_NAME:-chado}"
 export CHADO_DB_USERNAME="${CHADO_DB_USERNAME:-apollo}"
 export CHADO_DB_PASSWORD="${CHADO_DB_PASSWORD:-apollo}"
+export CHADO_USE_SSL="${CHADO_USE_SSL:false}"
 
 if [[ "${WEBAPOLLO_DB_HOST}" != "127.0.0.1" ]]; then
     export WEBAPOLLO_HOST_FLAG="-h ${WEBAPOLLO_DB_HOST}"
