@@ -56,8 +56,6 @@ public class GeneProductPanel extends Composite {
   DataGrid<GeneProduct> dataGrid = new DataGrid<>(200, tablecss);
   @UiField
   TextBox noteField;
-  @UiField(provided = true)
-  SuggestBox goTermField;
   @UiField
   org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
   @UiField(provided = true)
@@ -87,8 +85,6 @@ public class GeneProductPanel extends Composite {
   @UiField
   org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
   @UiField
-  Anchor goTermLink;
-  @UiField
   Anchor geneProductRelationshipLink;
   @UiField
   Anchor evidenceCodeLink;
@@ -108,10 +104,6 @@ public class GeneProductPanel extends Composite {
 //    Button referenceValidateButton;
   @UiField
   HTML geneProductTitle;
-  @UiField
-  org.gwtbootstrap3.client.ui.ListBox aspectField;
-  @UiField
-  HTML aspectLabel;
 
   private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
   private static List<GeneProduct> annotationInfoList = dataProvider.getList();
@@ -130,7 +122,6 @@ public class GeneProductPanel extends Composite {
 
     initWidget(ourUiBinder.createAndBindUi(this));
 
-    aspectField.addItem("Choose", "");
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
@@ -163,15 +154,6 @@ public class GeneProductPanel extends Composite {
     }, DoubleClickEvent.getType());
 
 
-    goTermField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
-      @Override
-      public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-        SuggestOracle.Suggestion suggestion = event.getSelectedItem();
-        goTermLink.setHTML(suggestion.getDisplayString());
-        goTermLink.setHref(GO_BASE + suggestion.getReplacementString());
-      }
-    });
-
     evidenceCodeField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
       @Override
       public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
@@ -193,19 +175,8 @@ public class GeneProductPanel extends Composite {
     redraw();
   }
 
-  private void handleAspectChange() {
-    goTermField.setText("");
-    goTermLink.setText("");
-    aspectLabel.setText(aspectField.getSelectedValue());
-    goLookup.setCategory(aspectField.getSelectedValue());
-
-    enableFields(aspectField.getSelectedValue().length() > 0);
-    geneProductRelationshipLink.setText("");
-  }
-
   private void enableFields(boolean enabled) {
     saveNewGeneProduct.setEnabled(enabled);
-    goTermField.setEnabled(enabled);
     evidenceCodeField.setEnabled(enabled);
     geneProductRelationshipField.setEnabled(enabled);
     referenceFieldPrefix.setEnabled(enabled);
@@ -216,8 +187,6 @@ public class GeneProductPanel extends Composite {
   }
 
   private void initLookups() {
-    goTermField = new SuggestBox(goLookup);
-
     // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
     BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
     ecoLookup.addPreferredSuggestion("experimental evidence used in manual assertion (EXP)", "http://www.evidenceontology.org/term/ECO:0000269/", "ECO:0000269");
@@ -305,11 +274,6 @@ public class GeneProductPanel extends Composite {
   }
 
   private void clearModal() {
-    aspectField.setItemSelected(0, true);
-    handleAspectChange();
-    aspectLabel.setText("");
-    goTermField.setText("");
-    goTermLink.setText("");
     geneProductRelationshipField.clear();
     geneProductRelationshipLink.setText("");
     evidenceCodeField.setText("");
@@ -329,8 +293,6 @@ public class GeneProductPanel extends Composite {
       clearModal();
     } else {
       GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
-
-      enableFields(aspectField.getSelectedValue().length() > 0);
 
       evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
       evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());

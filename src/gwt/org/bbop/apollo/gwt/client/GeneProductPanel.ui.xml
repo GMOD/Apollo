@@ -48,18 +48,6 @@
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_3">
-                                    <b:Label>Aspect</b:Label>
-                                    <b:ListBox ui:field="aspectField"/>
-                                    <gwt:HTML ui:field="aspectLabel" />
-                                </b:Column>
-                                <b:Column size="MD_8">
-                                    <b:Label>Go Term</b:Label>
-                                    <b:SuggestBox ui:field="goTermField"/>
-                                    <gwt:Anchor ui:field="goTermLink" target="_blank"/>
-                                </b:Column>
-                            </b:Row>
-                            <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_6">
                                     <b:Label>Relationship between Gene Product and GO Term</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
