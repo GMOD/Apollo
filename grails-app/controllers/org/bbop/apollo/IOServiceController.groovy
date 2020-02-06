@@ -130,7 +130,9 @@ class IOServiceController extends AbstractApolloController {
                 queryParams['viewableAnnotationList'] = requestHandlingService.nonCodingAnnotationTranscriptList
                 // request nonCoding transcripts that can lack an exon
                 def genesNoExon = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations where fl.sequence.organism = :organism and child.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences) " : ""),queryParams)
-                queryParams['geneIds'] = genesNoExon.id
+                if(genesNoExon.id){
+                    queryParams['geneIds'] = genesNoExon.id
+                }
 
                 // captures 3 level indirection, joins feature locations only. joining other things slows it down
                 queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
