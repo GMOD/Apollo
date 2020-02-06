@@ -139,17 +139,16 @@ class GeneProductController {
 
 
     GeneProduct geneProduct = GeneProduct.findById(dataObject.id)
-    geneProduct.aspect = dataObject.aspect
-    geneProduct.goRef = dataObject.goTerm
-    geneProduct.geneProductRelationshipRef = dataObject.geneRelationship
+    geneProduct.feature = feature
+    geneProduct.productName = dataObject.productName
     geneProduct.evidenceRef = dataObject.evidenceCode
-    geneProduct.goRefLabel = dataObject.goTermLabel
     geneProduct.evidenceRefLabel = dataObject.evidenceCodeLabel
-    geneProduct.negate = dataObject.negate ?: false
+    geneProduct.alternate = dataObject.alternate ?: false
     geneProduct.withOrFromArray = dataObject.withOrFrom
     geneProduct.notesArray = dataObject.notes
     geneProduct.reference = dataObject.reference
     geneProduct.lastUpdated = new Date()
+    geneProduct.dateCreated = new Date()
     geneProduct.addToOwners(user)
     geneProduct.save(flush: true, failOnError: true, insert: false)
 

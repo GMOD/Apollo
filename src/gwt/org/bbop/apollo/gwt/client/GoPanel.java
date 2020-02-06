@@ -616,7 +616,9 @@ public class GoPanel extends Composite {
             Bootbox.alert("Failed to DELETE new go anntation");
           }
         };
-        GoRestService.deleteGoAnnotation(requestCallback, goAnnotation);
+        if(result){
+          GoRestService.deleteGoAnnotation(requestCallback, goAnnotation);
+        }
       }
     });
   }

@@ -42,9 +42,7 @@ import java.util.List;
  */
 public class GeneProductPanel extends Composite {
 
-  private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
   private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-  private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
   interface GoPanelUiBinder extends UiBinder<Widget, GeneProductPanel> {
   }
@@ -104,7 +102,6 @@ public class GeneProductPanel extends Composite {
   private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
 
   private AnnotationInfo annotationInfo;
-  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle("GO");
 
   public GeneProductPanel() {
 
@@ -141,7 +138,7 @@ public class GeneProductPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        geneProductTitle.setText("Edit GO Annotation for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+        geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
         handleSelection();
         editGoModal.show();
       }
@@ -311,7 +308,7 @@ public class GeneProductPanel extends Composite {
 
   @UiHandler("newGoButton")
   public void newGeneProduct(ClickEvent e) {
-    geneProductTitle.setText("Add new GO Annotation to " + AnnotatorPanel.selectedAnnotationInfo.getName());
+    geneProductTitle.setText("Add new Gene Product to " + AnnotatorPanel.selectedAnnotationInfo.getName());
     withEntriesFlexTable.removeAllRows();
     notesFlexTable.removeAllRows();
     selectionModel.clear();
@@ -369,7 +366,7 @@ public class GeneProductPanel extends Composite {
     }
     List<String> validationErrors = validateGeneProduct(geneProduct);
     if (validationErrors.size() > 0) {
-      String errorString = "Invalid GO Annotation <br/>";
+      String errorString = "Invalid Gene Product <br/>";
       for (String error : validationErrors) {
         errorString += "&bull; " + error + "<br/>";
       }
@@ -476,7 +473,7 @@ public class GeneProductPanel extends Composite {
   @UiHandler("deleteGoButton")
   public void deleteGeneProduct(ClickEvent e) {
     final GeneProduct geneProduct = selectionModel.getSelectedObject();
-    Bootbox.confirm("Remove GO Annotation: " + geneProduct.getProductName(), new ConfirmCallback() {
+    Bootbox.confirm("Remove Gene Product: " + geneProduct.getProductName(), new ConfirmCallback() {
       @Override
       public void callback(boolean result) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -489,10 +486,12 @@ public class GeneProductPanel extends Composite {
 
           @Override
           public void onError(Request request, Throwable exception) {
-            Bootbox.alert("Failed to DELETE new go anntation");
+            Bootbox.alert("Failed to DELETE new Gene Product");
           }
         };
-        GeneProductRestService.deleteGeneProduct(requestCallback, geneProduct);
+        if(result){
+          GeneProductRestService.deleteGeneProduct(requestCallback, geneProduct);
+        }
       }
     });
   }
