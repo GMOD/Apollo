@@ -21,6 +21,8 @@ public class GeneProductConverter {
 //                    "[\"adf:12312\"]"
     geneProduct.setId(Math.round(object.get("id").isNumber().doubleValue()));
     geneProduct.setFeature(object.get("gene").isString().stringValue());
+    geneProduct.setProductName(object.get("productName").isString().stringValue());
+    geneProduct.setAlternate(object.get("alternate").isBoolean().booleanValue());
 //    geneProduct.setGoTerm(object.get("goTerm").isString().stringValue());
     if(object.containsKey("evidenceCodeLabel")){
       geneProduct.setEvidenceCodeLabel(object.get("evidenceCodeLabel").isString().stringValue());
@@ -51,6 +53,8 @@ public class GeneProductConverter {
       object.put("id", new JSONNumber(geneProduct.getId()));
     }
     object.put("gene", new JSONString(geneProduct.getFeature()));
+    object.put("productName", new JSONString(geneProduct.getProductName()));
+    object.put("alternate", JSONBoolean.getInstance(geneProduct.isAlternate()));
     object.put("evidenceCode", new JSONString(geneProduct.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(geneProduct.getEvidenceCodeLabel()));
     object.put("reference", new JSONString(geneProduct.getReference().getReferenceString()));

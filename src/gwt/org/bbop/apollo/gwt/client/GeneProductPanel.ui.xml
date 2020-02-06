@@ -49,13 +49,12 @@
                         <b:Container fluid="true" width="100%">
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_6">
-                                    <b:Label>Relationship between Gene Product and GO Term</b:Label>
+                                    <b:Label>Product</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
-                                    <b:ListBox ui:field="geneProductRelationshipField"/>
-                                    <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
+                                    <b:TextBox ui:field="geneProductField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
-                                    <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
+                                    <b:CheckBox text="Alternate" width="100%" ui:field="alternateCheckBox"/>
                                 </b:Column>
                                 <b:Column size="MD_3">
                                   <b:Label>Evidence and Conclusion Ontology</b:Label>

@@ -16,7 +16,7 @@ class GeneProduct {
     evidenceRefLabel nullable: true, blank: true
     withOrFromArray nullable: true, blank: true
     alternate nullable: false
-
+    notesArray nullable: true, blank: true
 
   }
 
@@ -31,6 +31,7 @@ class GeneProduct {
   Date dateCreated
   String evidenceRef
   String evidenceRefLabel
+  String notesArray
   String withOrFromArray
   Boolean alternate = false
 

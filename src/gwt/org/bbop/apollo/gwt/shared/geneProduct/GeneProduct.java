@@ -10,7 +10,7 @@ public class GeneProduct {
   private String feature; // I think this is the gene it refers to? I think the uniquename
   private String productName ;
   private Reference reference;
-
+  private List<String> noteList;
   private boolean alternate = false;
 
 
@@ -96,6 +96,14 @@ public class GeneProduct {
 
   public void setProductName(String productName) {
     this.productName = productName;
+  }
+
+  public List<String> getNoteList() {
+    return noteList;
+  }
+
+  public void setNoteList(List<String> noteList) {
+    this.noteList = noteList;
   }
 
 }

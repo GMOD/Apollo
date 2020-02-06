@@ -57,7 +57,7 @@ public class GeneProductPanel extends Composite {
   @UiField
   TextBox noteField;
   @UiField
-  org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
+  TextBox geneProductField;
   @UiField(provided = true)
   SuggestBox evidenceCodeField;
   @UiField
@@ -83,19 +83,13 @@ public class GeneProductPanel extends Composite {
   @UiField
   Button addNoteButton;
   @UiField
-  org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
-  @UiField
-  Anchor geneProductRelationshipLink;
+  org.gwtbootstrap3.client.ui.CheckBox alternateCheckBox;
   @UiField
   Anchor evidenceCodeLink;
   @UiField
   TextBox referenceFieldPrefix;
   @UiField
   FlexTable annotationsFlexTable;
-  //    @UiField
-//    Button addExtensionButton;
-//    @UiField
-//    TextBox annotationsField;
   @UiField
   TextBox withFieldId;
   @UiField
@@ -163,12 +157,10 @@ public class GeneProductPanel extends Composite {
       }
     });
 
-    geneProductRelationshipField.addChangeHandler(new ChangeHandler() {
+    geneProductField.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        String selectedItemText = geneProductRelationshipField.getSelectedItemText();
-        geneProductRelationshipLink.setHTML(selectedItemText + " (" + geneProductRelationshipField.getSelectedValue() + ")");
-        geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
+        String selectedItemText = geneProductField.getText();
       }
     });
 
@@ -178,7 +170,7 @@ public class GeneProductPanel extends Composite {
   private void enableFields(boolean enabled) {
     saveNewGeneProduct.setEnabled(enabled);
     evidenceCodeField.setEnabled(enabled);
-    geneProductRelationshipField.setEnabled(enabled);
+    geneProductField.setEnabled(enabled);
     referenceFieldPrefix.setEnabled(enabled);
     referenceFieldId.setEnabled(enabled);
     withFieldPrefix.setEnabled(enabled);
@@ -274,8 +266,7 @@ public class GeneProductPanel extends Composite {
   }
 
   private void clearModal() {
-    geneProductRelationshipField.clear();
-    geneProductRelationshipLink.setText("");
+    geneProductField.clear();
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
@@ -285,7 +276,7 @@ public class GeneProductPanel extends Composite {
     notesFlexTable.removeAllRows();
     referenceFieldPrefix.setText("");
     referenceFieldId.setText("");
-    notQualifierCheckBox.setValue(false);
+    alternateCheckBox.setValue(false);
   }
 
   private void handleSelection() {
@@ -294,6 +285,9 @@ public class GeneProductPanel extends Composite {
     } else {
       GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
 
+      geneProductField.setText(selectedGeneProduct.getProductName());
+      alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
+//      alternateCheckBox.setValue(selectedGeneProduct.get());
       evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
       evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
       GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
@@ -431,6 +425,8 @@ public class GeneProductPanel extends Composite {
   private GeneProduct getEditedGeneProduct() {
     GeneProduct geneProduct = new GeneProduct();
     geneProduct.setFeature(annotationInfo.getUniqueName());
+    geneProduct.setProductName(geneProductField.getText().trim());
+    geneProduct.setAlternate(alternateCheckBox.getValue());
     geneProduct.setEvidenceCode(evidenceCodeField.getText());
     geneProduct.setEvidenceCodeLabel(evidenceCodeLink.getText());
     geneProduct.setWithOrFromList(getWithList());

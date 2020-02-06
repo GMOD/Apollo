@@ -856,12 +856,14 @@ public class AnnotatorPanel extends Composite {
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
+                    geneProductPanel.updateData(selectedAnnotationInfo);
                     dbXrefPanel.updateData(selectedAnnotationInfo);
                     commentPanel.updateData(selectedAnnotationInfo);
                     attributePanel.updateData(selectedAnnotationInfo);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
+                    geneProductPanel.updateData();
                     dbXrefPanel.updateData();
                     commentPanel.updateData();
                     attributePanel.updateData();

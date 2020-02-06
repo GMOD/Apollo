@@ -80,13 +80,10 @@ class GeneProductController {
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     geneProduct.feature = feature
-    geneProduct.aspect = dataObject.aspect
-    geneProduct.goRef = dataObject.goTerm
-    geneProduct.geneProductRelationshipRef = dataObject.geneRelationship
+    geneProduct.productName = dataObject.productName
     geneProduct.evidenceRef = dataObject.evidenceCode
-    geneProduct.goRefLabel = dataObject.goTermLabel
     geneProduct.evidenceRefLabel = dataObject.evidenceCodeLabel
-    geneProduct.negate = dataObject.negate ?: false
+    geneProduct.alternate = dataObject.alternate ?: false
     geneProduct.withOrFromArray = dataObject.withOrFrom
     geneProduct.notesArray = dataObject.notes
     geneProduct.reference = dataObject.reference
