@@ -18,7 +18,7 @@ environments {
 
             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgresPlusDialect"
-            url = "jdbc:postgresql://${System.getenv("WEBAPOLLO_DB_HOST") ?: "127.0.0.1"}/${System.getenv("WEBAPOLLO_DB_NAME") ?: "apollo"}${System.getenv("WEBAPOLLO_USE_SSL")=="true" ? "&ssl=true":""}"
+            url = "jdbc:postgresql://${System.getenv("WEBAPOLLO_DB_HOST") ?: "127.0.0.1"}/${System.getenv("WEBAPOLLO_DB_NAME") ?: "apollo"}${System.getenv("WEBAPOLLO_USE_SSL")=="true" ? "?ssl=true":""}"
 
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
@@ -49,7 +49,7 @@ environments {
 
                 driverClassName = "org.postgresql.Driver"
                 dialect = "org.hibernate.dialect.PostgresPlusDialect"
-                url = "jdbc:postgresql://${System.getenv("CHADO_DB_HOST") ?: "127.0.0.1"}/${System.getenv("CHADO_DB_NAME") ?: "chado"}${System.getenv( "CHADO_USE_SSL")=="true" ? "&ssl=true":""}"
+                url = "jdbc:postgresql://${System.getenv("CHADO_DB_HOST") ?: "127.0.0.1"}/${System.getenv("CHADO_DB_NAME") ?: "chado"}${System.getenv( "CHADO_USE_SSL")=="true" ? "?ssl=true":""}"
 
                 properties {
                     // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
