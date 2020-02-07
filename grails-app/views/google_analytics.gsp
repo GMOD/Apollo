@@ -5,7 +5,6 @@
   Time: 4:05 PM
 --%>
 
-<g:each var="google_analytics_id" in="${grailsApplication.config.apollo.google_analytics}">
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -18,9 +17,12 @@
             a.src = g;
             m.parentNode.insertBefore(a, m)
         })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
+<g:each var="google_analytics_id" in="${grailsApplication.config.apollo.google_analytics}">
         ga('create', '${google_analytics_id}', 'auto');
+
+</g:each>
         ga('send', 'pageview');
 
     </script>
-</g:each>
+
+
