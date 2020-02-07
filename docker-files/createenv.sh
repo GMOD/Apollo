@@ -55,3 +55,10 @@ echo "export APOLLO_ADMIN_LAST_NAME=$APOLLO_ADMIN_LAST_NAME" >> $SET_ENV_FILE
 # If we want to change authentication methods
 echo "export WEBAPOLLO_REMOTE_USER_AUTH=$WEBAPOLLO_REMOTE_USER_AUTH" >> $SET_ENV_FILE
 echo "export WEBAPOLLO_USER_PASSWORD_AUTH=$WEBAPOLLO_USER_PASSWORD_AUTH" >> $SET_ENV_FILE
+
+# TODO: use evironmental variables
+echo "export PGSSLCERT=/var/lib/postgresql/client-cert.pem" >> $SET_ENV_FILE
+echo "export PGSSLKEY=/var/lib/postgresql/client-key.pem" >> $SET_ENV_FILE
+echo "export PGSSLROOTCERT=/var/lib/postgresql/server-ca.pem" >> $SET_ENV_FILE
+echo "export PGSSLMODE=require" >> $SET_ENV_FILE
+

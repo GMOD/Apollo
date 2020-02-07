@@ -45,6 +45,17 @@ export CHADO_DB_USERNAME="${CHADO_DB_USERNAME:-apollo}"
 export CHADO_DB_PASSWORD="${CHADO_DB_PASSWORD:-apollo}"
 export CHADO_USE_SSL="${CHADO_USE_SSL:false}"
 
+# TODO: change this to use env variables
+#export PGSSLCERT=/var/lib/postgresql/client-cert.pem
+#export PGSSLKEY=/var/lib/postgresql/client-key.pem
+#export PGSSLROOTCERT=/var/lib/postgresql/server-ca.pem
+#export PGSSLMODE="${WEBAPOLLO_USE_SSL:-require}"
+
+export PGSSLCERT="/var/lib/postgresql/client-cert.pem"
+export PGSSLKEY="/var/lib/postgresql/client-key.pem"
+export PGSSLROOTCERT="/var/lib/postgresql/server-ca.pem"
+export PGSSLMODE="require"
+
 if [[ "${WEBAPOLLO_DB_HOST}" != "127.0.0.1" ]]; then
     export WEBAPOLLO_HOST_FLAG="-h ${WEBAPOLLO_DB_HOST}"
 fi
