@@ -163,7 +163,7 @@ function check_configs(){
        GRADLE_MAJOR_VERSION=`$gradle_executable  -v | grep Gradle | cut -f2 -d' ' | cut -f1 -d.`;
        echo "Gradle version: ${GRADLE_MAJOR_VERSION}"
        if [[ $GRADLE_MAJOR_VERSION -gt 3  || $GRADLE_MAJOR_VERSION -lt 2 ]];then
-           echo "Gradle version ${GRADLE_MAJOR_VERSION} not supported.  ONly 2 or 3 supported so using local ./gradlew instead"
+           echo "Gradle version ${GRADLE_MAJOR_VERSION} not supported.  Only gradle 2 or 3 supported so using local ./gradlew instead"
            use_gradlew
        else
            echo "Using system gradle `$gradle_executable  -v | grep Gradle | cut -f2 -d' '`";
