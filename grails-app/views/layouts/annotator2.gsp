@@ -15,7 +15,6 @@
 <asset:stylesheet src="annotator.css"/>
 <asset:javascript src="application.js"/>
 <asset:link rel="shortcut icon" href="webapollo_favicon.ico" type="image/x-icon"/>
-%{--<link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">--}%
 
 <g:include view="google_analytics.gsp"/>
 
@@ -23,45 +22,8 @@
 <g:layoutHead/>
 </head>
 
-%{--<div id="apolloLogo" style="padding: 5px;">--}%
-%{--<a href="http://genomearchitect.org">--}%
-%{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
-%{--Genome Annotator--}%
-%{--<nav:primary class="nav primary small-menu"/>--}%
-%{--<nav:primary/>--}%
-%{--<ul class="nav nav-pills header1" >--}%
-%{--<li role="presentation" class="">--}%
-%{--<a href="http://genomearchitect.org">--}%
-%{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
-%{--</li>--}%
+<g:layoutBody/>
 
-%{--<li role="presentation" class="menu-item">--}%
-%{--<g:link action="list" controller="organism">Organisms</g:link>--}%
-%{--</li>--}%
-%{--<li role="presentation" class="active menu-item">--}%
-%{--<g:link action="index" controller="sequence">Sequences</g:link>--}%
-%{--</li>--}%
-%{--<li role="presentation" class=" menu-item">--}%
-%{--<g:link action="index" controller="annotator">Annotate</g:link>--}%
-%{--</li>--}%
-%{--<li role="presentation" class=" menu-item">--}%
-%{--<g:link action="permissions" controller="user">Permissions</g:link>--}%
-%{--</li>--}%
-%{--</ul>--}%
-
-%{--</div>--}%
-
-
-
-%{--<g:include view="mainMenu"/>--}%
-%{--<nav:secondary/>--}%
-
-    <g:layoutBody/>
-
-%{--<div class="footer" role="contentinfo"></div>--}%
-
-
-    <div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt"
-                                                                       default="Loading&hellip;"/></div>
-    </body>
-    </html>
+<div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>
+</body>
+</html>
