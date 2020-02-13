@@ -1,4 +1,4 @@
-# Apollo2
+# Apollo2.X
 FROM tomcat:9-jdk8
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
