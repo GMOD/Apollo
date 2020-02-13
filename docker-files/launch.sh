@@ -101,4 +101,4 @@ cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 bash /createenv.sh
 
 # Launch tomcat, stopping of already running.
-catalina.sh restart
+catalina.sh stop 5 -force && catalina.sh start
