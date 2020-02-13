@@ -19,8 +19,6 @@ RUN apt-get -qq update --fix-missing && \
 
 RUN npm i -g yarn
 
-# RUN cp /usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/tools.jar && \
-#     useradd -ms /bin/bash -d /apollo apollo
 RUN useradd -ms /bin/bash -d /apollo apollo
 
 RUN curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o /usr/local/bin/blat && \

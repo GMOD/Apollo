@@ -100,5 +100,5 @@ cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 # Set environment variables for tomcat
 bash /createenv.sh
 
-# Launch tomcat
-catalina.sh run
+# Launch tomcat, stopping of already running.
+catalina.sh restart
