@@ -1,4 +1,4 @@
-# Apollo2
+# Apollo2.X
 FROM tomcat:9-jdk8
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
@@ -8,7 +8,7 @@ ENV CONTEXT_PATH ROOT
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	git build-essential maven libpq-dev postgresql-common openjdk-8-jdk wget \
+	git build-essential maven libpq-dev postgresql-common wget \
 	postgresql postgresql-client xmlstarlet netcat libpng-dev \
 	zlib1g-dev libexpat1-dev ant curl ssl-cert zip unzip
 
@@ -19,8 +19,7 @@ RUN apt-get -qq update --fix-missing && \
 
 RUN npm i -g yarn
 
-RUN cp /usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/tools.jar && \
-	useradd -ms /bin/bash -d /apollo apollo
+RUN useradd -ms /bin/bash -d /apollo apollo
 
 RUN curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o /usr/local/bin/blat && \
  		chmod +x /usr/local/bin/blat && \
