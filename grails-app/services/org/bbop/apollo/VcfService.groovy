@@ -20,6 +20,7 @@ class VcfService {
     public static final String ALTERNATIVE_ALLELE_METADATA = "VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
     public static final String ALTERNATIVE_ALLELE_MISSING = "ALT_MISSING"
     public static final String SNV = "SNV"
+    public static final String MNV = "MNV"
     public static final String INVERSION = "inversion"
     public static final String SUBSTITUTION = "substitution"
     public static final String INSERTION = "insertion"
@@ -270,46 +271,68 @@ class VcfService {
      */
     def classifyType(VariantContext variantContext) {
         String type = variantContext.getType().name()
-        String referenceAlleleString = variantContext.getReference().baseString
         def alternateAlleles = variantContext.getAlternateAlleles()
-        int minAlternateAlleleLength = 0
-        int maxAlternateAlleleLength = 0
+        String referenceAlleleString = variantContext.getReference().baseString
 
-        alternateAlleles.baseString.each {
-            if(minAlternateAlleleLength == 0 && maxAlternateAlleleLength == 0) {
-                minAlternateAlleleLength = it.length()
-                maxAlternateAlleleLength = it.length()
+        // use the SO term if we have it
+        if(variantContext?.attributes?.soTerm){
+            String soTerm = (variantContext?.attributes?.soTerm as String).toLowerCase().replaceAll("\"","")
+            switch (soTerm){
+                case INSERTION: return INSERTION
+                case DELETION: return DELETION
+                case "snv": return SNV
+                case "mnv": return MNV
+                case INVERSION: return INVERSION
+                case SUBSTITUTION: return SUBSTITUTION
             }
-            else {
-                if(minAlternateAlleleLength > it.length()) {
+            println "so temr did not match ${soTerm.toLowerCase()}"
+        }
+
+        // calculate based on the base string if we have it
+        if(alternateAlleles.baseString){
+            int minAlternateAlleleLength = 0
+            int maxAlternateAlleleLength = 0
+            alternateAlleles.baseString.each {
+                if(minAlternateAlleleLength == 0 && maxAlternateAlleleLength == 0) {
                     minAlternateAlleleLength = it.length()
-                }
-                if(maxAlternateAlleleLength < it.length()) {
                     maxAlternateAlleleLength = it.length()
                 }
+                else {
+                    if(minAlternateAlleleLength > it.length()) {
+                        minAlternateAlleleLength = it.length()
+                    }
+                    if(maxAlternateAlleleLength < it.length()) {
+                        maxAlternateAlleleLength = it.length()
+                    }
+                }
+
             }
 
+            if(referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
+                return SNV
+            }
+            else if(referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
+                if(alternateAlleles.size() == 1 && referenceAlleleString.split('').reverse(true).join('') == alternateAlleles[0].baseString) {
+                    return INVERSION
+                }
+                else {
+                    return SUBSTITUTION
+                }
+            }
+            else
+            if(referenceAlleleString.length() <= minAlternateAlleleLength && referenceAlleleString.length() < maxAlternateAlleleLength) {
+                return INSERTION
+            }
+            else
+            if(referenceAlleleString.length() > minAlternateAlleleLength && referenceAlleleString.length() >= maxAlternateAlleleLength) {
+                return DELETION
+            }
         }
 
-        if(referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
-            type = SNV
-        }
-        else if(referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
-            if(alternateAlleles.size() == 1 && referenceAlleleString.split('').reverse(true).join('') == alternateAlleles[0].baseString) {
-                type = INVERSION
-            }
-            else {
-                type = SUBSTITUTION
-            }
-        }
-        if(referenceAlleleString.length() <= minAlternateAlleleLength && referenceAlleleString.length() < maxAlternateAlleleLength) {
-            type = INSERTION
-        }
-        if(referenceAlleleString.length() > minAlternateAlleleLength && referenceAlleleString.length() >= maxAlternateAlleleLength) {
-            type = DELETION
-        }
-
+        log.debug("Could not calculate variant type for base string so returning ${type}")
         return type
+
+
     }
 
     /**
