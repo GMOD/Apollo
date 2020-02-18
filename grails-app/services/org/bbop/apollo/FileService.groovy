@@ -14,6 +14,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import java.nio.file.FileSystemException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 @Transactional
@@ -141,7 +142,7 @@ class FileService {
             }
 
             try {
-                validateFileName(entry.getName(), archiveRootDirectoryName)
+                String fileName = validateFileName(entry.getName(), archiveRootDirectoryName)
                 if (entry.isDirectory()) {
                     File dir = new File(initialLocation, entry.getName())
                     if (!dir.exists()) {
@@ -149,8 +150,24 @@ class FileService {
                     }
                     continue;
                 }
+                else if (entry.isSymbolicLink()) {
+                    println "is a symlink. ${entry.name}"
+//                    Path pathObj = Paths.get(path)
+//                    Files.createDirectories(path.getParent());
+//                    String dest = entry.getLinkName();
+//                    Path destAbsPath = path.getParent().resolve(dest).normalize();
+//                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
+//                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
+//                    }
+//                    if (listener != null) {
+//                        listener.symlink(destDir.relativize(path), dest);
+//                    }
+//                    Files.createSymbolicLink()
+//                    Files.createSymbolicLink(path, Paths.get(dest));
+                }
 
                 File outputFile = new File(initialLocation, entry.getName())
+
 
                 if (outputFile.isDirectory()) {
                     continue;
@@ -327,12 +344,14 @@ class FileService {
      * @return
      * @throws IOException
      */
-    def validateFileName(String fileName, String intendedOutputDirectory) throws IOException {
+    String validateFileName(String fileName, String intendedOutputDirectory) throws IOException {
+        println "intpu filename ${fileName} ${intendedOutputDirectory}"
         File file = new File(fileName)
         String canonicalPath = file.getCanonicalPath()
         File intendedOutputDirectoryFile = new File(intendedOutputDirectory)
         String canonicalIntendedOutputDirectoryPath = intendedOutputDirectoryFile.getCanonicalPath()
-        if (canonicalPath.startsWith(canonicalIntendedOutputDirectoryPath)) {
+        println "canonical path ${canonicalIntendedOutputDirectoryPath} vs $canonicalPath = > ${canonicalIntendedOutputDirectoryPath == canonicalPath}"
+        if (canonicalPath.startsWith(canonicalIntendedOutputDirectoryPath) || canonicalPath == canonicalIntendedOutputDirectoryPath) {
             return canonicalPath
         } else {
             throw new IOException("File is outside extraction target directory.")
