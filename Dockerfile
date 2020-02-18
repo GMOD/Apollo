@@ -9,7 +9,7 @@ ENV CONTEXT_PATH ROOT
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
 	git build-essential maven libpq-dev postgresql-common wget \
-	postgresql postgresql-client xmlstarlet netcat libpng-dev \
+	postgresql-11 postgresql-client-11 xmlstarlet netcat libpng-dev \
 	zlib1g-dev libexpat1-dev ant curl ssl-cert zip unzip
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
