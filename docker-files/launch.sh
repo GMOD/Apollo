@@ -12,7 +12,7 @@ if [ ! -e "${WEBAPOLLO_COMMON_DATA}/test_file" ];then
 	su -c "touch ${WEBAPOLLO_COMMON_DATA}/test_file"
 fi
 
-WEBAPOLLO_DB_DATA="/var/lib/postgresql/9.6/main"
+WEBAPOLLO_DB_DATA="/var/lib/postgresql/11/main"
 
 if [ ! -e ${WEBAPOLLO_DB_DATA} ]; then
 	mkdir -p ${WEBAPOLLO_DB_DATA}
@@ -20,7 +20,7 @@ if [ ! -e ${WEBAPOLLO_DB_DATA} ]; then
 fi
 
 if [ ! -e "${WEBAPOLLO_DB_DATA}/PG_VERSION" ];then
-	su -c "/usr/lib/postgresql/9.6/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
+	su -c "/usr/lib/postgresql/11/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
 fi
 
 export WEBAPOLLO_START_POSTGRES="${WEBAPOLLO_START_POSTGRES:-true}"
