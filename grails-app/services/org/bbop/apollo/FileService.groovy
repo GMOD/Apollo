@@ -15,6 +15,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 import java.nio.file.FileSystemException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 @Transactional
@@ -76,6 +77,8 @@ class FileService {
                     continue;
                 }
 
+                // TODO: handle symbolic link
+
                 File outputFile = new File(initialLocation, entry.getName());
 
                 if (outputFile.isDirectory()) {
@@ -120,20 +123,22 @@ class FileService {
     /**
      * Decompress a tar.gz archive to a folder specified by directoryName in the given path
      * @param tarFile
-     * @param path
+     * @param pathString
      * @param directoryName
      * @param tempDir
      * @return
      */
-    List<String> decompressTarArchive(File tarFile, String path, String directoryName = null, boolean tempDir = false) {
+    List<String> decompressTarArchive(File tarFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         boolean atArchiveRoot = true
         String archiveRootDirectoryName
-        String initialLocation = tempDir ? path + File.separator + "temp" : path
+        String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation}"
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
         TarArchiveEntry entry = null
 
+        Path destDir = Paths.get(pathString)
+        String prefix = destDir.toString()
 
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
             if (atArchiveRoot) {
@@ -143,44 +148,35 @@ class FileService {
 
             try {
                 String fileName = validateFileName(entry.getName(), archiveRootDirectoryName)
+                Path path = destDir.resolve(entry.getName()).normalize();
+                if(!pathString.toString().startsWith(prefix)){
+                    throw new RuntimeException("Archive includes an invalid entry: " + entry.getName());
+                }
                 if (entry.isDirectory()) {
-                    File dir = new File(initialLocation, entry.getName())
-                    if (!dir.exists()) {
-                        dir.mkdirs()
-                    }
-                    continue;
+                    Files.createDirectories(path)
                 }
                 else if (entry.isSymbolicLink()) {
                     println "is a symlink. ${entry.name}"
-//                    Path pathObj = Paths.get(path)
-//                    Files.createDirectories(path.getParent());
-//                    String dest = entry.getLinkName();
-//                    Path destAbsPath = path.getParent().resolve(dest).normalize();
-//                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
-//                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
-//                    }
-//                    if (listener != null) {
-//                        listener.symlink(destDir.relativize(path), dest);
-//                    }
-//                    Files.createSymbolicLink()
-//                    Files.createSymbolicLink(path, Paths.get(dest));
+                    String dest = entry.getLinkName();
+                    Path destAbsPath = path.getParent().resolve(dest).normalize();
+                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
+                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
+                    }
+                    Files.createSymbolicLink(path, Paths.get(dest));
+                    fileNames.add(destAbsPath.toString())
                 }
+                else{
+                    Files.createDirectories(path.getParent());
+                    File outputFile = new File(initialLocation, entry.getName())
+                    if (outputFile.exists()) {
+                        continue;
+                    }
 
-                File outputFile = new File(initialLocation, entry.getName())
-
-
-                if (outputFile.isDirectory()) {
-                    continue;
+                    FileOutputStream fos = new FileOutputStream(outputFile)
+                    IOUtils.copy(tais, fos)
+                    fos.close()
+                    fileNames.add(outputFile.absolutePath)
                 }
-
-                if (outputFile.exists()) {
-                    continue;
-                }
-
-                FileOutputStream fos = new FileOutputStream(outputFile)
-                IOUtils.copy(tais, fos)
-                fos.close()
-                fileNames.add(outputFile.absolutePath)
             } catch (IOException e) {
                 log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}", e)
             }
@@ -189,7 +185,7 @@ class FileService {
         if (tempDir) {
             // move files from temp directory to folder supplied via directoryName
             String unpackedArchiveLocation = initialLocation + File.separator + archiveRootDirectoryName
-            String finalLocation = path + File.separator + directoryName
+            String finalLocation = pathString + File.separator + directoryName
             File finalLocationFile = new File(finalLocation)
             if (finalLocationFile.mkdir()) log.debug "${finalLocation} directory created"
             try {

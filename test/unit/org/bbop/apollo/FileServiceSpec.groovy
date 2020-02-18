@@ -3,6 +3,9 @@ package org.bbop.apollo
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
@@ -11,6 +14,7 @@ class FileServiceSpec extends Specification {
 
     private final String FINAL_DIRECTORY = "test/unit/resources/archive_tests/"
 
+    File parentDir = new File(FINAL_DIRECTORY+"data")
     File fileA = new File(FINAL_DIRECTORY+"data/a.txt")
     File fileB = new File(FINAL_DIRECTORY+"data/b.txt")
 
@@ -20,6 +24,7 @@ class FileServiceSpec extends Specification {
     def cleanup(){
         fileA.delete()
         fileB.delete()
+        parentDir.delete()
     }
 
     void "handle tar.gz decompress"() {
@@ -39,6 +44,8 @@ class FileServiceSpec extends Specification {
         then: "we should have the right file"
         assert fileA.exists()
         assert fileB.exists()
+        assert fileA.text == 'aaa\n'
+        assert fileB.text == 'bbb\n'
 
 
     }
@@ -57,8 +64,10 @@ class FileServiceSpec extends Specification {
         println "fileNames should have a symlink in it ${fileNames.join(",")}"
 
         then: "we should have the right file"
-        assert fileA.exists()
         assert fileB.exists()
+        assert fileB.text == 'bbb - no symlink\n'
+        assert !fileA.exists()
+        assert Files.isSymbolicLink(Paths.get(fileA.absolutePath))
 
 
     }
