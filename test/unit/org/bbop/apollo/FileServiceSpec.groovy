@@ -11,8 +11,8 @@ class FileServiceSpec extends Specification {
 
     private final String FINAL_DIRECTORY = "test/unit/resources/archive_tests/"
 
-    File fileA = new File(FINAL_DIRECTORY+"/a.txt")
-    File fileB = new File(FINAL_DIRECTORY+"/b.txt")
+    File fileA = new File(FINAL_DIRECTORY+"data/a.txt")
+    File fileB = new File(FINAL_DIRECTORY+"data/b.txt")
 
     def setup() {
     }
@@ -28,6 +28,9 @@ class FileServiceSpec extends Specification {
         File inputFile = new File(FINAL_DIRECTORY + "/no_symlinks.tgz" )
         println "input file ${inputFile} ${inputFile.exists()}"
         println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileA.exists()
+        assert !fileB.exists()
 
         when: "we expand it"
         List<String> fileNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
@@ -45,6 +48,9 @@ class FileServiceSpec extends Specification {
         given: "a tar.gz file"
         File inputFile = new File(FINAL_DIRECTORY + "/symlinks.tgz" )
         println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileA.exists()
+        assert !fileB.exists()
 
         when: "we expand it"
         List<String> fileNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
