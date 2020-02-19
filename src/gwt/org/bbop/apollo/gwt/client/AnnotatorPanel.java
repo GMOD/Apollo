@@ -647,7 +647,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
-                tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(type.equals("mRNA"));
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
