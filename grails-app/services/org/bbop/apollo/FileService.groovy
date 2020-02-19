@@ -147,16 +147,12 @@ class FileService {
             }
 
             try {
-                String fileName = validateFileName(entry.getName(), archiveRootDirectoryName)
+                validateFileName(entry.getName(), archiveRootDirectoryName)
                 Path path = destDir.resolve(entry.getName()).normalize();
-                if(!pathString.toString().startsWith(prefix)){
-                    throw new RuntimeException("Archive includes an invalid entry: " + entry.getName());
-                }
                 if (entry.isDirectory()) {
                     Files.createDirectories(path)
                 }
                 else if (entry.isSymbolicLink()) {
-                    println "is a symlink. ${entry.name}"
                     String dest = entry.getLinkName();
                     Path destAbsPath = path.getParent().resolve(dest).normalize();
                     if (!destAbsPath.normalize().toString().startsWith(prefix)) {
@@ -341,12 +337,10 @@ class FileService {
      * @throws IOException
      */
     String validateFileName(String fileName, String intendedOutputDirectory) throws IOException {
-        println "intpu filename ${fileName} ${intendedOutputDirectory}"
         File file = new File(fileName)
         String canonicalPath = file.getCanonicalPath()
         File intendedOutputDirectoryFile = new File(intendedOutputDirectory)
         String canonicalIntendedOutputDirectoryPath = intendedOutputDirectoryFile.getCanonicalPath()
-        println "canonical path ${canonicalIntendedOutputDirectoryPath} vs $canonicalPath = > ${canonicalIntendedOutputDirectoryPath == canonicalPath}"
         if (canonicalPath.startsWith(canonicalIntendedOutputDirectoryPath) || canonicalPath == canonicalIntendedOutputDirectoryPath) {
             return canonicalPath
         } else {
