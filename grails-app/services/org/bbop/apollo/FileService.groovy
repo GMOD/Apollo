@@ -149,6 +149,9 @@ class FileService {
             try {
                 validateFileName(entry.getName(), archiveRootDirectoryName)
                 Path path = destDir.resolve(entry.getName()).normalize();
+                if(!pathString.toString().startsWith(prefix)){
+                    throw new RuntimeException("Archive includes an invalid entry: " + entry.getName());
+                }
                 if (entry.isDirectory()) {
                     Files.createDirectories(path)
                 }
@@ -156,7 +159,8 @@ class FileService {
                     String dest = entry.getLinkName();
                     Path destAbsPath = path.getParent().resolve(dest).normalize();
                     if (!destAbsPath.normalize().toString().startsWith(prefix)) {
-                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
+                        log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
+//                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
                     }
                     Files.createSymbolicLink(path, Paths.get(dest));
                     fileNames.add(destAbsPath.toString())
