@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.apache.commons.lang.WordUtils
+import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
@@ -42,6 +43,7 @@ public class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.OWNER.value);
         writeObject.attributesToExport.add(FeatureStringEnum.ATTRIBUTES.value);
         writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.GENE_PRODUCT.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.COMMENTS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.DATE_CREATION.value);
@@ -65,7 +67,7 @@ public class Gff3HandlerService {
 
 
     @Timed
-    public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
+    void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
             Sequence sourceFeature = feature.featureLocation.sequence
@@ -334,8 +336,25 @@ public class Gff3HandlerService {
                 }
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
-
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null) {
+                String productString  = ""
+
+                int rank = 1
+                for(GeneProduct geneProduct in feature.getGeneProducts()){
+                    if(productString.length()>0) productString += ","
+                    productString += "rank=${rank}"
+                    productString += ";term=${geneProduct.productName}"
+                    productString += ";db_xref=${geneProduct.reference}"
+                    productString += ";evidence=${geneProduct.evidenceRef}"
+                    productString += ";alternate=${geneProduct.alternate}"
+                    productString += ";note=${geneProduct.notesArray}"
+                    productString += ";based_on=${geneProduct.withOrFromArray}"
+                    ++rank
+                }
+
+                attributes.put(FeatureStringEnum.GENE_PRODUCT.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
                 attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
