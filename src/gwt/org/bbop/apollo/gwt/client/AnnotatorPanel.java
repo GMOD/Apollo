@@ -130,7 +130,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     GoPanel goPanel;
     @UiField
-    GeneProductPanel geneProductPanel;
+    static GeneProductPanel geneProductPanel;
     @UiField
     CheckBox goOnlyCheckBox;
     @UiField
@@ -600,6 +600,7 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
+                geneProductPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
@@ -641,6 +642,7 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
+                geneProductPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
