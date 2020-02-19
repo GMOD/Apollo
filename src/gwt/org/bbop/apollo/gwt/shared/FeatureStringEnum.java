@@ -107,6 +107,8 @@ public enum FeatureStringEnum {
         ATTRIBUTES,
         PUBMEDIDS("pubmed_ids"),
         GOIDS("go_ids"),
+        GENE_PRODUCT,
+        DB_XREF,
         SYNONYMS,
         STRUCTURAL_EDIT,
         HIGHLIGHTED_REGION("highlighted region"),
