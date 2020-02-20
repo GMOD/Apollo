@@ -3,7 +3,10 @@ FROM ubuntu:18.04
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV CATALINA_HOME /var/lib/tomcat9
+# where bin directories are
+ENV CATALINA_HOME /usr/share/tomcat9
+# where webapps are deployyed
+ENV CATALINA_BASE /var/lib/tomcat9
 ENV CONTEXT_PATH ROOT
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
@@ -52,8 +55,9 @@ RUN curl -s get.sdkman.io | bash && \
  		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
 USER root
-RUN rm -rf ${CATALINA_HOME}/webapps/* && \
-	cp /apollo/apollo*.war ${CATALINA_HOME}/apollo.war
+# remove from webapps and coipy it into a staging directory
+RUN rm -rf ${CATALINA_BASE}/webapps/* && \
+	cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
 
 ADD docker-files/createenv.sh /createenv.sh
 ADD docker-files/launch.sh /launch.sh

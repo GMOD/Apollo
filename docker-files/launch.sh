@@ -85,21 +85,25 @@ else
     echo "Not using chado!"
 fi
 
-export CATALINA_HOME="${CATALINA_HOME:-/var/lib/tomcat9/}"
+export CATALINA_HOME="${CATALINA_HOME}"
+export CATALINA_BASE="${CATALINA_BASE}"
+
+echo "CATALINA_HOME '${CATALINA_HOME}'"
+echo "CATALINA_BASE '${CATALINA_BASE}'"
 
 APOLLO_PATH="${APOLLO_PATH:${CONTEXT_PATH}}"
-FIXED_CTX=$(echo "${APOLLO_PATH}" | sed 's|/|#|g':-ROOT)
-WAR_FILE=${CATALINA_HOME}/webapps/${FIXED_CTX}.war
+FIXED_CTX=$(echo "${APOLLO_PATH}" | sed 's|/|#|g')
+WAR_FILE=${CATALINA_BASE}/webapps/${FIXED_CTX}.war
 
 echo "APOLLO PATH '${APOLLO_PATH}'"
 echo "FIXED_CTX PATH '${FIXED_CTX}'"
 echo "WAR FILE '${WAR_FILE}'"
 
-cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
+cp ${CATALINA_BASE}/apollo.war ${WAR_FILE}
 
 # Set environment variables for tomcat
 bash /createenv.sh
 
 # Launch tomcat, stopping of already running.
-/usr/share/tomcat9/bin/catalina.sh stop 5 -force
-/usr/share/tomcat9/bin/catalina.sh run
+${CATALINA_HOME}/bin/catalina.sh stop 5 -force
+${CATALINA_HOME}/bin/catalina.sh run
