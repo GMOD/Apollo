@@ -9,7 +9,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	git build-essential libpq-dev wget \
+	git build-essential libpq-dev wget nodejs \
 	lsb-release gnupg2 wget xmlstarlet netcat libpng-dev postgresql-common \
 	zlib1g-dev libexpat1-dev curl ssl-cert zip unzip openjdk-8-jdk-headless
 
@@ -18,11 +18,7 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	postgresql-9.6 postgresql-client-9.6  tomcat9
-
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get -qq update --fix-missing && \
-	apt-get --no-install-recommends -y install nodejs && \
+	postgresql-9.6 postgresql-client-9.6  tomcat9 && \
 	apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /apollo/
 
 RUN npm i -g yarn
