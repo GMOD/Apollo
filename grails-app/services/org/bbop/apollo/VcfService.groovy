@@ -22,6 +22,8 @@ class VcfService {
     public static final String SNV = "SNV"
     public static final String MNV = "MNV"
     public static final String INVERSION = "inversion"
+    public static final String DELINS = "delins"
+    public static final String POINT_MUTATION = "point_mutation"
     public static final String SUBSTITUTION = "substitution"
     public static final String INSERTION = "insertion"
     public static final String DELETION = "deletion"
@@ -280,8 +282,10 @@ class VcfService {
             switch (soTerm){
                 case INSERTION: return INSERTION
                 case DELETION: return DELETION
-                case "snv": return SNV
-                case "mnv": return MNV
+                case POINT_MUTATION:
+                case SNV: return SNV
+                case MNV: return MNV
+                case DELINS: return DELINS
                 case INVERSION: return INVERSION
                 case SUBSTITUTION: return SUBSTITUTION
             }
