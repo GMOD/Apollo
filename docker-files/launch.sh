@@ -85,7 +85,7 @@ else
     echo "Not using chado!"
 fi
 
-export CATALINA_HOME="${CATALINA_HOME:-/usr/local/tomcat/}"
+export CATALINA_HOME="${CATALINA_HOME:-/var/lib/tomcat9/}"
 
 APOLLO_PATH="${APOLLO_PATH:${CONTEXT_PATH}}"
 FIXED_CTX=$(echo "${APOLLO_PATH}" | sed 's|/|#|g')

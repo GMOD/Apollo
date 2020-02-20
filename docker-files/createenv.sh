@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CATALINA_HOME=/usr/local/tomcat
+CATALINA_HOME=/var/lib/tomcat9
 SET_ENV_FILE=$CATALINA_HOME/bin/setenv.sh
 rm -f $SET_ENV_FILE
 touch $SET_ENV_FILE
