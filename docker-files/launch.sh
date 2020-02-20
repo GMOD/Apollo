@@ -12,7 +12,7 @@ if [ ! -e "${WEBAPOLLO_COMMON_DATA}/test_file" ];then
 	su -c "touch ${WEBAPOLLO_COMMON_DATA}/test_file"
 fi
 
-WEBAPOLLO_DB_DATA="/var/lib/postgresql/11/main"
+WEBAPOLLO_DB_DATA="/var/lib/postgresql/9.6/main"
 
 if [ ! -e ${WEBAPOLLO_DB_DATA} ]; then
 	mkdir -p ${WEBAPOLLO_DB_DATA}
@@ -20,7 +20,7 @@ if [ ! -e ${WEBAPOLLO_DB_DATA} ]; then
 fi
 
 if [ ! -e "${WEBAPOLLO_DB_DATA}/PG_VERSION" ];then
-	su -c "/usr/lib/postgresql/11/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
+	su -c "/usr/lib/postgresql/9.6/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
 fi
 
 export WEBAPOLLO_START_POSTGRES="${WEBAPOLLO_START_POSTGRES:-true}"
@@ -88,12 +88,12 @@ fi
 export CATALINA_HOME="${CATALINA_HOME:-/var/lib/tomcat9/}"
 
 APOLLO_PATH="${APOLLO_PATH:${CONTEXT_PATH}}"
-FIXED_CTX=$(echo "${APOLLO_PATH}" | sed 's|/|#|g')
+FIXED_CTX=$(echo "${APOLLO_PATH}" | sed 's|/|#|g':-ROOT)
 WAR_FILE=${CATALINA_HOME}/webapps/${FIXED_CTX}.war
 
-echo "APOLLO PATH ${APOLLO_PATH}"
-echo "FIXED_CTX PATH ${FIXED_CTX}"
-echo "WAR FILE ${WAR_FILE}"
+echo "APOLLO PATH '${APOLLO_PATH}'"
+echo "FIXED_CTX PATH '${FIXED_CTX}'"
+echo "WAR FILE '${WAR_FILE}'"
 
 cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 
@@ -101,5 +101,5 @@ cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 bash /createenv.sh
 
 # Launch tomcat, stopping of already running.
-catalina.sh stop 5 -force 
-catalina.sh run
+/var/lib/tomcat9/bin/catalina.sh stop 5 -force
+/var/lib/tomcat9/bin/catalina.sh run
