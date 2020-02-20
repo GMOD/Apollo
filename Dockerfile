@@ -43,8 +43,10 @@ COPY docker-files/build.sh /bin/build.sh
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 
 RUN chown -R apollo:apollo /apollo
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 USER apollo
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 RUN curl -s get.sdkman.io | bash && \
 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
  		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1" && \
