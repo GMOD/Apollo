@@ -42,7 +42,7 @@ Your CATALINA_OPTS settings from setenv.sh can be confirmed with a tool like jvi
 `ps` tool.  e.g. `ps -ef | grep java`  should yield something like the following allowing you to confirm that your memory settings have been picked up.
 
 ```
-root      9848     1  0 Oct22 ?        00:36:44 /usr/lib/jvm/java-7-openjdk-amd64/bin/java -Djava.util.logging.config.file=/usr/local/tomcat/current/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms1g -Xmx2g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -Dj
+root      9848     1  0 Oct22 ?        00:36:44 /usr/lib/jvm/java-8-openjdk-amd64/bin/java -Djava.util.logging.config.file=/usr/local/tomcat/current/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms1g -Xmx2g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -Dj
 ```
 
 #### Re-install after changing settings
