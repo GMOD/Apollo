@@ -3,8 +3,9 @@ FROM ubuntu:18.04
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV CATALINA_HOME=/usr/local/tomcat
+ENV CATALINA_HOME /var/lib/tomcat9
 ENV CONTEXT_PATH ROOT
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
@@ -43,14 +44,12 @@ COPY docker-files/build.sh /bin/build.sh
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 
 RUN chown -R apollo:apollo /apollo
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 USER apollo
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 RUN curl -s get.sdkman.io | bash && \
 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
  		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1" && \
- 		/bin/bash -c "source $HOME/.profile && source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+ 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
 USER root
 RUN rm -rf ${CATALINA_HOME}/webapps/* && \
