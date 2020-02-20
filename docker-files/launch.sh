@@ -101,5 +101,5 @@ cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 bash /createenv.sh
 
 # Launch tomcat, stopping of already running.
-/var/lib/tomcat9/bin/catalina.sh stop 5 -force
-/var/lib/tomcat9/bin/catalina.sh run
+/usr/share/tomcat9/bin/catalina.sh stop 5 -force
+/usr/share/tomcat9/bin/catalina.sh run
