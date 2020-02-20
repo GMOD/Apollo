@@ -1,5 +1,5 @@
 # Apollo2.X
-FROM tomcat:9-jdk8
+FROM ubuntu:18.04
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -8,9 +8,16 @@ ENV CONTEXT_PATH ROOT
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	git build-essential maven libpq-dev postgresql-common wget \
-	postgresql-11 postgresql-client-11 xmlstarlet netcat libpng-dev \
-	zlib1g-dev libexpat1-dev ant curl ssl-cert zip unzip
+	git build-essential libpq-dev wget \
+	lsb-release gnupg2 wget xmlstarlet netcat libpng-dev postgresql-common \
+	zlib1g-dev libexpat1-dev curl ssl-cert zip unzip openjdk-8-jdk-headless
+
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list' && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+RUN apt-get -qq update --fix-missing && \
+	apt-get --no-install-recommends -y install \
+	postgresql-9.6 postgresql-client-9.6  tomcat9
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get -qq update --fix-missing && \
