@@ -338,7 +338,7 @@ public class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getGeneProducts() != null) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.provenances != null) {
                 String productString  = ""
 
                 int rank = 1
