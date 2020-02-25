@@ -105,13 +105,13 @@ public class ProvenancePanel extends Composite {
   public ProvenancePanel() {
 
     initLookups();
-    initFields();
     dataGrid.setWidth("100%");
     initializeTable();
     dataProvider.addDataDisplay(dataGrid);
     dataGrid.setSelectionModel(selectionModel);
 
     initWidget(ourUiBinder.createAndBindUi(this));
+    initFields();
 
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
