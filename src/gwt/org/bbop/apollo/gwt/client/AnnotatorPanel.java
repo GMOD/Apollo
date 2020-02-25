@@ -132,6 +132,8 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static GeneProductPanel geneProductPanel;
     @UiField
+    static ProvenancePanel provenancePanel;
+    @UiField
     CheckBox goOnlyCheckBox;
     @UiField
     static DbXrefPanel dbXrefPanel;
@@ -167,9 +169,10 @@ public class AnnotatorPanel extends Composite {
         ALLELE_INFO(4),
         GO(5),
         GENE_PRODUCT(6),
-        DB_XREF(7),
-        COMMENT(8),
-        ATTRIBUTES(9),
+        PROVENANCE(7),
+        DB_XREF(8),
+        COMMENT(9),
+        ATTRIBUTES(10),
         ;
 
         public int index;
