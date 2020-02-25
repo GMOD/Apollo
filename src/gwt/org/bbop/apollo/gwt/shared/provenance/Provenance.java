@@ -8,10 +8,9 @@ public class Provenance {
 
   private Long id;
   private String feature; // I think this is the gene it refers to? I think the uniquename
-  private String productName ;
+  private String field;
   private Reference reference;
   private List<String> noteList;
-  private boolean alternate = false;
 
 
   private String evidenceCode;
@@ -32,14 +31,6 @@ public class Provenance {
 
   public void setFeature(String feature) {
     this.feature = feature;
-  }
-
-  public boolean isAlternate() {
-    return alternate;
-  }
-
-  public void setAlternate(boolean alternate) {
-    this.alternate = alternate;
   }
 
   public Reference getReference() {
@@ -90,12 +81,12 @@ public class Provenance {
     this.evidenceCodeLabel = evidenceCodeLabel;
   }
 
-  public String getProductName() {
-    return productName;
+  public String getField() {
+    return field;
   }
 
-  public void setProductName(String productName) {
-    this.productName = productName;
+  public void setField(String field) {
+    this.field = field;
   }
 
   public List<String> getNoteList() {

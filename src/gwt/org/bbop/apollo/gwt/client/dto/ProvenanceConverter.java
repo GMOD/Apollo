@@ -1,9 +1,9 @@
 package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.*;
-import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
-import org.bbop.apollo.gwt.shared.geneProduct.Reference;
-import org.bbop.apollo.gwt.shared.geneProduct.WithOrFrom;
+import org.bbop.apollo.gwt.shared.provenance.Provenance;
+import org.bbop.apollo.gwt.shared.provenance.Reference;
+import org.bbop.apollo.gwt.shared.provenance.WithOrFrom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,22 +13,20 @@ import java.util.List;
  */
 public class ProvenanceConverter {
 
-  public static GeneProduct convertFromJson(JSONObject object) {
-    GeneProduct geneProduct = new GeneProduct();
+  public static Provenance convertFromJson(JSONObject object) {
+    Provenance provenance = new Provenance();
 
 //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
 //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
 //                    "[\"adf:12312\"]"
-    geneProduct.setId(Math.round(object.get("id").isNumber().doubleValue()));
-    geneProduct.setFeature(object.get("gene").isString().stringValue());
-    geneProduct.setProductName(object.get("productName").isString().stringValue());
-    geneProduct.setAlternate(object.get("alternate").isBoolean().booleanValue());
-//    geneProduct.setGoTerm(object.get("goTerm").isString().stringValue());
+    provenance.setId(Math.round(object.get("id").isNumber().doubleValue()));
+    provenance.setFeature(object.get("gene").isString().stringValue());
+    provenance.setField(object.get("field").isString().stringValue());
     if(object.containsKey("evidenceCodeLabel")){
-      geneProduct.setEvidenceCodeLabel(object.get("evidenceCodeLabel").isString().stringValue());
+      provenance.setEvidenceCodeLabel(object.get("evidenceCodeLabel").isString().stringValue());
     }
-    geneProduct.setEvidenceCode(object.get("evidenceCode").isString().stringValue());
-    geneProduct.setReference(new Reference(object.get("reference").isString().stringValue()));
+    provenance.setEvidenceCode(object.get("evidenceCode").isString().stringValue());
+    provenance.setReference(new Reference(object.get("reference").isString().stringValue()));
 
 
     List<WithOrFrom> withOrFromList = new ArrayList<>();
@@ -40,29 +38,28 @@ public class ProvenanceConverter {
         withOrFromList.add(withOrFrom);
       }
     }
-    geneProduct.setWithOrFromList(withOrFromList);
+    provenance.setWithOrFromList(withOrFromList);
 
-    return geneProduct;
+    return provenance;
   }
 
-  public static JSONObject convertToJson(GeneProduct geneProduct) {
+  public static JSONObject convertToJson(Provenance provenance) {
     JSONObject object = new JSONObject();
 
     // TODO: an NPE in here, somehwere
-    if (geneProduct.getId() != null) {
-      object.put("id", new JSONNumber(geneProduct.getId()));
+    if (provenance.getId() != null) {
+      object.put("id", new JSONNumber(provenance.getId()));
     }
-    object.put("gene", new JSONString(geneProduct.getFeature()));
-    object.put("productName", new JSONString(geneProduct.getProductName()));
-    object.put("alternate", JSONBoolean.getInstance(geneProduct.isAlternate()));
-    object.put("evidenceCode", new JSONString(geneProduct.getEvidenceCode()));
-    object.put("evidenceCodeLabel", new JSONString(geneProduct.getEvidenceCodeLabel()));
-    object.put("reference", new JSONString(geneProduct.getReference().getReferenceString()));
+    object.put("gene", new JSONString(provenance.getFeature()));
+    object.put("field", new JSONString(provenance.getField()));
+    object.put("evidenceCode", new JSONString(provenance.getEvidenceCode()));
+    object.put("evidenceCodeLabel", new JSONString(provenance.getEvidenceCodeLabel()));
+    object.put("reference", new JSONString(provenance.getReference().getReferenceString()));
 
     // TODO: finish this
     JSONArray withArray = new JSONArray();
 
-    for (WithOrFrom withOrFrom : geneProduct.getWithOrFromList()) {
+    for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
       withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
     }
 

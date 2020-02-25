@@ -44,10 +44,10 @@ public class GeneProductPanel extends Composite {
 
   private final String ECO_BASE = "http://www.evidenceontology.org/term/";
 
-  interface GoPanelUiBinder extends UiBinder<Widget, GeneProductPanel> {
+  interface GeneProductUiBinder extends UiBinder<Widget, GeneProductPanel> {
   }
 
-  private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
+  private static GeneProductUiBinder ourUiBinder = GWT.create(GeneProductUiBinder.class);
 
   DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
   @UiField(provided = true)

@@ -338,11 +338,28 @@ public class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getGeneProducts() != null) {
+                String productString  = ""
+
+                int rank = 1
+                for(Provenance provenance in feature.provenances){
+                    if(productString.length()>0) productString += ","
+                    productString += "rank=${rank}"
+                    productString += ";field=${provenance.field}"
+                    productString += ";db_xref=${provenance.reference}"
+                    productString += ";evidence=${provenance.evidenceRef}"
+                    productString += ";note=${provenance.notesArray}"
+                    productString += ";based_on=${provenance.withOrFromArray}"
+                    ++rank
+                }
+
+                attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
+            }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null) {
                 String productString  = ""
 
                 int rank = 1
-                for(GeneProduct geneProduct in feature.getGeneProducts()){
+                for(GeneProduct geneProduct in feature.geneProducts){
                     if(productString.length()>0) productString += ","
                     productString += "rank=${rank}"
                     productString += ";term=${geneProduct.productName}"

@@ -1,21 +1,16 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.Feature
-import org.bbop.apollo.User
-
-
 class Provenance {
 
   static constraints = {
     feature nullable: false
-    productName nullable: false,blank: false
+    field nullable: false,blank: false
     reference nullable: false, blank: false
     dateCreated nullable: false
     lastUpdated nullable: false
     evidenceRef nullable: false, blank: false
     evidenceRefLabel nullable: true, blank: true
     withOrFromArray nullable: true, blank: true
-    alternate nullable: false
     notesArray nullable: true, blank: true
 
   }
@@ -25,7 +20,7 @@ class Provenance {
   ]
 
   Feature feature
-  String productName // this is new
+  String field // this is new
   String reference
   Date lastUpdated
   Date dateCreated
@@ -33,7 +28,6 @@ class Provenance {
   String evidenceRefLabel
   String notesArray
   String withOrFromArray
-  Boolean alternate = false
 
 
 }
