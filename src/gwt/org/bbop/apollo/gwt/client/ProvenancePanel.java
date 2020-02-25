@@ -25,6 +25,7 @@ import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.shared.provenance.Provenance;
+import org.bbop.apollo.gwt.shared.provenance.ProvenanceField;
 import org.bbop.apollo.gwt.shared.provenance.Reference;
 import org.bbop.apollo.gwt.shared.provenance.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
@@ -55,7 +56,7 @@ public class ProvenancePanel extends Composite {
   @UiField
   TextBox noteField;
   @UiField
-  TextBox provenanceField;
+  org.gwtbootstrap3.client.ui.ListBox provenanceField;
   @UiField(provided = true)
   SuggestBox evidenceCodeField;
   @UiField
@@ -65,7 +66,7 @@ public class ProvenancePanel extends Composite {
   @UiField
   Button newGoButton;
   @UiField
-  Modal editGoModal;
+  Modal provenanceModal;
   @UiField
   Button saveNewProvenance;
   @UiField
@@ -104,6 +105,7 @@ public class ProvenancePanel extends Composite {
   public ProvenancePanel() {
 
     initLookups();
+    initFields();
     dataGrid.setWidth("100%");
     initializeTable();
     dataProvider.addDataDisplay(dataGrid);
@@ -138,7 +140,7 @@ public class ProvenancePanel extends Composite {
       public void onDoubleClick(DoubleClickEvent event) {
         provenanceTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
         handleSelection();
-        editGoModal.show();
+        provenanceModal.show();
       }
     }, DoubleClickEvent.getType());
 
@@ -155,7 +157,7 @@ public class ProvenancePanel extends Composite {
     provenanceField.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        String selectedItemText = provenanceField.getText();
+        String selectedItemText = provenanceField.getSelectedItemText();
       }
     });
 
@@ -171,6 +173,12 @@ public class ProvenancePanel extends Composite {
     withFieldPrefix.setEnabled(enabled);
     withFieldId.setEnabled(enabled);
     noteField.setEnabled(enabled);
+  }
+
+  private void initFields() {
+    for( ProvenanceField field : ProvenanceField.values()){
+        provenanceField.addItem(field.name());
+    }
   }
 
   private void initLookups() {
@@ -279,7 +287,8 @@ public class ProvenancePanel extends Composite {
     } else {
       Provenance selectedProvenance = selectionModel.getSelectedObject();
 
-      provenanceField.setText(selectedProvenance.getField());
+      int indexForField = getFieldIndex(selectedProvenance.getField());
+      provenanceField.setSelectedIndex(indexForField);
       evidenceCodeField.setText(selectedProvenance.getEvidenceCode());
       evidenceCodeLink.setHref(ECO_BASE + selectedProvenance.getEvidenceCode());
       ProvenanceRestService.lookupTerm(evidenceCodeLink, selectedProvenance.getEvidenceCode());
@@ -297,22 +306,29 @@ public class ProvenancePanel extends Composite {
 
   }
 
+  private int getFieldIndex(String field) {
+    for(int i = 0 ; i < provenanceField.getItemCount() ; i++){
+        if(provenanceField.getValue(i).equals(field)) return i ;
+    }
+    return 0;
+  }
+
   public void redraw() {
     dataGrid.redraw();
   }
 
   @UiHandler("newGoButton")
   public void newProvenance(ClickEvent e) {
-    provenanceTitle.setText("Add new Gene Product to " + AnnotatorPanel.selectedAnnotationInfo.getName());
+    provenanceTitle.setText("Add provenance to field " + AnnotatorPanel.selectedAnnotationInfo.getName());
     withEntriesFlexTable.removeAllRows();
     notesFlexTable.removeAllRows();
     selectionModel.clear();
-    editGoModal.show();
+    provenanceModal.show();
   }
 
   @UiHandler("editGoButton")
   public void editProvenance(ClickEvent e) {
-    editGoModal.show();
+    provenanceModal.show();
   }
 
   @UiHandler("addWithButton")
@@ -388,7 +404,7 @@ public class ProvenancePanel extends Composite {
     } else {
       ProvenanceRestService.saveProvenance(requestCallback, provenance);
     }
-    editGoModal.hide();
+    provenanceModal.hide();
   }
 
   private List<String> validateProvenance(Provenance provenance) {
@@ -417,7 +433,7 @@ public class ProvenancePanel extends Composite {
   private Provenance getEditedProvenance() {
     Provenance provenance = new Provenance();
     provenance.setFeature(annotationInfo.getUniqueName());
-    provenance.setField(provenanceField.getText().trim());
+    provenance.setField(provenanceField.getSelectedValue().trim());
     provenance.setEvidenceCode(evidenceCodeField.getText());
     provenance.setEvidenceCodeLabel(evidenceCodeLink.getText());
     provenance.setWithOrFromList(getWithList());
@@ -461,7 +477,7 @@ public class ProvenancePanel extends Composite {
   @UiHandler("cancelNewProvenance")
   public void cancelNewProvenanceButton(ClickEvent e) {
     clearModal();
-    editGoModal.hide();
+    provenanceModal.hide();
   }
 
   @UiHandler("deleteGoButton")
@@ -549,7 +565,7 @@ public class ProvenancePanel extends Composite {
     evidenceColumn.setSortable(true);
 
 
-    dataGrid.addColumn(provenanceTextColumn, "Name");
+    dataGrid.addColumn(provenanceTextColumn, "Field");
     dataGrid.addColumn(evidenceColumn, "Evidence");
     dataGrid.addColumn(withColumn, "Based On");
     dataGrid.addColumn(referenceColumn, "Reference");
