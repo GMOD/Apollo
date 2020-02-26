@@ -1,11 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.Feature
-import org.bbop.apollo.Gene
-import org.bbop.apollo.Pseudogene
-import org.bbop.apollo.Transcript
-import org.bbop.apollo.geneProduct.GeneProduct
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -15,39 +10,38 @@ class ProvenanceService {
   def featureRelationshipService
 
 
-  JSONObject convertAnnotationToJson(GeneProduct geneProduct) {
+  JSONObject convertAnnotationToJson(Provenance provenance) {
     JSONObject goObject = new JSONObject()
-    if (geneProduct.getId()) {
-      goObject.put("id", geneProduct.getId())
+    if (provenance.getId()) {
+      goObject.put("id", provenance.getId())
     }
-    goObject.put("gene", geneProduct.feature.uniqueName)
-    goObject.put("productName", geneProduct.productName)
-    goObject.put("evidenceCode", geneProduct.evidenceRef)
-    goObject.put("evidenceCodeLabel", geneProduct.evidenceRefLabel)
-    goObject.put("alternate", geneProduct.alternate)
-    goObject.put("withOrFrom", geneProduct.withOrFromArray)
-    goObject.put("notes", geneProduct.notesArray)
-    goObject.put("reference", geneProduct.reference)
+    goObject.put("feature", provenance.feature.uniqueName)
+    goObject.put("field", provenance.field)
+    goObject.put("evidenceCode", provenance.evidenceRef)
+    goObject.put("evidenceCodeLabel", provenance.evidenceRefLabel)
+    goObject.put("withOrFrom", provenance.withOrFromArray)
+    goObject.put("notes", provenance.notesArray)
+    goObject.put("reference", provenance.reference)
     return goObject
   }
 
-  JSONArray convertAnnotationsToJson(Collection<GeneProduct> geneProducts) {
+  JSONArray convertAnnotationsToJson(Collection<Provenance> provenances) {
     JSONArray annotations = new JSONArray()
 //                {
 //                    "gene" : "e35ea570-f700-41fb-b479-70aa812174ad" , "goTerm" : "GO:0014731PHENOTYPE" ,
 //                    "geneRelationship" : "RO:0002326" , "evidenceCode" : "ECO:0000361" , "negate" : false , "withOrFrom"
 //                    : ["asef:123123"] , "references" : ["ref:asdfasdf21"]
 //                }
-    for (GeneProduct geneProduct in geneProducts) {
-      annotations.add(convertAnnotationToJson(geneProduct))
+    for (Provenance provenance in provenances) {
+      annotations.add(convertAnnotationToJson(provenance))
     }
     return annotations
   }
 
   JSONObject getAnnotations(Feature feature) {
-    def geneProducts = GeneProduct.findAllByFeature(feature)
+    def provenances = Provenance.findAllByFeature(feature)
     JSONObject returnObject = new JSONObject()
-    JSONArray annotations = convertAnnotationsToJson(geneProducts)
+    JSONArray annotations = convertAnnotationsToJson(provenances)
     returnObject.put("annotations", annotations)
     return returnObject
   }
@@ -64,16 +58,16 @@ class ProvenanceService {
       }
 
       if (parentFeature) {
-        List<GeneProduct> annotations = GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature])
-        GeneProduct.deleteAll(annotations)
+        List<Provenance> annotations = Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature])
+        Provenance.deleteAll(annotations)
       }
     }
   }
 
-  def removeGeneProductsFromFeature(Feature feature) {
-      def geneProducts = feature.geneProducts
-      for(def annotation in geneProducts){
-        feature.removeFromGeneProducts(annotation)
+  def removeProvenancesFromFeature(Feature feature) {
+      def provenances = feature.provenances
+      for(def annotation in provenances){
+        feature.removeFromProvenances(annotation)
       }
   }
 }

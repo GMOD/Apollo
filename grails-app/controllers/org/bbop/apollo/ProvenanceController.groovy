@@ -2,9 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.bbop.apollo.Feature
-import org.bbop.apollo.User
-import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -22,11 +19,11 @@ class ProvenanceController {
 
 
   def permissionService
-  def geneProductService
+  def provenanceService
   def featureEventService
   def featureService
 
-  @RestApiMethod(description = "Load Go Annotations for gene", path = "/geneProduct", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Load Go Annotations for gene", path = "/provenance", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -38,7 +35,7 @@ class ProvenanceController {
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
     Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
     if (feature) {
-      JSONObject annotations = geneProductService.getAnnotations(feature)
+      JSONObject annotations = provenanceService.getAnnotations(feature)
       // TODO: register with marshaller
       render annotations as JSON
     } else {
@@ -53,7 +50,7 @@ class ProvenanceController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-  @RestApiMethod(description = "Save New Go Annotations for gene", path = "/geneProduct/save", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Save New Go Annotations for gene", path = "/provenance/save", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -74,24 +71,24 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    GeneProduct geneProduct = new GeneProduct()
+    Provenance provenance = new Provenance()
     Feature feature = Feature.findByUniqueName(dataObject.gene)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
-    geneProduct.feature = feature
-    geneProduct.productName = dataObject.productName
-    geneProduct.evidenceRef = dataObject.evidenceCode
-    geneProduct.evidenceRefLabel = dataObject.evidenceCodeLabel
-    geneProduct.alternate = dataObject.alternate ?: false
-    geneProduct.withOrFromArray = dataObject.withOrFrom
-    geneProduct.notesArray = dataObject.notes
-    geneProduct.reference = dataObject.reference
-    geneProduct.lastUpdated = new Date()
-    geneProduct.dateCreated = new Date()
-    geneProduct.addToOwners(user)
-    feature.addToGeneProducts(geneProduct)
-    geneProduct.save(flush: true, failOnError: true)
+    provenance.feature = feature
+    provenance.productName = dataObject.productName
+    provenance.evidenceRef = dataObject.evidenceCode
+    provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
+    provenance.alternate = dataObject.alternate ?: false
+    provenance.withOrFromArray = dataObject.withOrFrom
+    provenance.notesArray = dataObject.notes
+    provenance.reference = dataObject.reference
+    provenance.lastUpdated = new Date()
+    provenance.dateCreated = new Date()
+    provenance.addToOwners(user)
+    feature.addToProvenances(provenance)
+    provenance.save(flush: true, failOnError: true)
 
     JSONArray oldFeaturesJsonArray = new JSONArray()
     oldFeaturesJsonArray.add(originalFeatureJsonObject)
@@ -107,11 +104,11 @@ class ProvenanceController {
       newFeaturesJsonArray,
       user)
 
-    JSONObject annotations = geneProductService.getAnnotations(feature)
+    JSONObject annotations = provenanceService.getAnnotations(feature)
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/geneProduct/update", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/provenance/update", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -138,19 +135,19 @@ class ProvenanceController {
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
 
-    GeneProduct geneProduct = GeneProduct.findById(dataObject.id)
-    geneProduct.feature = feature
-    geneProduct.productName = dataObject.productName
-    geneProduct.evidenceRef = dataObject.evidenceCode
-    geneProduct.evidenceRefLabel = dataObject.evidenceCodeLabel
-    geneProduct.alternate = dataObject.alternate ?: false
-    geneProduct.withOrFromArray = dataObject.withOrFrom
-    geneProduct.notesArray = dataObject.notes
-    geneProduct.reference = dataObject.reference
-    geneProduct.lastUpdated = new Date()
-    geneProduct.dateCreated = new Date()
-    geneProduct.addToOwners(user)
-    geneProduct.save(flush: true, failOnError: true, insert: false)
+    Provenance provenance = Provenance.findById(dataObject.id)
+    provenance.feature = feature
+    provenance.productName = dataObject.productName
+    provenance.evidenceRef = dataObject.evidenceCode
+    provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
+    provenance.alternate = dataObject.alternate ?: false
+    provenance.withOrFromArray = dataObject.withOrFrom
+    provenance.notesArray = dataObject.notes
+    provenance.reference = dataObject.reference
+    provenance.lastUpdated = new Date()
+    provenance.dateCreated = new Date()
+    provenance.addToOwners(user)
+    provenance.save(flush: true, failOnError: true, insert: false)
 
     JSONArray oldFeaturesJsonArray = new JSONArray()
     oldFeaturesJsonArray.add(originalFeatureJsonObject)
@@ -166,11 +163,11 @@ class ProvenanceController {
       newFeaturesJsonArray,
       user)
 
-    JSONObject annotations = geneProductService.getAnnotations(feature)
+    JSONObject annotations = provenanceService.getAnnotations(feature)
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/geneProduct/delete", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/provenance/delete", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -187,9 +184,9 @@ class ProvenanceController {
     Feature feature = Feature.findByUniqueName(dataObject.gene)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
-    GeneProduct geneProduct = GeneProduct.findById(dataObject.id)
-    feature.removeFromGeneProducts(geneProduct)
-    geneProduct.delete(flush: true)
+    Provenance provenance = Provenance.findById(dataObject.id)
+    feature.removeFromProvenances(provenance)
+    provenance.delete(flush: true)
 
     JSONArray oldFeaturesJsonArray = new JSONArray()
     oldFeaturesJsonArray.add(originalFeatureJsonObject)
@@ -205,7 +202,7 @@ class ProvenanceController {
       newFeaturesJsonArray,
       user)
 
-    JSONObject annotations = geneProductService.getAnnotations(feature)
+    JSONObject annotations = provenanceService.getAnnotations(feature)
     render annotations as JSON
   }
 }
