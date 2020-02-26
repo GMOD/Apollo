@@ -44,6 +44,7 @@ public class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.ATTRIBUTES.value);
         writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GENE_PRODUCT.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.PROVENANCE.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.COMMENTS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.DATE_CREATION.value);
@@ -338,11 +339,28 @@ public class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
+                String productString  = ""
+
+                int rank = 1
+                for(Provenance provenance in feature.provenances){
+                    if(productString.length()>0) productString += ","
+                    productString += "rank=${rank}"
+                    productString += ";field=${provenance.field}"
+                    productString += ";db_xref=${provenance.reference}"
+                    productString += ";evidence=${provenance.evidenceRef}"
+                    productString += ";note=${provenance.notesArray}"
+                    productString += ";based_on=${provenance.withOrFromArray}"
+                    ++rank
+                }
+
+                attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
+            }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null) {
                 String productString  = ""
 
                 int rank = 1
-                for(GeneProduct geneProduct in feature.getGeneProducts()){
+                for(GeneProduct geneProduct in feature.geneProducts){
                     if(productString.length()>0) productString += ","
                     productString += "rank=${rank}"
                     productString += ";term=${geneProduct.productName}"

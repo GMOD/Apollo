@@ -198,6 +198,10 @@
                     <apollo:GeneProductPanel ui:field="geneProductPanel"/>
                 </gwt:tab>
                 <gwt:tab>
+                    <gwt:header>Provenance</gwt:header>
+                    <apollo:ProvenancePanel ui:field="provenancePanel"/>
+                </gwt:tab>
+                <gwt:tab>
                     <gwt:header>DbXref</gwt:header>
                     <apollo:DbXrefPanel ui:field="dbXrefPanel"/>
                 </gwt:tab>

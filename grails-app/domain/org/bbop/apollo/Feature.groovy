@@ -49,6 +49,7 @@ class Feature implements Ontological{
             ,owners:User
             ,goAnnotations: GoAnnotation
             ,geneProducts: GeneProduct
+            ,provenances: Provenance
     ]
 
     static mappedBy = [

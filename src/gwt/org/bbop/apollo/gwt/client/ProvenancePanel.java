@@ -15,18 +15,20 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
+import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
-import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
-import org.bbop.apollo.gwt.shared.geneProduct.Reference;
-import org.bbop.apollo.gwt.shared.geneProduct.WithOrFrom;
+import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
+import org.bbop.apollo.gwt.shared.provenance.Provenance;
+import org.bbop.apollo.gwt.shared.provenance.ProvenanceField;
+import org.bbop.apollo.gwt.shared.provenance.Reference;
+import org.bbop.apollo.gwt.shared.provenance.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.SuggestBox;
@@ -40,22 +42,22 @@ import java.util.List;
 /**
  * Created by ndunn on 1/9/15.
  */
-public class GeneProductPanel extends Composite {
+public class ProvenancePanel extends Composite {
 
   private final String ECO_BASE = "http://www.evidenceontology.org/term/";
 
-  interface GeneProductUiBinder extends UiBinder<Widget, GeneProductPanel> {
+  interface ProvenancePanelUiBinder extends UiBinder<Widget, ProvenancePanel> {
   }
 
-  private static GeneProductUiBinder ourUiBinder = GWT.create(GeneProductUiBinder.class);
+  private static ProvenancePanelUiBinder ourUiBinder = GWT.create(ProvenancePanelUiBinder.class);
 
   DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
   @UiField(provided = true)
-  DataGrid<GeneProduct> dataGrid = new DataGrid<>(200, tablecss);
+  DataGrid<Provenance> dataGrid = new DataGrid<>(200, tablecss);
   @UiField
   TextBox noteField;
   @UiField
-  TextBox geneProductField;
+  ListBox provenanceField;
   @UiField(provided = true)
   SuggestBox evidenceCodeField;
   @UiField
@@ -65,11 +67,11 @@ public class GeneProductPanel extends Composite {
   @UiField
   Button newGoButton;
   @UiField
-  Modal editGoModal;
+  Modal provenanceModal;
   @UiField
-  Button saveNewGeneProduct;
+  Button saveNewProvenance;
   @UiField
-  Button cancelNewGeneProduct;
+  Button cancelNewProvenance;
   @UiField
   Button editGoButton;
   @UiField
@@ -80,8 +82,6 @@ public class GeneProductPanel extends Composite {
   Button addWithButton;
   @UiField
   Button addNoteButton;
-  @UiField
-  org.gwtbootstrap3.client.ui.CheckBox alternateCheckBox;
   @UiField
   Anchor evidenceCodeLink;
   @UiField
@@ -95,15 +95,15 @@ public class GeneProductPanel extends Composite {
   //    @UiField
 //    Button referenceValidateButton;
   @UiField
-  HTML geneProductTitle;
+  HTML provenanceTitle;
 
-  private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
-  private static List<GeneProduct> annotationInfoList = dataProvider.getList();
-  private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
+  private static ListDataProvider<Provenance> dataProvider = new ListDataProvider<>();
+  private static List<Provenance> annotationInfoList = dataProvider.getList();
+  private SingleSelectionModel<Provenance> selectionModel = new SingleSelectionModel<>();
 
   private AnnotationInfo annotationInfo;
 
-  public GeneProductPanel() {
+  public ProvenancePanel() {
 
     initLookups();
     dataGrid.setWidth("100%");
@@ -112,6 +112,7 @@ public class GeneProductPanel extends Composite {
     dataGrid.setSelectionModel(selectionModel);
 
     initWidget(ourUiBinder.createAndBindUi(this));
+    initFields();
 
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -138,9 +139,9 @@ public class GeneProductPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+        provenanceTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
         handleSelection();
-        editGoModal.show();
+        provenanceModal.show();
       }
     }, DoubleClickEvent.getType());
 
@@ -154,10 +155,10 @@ public class GeneProductPanel extends Composite {
       }
     });
 
-    geneProductField.addChangeHandler(new ChangeHandler() {
+    provenanceField.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        String selectedItemText = geneProductField.getText();
+        String selectedItemText = provenanceField.getSelectedItemText();
       }
     });
 
@@ -165,14 +166,20 @@ public class GeneProductPanel extends Composite {
   }
 
   private void enableFields(boolean enabled) {
-    saveNewGeneProduct.setEnabled(enabled);
+    saveNewProvenance.setEnabled(enabled);
     evidenceCodeField.setEnabled(enabled);
-    geneProductField.setEnabled(enabled);
+    provenanceField.setEnabled(enabled);
     referenceFieldPrefix.setEnabled(enabled);
     referenceFieldId.setEnabled(enabled);
     withFieldPrefix.setEnabled(enabled);
     withFieldId.setEnabled(enabled);
     noteField.setEnabled(enabled);
+  }
+
+  private void initFields() {
+    for( ProvenanceField field : ProvenanceField.values()){
+        provenanceField.addItem(field.name());
+    }
   }
 
   private void initLookups() {
@@ -211,7 +218,7 @@ public class GeneProductPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo.getUniqueName());
+      ProvenanceRestService.getProvenance(requestCallback, annotationInfo.getUniqueName());
     }
   }
 
@@ -263,7 +270,7 @@ public class GeneProductPanel extends Composite {
   }
 
   private void clearModal() {
-    geneProductField.clear();
+    provenanceField.setSelectedIndex(0);
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
@@ -273,33 +280,38 @@ public class GeneProductPanel extends Composite {
     notesFlexTable.removeAllRows();
     referenceFieldPrefix.setText("");
     referenceFieldId.setText("");
-    alternateCheckBox.setValue(false);
   }
 
   private void handleSelection() {
     if (selectionModel.getSelectedSet().isEmpty()) {
       clearModal();
     } else {
-      GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
+      Provenance selectedProvenance = selectionModel.getSelectedObject();
 
-      geneProductField.setText(selectedGeneProduct.getProductName());
-      alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
-//      alternateCheckBox.setValue(selectedGeneProduct.get());
-      evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
-      GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
+      int indexForField = getFieldIndex(selectedProvenance.getField());
+      provenanceField.setSelectedIndex(indexForField);
+      evidenceCodeField.setText(selectedProvenance.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedProvenance.getEvidenceCode());
+      ProvenanceRestService.lookupTerm(evidenceCodeLink, selectedProvenance.getEvidenceCode());
 
       withEntriesFlexTable.removeAllRows();
-      for (WithOrFrom withOrFrom : selectedGeneProduct.getWithOrFromList()) {
+      for (WithOrFrom withOrFrom : selectedProvenance.getWithOrFromList()) {
         addWithSelection(withOrFrom);
       }
       withFieldPrefix.setText("");
 
-      referenceFieldPrefix.setText(selectedGeneProduct.getReference().getPrefix());
-      referenceFieldId.setText(selectedGeneProduct.getReference().getLookupId());
+      referenceFieldPrefix.setText(selectedProvenance.getReference().getPrefix());
+      referenceFieldId.setText(selectedProvenance.getReference().getLookupId());
 
     }
 
+  }
+
+  private int getFieldIndex(String field) {
+    for(int i = 0 ; i < provenanceField.getItemCount() ; i++){
+        if(provenanceField.getValue(i).equals(field)) return i ;
+    }
+    return 0;
   }
 
   public void redraw() {
@@ -307,17 +319,17 @@ public class GeneProductPanel extends Composite {
   }
 
   @UiHandler("newGoButton")
-  public void newGeneProduct(ClickEvent e) {
-    geneProductTitle.setText("Add new Gene Product to " + AnnotatorPanel.selectedAnnotationInfo.getName());
+  public void newProvenance(ClickEvent e) {
+    provenanceTitle.setText("Add provenance to field " + AnnotatorPanel.selectedAnnotationInfo.getName());
     withEntriesFlexTable.removeAllRows();
     notesFlexTable.removeAllRows();
     selectionModel.clear();
-    editGoModal.show();
+    provenanceModal.show();
   }
 
   @UiHandler("editGoButton")
-  public void editGeneProduct(ClickEvent e) {
-    editGoModal.show();
+  public void editProvenance(ClickEvent e) {
+    provenanceModal.show();
   }
 
   @UiHandler("addWithButton")
@@ -351,20 +363,20 @@ public class GeneProductPanel extends Composite {
     JSONArray annotationsArray = inputObject.get("annotations").isArray();
     annotationInfoList.clear();
     for (int i = 0; i < annotationsArray.size(); i++) {
-      GeneProduct geneProductInstance = GeneProductConverter.convertFromJson(annotationsArray.get(i).isObject());
-      annotationInfoList.add(geneProductInstance);
+      Provenance provenanceInstance = ProvenanceConverter.convertFromJson(annotationsArray.get(i).isObject());
+      annotationInfoList.add(provenanceInstance);
     }
   }
 
 
-  @UiHandler("saveNewGeneProduct")
-  public void saveNewGeneProductButton(ClickEvent e) {
-    GeneProduct geneProduct = getEditedGeneProduct();
-    GeneProduct selectedGeneProduct = selectionModel.getSelectedObject();
-    if (selectedGeneProduct != null) {
-      geneProduct.setId(selectedGeneProduct.getId());
+  @UiHandler("saveNewProvenance")
+  public void saveNewProvenanceButton(ClickEvent e) {
+    Provenance provenance = getEditedProvenance();
+    Provenance selectedProvenance = selectionModel.getSelectedObject();
+    if (selectedProvenance != null) {
+      provenance.setId(selectedProvenance.getId());
     }
-    List<String> validationErrors = validateGeneProduct(geneProduct);
+    List<String> validationErrors = validateProvenance(provenance);
     if (validationErrors.size() > 0) {
       String errorString = "Invalid Gene Product <br/>";
       for (String error : validationErrors) {
@@ -388,48 +400,47 @@ public class GeneProductPanel extends Composite {
         Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
       }
     };
-    if (geneProduct.getId() != null) {
-      GeneProductRestService.updateGeneProduct(requestCallback, geneProduct);
+    if (provenance.getId() != null) {
+      ProvenanceRestService.updateProvenance(requestCallback, provenance);
     } else {
-      GeneProductRestService.saveGeneProduct(requestCallback, geneProduct);
+      ProvenanceRestService.saveProvenance(requestCallback, provenance);
     }
-    editGoModal.hide();
+    provenanceModal.hide();
   }
 
-  private List<String> validateGeneProduct(GeneProduct geneProduct) {
+  private List<String> validateProvenance(Provenance provenance) {
     List<String> validationErrors = new ArrayList<>();
-    if (geneProduct.getFeature() == null) {
+    if (provenance.getFeature() == null) {
       validationErrors.add("You must provide a gene name");
     }
-    if (geneProduct.getProductName() == null) {
-      validationErrors.add("You must provide a product name");
+    if (provenance.getField() == null) {
+      validationErrors.add("You must provide a field to describe");
     }
-    if (geneProduct.getEvidenceCode() == null) {
+    if (provenance.getEvidenceCode() == null) {
       validationErrors.add("You must provide an ECO term");
     }
-    if (!geneProduct.getEvidenceCode().contains(":")) {
+    if (!provenance.getEvidenceCode().contains(":")) {
       validationErrors.add("You must provide a prefix and suffix for the ECO term");
     }
-    if (geneProduct.getReference().getPrefix().length() == 0) {
+    if (provenance.getReference().getPrefix().length() == 0) {
       validationErrors.add("You must provide at least a reference prefix.");
     }
-    if (geneProduct.getReference().getLookupId().length() == 0) {
+    if (provenance.getReference().getLookupId().length() == 0) {
       validationErrors.add("You must provide at least a reference id.");
     }
     return validationErrors;
   }
 
-  private GeneProduct getEditedGeneProduct() {
-    GeneProduct geneProduct = new GeneProduct();
-    geneProduct.setFeature(annotationInfo.getUniqueName());
-    geneProduct.setProductName(geneProductField.getText().trim());
-    geneProduct.setAlternate(alternateCheckBox.getValue());
-    geneProduct.setEvidenceCode(evidenceCodeField.getText());
-    geneProduct.setEvidenceCodeLabel(evidenceCodeLink.getText());
-    geneProduct.setWithOrFromList(getWithList());
+  private Provenance getEditedProvenance() {
+    Provenance provenance = new Provenance();
+    provenance.setFeature(annotationInfo.getUniqueName());
+    provenance.setField(provenanceField.getSelectedValue().trim());
+    provenance.setEvidenceCode(evidenceCodeField.getText());
+    provenance.setEvidenceCodeLabel(evidenceCodeLink.getText());
+    provenance.setWithOrFromList(getWithList());
     Reference reference = new Reference(referenceFieldPrefix.getText(), referenceFieldId.getText());
-    geneProduct.setReference(reference);
-    return geneProduct;
+    provenance.setReference(reference);
+    return provenance;
   }
 
   private List<WithOrFrom> getWithList() {
@@ -464,16 +475,16 @@ public class GeneProductPanel extends Composite {
 //        GWT.log("not sure what to do here ");
 //    }
 
-  @UiHandler("cancelNewGeneProduct")
-  public void cancelNewGeneProductButton(ClickEvent e) {
+  @UiHandler("cancelNewProvenance")
+  public void cancelNewProvenanceButton(ClickEvent e) {
     clearModal();
-    editGoModal.hide();
+    provenanceModal.hide();
   }
 
   @UiHandler("deleteGoButton")
-  public void deleteGeneProduct(ClickEvent e) {
-    final GeneProduct geneProduct = selectionModel.getSelectedObject();
-    Bootbox.confirm("Remove Gene Product: " + geneProduct.getProductName(), new ConfirmCallback() {
+  public void deleteProvenance(ClickEvent e) {
+    final Provenance provenance = selectionModel.getSelectedObject();
+    Bootbox.confirm("Remove Gene Product: " + provenance.getField(), new ConfirmCallback() {
       @Override
       public void callback(boolean result) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -490,7 +501,7 @@ public class GeneProductPanel extends Composite {
           }
         };
         if(result){
-          GeneProductRestService.deleteGeneProduct(requestCallback, geneProduct);
+          ProvenanceRestService.deleteProvenance(requestCallback, provenance);
         }
       }
     });
@@ -515,33 +526,33 @@ public class GeneProductPanel extends Composite {
     // TODO: probably want a link here
 //      curl -X GET "http://api.geneontology.org/api/bioentity/GO%3A0008015?rows=1&facet=false&unselect_evidence=false&exclude_automatic_assertions=false&fetch_objects=false&use_compact_associations=false" -H "accept: application/json"
 //      GO:0008015
-    TextColumn<GeneProduct> geneProductTextColumn = new TextColumn<GeneProduct>() {
+    TextColumn<Provenance> provenanceTextColumn = new TextColumn<Provenance>() {
       @Override
-      public String getValue(GeneProduct annotationInfo) {
-        return annotationInfo.getProductName() != null ? annotationInfo.getProductName() : annotationInfo.getProductName();
+      public String getValue(Provenance annotationInfo) {
+        return annotationInfo.getField() != null ? annotationInfo.getField() : annotationInfo.getField();
       }
     };
-    geneProductTextColumn.setSortable(true);
+    provenanceTextColumn.setSortable(true);
 
-    TextColumn<GeneProduct> withColumn = new TextColumn<GeneProduct>() {
+    TextColumn<Provenance> withColumn = new TextColumn<Provenance>() {
       @Override
-      public String getValue(GeneProduct annotationInfo) {
+      public String getValue(Provenance annotationInfo) {
         return annotationInfo.getWithOrFromString();
       }
     };
     withColumn.setSortable(true);
 
-    TextColumn<GeneProduct> referenceColumn = new TextColumn<GeneProduct>() {
+    TextColumn<Provenance> referenceColumn = new TextColumn<Provenance>() {
       @Override
-      public String getValue(GeneProduct annotationInfo) {
+      public String getValue(Provenance annotationInfo) {
         return annotationInfo.getReference().getReferenceString();
       }
     };
     referenceColumn.setSortable(true);
 
-    TextColumn<GeneProduct> evidenceColumn = new TextColumn<GeneProduct>() {
+    TextColumn<Provenance> evidenceColumn = new TextColumn<Provenance>() {
       @Override
-      public String getValue(GeneProduct annotationInfo) {
+      public String getValue(Provenance annotationInfo) {
         if (annotationInfo.getEvidenceCodeLabel() != null) {
           String label = annotationInfo.getEvidenceCodeLabel();
           String substring = getInnerCode(label);
@@ -555,7 +566,7 @@ public class GeneProductPanel extends Composite {
     evidenceColumn.setSortable(true);
 
 
-    dataGrid.addColumn(geneProductTextColumn, "Name");
+    dataGrid.addColumn(provenanceTextColumn, "Field");
     dataGrid.addColumn(evidenceColumn, "Evidence");
     dataGrid.addColumn(withColumn, "Based On");
     dataGrid.addColumn(referenceColumn, "Reference");
