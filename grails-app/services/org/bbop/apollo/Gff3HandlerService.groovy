@@ -44,6 +44,7 @@ public class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.ATTRIBUTES.value);
         writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GENE_PRODUCT.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.PROVENANCE.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.COMMENTS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.DATE_CREATION.value);
@@ -338,8 +339,9 @@ public class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.provenances != null) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
                 String productString  = ""
+                println "feature provenances ${feature.provenances}"
 
                 int rank = 1
                 for(Provenance provenance in feature.provenances){
