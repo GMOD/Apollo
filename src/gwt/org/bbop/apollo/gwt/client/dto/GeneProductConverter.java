@@ -16,20 +16,25 @@ public class GeneProductConverter {
   public static GeneProduct convertFromJson(JSONObject object) {
     GeneProduct geneProduct = new GeneProduct();
 
-//                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
-//                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
-//                    "[\"adf:12312\"]"
     geneProduct.setId(Math.round(object.get("id").isNumber().doubleValue()));
-    geneProduct.setFeature(object.get("gene").isString().stringValue());
+    geneProduct.setFeature(object.get("feature").isString().stringValue());
     geneProduct.setProductName(object.get("productName").isString().stringValue());
     geneProduct.setAlternate(object.get("alternate").isBoolean().booleanValue());
-//    geneProduct.setGoTerm(object.get("goTerm").isString().stringValue());
     if(object.containsKey("evidenceCodeLabel")){
       geneProduct.setEvidenceCodeLabel(object.get("evidenceCodeLabel").isString().stringValue());
     }
     geneProduct.setEvidenceCode(object.get("evidenceCode").isString().stringValue());
     geneProduct.setReference(new Reference(object.get("reference").isString().stringValue()));
 
+    List<String> noteList = new ArrayList<>();
+    if (object.containsKey("notes")) {
+      String notesString = object.get("notes").isString().stringValue();
+      JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
+      for (int i = 0; i < notesArray.size(); i++) {
+        noteList.add(notesArray.get(i).isString().stringValue());
+      }
+    }
+    geneProduct.setNoteList(noteList);
 
     List<WithOrFrom> withOrFromList = new ArrayList<>();
     if (object.get("withOrFrom").isString() != null) {
@@ -52,12 +57,18 @@ public class GeneProductConverter {
     if (geneProduct.getId() != null) {
       object.put("id", new JSONNumber(geneProduct.getId()));
     }
-    object.put("gene", new JSONString(geneProduct.getFeature()));
+    object.put("feature", new JSONString(geneProduct.getFeature()));
     object.put("productName", new JSONString(geneProduct.getProductName()));
     object.put("alternate", JSONBoolean.getInstance(geneProduct.isAlternate()));
     object.put("evidenceCode", new JSONString(geneProduct.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(geneProduct.getEvidenceCodeLabel()));
     object.put("reference", new JSONString(geneProduct.getReference().getReferenceString()));
+    JSONArray notesArray = new JSONArray();
+    if(geneProduct.getNoteList()!=null && geneProduct.getNoteList().size()>0){
+      for (String note : geneProduct.getNoteList()) {
+        notesArray.set(notesArray.size(), new JSONString(note));
+      }
+    }
 
     // TODO: finish this
     JSONArray withArray = new JSONArray();
@@ -67,6 +78,7 @@ public class GeneProductConverter {
     }
 
     object.put("withOrFrom", withArray);
+    object.put("notes", notesArray);
 
     return object;
   }
