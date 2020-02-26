@@ -20,7 +20,7 @@ class GeneProductService {
     if (geneProduct.getId()) {
       goObject.put("id", geneProduct.getId())
     }
-    goObject.put("gene", geneProduct.feature.uniqueName)
+    goObject.put("feature", geneProduct.feature.uniqueName)
     goObject.put("productName", geneProduct.productName)
     goObject.put("evidenceCode", geneProduct.evidenceRef)
     goObject.put("evidenceCodeLabel", geneProduct.evidenceRefLabel)
