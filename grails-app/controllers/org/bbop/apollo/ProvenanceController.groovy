@@ -54,16 +54,12 @@ class ProvenanceController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
-    , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
-    , @RestApiParam(name = "goTermLabel", type = "string", paramType = RestApiParamType.QUERY, description = "GO Term Label")
-    , @RestApiParam(name = "aspect", type = "string", paramType = RestApiParamType.QUERY, description = "(required) BP, MF, CC")
-    , @RestApiParam(name = "geneRelationship", type = "string", paramType = RestApiParamType.QUERY, description = "Gene relationship (RO) CURIE")
+    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
     , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
     , @RestApiParam(name = "evidenceCodeLAbel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
-    , @RestApiParam(name = "negate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Negate evidence (default false)")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312]]\"]}")
+    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
+      , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
   ]
   )
   @Transactional
@@ -77,10 +73,9 @@ class ProvenanceController {
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     provenance.feature = feature
-    provenance.productName = dataObject.productName
+    provenance.field = dataObject.field
     provenance.evidenceRef = dataObject.evidenceCode
     provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
-    provenance.alternate = dataObject.alternate ?: false
     provenance.withOrFromArray = dataObject.withOrFrom
     provenance.notesArray = dataObject.notes
     provenance.reference = dataObject.reference
@@ -137,10 +132,9 @@ class ProvenanceController {
 
     Provenance provenance = Provenance.findById(dataObject.id)
     provenance.feature = feature
-    provenance.productName = dataObject.productName
+    provenance.field = dataObject.field
     provenance.evidenceRef = dataObject.evidenceCode
     provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
-    provenance.alternate = dataObject.alternate ?: false
     provenance.withOrFromArray = dataObject.withOrFrom
     provenance.notesArray = dataObject.notes
     provenance.reference = dataObject.reference
