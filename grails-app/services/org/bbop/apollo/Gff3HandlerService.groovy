@@ -341,7 +341,6 @@ public class Gff3HandlerService {
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
                 String productString  = ""
-                println "feature provenances ${feature.provenances}"
 
                 int rank = 1
                 for(Provenance provenance in feature.provenances){
