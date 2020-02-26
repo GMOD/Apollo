@@ -270,7 +270,7 @@ public class ProvenancePanel extends Composite {
   }
 
   private void clearModal() {
-    provenanceField.clear();
+    provenanceField.setSelectedIndex(0);
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
