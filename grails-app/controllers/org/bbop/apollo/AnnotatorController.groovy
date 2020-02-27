@@ -215,7 +215,7 @@ class AnnotatorController {
         log.debug "old synonym names ${oldSynonymNames} ${newSynonymNames} ${synonymsToAdd} ${synonymsToRemove}"
         // add missing
 
-        if(featureOperation==null && synonymsToRemove.size()>0 && synonymsToAdd.size()>0){
+        if(featureOperation==null && (synonymsToRemove.size()>0 || synonymsToAdd.size()>0)){
             featureOperation = FeatureOperation.SET_SYNONYMS
         }
 
@@ -276,6 +276,10 @@ class AnnotatorController {
         JSONArray newFeaturesJsonArray = new JSONArray()
         newFeaturesJsonArray.add(currentFeatureJsonObject)
 
+        println "feature operation ${featureOperation}"
+        println "feature ${feature.name} ${feature.uniqueName}"
+        println "feature data ${data}"
+        println "feature user ${user}"
         featureEventService.addNewFeatureEvent(featureOperation,
                 feature.name,
                 feature.uniqueName,
