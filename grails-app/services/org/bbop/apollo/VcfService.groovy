@@ -279,17 +279,14 @@ class VcfService {
         // use the SO term if we have it
         if(variantContext?.attributes?.soTerm){
             String soTerm = (variantContext?.attributes?.soTerm as String).toLowerCase().replaceAll("\"","")
-            switch (soTerm){
-                case INSERTION: return INSERTION
-                case DELETION: return DELETION
-                case POINT_MUTATION:
-                case SNV: return SNV
-                case MNV: return MNV
-                case DELINS: return DELINS
-                case INVERSION: return INVERSION
-                case SUBSTITUTION: return SUBSTITUTION
-            }
-            println "so temr did not match ${soTerm.toLowerCase()}"
+            if(soTerm.equalsIgnoreCase(INSERTION)) return INSERTION
+            if(soTerm.equalsIgnoreCase(DELETION)) return DELETION
+            if(soTerm.equalsIgnoreCase(POINT_MUTATION) || soTerm.equalsIgnoreCase(SNV)) return SNV
+            if(soTerm.equalsIgnoreCase(MNV)) return MNV
+            if(soTerm.equalsIgnoreCase(DELINS)) return DELINS
+            if(soTerm.equalsIgnoreCase(INVERSION)) return INVERSION
+            if(soTerm.equalsIgnoreCase(SUBSTITUTION)) return SUBSTITUTION
+            log.warn "SO Term did not match ${soTerm} known SO TERM"
         }
 
         // calculate based on the base string if we have it
