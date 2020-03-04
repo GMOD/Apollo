@@ -502,7 +502,7 @@ class TrackService {
      */
     @NotTransactional
     JSONObject findTrackFromArrayByCategory(JSONArray tracksArray, String category,boolean ignoreCase = true) {
-        return findTrackFromArrayByKey(tracksArray,"category",ignoreCase)
+        return findTrackFromArrayByKey(tracksArray,category,"category",ignoreCase)
     }
 
     /**
