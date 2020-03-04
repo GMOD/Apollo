@@ -25,6 +25,9 @@ class FileServiceSpec extends Specification {
     File seqDirFaFlat = new File(seqDirFlat.absolutePath+"/volvox.fa")
     File seqDirFaiFlat = new File(seqDirFlat.absolutePath+"/volvox.fa.fai")
     File trackListFlat = new File(FINAL_DIRECTORY+"/trackList.json")
+//    File volvoxDirectory = new File(FINAL_DIRECTORY+"volvox")
+//    File fileTrackListA = new File(volvoxDirectory.absolutePath+"a.txt")
+//    File fileTrackListB = new File(volvoxDirectory.absolutePath+"b.txt")
 
     def setup() {
     }
@@ -34,6 +37,7 @@ class FileServiceSpec extends Specification {
         fileFlatA.delete()
         fileFlatB.delete()
         seqDirFlat.deleteDir()
+//        volvoxDirectory.deleteDir()
         trackListFlat.delete()
     }
 
@@ -238,8 +242,9 @@ class FileServiceSpec extends Specification {
         assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
     }
 
+
     void "handle .tgz trackList.json decompress with_directory"() {
-        given: "a zip file"
+        given: "a tgz file"
         File inputFile = new File(FINAL_DIRECTORY + "/volvox.tgz" )
         println "input file ${inputFile} ${inputFile.exists()}"
         println "current working directory  ${new File(".").absolutePath}"
@@ -258,5 +263,61 @@ class FileServiceSpec extends Specification {
         assert seqDirFlat.exists()
         assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
         assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+    }
+
+    void "handle .tgz trackList.json decompress flat symlink"() {
+        given: "a tgz file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox_symlink_flat.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
+        assert !fileFlatA.exists()
+        assert !fileFlatB.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+
+        assert fileFlatA.exists()
+        assert Files.isSymbolicLink(Paths.get(fileFlatA.absolutePath))
+        assert fileFlatB.exists()
+        assert !Files.isSymbolicLink(Paths.get(fileFlatB.absolutePath))
+    }
+
+    void "handle .tgz trackList.json symlink decompress with_directory"() {
+        given: "a tgz file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox_symlink.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+
+        assert fileFlatA.exists()
+        assert Files.isSymbolicLink(Paths.get(fileFlatA.absolutePath))
+        assert fileFlatB.exists()
+        assert !Files.isSymbolicLink(Paths.get(fileFlatB.absolutePath))
     }
 }
