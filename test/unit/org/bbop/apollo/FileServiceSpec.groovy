@@ -215,4 +215,48 @@ class FileServiceSpec extends Specification {
         assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
         assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
     }
+
+    void "handle .tgz trackList.json decompress flat"() {
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox_flat.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+    }
+
+    void "handle .tgz trackList.json decompress with_directory"() {
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+    }
 }
