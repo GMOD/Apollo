@@ -69,8 +69,13 @@ class FileService {
                 }
 
                 validateFileName(entry.getName(), archiveRootDirectoryName)
+                // output should be output name minus the parent root directory
+                String outputDirectoryName = entry.name
+                if(outputDirectoryName.startsWith(archiveRootDirectoryName)){
+                    outputDirectoryName = outputDirectoryName.substring(archiveRootDirectoryName.length())
+                }
                 if (entry.isDirectory()) {
-                    File dir = new File(initialLocation, entry.getName());
+                    File dir = new File(initialLocation, outputDirectoryName);
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
@@ -79,7 +84,7 @@ class FileService {
 
                 // TODO: handle symbolic link
 
-                File outputFile = new File(initialLocation, entry.getName());
+                File outputFile = new File(initialLocation, outputDirectoryName);
 
                 if (outputFile.isDirectory()) {
                     continue;
@@ -345,10 +350,11 @@ class FileService {
         String canonicalPath = file.getCanonicalPath()
         File intendedOutputDirectoryFile = new File(intendedOutputDirectory)
         String canonicalIntendedOutputDirectoryPath = intendedOutputDirectoryFile.getCanonicalPath()
+
         if (canonicalPath.startsWith(canonicalIntendedOutputDirectoryPath) || canonicalPath == canonicalIntendedOutputDirectoryPath) {
             return canonicalPath
         } else {
-            throw new IOException("File is outside extraction target directory.")
+            throw new IOException("File is outside extraction target directory. ${canonicalIntendedOutputDirectoryPath} vs ${canonicalPath}")
         }
     }
 }
