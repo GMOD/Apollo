@@ -43,7 +43,19 @@ class FileService {
         return null
     }
 
-    String getArchiveRootDirectoryName(File zipFile){
+    String getArchiveRootDirectoryNameForTgz(File zipFile){
+        TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
+        ZipArchiveEntry entry = null
+        while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
+            println "entry name: ${entry.name}"
+            if(entry.name.contains("trackList.json")){
+                return entry.name.substring(0,entry.name.length() - "trackList.json".length())
+            }
+        }
+        throw new RuntimeException("trackList.json not included in the archive" )
+    }
+
+    String getArchiveRootDirectoryNameForZip(File zipFile){
         final InputStream is = new FileInputStream(zipFile);
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
         ZipArchiveEntry entry = null
@@ -67,7 +79,6 @@ class FileService {
     List<String> decompressZipArchive(File zipFile, String path, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String archiveRootDirectoryName
-        boolean atArchiveRoot = true
         String initialLocation = tempDir ? path + File.separator + "temp" : path
         println "initial location: ${initialLocation} "
         final InputStream is = new FileInputStream(zipFile);
@@ -75,22 +86,12 @@ class FileService {
         ZipArchiveEntry entry = null
 
         // find trackList.json
-        archiveRootDirectoryName = getArchiveRootDirectoryName(zipFile)
-        println "test archive directory root name 2 [${archiveRootDirectoryName}]"
+        archiveRootDirectoryName = getArchiveRootDirectoryNameForZip(zipFile)
 
 
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             try {
                 println "starting name ${entry.getName()}"
-//                if (atArchiveRoot) {
-//                    archiveRootDirectoryName = entry.getName()
-//                    println "is archive root ${archiveRootDirectoryName}"
-//                    atArchiveRoot = false
-//                }
-//                else{
-//                    println "is NOT archive root ${archiveRootDirectoryName}"
-//                }
-
                 validateFileName(entry.getName(), archiveRootDirectoryName)
                 // output should be output name minus the parent root directory
                 String outputDirectoryName = entry.name
@@ -164,7 +165,7 @@ class FileService {
     List<String> decompressTarArchive(File tarFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         boolean atArchiveRoot = true
-        String archiveRootDirectoryName
+        String archiveRootDirectoryName = getArchiveRootDirectoryNameForTgz(tarFile)
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation}"
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
@@ -174,10 +175,6 @@ class FileService {
         String prefix = destDir.toString()
 
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
-            if (atArchiveRoot) {
-                archiveRootDirectoryName = entry.getName()
-                atArchiveRoot = false
-            }
 
             try {
                 validateFileName(entry.getName(), archiveRootDirectoryName)
