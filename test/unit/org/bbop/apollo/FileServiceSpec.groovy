@@ -26,6 +26,8 @@ class FileServiceSpec extends Specification {
     def cleanup(){
         fileA.delete()
         fileB.delete()
+        fileFlatA.delete()
+        fileFlatB.delete()
         parentDir.delete()
     }
 
@@ -97,7 +99,75 @@ class FileServiceSpec extends Specification {
 
     }
 
+    void "handle tar.gz decompress flat"() {
 
+        given: "a .tgz file"
+        File inputFile = new File(FINAL_DIRECTORY + "/flat.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileFlatA.exists()
+        assert !fileFlatB.exists()
+
+        when: "we expand it"
+        List<String> fileNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileNames ${fileNames.join(",")}"
+
+        then: "we should have the right file"
+        assert fileFlatA.exists()
+        assert fileFlatB.exists()
+        assert fileFlatA.text == 'aaa\n'
+        assert fileFlatB.text == 'bbb\n'
+
+
+    }
+
+
+    void "handle tar.gz decompress flat symlink"() {
+
+        given: "a .tgz file"
+        File inputFile = new File(FINAL_DIRECTORY + "/flat_symlink.tgz" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileFlatA.exists()
+        assert !fileFlatB.exists()
+
+        when: "we expand it"
+        List<String> fileNames = service.decompressTarArchive(inputFile,FINAL_DIRECTORY)
+        println "fileNames ${fileNames.join(",")}"
+
+        then: "we should have the right file"
+        assert fileFlatA.exists()
+        assert fileFlatB.exists()
+        assert fileFlatA.text == 'aaa\n'
+        assert Files.isSymbolicLink(Paths.get(fileFlatB.absolutePath))
+
+
+    }
+
+    void "handle zip decompress flat"() {
+
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/flat.zip" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileFlatA.exists()
+        assert !fileFlatB.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressZipArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert fileFlatA.exists()
+        assert fileFlatB.exists()
+        assert fileFlatA.text == 'aaa\n'
+        assert fileFlatB.text == 'bbb\n'
+
+
+    }
 
 
 }
