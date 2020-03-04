@@ -485,10 +485,14 @@ class SequenceService {
     def getReferenceTrackObject(Organism organism) {
         JSONObject referenceTrackObject = new JSONObject()
         File directory = new File(organism.directory)
+        log.debug "Getting reference track for ${organism} ${organism?.directory} ${directory.exists()}"
         if (directory.exists()) {
             File trackListFile = new File(organism.trackList)
+            log.debug "trackList.json file exists ${trackListFile} ${organism.trackList}"
             JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
-            referenceTrackObject = trackService.findTrackFromArray(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "DNA")
+            referenceTrackObject = trackService.findTrackFromArrayByLabel(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "DNA")
+            referenceTrackObject = referenceTrackObject ? referenceTrackObject : trackService.findTrackFromArrayByKey(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),"Reference sequence", "key")
+            log.debug "finding trackList.json object ${trackListJsonObject} -> ${referenceTrackObject}"
         }
         return referenceTrackObject
     }
