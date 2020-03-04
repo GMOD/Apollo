@@ -47,10 +47,9 @@ class FileService {
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
         TarArchiveEntry entry = null
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
-            println "entry name: ${entry.name}"
             if(entry.name.contains("trackList.json")){
                 String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
-                println "found path ${foundPath}"
+                log.debug "found path ${foundPath}"
                 return foundPath
             }
         }
@@ -62,7 +61,6 @@ class FileService {
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
         ZipArchiveEntry entry = null
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
-            println "entry name: ${entry.name}"
             if(entry.name.contains("trackList.json")){
                 return entry.name.substring(0,entry.name.length() - "trackList.json".length())
             }
@@ -82,9 +80,8 @@ class FileService {
         List<String> fileNames = []
         String archiveRootDirectoryName = getArchiveRootDirectoryNameForZip(zipFile)
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
-        println "initial location: ${initialLocation} "
-        final InputStream is = new FileInputStream(zipFile);
-        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
+        log.debug "initial location: ${initialLocation} "
+        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, new FileInputStream(zipFile));
         ZipArchiveEntry entry
 
 
@@ -93,26 +90,17 @@ class FileService {
 
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             try {
-                println "starting name ${entry.getName()}"
                 validateFileName(entry.getName(), archiveRootDirectoryName)
                 // output should be output name minus the parent root directory
                 String outputDirectoryName = entry.name
                 if(outputDirectoryName.startsWith(archiveRootDirectoryName)){
-                    println "starts with ${outputDirectoryName} vs $archiveRootDirectoryName"
+                    log.debug "starts with ${outputDirectoryName} vs $archiveRootDirectoryName"
                     outputDirectoryName = outputDirectoryName.substring(archiveRootDirectoryName.length())
-                    println "final output ${outputDirectoryName}"
-                }
-                else{
-                    println "DOES not start with ${outputDirectoryName} vs $archiveRootDirectoryName"
+                    log.debug "final output ${outputDirectoryName}"
                 }
                 Path path = destDir.resolve(outputDirectoryName).normalize();
                 if (entry.isDirectory()) {
                     Files.createDirectories(path)
-//                    File dir = new File(initialLocation, outputDirectoryName);
-//                    if (!dir.exists()) {
-//                        dir.mkdirs();
-//                    }
-//                    continue;
                 }
                 else if (entry.isUnixSymlink()) {S
                     String dest = entry.name;
@@ -136,30 +124,12 @@ class FileService {
                     fos.close()
                     fileNames.add(outputFile.absolutePath)
                 }
-
-//                // TODO: handle symbolic link
-//
-//                File outputFile = new File(initialLocation, outputDirectoryName);
-//
-//                if (outputFile.isDirectory()) {
-//                    continue;
-//                }
-//
-//                if (outputFile.exists()) {
-//                    continue;
-//                }
-//
-//                OutputStream os = new FileOutputStream(outputFile);
-//                IOUtils.copy(ais, os);
-//                os.close();
-//                fileNames.add(outputFile.absolutePath)
             } catch (IOException e) {
                 log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}", e)
             }
         }
 
         ais.close()
-        is.close()
 
         if (tempDir) {
             // move files from temp directory to folder supplied via directoryName
@@ -239,6 +209,8 @@ class FileService {
                 log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}, ignoring: ${e.message}")
             }
         }
+
+        tais.close()
 
         if (tempDir) {
             // move files from temp directory to folder supplied via directoryName
