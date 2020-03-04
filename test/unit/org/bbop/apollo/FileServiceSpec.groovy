@@ -17,6 +17,8 @@ class FileServiceSpec extends Specification {
     File parentDir = new File(FINAL_DIRECTORY+"data")
     File fileA = new File(FINAL_DIRECTORY+"data/a.txt")
     File fileB = new File(FINAL_DIRECTORY+"data/b.txt")
+    File fileFlatA = new File(FINAL_DIRECTORY+"a.txt")
+    File fileFlatB = new File(FINAL_DIRECTORY+"b.txt")
 
     def setup() {
     }
@@ -27,7 +29,7 @@ class FileServiceSpec extends Specification {
         parentDir.delete()
     }
 
-    void "handle tar.gz decompress"() {
+    void "handle tar.gz decompress directory"() {
 
         given: "a tar.gz file"
         File inputFile = new File(FINAL_DIRECTORY + "/no_symlinks.tgz" )
@@ -50,7 +52,7 @@ class FileServiceSpec extends Specification {
 
     }
 
-    void "handle tar.gz symlinks"() {
+    void "handle tar.gz symlinks directory"() {
 
         given: "a tar.gz file"
         File inputFile = new File(FINAL_DIRECTORY + "/symlinks.tgz" )
@@ -72,7 +74,7 @@ class FileServiceSpec extends Specification {
 
     }
 
-    void "handle zip decompress"() {
+    void "handle zip decompress directory"() {
 
         given: "a zip file"
         File inputFile = new File(FINAL_DIRECTORY + "/no_symlinks.zip" )
