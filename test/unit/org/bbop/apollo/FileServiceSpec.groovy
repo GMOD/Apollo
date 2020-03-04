@@ -20,15 +20,21 @@ class FileServiceSpec extends Specification {
     File fileFlatA = new File(FINAL_DIRECTORY+"a.txt")
     File fileFlatB = new File(FINAL_DIRECTORY+"b.txt")
 
+    // volvox data
+    File seqDirFlat = new File(FINAL_DIRECTORY+"/seq")
+    File seqDirFaFlat = new File(seqDirFlat.absolutePath+"/volvox.fa")
+    File seqDirFaiFlat = new File(seqDirFlat.absolutePath+"/volvox.fa.fai")
+    File trackListFlat = new File(FINAL_DIRECTORY+"/trackList.json")
+
     def setup() {
     }
 
     def cleanup(){
-        fileA.delete()
-        fileB.delete()
+        parentDir.deleteDir()
         fileFlatA.delete()
         fileFlatB.delete()
-        parentDir.delete()
+        seqDirFlat.deleteDir()
+        trackListFlat.delete()
     }
 
     void "handle tar.gz decompress directory"() {
@@ -147,7 +153,6 @@ class FileServiceSpec extends Specification {
     }
 
     void "handle zip decompress flat"() {
-
         given: "a zip file"
         File inputFile = new File(FINAL_DIRECTORY + "/flat.zip" )
         println "input file ${inputFile} ${inputFile.exists()}"
@@ -165,9 +170,49 @@ class FileServiceSpec extends Specification {
         assert fileFlatB.exists()
         assert fileFlatA.text == 'aaa\n'
         assert fileFlatB.text == 'bbb\n'
-
-
     }
 
+    void "handle zip trackList.json decompress flat"() {
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox_flat.zip" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
 
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressZipArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+    }
+
+    void "handle zip trackList.json decompress with_directory"() {
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/volvox.zip" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !seqDirFlat.exists()
+        assert !trackListFlat.exists()
+
+        when: "we expand it"
+        List<String> fileFlatNames = service.decompressZipArchive(inputFile,FINAL_DIRECTORY)
+        println "fileFlatNames ${fileFlatNames.join(",")}"
+
+        then: "we should have the right fileFlat"
+        assert trackListFlat.exists()
+        assert !trackListFlat.text.empty
+
+        assert seqDirFlat.exists()
+        assert seqDirFaFlat.exists() && !seqDirFaFlat.text.empty
+        assert seqDirFaiFlat.exists() && !seqDirFaiFlat.text.empty
+    }
 }
