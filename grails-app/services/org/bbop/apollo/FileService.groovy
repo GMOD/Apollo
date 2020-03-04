@@ -80,6 +80,7 @@ class FileService {
     List<String> decompressZipArchive(File zipFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String archiveRootDirectoryName = getArchiveRootDirectoryNameForZipTrackList(zipFile)
+        archiveRootDirectoryName = archiveRootDirectoryName != null ? archiveRootDirectoryName : ""
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation} "
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, new FileInputStream(zipFile));
@@ -104,16 +105,17 @@ class FileService {
                 if (entry.isDirectory()) {
                     Files.createDirectories(path)
                 }
-                else if (entry.isUnixSymlink()) {S
-                    String dest = entry.name;
-                    Path destAbsPath = path.getParent().resolve(dest).normalize();
-                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
-                        log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
-//                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
-                    }
-                    Files.createSymbolicLink(path, Paths.get(dest));
-                    fileNames.add(destAbsPath.toString())
-                }
+                    // TODO: this doesn't quite work for zip.  Should use a tar.gz archive instead
+//                else if (entry.isUnixSymlink()) {S
+//                    String dest = entry.name;
+//                    Path destAbsPath = path.getParent().resolve(dest).normalize();
+//                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
+//                        log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
+////                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
+//                    }
+//                    Files.createSymbolicLink(path, Paths.get(dest));
+//                    fileNames.add(destAbsPath.toString())
+//                }
                 else{
                     Files.createDirectories(path.getParent());
                     File outputFile = new File(initialLocation, outputDirectoryName)
@@ -163,7 +165,6 @@ class FileService {
     List<String> decompressTarArchive(File tarFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String archiveRootDirectoryName = getArchiveRootDirectoryNameForTgzTrackList(tarFile)
-        boolean hasTrackList = archiveRootDirectoryName != null
         archiveRootDirectoryName = archiveRootDirectoryName!=null ? archiveRootDirectoryName : ""
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation}"
@@ -175,9 +176,6 @@ class FileService {
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
 
             try {
-//                println "start root name ${archiveRootDirectoryName}"
-//                archiveRootDirectoryName = archiveRootDirectoryName ?: entry.getName()
-//                println "next root name ${archiveRootDirectoryName}"
                 validateFileName(entry.name, archiveRootDirectoryName)
                 if(!pathString.toString().startsWith(prefix)){
                     throw new IOException("Archive includes an invalid entry, ignoring: " + entry.name);

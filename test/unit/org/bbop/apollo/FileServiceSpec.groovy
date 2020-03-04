@@ -50,7 +50,7 @@ class FileServiceSpec extends Specification {
 
     }
 
-    void "handle symlinks"() {
+    void "handle tar.gz symlinks"() {
 
         given: "a tar.gz file"
         File inputFile = new File(FINAL_DIRECTORY + "/symlinks.tgz" )
@@ -71,6 +71,30 @@ class FileServiceSpec extends Specification {
 
 
     }
+
+    void "handle zip decompress"() {
+
+        given: "a zip file"
+        File inputFile = new File(FINAL_DIRECTORY + "/no_symlinks.zip" )
+        println "input file ${inputFile} ${inputFile.exists()}"
+        println "current working directory  ${new File(".").absolutePath}"
+        assert inputFile.exists()
+        assert !fileA.exists()
+        assert !fileB.exists()
+
+        when: "we expand it"
+        List<String> fileNames = service.decompressZipArchive(inputFile,FINAL_DIRECTORY)
+        println "fileNames ${fileNames.join(",")}"
+
+        then: "we should have the right file"
+        assert fileA.exists()
+        assert fileB.exists()
+        assert fileA.text == 'aaa\n'
+        assert fileB.text == 'bbb\n'
+
+
+    }
+
 
 
 
