@@ -45,11 +45,13 @@ class FileService {
 
     String getArchiveRootDirectoryNameForTgz(File tarFile){
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
-        ZipArchiveEntry entry = null
-        while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
+        TarArchiveEntry entry = null
+        while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
             println "entry name: ${entry.name}"
             if(entry.name.contains("trackList.json")){
-                return entry.name.substring(0,entry.name.length() - "trackList.json".length())
+                String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
+                println "found path ${foundPath}"
+                return foundPath
             }
         }
         throw new RuntimeException("trackList.json not included in the archive" )
@@ -177,11 +179,20 @@ class FileService {
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
 
             try {
-                validateFileName(entry.getName(), archiveRootDirectoryName)
-                Path path = destDir.resolve(entry.getName()).normalize();
+                validateFileName(entry.name, archiveRootDirectoryName)
                 if(!pathString.toString().startsWith(prefix)){
-                    throw new RuntimeException("Archive includes an invalid entry: " + entry.getName());
+                    throw new IOException("Archive includes an invalid entry, ignoring: " + entry.name);
                 }
+                String outputDirectoryName = entry.name
+                if(outputDirectoryName.startsWith(archiveRootDirectoryName)){
+                    println "starts with ${outputDirectoryName} vs $archiveRootDirectoryName"
+                    outputDirectoryName = outputDirectoryName.substring(archiveRootDirectoryName.length())
+                    println "final output ${outputDirectoryName}"
+                }
+                else{
+                    println "DOES not start with ${outputDirectoryName} vs $archiveRootDirectoryName"
+                }
+                Path path = destDir.resolve(outputDirectoryName).normalize();
                 if (entry.isDirectory()) {
                     Files.createDirectories(path)
                 }
@@ -197,7 +208,7 @@ class FileService {
                 }
                 else{
                     Files.createDirectories(path.getParent());
-                    File outputFile = new File(initialLocation, entry.getName())
+                    File outputFile = new File(initialLocation, outputDirectoryName)
                     if (outputFile.exists()) {
                         continue;
                     }
@@ -208,7 +219,7 @@ class FileService {
                     fileNames.add(outputFile.absolutePath)
                 }
             } catch (IOException e) {
-                log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}", e)
+                log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}, ignoring: ${e.message}")
             }
         }
 
