@@ -56,23 +56,35 @@ class FileService {
         String archiveRootDirectoryName
         boolean atArchiveRoot = true
         String initialLocation = tempDir ? path + File.separator + "temp" : path
-        log.debug "initial location: ${initialLocation}"
+        println "initial location: ${initialLocation} "
         final InputStream is = new FileInputStream(zipFile);
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
         ZipArchiveEntry entry = null
 
+        // find trackList.json
+
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             try {
+                println "starting name ${entry.getName()}"
                 if (atArchiveRoot) {
                     archiveRootDirectoryName = entry.getName()
+                    println "is archive root ${archiveRootDirectoryName}"
                     atArchiveRoot = false
+                }
+                else{
+                    println "is NOT archive root ${archiveRootDirectoryName}"
                 }
 
                 validateFileName(entry.getName(), archiveRootDirectoryName)
                 // output should be output name minus the parent root directory
                 String outputDirectoryName = entry.name
                 if(outputDirectoryName.startsWith(archiveRootDirectoryName)){
+                    println "starts with ${outputDirectoryName} vs $archiveRootDirectoryName"
                     outputDirectoryName = outputDirectoryName.substring(archiveRootDirectoryName.length())
+                    println "final output ${outputDirectoryName}"
+                }
+                else{
+                    println "DOES not start with ${outputDirectoryName} vs $archiveRootDirectoryName"
                 }
                 if (entry.isDirectory()) {
                     File dir = new File(initialLocation, outputDirectoryName);
