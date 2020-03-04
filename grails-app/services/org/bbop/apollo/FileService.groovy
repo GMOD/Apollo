@@ -73,23 +73,23 @@ class FileService {
     /**
      * Decompress a zip archive to a folder specified by directoryName in the given path
      * @param zipFile
-     * @param path
+     * @param pathString
      * @param directoryName
      * @param tempDir
      * @return
      */
-    List<String> decompressZipArchive(File zipFile, String path, String directoryName = null, boolean tempDir = false) {
+    List<String> decompressZipArchive(File zipFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
-        String archiveRootDirectoryName
-        String initialLocation = tempDir ? path + File.separator + "temp" : path
+        String archiveRootDirectoryName = getArchiveRootDirectoryNameForZip(zipFile)
+        String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         println "initial location: ${initialLocation} "
         final InputStream is = new FileInputStream(zipFile);
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
-        ZipArchiveEntry entry = null
+        ZipArchiveEntry entry
 
-        // find trackList.json
-        archiveRootDirectoryName = getArchiveRootDirectoryNameForZip(zipFile)
 
+        Path destDir = Paths.get(pathString)
+        String prefix = destDir.toString()
 
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             try {
@@ -105,30 +105,54 @@ class FileService {
                 else{
                     println "DOES not start with ${outputDirectoryName} vs $archiveRootDirectoryName"
                 }
+                Path path = destDir.resolve(outputDirectoryName).normalize();
                 if (entry.isDirectory()) {
-                    File dir = new File(initialLocation, outputDirectoryName);
-                    if (!dir.exists()) {
-                        dir.mkdirs();
+                    Files.createDirectories(path)
+//                    File dir = new File(initialLocation, outputDirectoryName);
+//                    if (!dir.exists()) {
+//                        dir.mkdirs();
+//                    }
+//                    continue;
+                }
+                else if (entry.isUnixSymlink()) {S
+                    String dest = entry.name;
+                    Path destAbsPath = path.getParent().resolve(dest).normalize();
+                    if (!destAbsPath.normalize().toString().startsWith(prefix)) {
+                        log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
+//                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
                     }
-                    continue;
+                    Files.createSymbolicLink(path, Paths.get(dest));
+                    fileNames.add(destAbsPath.toString())
+                }
+                else{
+                    Files.createDirectories(path.getParent());
+                    File outputFile = new File(initialLocation, outputDirectoryName)
+                    if (outputFile.exists()) {
+                        continue;
+                    }
+
+                    FileOutputStream fos = new FileOutputStream(outputFile)
+                    IOUtils.copy(ais, fos)
+                    fos.close()
+                    fileNames.add(outputFile.absolutePath)
                 }
 
-                // TODO: handle symbolic link
-
-                File outputFile = new File(initialLocation, outputDirectoryName);
-
-                if (outputFile.isDirectory()) {
-                    continue;
-                }
-
-                if (outputFile.exists()) {
-                    continue;
-                }
-
-                OutputStream os = new FileOutputStream(outputFile);
-                IOUtils.copy(ais, os);
-                os.close();
-                fileNames.add(outputFile.absolutePath)
+//                // TODO: handle symbolic link
+//
+//                File outputFile = new File(initialLocation, outputDirectoryName);
+//
+//                if (outputFile.isDirectory()) {
+//                    continue;
+//                }
+//
+//                if (outputFile.exists()) {
+//                    continue;
+//                }
+//
+//                OutputStream os = new FileOutputStream(outputFile);
+//                IOUtils.copy(ais, os);
+//                os.close();
+//                fileNames.add(outputFile.absolutePath)
             } catch (IOException e) {
                 log.error("Problem decrompression file ${entry.name} vs ${archiveRootDirectoryName}", e)
             }
@@ -140,7 +164,7 @@ class FileService {
         if (tempDir) {
             // move files from temp directory to folder supplied via directoryName
             String unpackedArchiveLocation = initialLocation + File.separator + archiveRootDirectoryName
-            String finalLocation = path + File.separator + directoryName
+            String finalLocation = pathString + File.separator + directoryName
             File finalLocationFile = new File(finalLocation)
             if (finalLocationFile.mkdir()) log.debug "${finalLocation} directory created"
             try {
@@ -166,13 +190,11 @@ class FileService {
      */
     List<String> decompressTarArchive(File tarFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
-        boolean atArchiveRoot = true
         String archiveRootDirectoryName = getArchiveRootDirectoryNameForTgz(tarFile)
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation}"
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
-        TarArchiveEntry entry = null
-
+        TarArchiveEntry entry
         Path destDir = Paths.get(pathString)
         String prefix = destDir.toString()
 
@@ -185,12 +207,7 @@ class FileService {
                 }
                 String outputDirectoryName = entry.name
                 if(outputDirectoryName.startsWith(archiveRootDirectoryName)){
-                    println "starts with ${outputDirectoryName} vs $archiveRootDirectoryName"
                     outputDirectoryName = outputDirectoryName.substring(archiveRootDirectoryName.length())
-                    println "final output ${outputDirectoryName}"
-                }
-                else{
-                    println "DOES not start with ${outputDirectoryName} vs $archiveRootDirectoryName"
                 }
                 Path path = destDir.resolve(outputDirectoryName).normalize();
                 if (entry.isDirectory()) {
