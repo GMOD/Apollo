@@ -43,7 +43,7 @@ class FileService {
         return null
     }
 
-    String getArchiveRootDirectoryNameForTgz(File zipFile){
+    String getArchiveRootDirectoryNameForTgz(File tarFile){
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
         ZipArchiveEntry entry = null
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
