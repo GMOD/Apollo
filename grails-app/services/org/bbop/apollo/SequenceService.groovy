@@ -491,7 +491,7 @@ class SequenceService {
             log.debug "trackList.json file exists ${trackListFile} ${organism.trackList}"
             JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
             referenceTrackObject = trackService.findTrackFromArrayByLabel(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "DNA")
-            referenceTrackObject = referenceTrackObject ? referenceTrackObject : trackService.findTrackFromArrayByCategory(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "Reference sequence")
+            referenceTrackObject = referenceTrackObject ? referenceTrackObject : trackService.findTrackFromArrayByKey(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),"Reference sequence", "key")
             log.debug "finding trackList.json object ${trackListJsonObject} -> ${referenceTrackObject}"
         }
         return referenceTrackObject

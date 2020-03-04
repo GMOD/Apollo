@@ -43,9 +43,9 @@ class FileService {
         return null
     }
 
-    String getArchiveRootDirectoryNameForTgz(File tarFile){
+    String getArchiveRootDirectoryNameForTgzTrackList(File tarFile){
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
-        TarArchiveEntry entry = null
+        TarArchiveEntry entry
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
             if(entry.name.contains("trackList.json")){
                 String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
@@ -53,19 +53,20 @@ class FileService {
                 return foundPath
             }
         }
-        throw new RuntimeException("trackList.json not included in the archive" )
+        log.debug "trackList.json not included in the archive"
+        return null
     }
 
-    String getArchiveRootDirectoryNameForZip(File zipFile){
-        final InputStream is = new FileInputStream(zipFile);
-        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
-        ZipArchiveEntry entry = null
+    String getArchiveRootDirectoryNameForZipTrackList(File zipFile){
+        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, new FileInputStream(zipFile))
+        ZipArchiveEntry entry
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             if(entry.name.contains("trackList.json")){
                 return entry.name.substring(0,entry.name.length() - "trackList.json".length())
             }
         }
-        throw new RuntimeException("trackList.json not included in the archive" )
+        log.debug "trackList.json not included in the archive"
+        return null
     }
 
     /**
@@ -78,7 +79,7 @@ class FileService {
      */
     List<String> decompressZipArchive(File zipFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
-        String archiveRootDirectoryName = getArchiveRootDirectoryNameForZip(zipFile)
+        String archiveRootDirectoryName = getArchiveRootDirectoryNameForZipTrackList(zipFile)
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation} "
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, new FileInputStream(zipFile));
@@ -90,6 +91,7 @@ class FileService {
 
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
             try {
+//                archiveRootDirectoryName = archiveRootDirectoryName ?: entry.getName()
                 validateFileName(entry.getName(), archiveRootDirectoryName)
                 // output should be output name minus the parent root directory
                 String outputDirectoryName = entry.name
@@ -160,7 +162,9 @@ class FileService {
      */
     List<String> decompressTarArchive(File tarFile, String pathString, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
-        String archiveRootDirectoryName = getArchiveRootDirectoryNameForTgz(tarFile)
+        String archiveRootDirectoryName = getArchiveRootDirectoryNameForTgzTrackList(tarFile)
+        boolean hasTrackList = archiveRootDirectoryName != null
+        archiveRootDirectoryName = archiveRootDirectoryName!=null ? archiveRootDirectoryName : ""
         String initialLocation = tempDir ? pathString + File.separator + "temp" : pathString
         log.debug "initial location: ${initialLocation}"
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
@@ -171,6 +175,9 @@ class FileService {
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
 
             try {
+//                println "start root name ${archiveRootDirectoryName}"
+//                archiveRootDirectoryName = archiveRootDirectoryName ?: entry.getName()
+//                println "next root name ${archiveRootDirectoryName}"
                 validateFileName(entry.name, archiveRootDirectoryName)
                 if(!pathString.toString().startsWith(prefix)){
                     throw new IOException("Archive includes an invalid entry, ignoring: " + entry.name);
