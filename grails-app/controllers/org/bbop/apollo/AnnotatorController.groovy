@@ -8,6 +8,7 @@ import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -38,6 +39,7 @@ class AnnotatorController {
     def variantService
     def grailsApplication
     def jsonWebUtilityService
+    def featureEventService
 
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
@@ -197,6 +199,9 @@ class AnnotatorController {
         }
         Feature feature = Feature.findByUniqueName(data.uniquename)
 
+        FeatureOperation featureOperation = detectFeatureOperation(feature, data)
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
         boolean nameChange = feature.name != data.name
         feature.name = data.name
         feature.symbol = data.symbol
@@ -204,11 +209,15 @@ class AnnotatorController {
 
         def oldSynonymNames = feature.featureSynonyms ? feature.featureSynonyms.synonym.name.sort() : []
         def newSynonymNames = data.synonyms ? data.synonyms.split("\\|").sort() : []
-        def synonymsToAdd = newSynonymNames.findAll{ n -> !oldSynonymNames.contains(n)}
-        def synonymsToRemove = oldSynonymNames.findAll{ n -> !newSynonymNames.contains(n)}
+        def synonymsToAdd = newSynonymNames.findAll { n -> !oldSynonymNames.contains(n) }
+        def synonymsToRemove = oldSynonymNames.findAll { n -> !newSynonymNames.contains(n) }
 
-        println "old synonym names ${oldSynonymNames} ${newSynonymNames} ${synonymsToAdd} ${synonymsToRemove}"
+        log.debug "old synonym names ${oldSynonymNames} ${newSynonymNames} ${synonymsToAdd} ${synonymsToRemove}"
         // add missing
+
+        if(featureOperation==null && (synonymsToRemove.size()>0 || synonymsToAdd.size()>0)){
+            featureOperation = FeatureOperation.SET_SYNONYMS
+        }
 
         for (syn in synonymsToRemove) {
             def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name", [feature: feature, name: syn])
@@ -259,6 +268,25 @@ class AnnotatorController {
         }
 
         Sequence sequence = feature?.featureLocation?.sequence
+        User user = permissionService.getCurrentUser(data)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+
+        println "feature operation ${featureOperation}"
+        println "feature ${feature.name} ${feature.uniqueName}"
+        println "feature data ${data}"
+        println "feature user ${user}"
+        featureEventService.addNewFeatureEvent(featureOperation,
+                feature.name,
+                feature.uniqueName,
+                data,
+                oldFeaturesJsonArray,
+                newFeaturesJsonArray,
+                user)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
@@ -330,7 +358,7 @@ class AnnotatorController {
  * @param searchUniqueName
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName,String range,String statusString) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName, String range, String statusString) {
         try {
             JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -389,53 +417,49 @@ class AnnotatorController {
                         }
                         eq('organism', organism)
                     }
-                    if(range){
+                    if (range) {
                         Sequence sequenceNameRange = Sequence.findByName(range.split(":")[0])
                         Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
                         Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
                         eq('sequence', sequenceNameRange)
-                        or{
+                        or {
                             // case A, left-edge or overlaps
-                            and{
-                                lte("fmin",fmin)
-                                gte("fmax",fmin)
+                            and {
+                                lte("fmin", fmin)
+                                gte("fmax", fmin)
                             }
                             // case B, inbetween
-                            and{
-                                gte("fmin",fmin)
-                                lte("fmax",fmax)
+                            and {
+                                gte("fmin", fmin)
+                                lte("fmax", fmax)
                             }
 //                            // case C, overlaps
 //                            and{
 //                                lte("fmin",fmin)
 //                                gte("fmax",fmax)
 //                            }
-                            and{
-                                lte("fmin",fmax)
-                                gte("fmax",fmax)
+                            and {
+                                lte("fmin", fmax)
+                                gte("fmax", fmax)
                             }
                         }
                     }
                 }
-                if (statusString!="") {
+                if (statusString != "") {
                     // should work in null or non-null state
-                    if(statusString==FeatureStringEnum.NO_STATUS_ASSIGNED.value){
+                    if (statusString == FeatureStringEnum.NO_STATUS_ASSIGNED.value) {
                         isNull("status")
-                    }
-                    else
-                    if(statusString==FeatureStringEnum.ANY_STATUS_ASSIGNED.value){
+                    } else if (statusString == FeatureStringEnum.ANY_STATUS_ASSIGNED.value) {
                         status {
                         }
-                    }
-                    else{
-                        if(statusString.startsWith(FeatureStringEnum.NOT.value+":")){
+                    } else {
+                        if (statusString.startsWith(FeatureStringEnum.NOT.value + ":")) {
                             status {
-                                ne("value",statusString.split(":")[1])
+                                ne("value", statusString.split(":")[1])
                             }
-                        }
-                        else{
+                        } else {
                             status {
-                                eq("value",statusString)
+                                eq("value", statusString)
                             }
                         }
                     }
@@ -914,4 +938,18 @@ class AnnotatorController {
         export()
     }
 
+    private static compareNullToBlank(a,b){
+        if((a==null && b=="") || (a=="" && b==null)) return true
+        return a==b
+    }
+
+    private FeatureOperation detectFeatureOperation(Feature feature, JSONObject data) {
+        if (!compareNullToBlank(feature.name,data.name)) return FeatureOperation.SET_NAME
+        if (!compareNullToBlank(feature.symbol,data.symbol)) return FeatureOperation.SET_SYMBOL
+        if (!compareNullToBlank(feature.description,data.description)) return FeatureOperation.SET_DESCRIPTION
+        if (!compareNullToBlank(feature.status,data.status)) return FeatureOperation.SET_STATUS
+
+        log.warn("Updated generic feature")
+        null
+    }
 }

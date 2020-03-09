@@ -36,6 +36,7 @@ enum FeatureOperation {
   // structural data
   SET_SYMBOL(false),
   SET_NAME(false),
+  SET_SYNONYMS(false),
   SET_DESCRIPTION(false),
 
   DELETE_DBXREF(false),
