@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
-import org.apache.shiro.web.servlet.ShiroHttpServletRequest
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -491,7 +490,7 @@ class OrganismController {
       JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
 
       String trackLabel = requestObject.getString(FeatureStringEnum.TRACK_LABEL.value)
-      JSONObject trackObject = trackService.findTrackFromArray(extendedTracksArray, trackLabel)
+      JSONObject trackObject = trackService.findTrackFromArrayByLabel(extendedTracksArray, trackLabel)
       extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, trackLabel)
       extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
       extendedTrackListJsonFile.write(extendedTrackListObject.toString())
@@ -609,7 +608,7 @@ class OrganismController {
 
           if (trackDataFile) {
             // check if track exists in trackList.json
-            if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+            if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
               // add track config to trackList.json
               tracksArray.add(trackConfigObject)
               // unpack track data into organism directory
@@ -638,7 +637,7 @@ class OrganismController {
           } else {
             // trackDataFile is null; use data from trackFile and trackFileIndex, if available
             if (trackFile) {
-              if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+              if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
                 // add track config to trackList.json
                 tracksArray.add(trackConfigObject)
                 try {
@@ -680,7 +679,7 @@ class OrganismController {
           File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
           JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
           JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-          if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
+          if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
             log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
             returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
           } else {
@@ -704,7 +703,7 @@ class OrganismController {
               JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
               JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
               // check if track exists in extendedTrackList.json
-              if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
+              if (trackService.findTrackFromArrayByLabel(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                 log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}"
                 returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}.")
               } else {
@@ -732,7 +731,7 @@ class OrganismController {
               }
             } else {
               if (trackFile) {
-                if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+                if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
                   // add track config to trackList.json
                   File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                   if (!extendedTrackListJsonFile.exists()) {
@@ -744,7 +743,7 @@ class OrganismController {
                   }
                   JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
                   JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-                  if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
+                  if (trackService.findTrackFromArrayByLabel(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                     log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                     returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                   } else {
@@ -850,7 +849,7 @@ class OrganismController {
         log.debug "organism ${organism}"
         File trackListJsonFile = new File(organism.trackList)
         JSONObject trackListObject = JSON.parse(trackListJsonFile.text) as JSONObject
-        JSONObject trackObject = trackService.findTrackFromArray(trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
+        JSONObject trackObject = trackService.findTrackFromArrayByLabel(trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
 
         if (trackObject == null) {
           // track not found in trackList.json
@@ -858,7 +857,7 @@ class OrganismController {
           File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
           if (extendedTrackListJsonFile.exists()) {
             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text) as JSONObject
-            trackObject = trackService.findTrackFromArray(extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
+            trackObject = trackService.findTrackFromArrayByLabel(extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
             if (trackObject == null) {
               // track not found
               log.error "Track with label '${trackLabel}' not found"
@@ -999,7 +998,7 @@ class OrganismController {
           JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
           JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
           // check if track exists in trackList.json
-          JSONObject trackObject = trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
+          JSONObject trackObject = trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
           if (trackObject == null) {
             log.error "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'"
             returnObject.put("error", "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'.")
@@ -1023,7 +1022,7 @@ class OrganismController {
           JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
           JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
           // check if track exists in trackList.json
-          JSONObject trackObject = trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
+          JSONObject trackObject = trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
           if (trackObject != null) {
             // cannot update track config
             log.error "Track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' found but is part of the main data directory and cannot be updated."
@@ -1037,7 +1036,7 @@ class OrganismController {
               JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
               JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
               // check if track exists in extendedTrackList.json
-              trackObject = trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
+              trackObject = trackService.findTrackFromArrayByLabel(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value))
               if (trackObject == null) {
                 log.error "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'"
                 returnObject.put("error", "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'.")

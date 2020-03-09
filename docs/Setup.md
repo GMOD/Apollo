@@ -45,7 +45,9 @@ Node versions 6-12 have been tested and work.   [nvm](https://github.com/creatio
 Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat 8 and 9 are preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      
     sudo apt-get install ant openjdk-8-jdk 
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .profile / .zshrc
+    export JAVA_HOME=`/usr/libexec/java_home -v 1.8` # OR
+
     
 If you need to have multiple versions of java (note [#2222](https://github.com/GMOD/Apollo/issues/2222)), you will need to specify the version for tomcat.  In tomcat8 on Ubuntu you'll need to set the `/etc/default/tomcat8` file JAVA_HOME explicitly:
 

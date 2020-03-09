@@ -501,12 +501,39 @@ class TrackService {
      * @return
      */
     @NotTransactional
-    JSONObject findTrackFromArray(JSONArray tracksArray, String trackName) {
+    JSONObject findTrackFromArrayByCategory(JSONArray tracksArray, String category,boolean ignoreCase = true) {
+        return findTrackFromArrayByKey(tracksArray,category,"category",ignoreCase)
+    }
+
+    /**
+     *
+     * @param tracksArray
+     * @param label
+     * @return
+     */
+    @NotTransactional
+    JSONObject findTrackFromArrayByLabel(JSONArray tracksArray, String label,boolean ignoreCase = true) {
+        return findTrackFromArrayByKey(tracksArray,label,"label",ignoreCase)
+    }
+
+    /**
+     *
+     * @param tracksArray
+     * @param keyValue
+     * @paramkey
+     * @return
+     */
+    @NotTransactional
+    JSONObject findTrackFromArrayByKey(JSONArray tracksArray, String keyValue, String key,boolean ignoreCase = true) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
-            if (obj.getString("label") == trackName) return obj
+            if(ignoreCase){
+                if (obj.getString(key)?.equalsIgnoreCase(keyValue)) return obj
+            }
+            else{
+                if (obj.getString(key)== keyValue) return obj
+            }
         }
-
         return null
     }
 
