@@ -2363,21 +2363,23 @@ define([
                 while(selectedFeature  ){
                     var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
                     var innerTypes = Object.keys(SequenceOntologyUtils.transcriptTerms);
-                    console.log('inner types',innerTypes)
-                    if(innerTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
-                        return ;
-                    }
-                    else
+                    console.log('inner types',innerTypes);
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
                         return ;
                     }
                     else
                     if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id);
+                        if(innerTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                            this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id,selectedFeatureDetails.uniquename);
+                        }
+                        else{
+                            // can not find transcript to open
+                            this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
+                        }
                         return ;
                     }
+                    else
                     selectedFeature = selectedFeature._parent ;
                     selectedFeatureDetails = selectedFeature.afeature ;
                 }

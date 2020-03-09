@@ -1108,7 +1108,7 @@ public class MainPanel extends Composite {
 
     /**
      */
-    public static Boolean viewInAnnotationPanel(String parentName) {
+    public static Boolean viewInAnnotationPanel(String parentName,String childName) {
         try {
             // ids are registered with clone for some reason in JSONUtils.js for RR and TE . . not sure if it will break other things, so correcting here
             if(parentName.endsWith("-clone")){
@@ -1122,6 +1122,10 @@ public class MainPanel extends Composite {
             MainPanel.getInstance().openPanel();
             MainPanel.getInstance().addOpenTranscript(parentName);
             MainPanel.getInstance().selectOpenTranscript(parentName);
+            if(childName!=null){
+                // TODO: this is not quite right
+//                MainPanel.getInstance().selectOpenTranscript(parentName);
+            }
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
@@ -1211,7 +1215,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
-        $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;Ljava/lang/String;));
         $wnd.isOfficialTrack = $entry(@org.bbop.apollo.gwt.client.MainPanel::isOfficialTrack(Ljava/lang/String;));
         $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
