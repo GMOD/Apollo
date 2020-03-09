@@ -1117,6 +1117,7 @@ public class MainPanel extends Composite {
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.uniqueNameCheckBox.setValue(true);
+            annotatorPanel.selectedChildUniqueName = childName;
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
