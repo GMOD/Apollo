@@ -48,6 +48,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
+import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
@@ -64,7 +65,8 @@ import java.util.Set;
 public class AnnotatorPanel extends Composite {
 
 
-    interface AnnotatorPanelUiBinder extends UiBinder<com.google.gwt.user.client.ui.Widget, AnnotatorPanel> {
+
+    interface AnnotatorPanelUiBinder extends UiBinder<Widget, AnnotatorPanel> {
     }
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
@@ -76,7 +78,7 @@ public class AnnotatorPanel extends Composite {
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
     private long requestIndex = 0;
-    private static String selectedChildUniqueName = null;
+    String selectedChildUniqueName = null;
 
     private static int selectedSubTabIndex = 0;
     private static int pageSize = 25;
@@ -88,7 +90,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     TextBox nameSearchBox;
     @UiField(provided = true)
-    org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
+    SuggestBox sequenceList;
 
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
@@ -197,7 +199,7 @@ public class AnnotatorPanel extends Composite {
 
 
     public AnnotatorPanel() {
-        sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
+        sequenceList = new SuggestBox(sequenceOracle);
         sequenceList.getElement().setAttribute("placeHolder", "Reference Sequence");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
@@ -304,11 +306,29 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
+
+                            // if a single entry
                             if (annotationInfoList.size() == 1) {
                                 String type = annotationInfoList.get(0).getType();
                                 if ( (!type.equals("gene") && !type.equals("pseudogene")) || uniqueNameCheckBox.getValue()) {
                                     selectedAnnotationInfo = annotationInfoList.get(0);
-                                    updateAnnotationInfo(selectedAnnotationInfo);
+                                        // if a child, we need to get the index I think?
+                                    if(selectedChildUniqueName==null  || selectedAnnotationInfo.getChildAnnotations().size()==0) {
+                                        updateAnnotationInfo(selectedAnnotationInfo);
+                                        return ;
+                                    }
+                                    else{
+                                        for (AnnotationInfo annotationInfoChild : selectedAnnotationInfo.getChildAnnotations()) {
+                                            if (annotationInfoChild.getUniqueName().equals(selectedChildUniqueName)) {
+                                                selectedAnnotationInfo = getChildAnnotation(selectedAnnotationInfo, selectedChildUniqueName);
+                                                singleSelectionModel.clear();
+                                                singleSelectionModel.setSelected(selectedAnnotationInfo, true);
+                                                updateAnnotationInfo(selectedAnnotationInfo);
+                                                return;
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
 
@@ -958,6 +978,12 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("showCurrentView")
     public void setShowCurrentView(ClickEvent clickEvent) {
+        nameSearchBox.setText("");
+        sequenceList.setText("");
+        userField.setSelectedIndex(0);
+        typeList.setSelectedIndex(0);
+        uniqueNameCheckBox.setValue(false);
+        goOnlyCheckBox.setValue(false);
         queryViewInRangeOnly = true;
         reload();
     }
@@ -994,7 +1020,9 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
+        GWT.log("updated? " + selectedAnnotationInfo.getUniqueName());
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
+        GWT.log("again?? " + selectedAnnotationInfo.getUniqueName());
     }
 
     public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo) {
