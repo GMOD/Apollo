@@ -2357,11 +2357,18 @@ define([
             },
 
             getNewAnnotationInfoEditor: function () {
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
                 var selected = this.selectionManager.getSelection();
                 var selectedFeature = selected[0].feature;
                 var selectedFeatureDetails = selectedFeature.afeature;
                 while(selectedFeature  ){
+                    var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                    var innerTypes = Object.keys(SequenceOntologyUtils.transcriptTerms);
+                    console.log('inner types',innerTypes)
+                    if(innerTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
+                        return ;
+                    }
+                    else
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
                         this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
                         return ;
