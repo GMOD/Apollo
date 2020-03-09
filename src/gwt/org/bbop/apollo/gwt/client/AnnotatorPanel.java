@@ -348,12 +348,10 @@ public class AnnotatorPanel extends Composite {
                                             }
                                             // if a child, we need to get the index I think?
                                             final String thisUniqueName = selectedChildUniqueName;
-                                            GWT.log("setting the childe's unique name: "+thisUniqueName);
                                             for (AnnotationInfo annotationInfoChild : annotationInfo.getChildAnnotations()) {
                                                 if (annotationInfoChild.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
 //                                                    selectedAnnotationInfo = annotationInfo;
                                                     selectedAnnotationInfo = getChildAnnotation(annotationInfo, thisUniqueName);
-                                                    GWT.log("I hope it has sa child: "+selectedAnnotationInfo);
                                                     singleSelectionModel.clear();
                                                     singleSelectionModel.setSelected(selectedAnnotationInfo, true);
                                                     updateAnnotationInfo(selectedAnnotationInfo);
