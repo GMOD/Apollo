@@ -1122,7 +1122,6 @@ public class MainPanel extends Composite {
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
             MainPanel.getInstance().addOpenTranscript(parentName);
-            GWT.log("viewing: ["+parentName+"] child: ["+childName+"]");
             MainPanel.getInstance().selectOpenTranscript(childName);
             return true ;
         } catch (Exception e) {
@@ -1135,9 +1134,6 @@ public class MainPanel extends Composite {
     private void selectOpenTranscript(String childName) {
         annotatorPanel.selectTranscriptPanel();
         detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
-//        if(childName!=null){
-//            annotatorPanel.enableGoto(0,childName);
-//        }
     }
 
 

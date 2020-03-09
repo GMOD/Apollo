@@ -306,27 +306,29 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
+
+                            // if a single entry
                             if (annotationInfoList.size() == 1) {
                                 String type = annotationInfoList.get(0).getType();
                                 if ( (!type.equals("gene") && !type.equals("pseudogene")) || uniqueNameCheckBox.getValue()) {
                                     selectedAnnotationInfo = annotationInfoList.get(0);
-                                    updateAnnotationInfo(selectedAnnotationInfo);
                                         // if a child, we need to get the index I think?
-                                    if(selectedChildUniqueName==null ) return ;
-
-                                    final String thisUniqueName = selectedChildUniqueName;
-                                    GWT.log("setting the childe's unique name: "+thisUniqueName + " " + selectedAnnotationInfo + " " + selectedAnnotationInfo.getChildAnnotations().size());
-                                    for (AnnotationInfo annotationInfoChild : selectedAnnotationInfo.getChildAnnotations()) {
-                                        if (annotationInfoChild.getUniqueName().equals(thisUniqueName)) {
-//                                                    selectedAnnotationInfo = annotationInfo;
-                                            selectedAnnotationInfo = getChildAnnotation(selectedAnnotationInfo, thisUniqueName);
-                                            GWT.log("I hope it has sa child: "+selectedAnnotationInfo);
-                                            singleSelectionModel.clear();
-                                            singleSelectionModel.setSelected(selectedAnnotationInfo, true);
-                                            updateAnnotationInfo(selectedAnnotationInfo);
-                                            return;
+                                    if(selectedChildUniqueName==null  || selectedAnnotationInfo.getChildAnnotations().size()==0) {
+                                        updateAnnotationInfo(selectedAnnotationInfo);
+                                        return ;
+                                    }
+                                    else{
+                                        for (AnnotationInfo annotationInfoChild : selectedAnnotationInfo.getChildAnnotations()) {
+                                            if (annotationInfoChild.getUniqueName().equals(selectedChildUniqueName)) {
+                                                selectedAnnotationInfo = getChildAnnotation(selectedAnnotationInfo, selectedChildUniqueName);
+                                                singleSelectionModel.clear();
+                                                singleSelectionModel.setSelected(selectedAnnotationInfo, true);
+                                                updateAnnotationInfo(selectedAnnotationInfo);
+                                                return;
+                                            }
                                         }
                                     }
+
                                 }
                             }
 
