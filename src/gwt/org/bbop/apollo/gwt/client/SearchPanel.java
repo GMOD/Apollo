@@ -170,7 +170,7 @@ public class SearchPanel extends Composite {
                   @Override
                   public void callback(boolean result) {
                     if(result){
-                      MainPanel.viewInAnnotationPanel(parentName);
+                      MainPanel.viewInAnnotationPanel(parentName,null);
                     }
                   }
                 });

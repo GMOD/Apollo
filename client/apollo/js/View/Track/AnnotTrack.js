@@ -2363,12 +2363,12 @@ define([
                 var selectedFeatureDetails = selectedFeature.afeature;
                 while(selectedFeature  ){
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
                         return ;
                     }
                     else
                     if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id,selectedFeatureDetails.uniquename);
                         return ;
                     }
                     selectedFeature = selectedFeature._parent ;

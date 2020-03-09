@@ -958,6 +958,12 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("showCurrentView")
     public void setShowCurrentView(ClickEvent clickEvent) {
+        nameSearchBox.setText("");
+        sequenceList.setText("");
+        userField.setSelectedIndex(0);
+        typeList.setSelectedIndex(0);
+        uniqueNameCheckBox.setValue(false);
+        goOnlyCheckBox.setValue(false);
         queryViewInRangeOnly = true;
         reload();
     }
