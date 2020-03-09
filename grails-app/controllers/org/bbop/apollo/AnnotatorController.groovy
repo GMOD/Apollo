@@ -938,11 +938,16 @@ class AnnotatorController {
         export()
     }
 
+    private static compareNullToBlank(a,b){
+        if((a==null && b=="") || (a=="" && b==null)) return true
+        return a==b
+    }
+
     private FeatureOperation detectFeatureOperation(Feature feature, JSONObject data) {
-        if (feature.name != data.name) return FeatureOperation.SET_NAME
-        if (feature.symbol != data.symbol) return FeatureOperation.SET_SYMBOL
-        if (feature.description != data.description) return FeatureOperation.SET_DESCRIPTION
-        if (feature.status != data.status) return FeatureOperation.SET_STATUS
+        if (!compareNullToBlank(feature.name,data.name)) return FeatureOperation.SET_NAME
+        if (!compareNullToBlank(feature.symbol,data.symbol)) return FeatureOperation.SET_SYMBOL
+        if (!compareNullToBlank(feature.description,data.description)) return FeatureOperation.SET_DESCRIPTION
+        if (!compareNullToBlank(feature.status,data.status)) return FeatureOperation.SET_STATUS
 
         log.warn("Updated generic feature")
         null
