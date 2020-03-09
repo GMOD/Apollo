@@ -2365,21 +2365,25 @@ define([
                     var innerTypes = Object.keys(SequenceOntologyUtils.transcriptTerms);
                     console.log('inner types',innerTypes);
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                        console.log('reading in top-level type probably single-level')
                         this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
                         return ;
                     }
                     else
                     if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+                        console.log('parent is the top-level and likely a multi-level transcript')
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
                         if(innerTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                            console.log('child is the right type ',selectedFeatureDetails.type.name,selectedFeatureDetails.parent_id,selectedFeatureDetails.uniquename)
                             this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id,selectedFeatureDetails.uniquename);
                         }
                         else{
                             // can not find transcript to open
-                            this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename,null);
+                            console.log('shild is the wrong type',selectedFeatureDetails.type.name,selectedFeatureDetails.parent_id)
+                            this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id,null);
                         }
                         return ;
                     }
-                    else
                     selectedFeature = selectedFeature._parent ;
                     selectedFeatureDetails = selectedFeature.afeature ;
                 }

@@ -1122,6 +1122,7 @@ public class MainPanel extends Composite {
             MainPanel.getInstance().openPanel();
             MainPanel.getInstance().addOpenTranscript(parentName);
             MainPanel.getInstance().selectOpenTranscript(parentName);
+//            MainPanel.getInstance().selectOpenTranscript(childName);
             if(childName!=null){
                 // TODO: this is not quite right
 //                MainPanel.getInstance().selectOpenTranscript(parentName);
@@ -1134,9 +1135,12 @@ public class MainPanel extends Composite {
         }
     }
 
-    private void selectOpenTranscript(String parentName) {
+    private void selectOpenTranscript(String childName) {
         annotatorPanel.selectTranscriptPanel();
         detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+        if(childName!=null){
+
+        }
     }
 
 
