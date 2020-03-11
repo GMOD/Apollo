@@ -324,13 +324,45 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
     return null ;
 };
 
+// const EXCLUDE_COPY_KEYS = ["seq_id","source","start","end","score","strand","phase","owner","subfeatures"];
+const EXCLUDE_COPY_KEYS = ["subfeatures","start","end","strand"];
+
 function copyOfficialData(fromFeature,toFeature){
+
+    console.log('copying official feature to feature',fromFeature,toFeature);
+
+    console.log('has parent 2',fromFeature.parent_id,fromFeature.parent,fromFeature._parent,fromFeature.parent());
+    toFeature.location = {
+        "fmin": fromFeature.data['start'],
+        "fmax": fromFeature.data['end'],
+        "strand": getStrandValue(fromFeature.data['strand']),
+    };
+
     for(var key of Object.keys(fromFeature.data)) {
         // var key = fromFeature.data[keyIndex];
         // toFeature[key] = fromFeature.data[key];
+        if (key.toLowerCase() === 'id') {
+            toFeature['uniquename'] = fromFeature.data[key];
+        }
+        else
+        if (key.toLowerCase()==='type')  {
+            toFeature.type = {
+                "cv": {
+                    "name": "sequence"
+                }
+            };
+            toFeature.type.name = fromFeature.data[key];
+        }
+        else
         if (key.toLowerCase() === 'note' || key.toLowerCase() === 'description') {
             toFeature['description'] = fromFeature.data[key];
         }
+        else
+        if (EXCLUDE_COPY_KEYS.indexOf(key.toLowerCase())<0) {
+            toFeature[key] = fromFeature.data[key];
+        }
+
+        // TODO: add everything but a few things as we need to bring in the random attirbutes aas well
         // else{
         //     toFeature[key] = fromFeature.data[key];
         // }
@@ -340,8 +372,31 @@ function copyOfficialData(fromFeature,toFeature){
         // }
     }
 
+    if(fromFeature.parent()){
+        let parentData = {};
+        copyOfficialData(fromFeature.parent(),parentData);
+        toFeature.parent = parentData;
+        toFeature.parent_id = fromFeature.parent_id ? fromFeature.parent_id : fromFeature.parent()._uniqueID ;
+    }
+
+    console.log('output feature',toFeature);
 
     return toFeature;
+}
+
+function getStrandValue(strandValue){
+    // Apollo feature strand must be an integer
+    //     either 1 (plus strand), -1 (minus strand), or 0? (not stranded or strand is unknown?)
+    switch (strandValue) {  // strand
+        case 1:
+        case '+':
+            return 1;
+        case -1:
+        case '-':
+            return -1;
+        default:
+            return 0; // either not stranded or strand is uknown
+    }
 }
 
 /**
@@ -381,19 +436,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     }
 
     var afeature = {};
-    var astrand;
-    // Apollo feature strand must be an integer
-    //     either 1 (plus strand), -1 (minus strand), or 0? (not stranded or strand is unknown?)
-    switch (jfeature.get('strand')) {  // strand
-    case 1:
-    case '+':
-        astrand = 1; break;
-    case -1:
-    case '-':
-        astrand = -1; break;
-    default:
-        astrand = 0; // either not stranded or strand is uknown
-    }
+    var astrand = getStrandValue(jfeature.get('strand'));
 
     afeature.location = {
         "fmin": jfeature.get('start'),

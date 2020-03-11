@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -136,9 +137,10 @@ class FeatureService {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
+        println "trying to updateNewGsolFeatureAttributes ${gsolFeature} ${sequence}, ${gsolFeature.featureLocations}"
 
         if (sequence) {
-            gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
+            gsolFeature.featureLocations.iterator().next().sequence = sequence;
         }
 
         // TODO: this may be a mistake, is different than the original code
@@ -410,8 +412,11 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
+            println "handling gene?"
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
+            println "HANDLED gene? ${gene}"
             updateNewGsolFeatureAttributes(gene, sequence);
+            println "features updated? ${gene}"
 
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -1287,20 +1292,37 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
+    @NotTransactional
+    String getOntologyIdFromJsonFeature(JSONObject jsonFeature) {
+        String returnType = jsonFeature.getString(FeatureStringEnum.TYPE.value)
+        if(returnType.contains("{")){
+
+        }
+        if(returnType.contains("{")){
+            JSONObject type =jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
+            String ontologyId = convertJSONToOntologyId(type)
+            if (!ontologyId) {
+                log.warn "Feature type not set for ${type}"
+                return null
+            }
+            return ontologyId
+        }
+        return getOntologyIdForCvTermString(returnType)
+    }
+
 
     @Timed
     @Transactional
     Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
         try {
-            JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
-            String ontologyId = convertJSONToOntologyId(type)
-            if (!ontologyId) {
-                log.warn "Feature type not set for ${type}"
-                return null
-            }
+            println "input jsonFeature ${jsonFeature as JSON}"
 
-            gsolFeature = generateFeatureForType(ontologyId)
+            String ontologyId = getOntologyIdFromJsonFeature(jsonFeature)
+            String cvTermType = generateFeatureForTypeFromOntologyId(ontologyId).name
+            println "output ontology ID ${ontologyId} ${cvTermType}"
+
+            gsolFeature = generateFeatureForTypeFromOntologyId(ontologyId)
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
                 gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));
             }
@@ -1379,7 +1401,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
                 FeatureLocation featureLocation
-                if (singletonFeatureTypes.contains(type.getString(FeatureStringEnum.NAME.value))) {
+
+                if (singletonFeatureTypes.contains(cvTermType)) {
                     featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence, Strand.NONE.value)
                 } else {
                     featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence)
@@ -1559,7 +1582,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     // TODO: (perform on client side, slightly ugly)
-    Feature generateFeatureForType(String ontologyId) {
+    Feature generateFeatureForTypeFromOntologyId(String ontologyId) {
         switch (ontologyId) {
             case MRNA.ontologyId: return new MRNA()
             case MiRNA.ontologyId: return new MiRNA()
@@ -1599,59 +1622,65 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
+    @NotTransactional
+    String getOntologyIdForCvTermString(String cvTermString) {
+        switch (cvTermString.toUpperCase()) {
+            case MRNA.cvTerm.toUpperCase(): return MRNA.ontologyId
+            case MiRNA.cvTerm.toUpperCase(): return MiRNA.ontologyId
+            case NcRNA.cvTerm.toUpperCase(): return NcRNA.ontologyId
+            case SnoRNA.cvTerm.toUpperCase(): return SnoRNA.ontologyId
+            case SnRNA.cvTerm.toUpperCase(): return SnRNA.ontologyId
+            case RRNA.cvTerm.toUpperCase(): return RRNA.ontologyId
+            case TRNA.cvTerm.toUpperCase(): return TRNA.ontologyId
+            case Transcript.cvTerm.toUpperCase(): return Transcript.ontologyId
+            case Gene.cvTerm.toUpperCase(): return Gene.ontologyId
+            case Exon.cvTerm.toUpperCase(): return Exon.ontologyId
+            case CDS.cvTerm.toUpperCase(): return CDS.ontologyId
+            case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
+            case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
+            case TransposableElement.alternateCvTerm.toUpperCase():
+            case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
+            case Terminator.alternateCvTerm.toUpperCase():
+            case Terminator.cvTerm.toUpperCase(): return Terminator.ontologyId
+            case ShineDalgarnoSequence.alternateCvTerm.toUpperCase():
+            case ShineDalgarnoSequence.cvTerm.toUpperCase(): return ShineDalgarnoSequence.ontologyId
+            case RepeatRegion.alternateCvTerm.toUpperCase():
+            case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
+            case InsertionArtifact.cvTerm.toUpperCase(): return InsertionArtifact.ontologyId
+            case DeletionArtifact.cvTerm.toUpperCase(): return DeletionArtifact.ontologyId
+            case SubstitutionArtifact.cvTerm.toUpperCase(): return SubstitutionArtifact.ontologyId
+            case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
+            case Deletion.cvTerm.toUpperCase(): return Deletion.ontologyId
+            case Substitution.cvTerm.toUpperCase(): return Substitution.ontologyId
+            case StopCodonReadThrough.cvTerm.toUpperCase(): return StopCodonReadThrough.ontologyId
+            case NonCanonicalFivePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
+            case NonCanonicalThreePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
+            case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
+            case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
+            case SNV.cvTerm.toUpperCase(): return SNV.ontologyId
+            case SNP.cvTerm.toUpperCase(): return SNP.ontologyId
+            case MNV.cvTerm.toUpperCase(): return MNV.ontologyId
+            case MNP.cvTerm.toUpperCase(): return MNP.ontologyId
+            case Indel.cvTerm.toUpperCase(): return Indel.ontologyId
+            default:
+                log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
+                return null
+        }
+    }
+
+
+
+    @NotTransactional
     String convertJSONToOntologyId(JSONObject jsonCVTerm) {
         String cvString = jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
 
         if (cvString.equalsIgnoreCase(FeatureStringEnum.CV.value) || cvString.equalsIgnoreCase(FeatureStringEnum.SEQUENCE.value)) {
-            switch (cvTermString.toUpperCase()) {
-                case MRNA.cvTerm.toUpperCase(): return MRNA.ontologyId
-                case MiRNA.cvTerm.toUpperCase(): return MiRNA.ontologyId
-                case NcRNA.cvTerm.toUpperCase(): return NcRNA.ontologyId
-                case SnoRNA.cvTerm.toUpperCase(): return SnoRNA.ontologyId
-                case SnRNA.cvTerm.toUpperCase(): return SnRNA.ontologyId
-                case RRNA.cvTerm.toUpperCase(): return RRNA.ontologyId
-                case TRNA.cvTerm.toUpperCase(): return TRNA.ontologyId
-                case Transcript.cvTerm.toUpperCase(): return Transcript.ontologyId
-                case Gene.cvTerm.toUpperCase(): return Gene.ontologyId
-                case Exon.cvTerm.toUpperCase(): return Exon.ontologyId
-                case CDS.cvTerm.toUpperCase(): return CDS.ontologyId
-                case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
-                case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
-                case TransposableElement.alternateCvTerm.toUpperCase():
-                case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
-                case Terminator.alternateCvTerm.toUpperCase():
-                case Terminator.cvTerm.toUpperCase(): return Terminator.ontologyId
-                case ShineDalgarnoSequence.alternateCvTerm.toUpperCase():
-                case ShineDalgarnoSequence.cvTerm.toUpperCase(): return ShineDalgarnoSequence.ontologyId
-                case RepeatRegion.alternateCvTerm.toUpperCase():
-                case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
-                case InsertionArtifact.cvTerm.toUpperCase(): return InsertionArtifact.ontologyId
-                case DeletionArtifact.cvTerm.toUpperCase(): return DeletionArtifact.ontologyId
-                case SubstitutionArtifact.cvTerm.toUpperCase(): return SubstitutionArtifact.ontologyId
-                case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
-                case Deletion.cvTerm.toUpperCase(): return Deletion.ontologyId
-                case Substitution.cvTerm.toUpperCase(): return Substitution.ontologyId
-                case StopCodonReadThrough.cvTerm.toUpperCase(): return StopCodonReadThrough.ontologyId
-                case NonCanonicalFivePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
-                case NonCanonicalThreePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
-                case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
-                case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
-                case SNV.cvTerm.toUpperCase(): return SNV.ontologyId
-                case SNP.cvTerm.toUpperCase(): return SNP.ontologyId
-                case MNV.cvTerm.toUpperCase(): return MNV.ontologyId
-                case MNP.cvTerm.toUpperCase(): return MNP.ontologyId
-                case Indel.cvTerm.toUpperCase(): return Indel.ontologyId
-                default:
-                    log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
-                    return null
-            }
+            return getOntologyIdForCvTermString(cvTermString)
         } else {
             log.error("CV not known ${cvString}")
         }
-
         return null
-
     }
 
     @Transactional
@@ -2247,7 +2276,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         if (ontologyId == null) return null;
         JSONObject jsonObject = new JSONObject();
-        def feature = generateFeatureForType(ontologyId)
+        def feature = generateFeatureForTypeFromOntologyId(ontologyId)
         String cvTerm = feature.cvTerm
 
         jsonObject.put(FeatureStringEnum.NAME.value, cvTerm)

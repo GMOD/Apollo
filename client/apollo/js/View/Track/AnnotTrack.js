@@ -1198,6 +1198,8 @@ define([
                     }
 
                     var afeat ;
+                    console.log('is official',official);
+                    console.log('adding feature',JSON.stringify(featureToAdd))
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true,undefined,official);
