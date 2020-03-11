@@ -1332,18 +1332,28 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else {
                 gsolFeature.setUniqueName(nameService.generateUniqueName());
             }
+
+
+            // TODO: verify
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
                 // since name attribute cannot be null, using the feature's own uniqueName
                 gsolFeature.name = gsolFeature.uniqueName
             }
+
+            // TODO: verify
             if (jsonFeature.has(FeatureStringEnum.SYMBOL.value)) {
                 gsolFeature.setSymbol(jsonFeature.getString(FeatureStringEnum.SYMBOL.value));
             }
+
+
+            // TODO: verify here versus comment
             if (jsonFeature.has(FeatureStringEnum.DESCRIPTION.value)) {
                 gsolFeature.setDescription(jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value));
             }
+
+
             if (gsolFeature instanceof DeletionArtifact) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
@@ -1479,7 +1489,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
-                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
+                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+                println "here are all of the properties ${properties as JSON}"
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
@@ -1556,6 +1567,22 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureDBXrefs(newDBXref)
                     gsolFeature.save()
                 }
+            }
+            // TODO: synonyms
+            if (jsonFeature.has(FeatureStringEnum.SYNONYMS.value)) {
+//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+            }
+            // TODO: gene_product
+            if (jsonFeature.has(FeatureStringEnum.GENE_PRODUCT.value)) {
+//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+            }
+            // TODO: provenance
+            if (jsonFeature.has(FeatureStringEnum.PROVENANCE.value)) {
+//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+            }
+            // TODO: go_annotation
+            if (jsonFeature.has(FeatureStringEnum.GO_ANNOTATIONS.value)) {
+//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
             }
         }
         catch (JSONException e) {
