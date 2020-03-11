@@ -162,6 +162,7 @@ public class GeneDetailPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 enableFields(true);
+                MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
 //                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
@@ -180,6 +181,7 @@ public class GeneDetailPanel extends Composite {
      */
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
+        MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
         suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
         suggestedNameOracle.setFeatureType("sequence:" + annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
