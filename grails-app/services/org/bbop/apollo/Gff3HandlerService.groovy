@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
@@ -45,6 +46,7 @@ public class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GENE_PRODUCT.value);
         writeObject.attributesToExport.add(FeatureStringEnum.PROVENANCE.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.GO_ANNOTATIONS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.COMMENTS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.DATE_CREATION.value);
@@ -339,6 +341,28 @@ public class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.GO_ANNOTATIONS.value) && feature.getGoAnnotations() != null && feature.goAnnotations.size() > 0 ) {
+                String productString  = ""
+
+                int rank = 1
+                for(GoAnnotation goAnnotation in feature.goAnnotations){
+                    if(productString.length()>0) productString += ","
+                    productString += "rank=${rank}"
+                    productString += ";aspect=${goAnnotation.aspect}"
+                    productString += ";term=${goAnnotation.goRef}"
+                    productString += ";db_xref=${goAnnotation.reference}"
+                    productString += ";evidence=${goAnnotation.evidenceRef}"
+                    productString += ";gene_product_relationship=${goAnnotation.geneProductRelationshipRef}"
+                    productString += ";negate=${goAnnotation.negate}"
+                    productString += ";note=${goAnnotation.notesArray}"
+                    productString += ";based_on=${goAnnotation.withOrFromArray}"
+                    productString += ";last_updated=${goAnnotation.lastUpdated}"
+                    productString += ";date_created=${goAnnotation.dateCreated}"
+                    ++rank
+                }
+
+                attributes.put(FeatureStringEnum.GO_ANNOTATIONS.value, encodeString(productString))
+            }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
                 String productString  = ""
 
@@ -351,6 +375,8 @@ public class Gff3HandlerService {
                     productString += ";evidence=${provenance.evidenceRef}"
                     productString += ";note=${provenance.notesArray}"
                     productString += ";based_on=${provenance.withOrFromArray}"
+                    productString += ";last_updated=${provenance.lastUpdated}"
+                    productString += ";date_created=${provenance.dateCreated}"
                     ++rank
                 }
 
@@ -369,6 +395,8 @@ public class Gff3HandlerService {
                     productString += ";alternate=${geneProduct.alternate}"
                     productString += ";note=${geneProduct.notesArray}"
                     productString += ";based_on=${geneProduct.withOrFromArray}"
+                    productString += ";last_updated=${geneProduct.lastUpdated}"
+                    productString += ";date_created=${geneProduct.dateCreated}"
                     ++rank
                 }
 
