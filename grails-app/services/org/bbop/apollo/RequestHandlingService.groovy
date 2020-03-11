@@ -40,6 +40,8 @@ class RequestHandlingService {
     def featurePropertyService
     def featureEventService
     def goAnnotationService
+    def geneProductService
+    def provenanceService
     def jsonWebUtilityService
     def brokerMessagingTemplate
 
@@ -2058,6 +2060,8 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         goAnnotationService.deleteAnnotations(featuresArray)
+        geneProductService.deleteAnnotations(featuresArray)
+        provenanceService.deleteAnnotations(featuresArray)
 
         Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
         boolean isUpdateOperation = false
