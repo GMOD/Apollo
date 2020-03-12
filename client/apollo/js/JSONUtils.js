@@ -337,6 +337,8 @@ function copyOfficialData(fromFeature,toFeature){
         "fmax": fromFeature.data['end'],
         "strand": getStrandValue(fromFeature.data['strand']),
     };
+    toFeature.use_cds = true;
+    toFeature.use_name = true;
 
     for(var key of Object.keys(fromFeature.data)) {
         // var key = fromFeature.data[keyIndex];
