@@ -66,6 +66,7 @@ class RequestHandlingService {
             MiRNA.class.name,
     ]
 
+
     public static final List<String> viewableAnnotationTranscriptList = [MRNA.class.name] + nonCodingAnnotationTranscriptList
 
     public static final List<String> viewableAlterations = [

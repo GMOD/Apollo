@@ -374,7 +374,9 @@ class AnnotatorController {
 
             List<String> viewableTypes
 
+            println "input type ${type}"
             if (type) {
+                println "specific ${type}"
                 viewableTypes = new ArrayList<>()
                 switch (type) {
                     case "Gene": viewableTypes.add(Gene.class.canonicalName)
@@ -395,8 +397,11 @@ class AnnotatorController {
                         viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList
                         break
                 }
+                println "viewable types ${viewableTypes}"
             } else {
                 viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList
+//                viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList  +  requestHandlingService.viewableAnnotationTranscriptList
+                println "ELSE viewable types ${viewableTypes}"
             }
 
             long start = System.currentTimeMillis()
