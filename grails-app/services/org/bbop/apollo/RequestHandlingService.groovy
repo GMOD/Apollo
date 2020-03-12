@@ -816,11 +816,7 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
 
-        log.info "addTranscript ${inputObject.toString()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        log.debug "sequence: ${sequence}"
-        log.debug "organism: ${sequence.organism}"
-        log.info "number of features: ${featuresArray?.size()}"
 
         boolean useName = false
         boolean useCDS = configWrapperService.useCDS()
@@ -2043,7 +2039,6 @@ class RequestHandlingService {
 //    { "track": "Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     @Timed
     def deleteFeature(JSONObject inputObject) {
-        log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
 

@@ -63,11 +63,14 @@ class GeneProductService {
         parentFeature = thisFeature
       }
 
+      List<GeneProduct> annotations = []
       if (parentFeature) {
-        List<GeneProduct> annotations = GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature])
-        GeneProduct.deleteAll(annotations)
+        annotations.addAll(GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature]))
       }
+      annotations.addAll(GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :feature", [feature: thisFeature]))
+      GeneProduct.deleteAll(annotations)
     }
+
   }
 
   def removeGeneProductsFromFeature(Feature feature) {

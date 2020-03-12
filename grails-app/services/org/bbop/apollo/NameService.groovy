@@ -15,134 +15,132 @@ class NameService {
         UUID.randomUUID().toString()
     }
 
-    String generateUniqueName(Feature thisFeature,String principalName = null ) {
-        Organism organism = thisFeature.featureLocation.sequence.organism
-        if(thisFeature.name) {
+    String generateUniqueName(Feature thisFeature, String principalName = null) {
+        Organism organism = thisFeature?.featureLocation?.sequence?.organism
+        if (thisFeature.name) {
             if (thisFeature instanceof Transcript) {
-                if(!principalName){
+                if (!principalName) {
                     Gene gene = transcriptService.getGene((Transcript) thisFeature)
-                    if(!gene){
+                    if (!gene) {
                         gene = transcriptService.getPseudogene((Transcript) thisFeature)
                     }
 
-                    log.debug "feature properties : ${thisFeature}"
-                    if(!gene){
+                    if (!gene) {
                         principalName = thisFeature.uniqueName
-                    }
-                    else
-                    if(!gene.name){
+                    } else if (!gene.name) {
                         principalName = thisFeature.uniqueName
-                    }
-                    else{
+                    } else {
                         principalName = gene.name
                     }
                 }
-                return makeUniqueTranscriptName(organism,principalName.trim()+"-")
-            } else
-            if (thisFeature instanceof Gene) {
-                if(!principalName){
+                if(organism){
+                    return makeUniqueTranscriptName(organism, principalName.trim() + "-")
+                }
+            } else if (thisFeature instanceof Gene) {
+                if (!principalName) {
                     principalName = ((Gene) thisFeature).name
                 }
-                if(Gene.countByName(principalName.trim())==0){
+                if (Gene.countByName(principalName.trim()) == 0) {
                     return principalName
                 }
-                  return makeUniqueGeneName(organism,principalName.trim())
+                if(organism){
+                    return makeUniqueGeneName(organism, principalName.trim())
+                }
             }
             if (thisFeature instanceof Exon || thisFeature instanceof NonCanonicalFivePrimeSpliceSite || thisFeature instanceof NonCanonicalThreePrimeSpliceSite || thisFeature instanceof CDS) {
                 return generateUniqueName()
-            }
-            else{
-                if(!principalName){
+            } else {
+                if (!principalName) {
                     principalName = thisFeature.name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
+                if(organism){
+                    return makeUniqueFeatureName(organism, principalName.trim(), new LetterPaddingStrategy())
+                }
             }
         }
-        else{
-            generateUniqueName()
-        }
+        return generateUniqueName()
     }
 
 
-    boolean isUniqueGene(Organism organism,String name){
-        Integer numberResults = Gene.findAllByName(name).findAll(){
+    boolean isUniqueGene(Organism organism, String name) {
+        Integer numberResults = Gene.findAllByName(name).findAll() {
             it.featureLocation.sequence.organism == organism
         }.size()
         return 0 == numberResults
     }
 
-    boolean isUnique(Organism organism,String name){
+    boolean isUnique(Organism organism, String name) {
 //        if(Feature.countByName(name)==0) {
 //            return true
 //        }
 //        List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name = :name ",[org:organism,name:name]))
-        Integer numberResults = Feature.findAllByName(name).findAll(){
+        Integer numberResults = Feature.findAllByName(name).findAll() {
             it.featureLocation.sequence.organism == organism
         }.size()
         return 0 == numberResults
     }
 
-    String makeUniqueTranscriptName(Organism organism,String principalName){
+    String makeUniqueTranscriptName(Organism organism, String principalName) {
         String name
 
         name = principalName + leftPaddingStrategy.pad(0)
-        if(Transcript.countByName(name)==0){
+        if (Transcript.countByName(name) == 0) {
             return name
         }
 
 //        List results = (Feature.executeQuery("select f.name from Transcript f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name like :name ",[org:organism,name:principalName+'%']))
         // See https://github.com/GMOD/Apollo/issues/1276
         // only does sort over found results
-        List<String> results= Feature.findAllByNameLike(principalName+"%").findAll(){
-            it.featureLocation.sequence.organism == organism
+        List<String> results = Feature.findAllByNameLike(principalName + "%").findAll() {
+            it.featureLocation?.sequence?.organism == organism
         }.name
 
         name = principalName + leftPaddingStrategy.pad(results.size())
         int count = results.size()
-        while(results.contains(name)){
+        while (results.contains(name)) {
             name = principalName + leftPaddingStrategy.pad(count)
             ++count
         }
         return name
     }
 
-    String makeUniqueGeneName(Organism organism,String principalName,boolean useOriginal=false){
+    String makeUniqueGeneName(Organism organism, String principalName, boolean useOriginal = false) {
 
-        if(useOriginal && isUniqueGene(organism,principalName)){
+        if (useOriginal && isUniqueGene(organism, principalName)) {
             return principalName
         }
 
-        if(isUniqueGene(organism,principalName)){
+        if (isUniqueGene(organism, principalName)) {
             return principalName
         }
 
         String name = principalName + letterPaddingStrategy.pad(0)
 
-        List<String> results= Gene.findAllByNameLike(principalName+"%").findAll(){
+        List<String> results = Gene.findAllByNameLike(principalName + "%").findAll() {
             it.featureLocation.sequence.organism == organism
         }.name
         int count = results.size()
-        while(results.contains(name)){
+        while (results.contains(name)) {
             name = principalName + letterPaddingStrategy.pad(count)
             ++count
         }
         return name
     }
 
-    String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy,boolean useOriginal=false){
+    String makeUniqueFeatureName(Organism organism, String principalName, PaddingStrategy paddingStrategy, boolean useOriginal = false) {
         String name
         int i = 0
 
-        if(useOriginal && isUnique(organism,principalName)){
+        if (useOriginal && isUnique(organism, principalName)) {
             return principalName
         }
 
-        if(isUnique(organism,principalName)){
+        if (isUnique(organism, principalName)) {
             return principalName
         }
 
         name = principalName + paddingStrategy.pad(i++)
-        while(!isUnique(organism,name)){
+        while (!isUnique(organism, name)) {
             name = principalName + paddingStrategy.pad(i++)
         }
         return name
@@ -158,11 +156,10 @@ class NameService {
         String position = variant.featureLocation.fmin + 1
         def alternateAlleles = []
         String referenceAllele
-        for (Allele allele : variant.alleles.sort { a,b -> a.id <=> b.id }) {
+        for (Allele allele : variant.alleles.sort { a, b -> a.id <=> b.id }) {
             if (allele.reference) {
                 referenceAllele = allele.bases
-            }
-            else {
+            } else {
                 alternateAlleles.add(allele.bases)
             }
         }

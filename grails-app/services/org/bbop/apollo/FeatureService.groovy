@@ -137,7 +137,7 @@ class FeatureService {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
-        println "trying to updateNewGsolFeatureAttributes ${gsolFeature} ${sequence}, ${gsolFeature.featureLocations}"
+        log.debug "trying to updateNewGsolFeatureAttributes ${gsolFeature} ${sequence}, ${gsolFeature.featureLocations}"
 
         if (sequence) {
             gsolFeature.featureLocations.iterator().next().sequence = sequence;
@@ -182,7 +182,7 @@ class FeatureService {
     @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
-        log.debug "jsonTranscript: ${jsonTranscript.toString()}"
+        log.debug "jsonTranscript: ${jsonTranscript.toString()} ${sequence}"
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
         boolean readThroughStopCodon = false
@@ -378,7 +378,6 @@ class FeatureService {
             }
         }
         if (gene == null) {
-            log.debug "gene is null"
             // Scenario III - create a de-novo gene
             JSONObject jsonGene = new JSONObject();
             if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
@@ -412,11 +411,8 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-            println "handling gene?"
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
-            println "HANDLED gene? ${gene}"
             updateNewGsolFeatureAttributes(gene, sequence);
-            println "features updated? ${gene}"
 
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -1316,11 +1312,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
         try {
-            println "input jsonFeature ${jsonFeature as JSON}"
-
             String ontologyId = getOntologyIdFromJsonFeature(jsonFeature)
-            String cvTermType = generateFeatureForTypeFromOntologyId(ontologyId).name
-            println "output ontology ID ${ontologyId} ${cvTermType}"
+            String cvTermType = generateFeatureForTypeFromOntologyId(ontologyId).cvTerm
 
             gsolFeature = generateFeatureForTypeFromOntologyId(ontologyId)
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
@@ -1490,7 +1483,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value)
-                println "here are all of the properties ${properties as JSON}"
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);

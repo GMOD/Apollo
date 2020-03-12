@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.geneProduct.GeneProduct
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -57,10 +58,12 @@ class ProvenanceService {
         parentFeature = thisFeature
       }
 
+      List<Provenance> annotations = []
       if (parentFeature) {
-        List<Provenance> annotations = Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature])
-        Provenance.deleteAll(annotations)
+        annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature]))
       }
+      annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :feature", [feature: thisFeature]))
+      Provenance.deleteAll(annotations)
     }
   }
 
