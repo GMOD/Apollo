@@ -2109,7 +2109,7 @@ class RequestHandlingService {
             }
 
         }
-        
+
         for (String key : oldFeatureMap.keySet()) {
             println "setting keys"
             oldJsonObjectsArray.add(oldFeatureMap.get(key))
@@ -2119,7 +2119,7 @@ class RequestHandlingService {
             String uniqueName = entry.getKey();
 //            Feature feature = Feature.findByUniqueName(uniqueName);
             println "looking for unqie name ${uniqueName}"
-            Feature feature = featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence);
+            Feature feature = uniqueName ==null ? null : featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence)
             println "updating name for feature ${uniqueName} -> ${feature}"
             if (feature == null) {
                 log.info("Feature already deleted");
