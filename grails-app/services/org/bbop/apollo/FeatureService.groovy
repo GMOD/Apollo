@@ -181,8 +181,8 @@ class FeatureService {
      * @return
      */
 
-    Feature getFeatureByUniqueNameAndSequence(String uniqueName, Sequence sequence) {
-        def features = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.uniqueName = :uniqueName", [sequence: sequence, uniqueName: uniqueName])
+    Feature getFeatureByUniqueNameAndOrganism(String uniqueName, Organism organism) {
+        def features = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o = :organism and f.uniqueName = :uniqueName", [organism: organism, uniqueName: uniqueName])
         if (!features) {
             return null
         }
@@ -192,6 +192,10 @@ class FeatureService {
             }
             return features[0]
         }
+    }
+
+    Feature getFeatureByUniqueNameAndSequence(String uniqueName, Sequence sequence) {
+        return getFeatureByUniqueNameAndOrganism(uniqueName,sequence.organism)
     }
 
     Feature getFeatureByNameAndSequence(String name, Sequence sequence) {

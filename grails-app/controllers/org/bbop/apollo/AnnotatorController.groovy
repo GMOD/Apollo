@@ -191,13 +191,14 @@ class AnnotatorController {
     )
     @Transactional
     def updateFeature() {
-        log.debug "updateFeature ${params.data}"
+        println "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        Feature feature = Feature.findByUniqueName(data.uniquename)
+//        Feature feature = Feature.findByUniqueNameAnd(data.uniquename)
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(data.uniquename, Organism.findById(data.organism as Long))
 
         FeatureOperation featureOperation = detectFeatureOperation(feature, data)
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
@@ -370,6 +371,7 @@ class AnnotatorController {
 
             Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             Organism organism = sequenceObj.organism
+            println "sequence object return is ${sequenceObj} and organism is ${organism.commonName}"
             Integer index = Integer.parseInt(request)
 
             List<String> viewableTypes
