@@ -200,8 +200,11 @@ public class GeneProductPanel extends Composite {
     RequestCallback requestCallback = new RequestCallback() {
       @Override
       public void onResponseReceived(Request request, Response response) {
+        GWT.log("received: "+response.getText());
         JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+        GWT.log("parsed object: "+jsonObject.toString());
         loadAnnotationsFromResponse(jsonObject);
+        GWT.log("all loaded: "+jsonObject.toString());
         redraw();
       }
 
@@ -211,7 +214,7 @@ public class GeneProductPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo.getUniqueName());
+      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
     }
   }
 

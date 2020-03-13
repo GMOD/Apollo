@@ -6,22 +6,22 @@ import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
-import org.springframework.format.datetime.DateFormatter
+
 import java.text.SimpleDateFormat
 
 
 
-public class Gff3HandlerService {
+class Gff3HandlerService {
 
     def sequenceService
     def featureRelationshipService
     def transcriptService
-    def exonService
     def configWrapperService
     def requestHandlingService 
     def featureService
     def overlapperService
     def featurePropertyService
+    def geneProductService
 
     SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
@@ -92,7 +92,7 @@ public class Gff3HandlerService {
     }
 
     @Timed
-    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
+    void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
             if (needDirectives) {
@@ -123,22 +123,22 @@ public class Gff3HandlerService {
         }
     }
 
-    public void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
+    void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
         writeEmptyFastaDirective(writeObject.out);
         for (Feature feature : features) {
             writeFasta(writeObject.out, feature, false);
         }
     }
 
-    public void writeFasta(PrintWriter out, Feature feature) {
+    void writeFasta(PrintWriter out, Feature feature) {
         writeFasta(out, feature, true);
     }
 
-    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
+    void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
         writeFasta(out, feature, writeFastaDirective, true);
     }
 
-    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective, boolean useLocation) {
+    void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective, boolean useLocation) {
         int lineLength = 60;
         if (writeFastaDirective) {
             writeEmptyFastaDirective(out);
@@ -159,13 +159,13 @@ public class Gff3HandlerService {
         }
     }
     
-    public void writeFastaForReferenceSequences(WriteObject writeObject, Collection<Sequence> sequences) {
+    void writeFastaForReferenceSequences(WriteObject writeObject, Collection<Sequence> sequences) {
         for (Sequence sequence : sequences) {
             writeFastaForReferenceSequence(writeObject, sequence)
         }
     }
     
-    public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
+    void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
         writeEmptyFastaDirective(writeObject.out);
@@ -284,6 +284,7 @@ public class Gff3HandlerService {
         }
     }
 
+
     @Timed
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -383,23 +384,7 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null && feature.geneProducts.size() >0) {
-                String productString  = ""
-
-                int rank = 1
-                for(GeneProduct geneProduct in feature.geneProducts){
-                    if(productString.length()>0) productString += ","
-                    productString += "rank=${rank}"
-                    productString += ";term=${geneProduct.productName}"
-                    productString += ";db_xref=${geneProduct.reference}"
-                    productString += ";evidence=${geneProduct.evidenceRef}"
-                    productString += ";alternate=${geneProduct.alternate}"
-                    productString += ";note=${geneProduct.notesArray}"
-                    productString += ";based_on=${geneProduct.withOrFromArray}"
-                    productString += ";last_updated=${geneProduct.lastUpdated}"
-                    productString += ";date_created=${geneProduct.dateCreated}"
-                    ++rank
-                }
-
+                String productString  = geneProductService.convertGeneProductsToGff3String(feature.geneProducts)
                 attributes.put(FeatureStringEnum.GENE_PRODUCT.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {

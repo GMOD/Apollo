@@ -3,8 +3,8 @@ package org.bbop.apollo.geneProduct
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.Sequence
 import org.bbop.apollo.User
-import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -34,9 +34,15 @@ class GeneProductController {
   ]
   )
   def index() {
+    println "getting gene product!"
     JSONObject dataObject = permissionService.handleInput(request, params)
+    println "B getting gene product! ${dataObject}"
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
-    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
+    org.bbop.apollo.Sequence sequence = org.bbop.apollo.Sequence.findByNameAndOrganism(dataObject.sequence,org.bbop.apollo.Organism.findById(dataObject.organism as Long))
+    println "C.1 getting gene product! ${sequence}"
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.uniqueName as String,sequence)
+    println "D getting gene product! ${feature}"
+//    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
     if (feature) {
       JSONObject annotations = geneProductService.getAnnotations(feature)
       // TODO: register with marshaller

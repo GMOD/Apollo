@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
 import org.bbop.apollo.gwt.shared.geneProduct.Reference;
 import org.bbop.apollo.gwt.shared.geneProduct.WithOrFrom;
@@ -39,7 +40,7 @@ public class GeneProductConverter {
     List<WithOrFrom> withOrFromList = new ArrayList<>();
     if (object.get("withOrFrom").isString() != null) {
       String withOrFromString = object.get("withOrFrom").isString().stringValue();
-      JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
+      JSONArray withOrFromArray = JSONParser.parseLenient(withOrFromString).isArray();
       for (int i = 0; i < withOrFromArray.size(); i++) {
         WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
         withOrFromList.add(withOrFrom);

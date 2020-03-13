@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
@@ -33,6 +34,7 @@ class FeatureService {
     def organismService
     def sessionFactory
     def goAnnotationService
+    def geneProductService
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
@@ -1640,16 +1642,28 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
             // TODO: gene_product
+            // only coming from GFF3
             if (jsonFeature.has(FeatureStringEnum.GENE_PRODUCT.value)) {
-//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+                String geneProductString = jsonFeature.getString(FeatureStringEnum.GENE_PRODUCT.value)
+                println "gene product array ${geneProductString}"
+                List<GeneProduct> geneProducts = geneProductService.convertGff3StringToGeneProducts(geneProductString)
+                println "gene products outputs ${geneProducts}: ${geneProducts.size()}"
+                geneProducts.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToGeneProducts(it)
+                }
+                gsolFeature.save()
             }
             // TODO: provenance
             if (jsonFeature.has(FeatureStringEnum.PROVENANCE.value)) {
-//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+                String provenanceString = jsonFeature.getString(FeatureStringEnum.PROVENANCE.value)
+                println "provenance array ${provenanceString}"
             }
             // TODO: go_annotation
             if (jsonFeature.has(FeatureStringEnum.GO_ANNOTATIONS.value)) {
-//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
+                String goAnnotationString = jsonFeature.getString(FeatureStringEnum.GO_ANNOTATIONS.value)
+                println "go annotations array ${goAnnotationString}"
             }
         }
         catch (JSONException e) {
@@ -1668,11 +1682,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     boolean isJsonTranscript(JSONObject jsonObject) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        if (typeString == MRNA.cvTerm) {
-            return true
-        } else {
-            return false
-        }
+        return typeString == MRNA.cvTerm
     }
 
     // TODO: (perform on client side, slightly ugly)
