@@ -52,13 +52,18 @@ class FeatureRelationshipService {
 
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
         def list = new ArrayList<Feature>()
+        println "finding parents feature ${feature} for ${ontologyIds}"
+        println "finding parents with childre ${feature.childFeatureRelationships}"
         if (feature?.childFeatureRelationships != null) {
             feature.childFeatureRelationships.each { it ->
+                println "found ${it}"
+                println "found parent ${it.parentFeature}"
                 if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
                     list.push(it.parentFeature)
                 }
             }
         }
+        println "returning list ${list}"
 
         return list
     }
@@ -163,7 +168,7 @@ class FeatureRelationshipService {
     }
 
     @Transactional
-    public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
+    void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
         if (featureRelationship) {

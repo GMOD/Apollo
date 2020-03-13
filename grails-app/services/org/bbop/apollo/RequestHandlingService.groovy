@@ -2065,23 +2065,27 @@ class RequestHandlingService {
         JSONArray oldJsonObjectsArray = new JSONArray()
         // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcript
         Map<String, JSONObject> oldFeatureMap = new HashMap<>()
-        log.debug "features to delete: ${featuresArray.size()}"
+        println "features to delete: ${featuresArray.size()}"
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             Feature feature
             String uniqueName
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
-                uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-                feature = Feature.findByUniqueName(uniqueName)
+                println "putting in sequence ${sequence} and uniquename ${jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)}"
+                feature = featureService.getFeatureByUniqueNameAndSequence(jsonFeature.get(FeatureStringEnum.UNIQUENAME.value),sequence)
             } else {
-                feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
-                uniqueName = feature.uniqueName
+                println "putting in sequence ${sequence} and name ${jsonFeature.get(FeatureStringEnum.NAME.value)}"
+//                feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
+//                uniqueName = feature.uniqueName
+                feature = featureService.getFeatureByNameAndSequence(jsonFeature.get(FeatureStringEnum.NAME.value),sequence)
             }
+            println "have a feature to delete ${feature}"
 
             checkOwnersDelete(feature, inputObject)
 
-            log.debug "feature found to delete ${feature?.name}"
+            println "feature found to delete ${feature?.name}"
+            println "deleting feature found to delete ${feature}"
             if (feature) {
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
@@ -2105,28 +2109,35 @@ class RequestHandlingService {
             }
 
         }
+        
         for (String key : oldFeatureMap.keySet()) {
-            log.debug "setting keys"
+            println "setting keys"
             oldJsonObjectsArray.add(oldFeatureMap.get(key))
         }
 
         for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
             String uniqueName = entry.getKey();
-            Feature feature = Feature.findByUniqueName(uniqueName);
-            log.debug "updating name for feature ${uniqueName} -> ${feature}"
+//            Feature feature = Feature.findByUniqueName(uniqueName);
+            println "looking for unqie name ${uniqueName}"
+            Feature feature = featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence);
+            println "updating name for feature ${uniqueName} -> ${feature}"
             if (feature == null) {
                 log.info("Feature already deleted");
                 continue;
             }
             if (!isUpdateOperation) {
-                log.debug "is not update operation "
+                println "is not update operation "
                 // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+                println "feature type is ${feature}"
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
+                    println "is a transcript? ${transcript}"
                     Gene gene = transcriptService.getGene(transcript)
+                    println "has a gene? ${gene}"
                     if (!gene) {
                         gene = transcriptService.getPseudogene(transcript)
+                        println "has a pseudogene? ${gene}"
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {

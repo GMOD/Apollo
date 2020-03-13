@@ -179,6 +179,32 @@ class FeatureService {
      * @return
      */
 
+    Feature getFeatureByUniqueNameAndSequence(String uniqueName,Sequence sequence){
+        def features = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.uniqueName = :uniqueName",[sequence:sequence,uniqueName: uniqueName])
+        if(!features){
+            return null
+        }
+        if(features.size()>0){
+            if(features.size()>1){
+                log.error("Returning multiple features: ${features}")
+            }
+            return features[0]
+        }
+    }
+
+    Feature getFeatureByNameAndSequence(String name,Sequence sequence){
+        def features = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.name = :name",[sequence:sequence,name: name])
+        if(!features){
+            return null
+        }
+        if(features.size()>0){
+            if(features.size()>1){
+                log.error("Returning multiple features: ${features}")
+            }
+            return features[0]
+        }
+    }
+
     @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
@@ -188,7 +214,7 @@ class FeatureService {
             // only load it if its on the same sequence
             // TODO: should I copy it from the other one if not?
             // TODO: is there a use-case where this is used?
-            
+
 //                = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         }
         Transcript transcript = null
@@ -1716,13 +1742,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Transactional
     void updateGeneBoundaries(Gene gene) {
-        println "updateGeneBoundaries"
+        println "updateGeneBoundaries ${gene}"
         if (gene == null) {
             return;
         }
         int geneFmax = Integer.MIN_VALUE;
         int geneFmin = Integer.MAX_VALUE;
         for (Transcript t : transcriptService.getTranscripts(gene)) {
+            println "transscript ${t} "
+            println "fmin / fmax ${t.fmin} / ${t.fmax} "
             if (t.getFmin() < geneFmin) {
                 geneFmin = t.getFmin();
             }
@@ -1730,6 +1758,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 geneFmax = t.getFmax();
             }
         }
+        println "feature locations ${gene.featureLocations}"
+        println "single feature location ${gene.featureLocation}"
         gene.featureLocation.setFmin(geneFmin);
         gene.featureLocation.setFmax(geneFmax);
         gene.setLastUpdated(new Date());
