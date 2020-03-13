@@ -1515,6 +1515,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
 
+            // push notes into comment field if at the top-level
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_NOTE.value.toLowerCase())) {
+                JSONArray exportNoteArray = jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_NOTE.value.toLowerCase())
+//                String propertyValue = property.get(FeatureStringEnum.VALUE.value)
+                int rank =0
+                for(String noteString in exportNoteArray){
+                      Comment comment = new Comment(
+                              feature:gsolFeature,
+                              rank: rank++,
+                              value: noteString
+                      ).save()
+                    gsolFeature.addToFeatureProperties(comment)
+                }
+            }
 
             // handle status here
             if (jsonFeature.has(FeatureStringEnum.STATUS.value)) {
