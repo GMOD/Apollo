@@ -134,6 +134,7 @@ public enum FeatureStringEnum {
         EXPORT_DBXREF("Dbxref"),
         EXPORT_NAME("Name"),
         EXPORT_ALIAS("Alias"),
+        ALIAS,
         EXPORT_NOTE("Note"),
         EXPORT_PARENT("Parent"),
         ORGANISM_JBROWSE_DIRECTORY("organismJBrowseDirectory"),
