@@ -355,10 +355,10 @@ function copyOfficialData(fromFeature,toFeature){
             };
             toFeature.type.name = fromFeature.data[key];
         }
-        else
-        if (key.toLowerCase() === 'note' || key.toLowerCase() === 'description') {
-            toFeature['description'] = fromFeature.data[key];
-        }
+        // else
+        // if (key.toLowerCase() === 'description') {
+        //     toFeature['description'] = fromFeature.data[key];
+        // }
         else
         if (EXCLUDE_COPY_KEYS.indexOf(key.toLowerCase())<0) {
             toFeature[key] = fromFeature.data[key];
