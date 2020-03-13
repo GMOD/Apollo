@@ -1491,8 +1491,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else {
                 gsolFeature.setLastUpdated(new Date());
             }
-            if (jsonFeature.has(FeatureStringEnum.ALIAS.value)) {
-                for (String synonymString in jsonFeature.getJSONArray(FeatureStringEnum.ALIAS.value)) {
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_ALIAS.value.toLowerCase())) {
+                for (String synonymString in jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_ALIAS.value.toLowerCase())) {
                     Synonym synonym = new Synonym(
                             name: synonymString
                     ).save()
@@ -1593,8 +1593,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                 }
             }
-            if (jsonFeature.has(FeatureStringEnum.DBXREF.value)) {
-                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREF.value);
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase())) {
+                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase());
                 for (String dbxrefString in dbxrefs) {
                     def (dbString,accessionString) = dbxrefString.split(":")
 //                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
