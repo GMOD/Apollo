@@ -28,12 +28,14 @@ class ProvenanceController {
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Feature name to query on")
+          , @RestApiParam(name = "organism", type = "Organism ID", paramType = RestApiParamType.QUERY, description = "Organism ID of feature")
   ]
   )
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
-    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
+    Organism organism = Organism.findById(dataObject.organism as Long)
+    Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String,organism)
     if (feature) {
       JSONObject annotations = provenanceService.getAnnotations(feature)
       // TODO: register with marshaller

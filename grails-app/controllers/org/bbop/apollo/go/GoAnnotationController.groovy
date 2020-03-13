@@ -3,6 +3,7 @@ package org.bbop.apollo.go
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.Organism
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -29,13 +30,15 @@ class GoAnnotationController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "uniqueName", type = "Gene uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+          , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+          , @RestApiParam(name = "organism", type = "Organism ID", paramType = RestApiParamType.QUERY, description = "Organism ID of feature")
   ]
   )
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
-    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
+    Organism organism = Organism.findById(dataObject.organism as Long)
+    Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String,organism)
     if (feature) {
       JSONObject annotations = goAnnotationService.getAnnotations(feature)
       // TODO: register with marshaller

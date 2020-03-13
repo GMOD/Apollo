@@ -3,7 +3,7 @@ package org.bbop.apollo.geneProduct
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
-import org.bbop.apollo.Sequence
+import org.bbop.apollo.Organism
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -30,7 +30,8 @@ class GeneProductController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "uniqueName", type = "Gene uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+    , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+      , @RestApiParam(name = "organism", type = "Organism ID", paramType = RestApiParamType.QUERY, description = "Organism ID of feature")
   ]
   )
   def index() {
@@ -38,9 +39,8 @@ class GeneProductController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     println "B getting gene product! ${dataObject}"
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
-    org.bbop.apollo.Sequence sequence = org.bbop.apollo.Sequence.findByNameAndOrganism(dataObject.sequence,org.bbop.apollo.Organism.findById(dataObject.organism as Long))
-    println "C.1 getting gene product! ${sequence}"
-    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.uniqueName as String,sequence)
+    Organism organism = Organism.findById(dataObject.organism as Long)
+    Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String,organism)
     println "D getting gene product! ${feature}"
 //    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
     if (feature) {

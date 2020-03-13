@@ -36,7 +36,6 @@ public class GeneProductRestService {
     public static void getGeneProduct(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uniqueName",new JSONString(annotationInfo.getUniqueName()));
-        jsonObject.put("sequence",new JSONString(annotationInfo.getSequence()));
         jsonObject.put("organism",new JSONString(organismInfo.getId()));
         RestService.sendRequest(requestCallback, "geneProduct/", "data=" + jsonObject.toString());
     }
