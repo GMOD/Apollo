@@ -78,6 +78,7 @@ public enum FeatureStringEnum {
         TRACK,
         DB,
         DBXREFS,
+        DBXREF,
         CLIENT_TOKEN("clientToken"),
         IGNORE,
         PREFERENCE,

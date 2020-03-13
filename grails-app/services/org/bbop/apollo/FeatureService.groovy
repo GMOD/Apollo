@@ -1349,6 +1349,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
+        println "input json feature ${jsonFeature as JSON} for ${sequence}"
         try {
             String ontologyId = getOntologyIdFromJsonFeature(jsonFeature)
             String cvTermType = generateFeatureForTypeFromOntologyId(ontologyId).cvTerm
@@ -1592,26 +1593,35 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                 }
             }
-            if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
-                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
-                for (int i = 0; i < dbxrefs.length(); ++i) {
-                    JSONObject dbxref = dbxrefs.getJSONObject(i);
-                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
-
-
-                    DB newDB = DB.findOrSaveByName(db.getString(FeatureStringEnum.NAME.value))
-                    DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(
-                            newDB,
-                            dbxref.getString(FeatureStringEnum.ACCESSION.value)
-                    ).save()
+            if (jsonFeature.has(FeatureStringEnum.DBXREF.value)) {
+                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREF.value);
+                for (String dbxrefString in dbxrefs) {
+                    def (dbString,accessionString) = dbxrefString.split(":")
+//                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
+                    DB newDB = DB.findOrSaveByName(dbString)
+                    DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(newDB,accessionString).save()
                     gsolFeature.addToFeatureDBXrefs(newDBXref)
                     gsolFeature.save()
                 }
             }
-            // TODO: synonyms
-            if (jsonFeature.has(FeatureStringEnum.SYNONYMS.value)) {
-//                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
-            }
+
+            // TODO: this may need to be kept here, unclear
+//            if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
+//                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
+//                for (int i = 0; i < dbxrefs.length(); ++i) {
+//                    JSONObject dbxref = dbxrefs.getJSONObject(i);
+//                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
+//
+//
+//                    DB newDB = DB.findOrSaveByName(db.getString(FeatureStringEnum.NAME.value))
+//                    DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(
+//                            newDB,
+//                            dbxref.getString(FeatureStringEnum.ACCESSION.value)
+//                    ).save()
+//                    gsolFeature.addToFeatureDBXrefs(newDBXref)
+//                    gsolFeature.save()
+//                }
+//            }
             // TODO: gene_product
             if (jsonFeature.has(FeatureStringEnum.GENE_PRODUCT.value)) {
 //                gsolFeature.setFeatureSynonyms(jsonFeature.getString(FeatureStringEnum.SYNONYMS.value));
