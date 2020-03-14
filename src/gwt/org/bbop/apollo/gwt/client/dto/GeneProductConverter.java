@@ -30,7 +30,7 @@ public class GeneProductConverter {
     List<String> noteList = new ArrayList<>();
     if (object.containsKey("notes")) {
       String notesString = object.get("notes").isString().stringValue();
-      JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
+      JSONArray notesArray = JSONParser.parseLenient(notesString).isArray();
       for (int i = 0; i < notesArray.size(); i++) {
         noteList.add(notesArray.get(i).isString().stringValue());
       }

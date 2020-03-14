@@ -35,7 +35,6 @@ public class ProvenanceRestService {
 
     public static void getProvenance(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
         JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("uniqueName",new JSONString(featureUniqueName));
         jsonObject.put("uniqueName",new JSONString(annotationInfo.getUniqueName()));
         jsonObject.put("organism",new JSONString(organismInfo.getId()));
         RestService.sendRequest(requestCallback, "provenance/", "data=" + jsonObject.toString());

@@ -22,6 +22,8 @@ class Gff3HandlerService {
     def overlapperService
     def featurePropertyService
     def geneProductService
+    def provenanceService
+    def goAnnotationService
 
     SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
@@ -343,44 +345,11 @@ class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GO_ANNOTATIONS.value) && feature.getGoAnnotations() != null && feature.goAnnotations.size() > 0 ) {
-                String productString  = ""
-
-                int rank = 1
-                for(GoAnnotation goAnnotation in feature.goAnnotations){
-                    if(productString.length()>0) productString += ","
-                    productString += "rank=${rank}"
-                    productString += ";aspect=${goAnnotation.aspect}"
-                    productString += ";term=${goAnnotation.goRef}"
-                    productString += ";db_xref=${goAnnotation.reference}"
-                    productString += ";evidence=${goAnnotation.evidenceRef}"
-                    productString += ";gene_product_relationship=${goAnnotation.geneProductRelationshipRef}"
-                    productString += ";negate=${goAnnotation.negate}"
-                    productString += ";note=${goAnnotation.notesArray}"
-                    productString += ";based_on=${goAnnotation.withOrFromArray}"
-                    productString += ";last_updated=${goAnnotation.lastUpdated}"
-                    productString += ";date_created=${goAnnotation.dateCreated}"
-                    ++rank
-                }
-
+                String productString  = goAnnotationService.convertGoAnnotationsToGff3String(feature.goAnnotations)
                 attributes.put(FeatureStringEnum.GO_ANNOTATIONS.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
-                String productString  = ""
-
-                int rank = 1
-                for(Provenance provenance in feature.provenances){
-                    if(productString.length()>0) productString += ","
-                    productString += "rank=${rank}"
-                    productString += ";field=${provenance.field}"
-                    productString += ";db_xref=${provenance.reference}"
-                    productString += ";evidence=${provenance.evidenceRef}"
-                    productString += ";note=${provenance.notesArray}"
-                    productString += ";based_on=${provenance.withOrFromArray}"
-                    productString += ";last_updated=${provenance.lastUpdated}"
-                    productString += ";date_created=${provenance.dateCreated}"
-                    ++rank
-                }
-
+                String productString  = provenanceService.convertProvenancesToGff3String(feature.provenances)
                 attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null && feature.geneProducts.size() >0) {

@@ -5,6 +5,7 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
@@ -35,6 +36,7 @@ class FeatureService {
     def sessionFactory
     def goAnnotationService
     def geneProductService
+    def provenanceService
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
@@ -1663,11 +1665,27 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.PROVENANCE.value)) {
                 String provenanceString = jsonFeature.getString(FeatureStringEnum.PROVENANCE.value)
                 println "provenance array ${provenanceString}"
+                List<Provenance> listOfProvenances = provenanceService.convertGff3StringToProvenances(provenanceString)
+                println "gene products outputs ${listOfProvenances}: ${listOfProvenances.size()}"
+                listOfProvenances.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToProvenances(it)
+                }
+                gsolFeature.save()
             }
             // TODO: go_annotation
             if (jsonFeature.has(FeatureStringEnum.GO_ANNOTATIONS.value)) {
                 String goAnnotationString = jsonFeature.getString(FeatureStringEnum.GO_ANNOTATIONS.value)
                 println "go annotations array ${goAnnotationString}"
+                List<GoAnnotation> goAnnotations = goAnnotationService.convertGff3StringToGoAnnotations(goAnnotationString)
+                println "gene products outputs ${goAnnotations}: ${goAnnotations.size()}"
+                goAnnotations.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToGoAnnotations(it)
+                }
+                gsolFeature.save()
             }
         }
         catch (JSONException e) {

@@ -40,7 +40,7 @@ public class GoAnnotationConverter {
     List<String> noteList = new ArrayList<>();
     if (object.containsKey("notes")) {
       String notesString = object.get("notes").isString().stringValue();
-      JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
+      JSONArray notesArray = JSONParser.parseLenient(notesString).isArray();
       for (int i = 0; i < notesArray.size(); i++) {
         noteList.add(notesArray.get(i).isString().stringValue());
       }
@@ -50,7 +50,7 @@ public class GoAnnotationConverter {
     List<WithOrFrom> withOrFromList = new ArrayList<>();
     if (object.get("withOrFrom").isString() != null) {
       String withOrFromString = object.get("withOrFrom").isString().stringValue();
-      JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
+      JSONArray withOrFromArray = JSONParser.parseLenient(withOrFromString).isArray();
       for (int i = 0; i < withOrFromArray.size(); i++) {
         WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
         withOrFromList.add(withOrFrom);
