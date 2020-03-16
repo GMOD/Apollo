@@ -95,16 +95,13 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        Sequence sequence = null
-
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = (Feature) Feature.findByUniqueName(uniqueName)
+            Feature feature = featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence)
             JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value)
-            sequence = sequence ?: feature.getFeatureLocation().getSequence()
             permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
@@ -144,15 +141,14 @@ class RequestHandlingService {
     JSONObject setDescription(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = null
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
+            Feature feature = featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence)
             JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value)
-            sequence = sequence ?: feature.getFeatureLocation().getSequence()
             permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 
