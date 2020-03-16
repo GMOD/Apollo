@@ -78,7 +78,7 @@ class AnnotatorController {
             }
 
             if (params.uuid) {
-                Feature feature = Feature.findByUniqueName(params.uuid)
+                Feature feature = featureService.getFeatureByUniqueNameAndOrganism(params.uuid,organism)
                 FeatureLocation featureLocation = feature.featureLocation
                 params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin + ".." + featureLocation.fmax
                 organism = featureLocation.sequence.organism

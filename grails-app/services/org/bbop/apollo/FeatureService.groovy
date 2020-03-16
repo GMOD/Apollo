@@ -2433,7 +2433,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (feature instanceof Exon) {
             Exon exon = (Exon) feature;
-            Transcript transcript = (Transcript) Transcript.findByUniqueName(exonService.getTranscript(exon).getUniqueName());
+            Transcript transcript = (Transcript) featureService.getFeatureByUniqueNameAndSequence(exonService.getTranscript(exon).getUniqueName(),feature.featureLocation.sequence);
 
             if (!(transcriptService.getGene(transcript) instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
                 CDS cds = transcriptService.getCDS(transcript);

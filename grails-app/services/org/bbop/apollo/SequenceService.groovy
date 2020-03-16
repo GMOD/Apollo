@@ -661,13 +661,13 @@ class SequenceService {
         }
     }
 
-    def getGff3ForFeature(JSONObject inputObject, File outputFile) {
+    def getGff3ForFeature(JSONObject inputObject, File outputFile,Organism organism) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
-            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            Feature gbolFeature = featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism)
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
             featuresToWrite.add(gbolFeature);
 
