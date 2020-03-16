@@ -34,7 +34,7 @@ public class ProvenanceConverter {
     if (object.containsKey("notes")) {
       String notesString = object.get("notes").isString().stringValue();
       JSONArray notesArray = JSONParser.parseLenient(notesString).isArray();
-      for (int i = 0; i < notesArray.size(); i++) {
+      for (int i = 0; notesArray !=null && i < notesArray.size(); i++) {
         noteList.add(notesArray.get(i).isString().stringValue());
       }
     }
