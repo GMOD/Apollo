@@ -633,7 +633,7 @@ class SequenceService {
         return residues
     }
 
-    def getSequenceForFeatures(JSONObject inputObject, File outputFile = null) {
+    def getSequenceForFeatures(JSONObject inputObject) {
         // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"

@@ -37,12 +37,9 @@ class GeneProductController {
   def index() {
     println "getting gene product!"
     JSONObject dataObject = permissionService.handleInput(request, params)
-    println "B getting gene product! ${dataObject}"
     permissionService.checkPermissions(dataObject, PermissionEnum.READ)
     Organism organism = Organism.findById(dataObject.organism as Long)
     Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String,organism)
-    println "D getting gene product! ${feature}"
-//    Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
     if (feature) {
       JSONObject annotations = geneProductService.getAnnotations(feature)
       // TODO: register with marshaller
