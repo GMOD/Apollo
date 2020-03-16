@@ -574,10 +574,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
+            Feature feature = variantService.updateAlternateAlleles(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -594,10 +595,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.addAlleleInfo(jsonFeature)
+            Feature feature = variantService.addAlleleInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -613,10 +615,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.updateAlleleInfo(jsonFeature)
+            Feature feature = variantService.updateAlleleInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -632,10 +635,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.deleteAlleleInfo(jsonFeature)
+            Feature feature = variantService.deleteAlleleInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -651,10 +655,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.addVariantInfo(jsonFeature)
+            Feature feature = variantService.addVariantInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -670,10 +675,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.updateVariantInfo(jsonFeature)
+            Feature feature = variantService.updateVariantInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
@@ -689,10 +695,11 @@ class AnnotatorController {
             return
         }
 
+        Sequence sequence = permissionService.checkPermissions(dataObject , PermissionEnum.WRITE)
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            Feature feature = variantService.deleteVariantInfo(jsonFeature)
+            Feature feature = variantService.deleteVariantInfo(jsonFeature,sequence.organism)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }

@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -83,9 +85,9 @@ class VariantService {
         feature.save(flush: true, failOnError: true)
     }
 
-    def updateAlternateAlleles(JSONObject jsonFeature) {
+    def updateAlternateAlleles(JSONObject jsonFeature, Organism organism) {
         String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
+        SequenceAlteration variant = (SequenceAlteration) featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism)
         JSONArray oldAlternateAlleleArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALTERNATE_ALLELES.value)
         JSONArray newAlternateAlleleArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALTERNATE_ALLELES.value)
 
@@ -97,9 +99,9 @@ class VariantService {
 
             def alternateAlleles = Allele.executeQuery(
                     "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases AND a.variant = :variant",
-                    [queryBases: oldAltAlleleBases, variant: feature])
+                    [queryBases: oldAltAlleleBases, variant: variant])
             if (alternateAlleles.size() == 0) {
-                log.error "Cannot find alternate allele ${oldAltAlleleBases} with AF: ${oldAltAlleleFrequency} and provenance: ${oldProvenance}"
+                log.error "Cannot find alternate allele ${oldAltAlleleBases} with AF: ${oldAlternateAlleleObject} and provenance: ${oldAltAlleleBases}"
             }
             else if (alternateAlleles.size() == 1) {
                 Allele allele = alternateAlleles.iterator().next()
@@ -111,13 +113,14 @@ class VariantService {
             }
         }
 
-        feature.save(flush: true, failOnError: true)
-        return feature
+        variant.save(flush: true, failOnError: true)
+        return variant
     }
 
-    def addVariantInfo(JSONObject jsonFeature) {
+    def addVariantInfo(JSONObject jsonFeature,Organism organism) {
+        println "ADDING VARIANT INFO ${jsonFeature as JSON}"
         String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism)
         JSONArray variantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
 
         for (int j = 0; j < variantInfoArray.size(); j++){
@@ -130,9 +133,9 @@ class VariantService {
         return feature
     }
 
-    def deleteVariantInfo(JSONObject jsonFeature) {
-        Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+    def deleteVariantInfo(JSONObject jsonFeature,Organism organism) {
         JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value),organism)
 
         for (int j = 0; j < properties.length(); j++) {
             JSONObject property = properties.getJSONObject(j)
@@ -150,8 +153,8 @@ class VariantService {
         return feature
     }
 
-    def updateVariantInfo(JSONObject jsonFeature) {
-        Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+    def updateVariantInfo(JSONObject jsonFeature,Organism organism) {
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value),organism)
         JSONArray oldVariantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_VARIANT_INFO.value)
         JSONArray newVariantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_VARIANT_INFO.value)
 
@@ -177,15 +180,15 @@ class VariantService {
         return feature
     }
 
-    def addAlleleInfo(JSONObject jsonFeature) {
+    def addAlleleInfo(JSONObject jsonFeature,Organism organism) {
         String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism)
         JSONArray alleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
 
         for (int j = 0; j < alleleInfoArray.size(); j++){
             JSONObject alleleInfoObject = alleleInfoArray.getJSONObject(j)
             String alleleBase = alleleInfoObject.get(FeatureStringEnum.ALLELE.value)
-            Allele allele = getAlleleForVariant(uniqueName, alleleBase)
+            Allele allele = getAlleleForVariant(uniqueName, alleleBase,organism)
             String tag = alleleInfoObject.get(FeatureStringEnum.TAG.value)
             String value = alleleInfoObject.get(FeatureStringEnum.VALUE.value)
             createAlleleInfo(allele, tag, value)
@@ -194,15 +197,15 @@ class VariantService {
         return feature
     }
 
-    def deleteAlleleInfo(JSONObject jsonFeature) {
+    def deleteAlleleInfo(JSONObject jsonFeature,Organism organism) {
         String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
+        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism)
         JSONArray alleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
 
         for (int j = 0; j < alleleInfoArray.length(); j++) {
             JSONObject alleleInfoObject = alleleInfoArray.getJSONObject(j)
             String alleleBase = alleleInfoObject.get(FeatureStringEnum.ALLELE.value)
-            Allele allele = getAlleleForVariant(uniqueName, alleleBase)
+            Allele allele = getAlleleForVariant(uniqueName, alleleBase,organism)
             String tag = alleleInfoObject.get(FeatureStringEnum.TAG.value)
             String value = alleleInfoObject.get(FeatureStringEnum.VALUE.value)
             AlleleInfo alleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, tag, value)
@@ -217,23 +220,27 @@ class VariantService {
         return feature
     }
 
-    def updateAlleleInfo(JSONObject jsonFeature) {
-        Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+    def updateAlleleInfo(JSONObject jsonFeature,Organism organism) {
+        SequenceAlteration variant = (SequenceAlteration) featureService.getFeatureByUniqueNameAndOrganism(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value),organism)
+        String bases = jsonFeature.getJSONObject(FeatureStringEnum.ALLELE.value).getString(FeatureStringEnum.BASES.value)
         JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
         JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
+        println "old allele info array ${oldAlleleInfoArray as JSON}"
+        println "new allele info array ${newAlleleInfoArray as JSON}"
+        println "json feature input ${bases}"
 
         for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
             JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)
             JSONObject newAlleleInfoObject = newAlleleInfoArray.getJSONObject(i)
-            String oldAlleleBases = oldAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
-            String newAlleleBases = newAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
+            String oldAlleleBases = oldAlleleInfoObject.has(FeatureStringEnum.BASES.value) ? oldAlleleInfoObject.getString(FeatureStringEnum.BASES.value) : bases
+            String newAlleleBases = newAlleleInfoObject.has(FeatureStringEnum.BASES.value) ? newAlleleInfoObject.getString(FeatureStringEnum.BASES.value) : bases
             String oldTag = oldAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String oldValue = oldAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             if (oldAlleleBases != newAlleleBases) {
-                Allele oldAllele = Allele.findByVariantAndBases(feature, oldAlleleBases)
-                Allele newAllele = Allele.findByVariantAndBases(feature, newAlleleBases)
+                Allele oldAllele = Allele.findByVariantAndBases(variant, bases)
+                Allele newAllele = Allele.findByVariantAndBases(variant, bases)
                 AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
                 oldAlleleInfo.delete()
                 AlleleInfo newAlleleInfo = new AlleleInfo(
@@ -243,7 +250,7 @@ class VariantService {
                 ).save()
             }
             else {
-                Allele allele = Allele.findByVariantAndBases(feature, oldAlleleBases)
+                Allele allele = Allele.findByVariantAndBases(variant, bases)
                 AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, oldTag, oldValue)
                 if (oldAlleleInfo) {
                     oldAlleleInfo.tag = newTag
@@ -257,8 +264,8 @@ class VariantService {
 
 
         }
-        feature.save(flush: true, failOnError: true)
-        return feature
+        variant.save(flush: true, failOnError: true)
+        return variant
     }
 
     def createVariantInfo(SequenceAlteration variant, String tag, String value) {
@@ -310,11 +317,11 @@ class VariantService {
     }
 
     @Transactional(readOnly = true)
-    def getAlleleForVariant(String variantUniqueName, String alleleBase) {
+    def getAlleleForVariant(String variantUniqueName, String alleleBase,Organism organism) {
         Allele allele
         def results = Allele.executeQuery(
-                "SELECT DISTINCT a FROM Allele a JOIN a.variant v WHERE v.uniqueName = :variantUniqueNameString AND a.bases = :alleleBaseString",
-                [variantUniqueNameString: variantUniqueName, alleleBaseString: alleleBase]
+                "SELECT DISTINCT a FROM Allele a JOIN a.variant v JOIN v.featureLocations fl JOIN fl.sequence.organism o WHERE v.uniqueName = :variantUniqueNameString AND a.bases = :alleleBaseString and o = :organism",
+                [variantUniqueNameString: variantUniqueName, alleleBaseString: alleleBase,organism: organism]
         )
 
         if (results.size() == 0) {

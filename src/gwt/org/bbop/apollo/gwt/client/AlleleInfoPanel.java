@@ -17,6 +17,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -218,6 +219,9 @@ public class AlleleInfoPanel extends Composite {
         boolean tagValidated = false;
         boolean valueValidated = false;
 
+        GWT.log("this tag: "+this.tag);
+        GWT.log("this value : "+this.value);
+
         if (this.tag != null && !this.tag.isEmpty()) {
             tagValidated = true;
         }
@@ -301,12 +305,15 @@ public class AlleleInfoPanel extends Composite {
         boolean tagValidated = false;
         boolean valueValidated = false;
 
-        if (this.tag != null && !this.tag.isEmpty()) {
+        if (tag != null && !tag.isEmpty()) {
             tagValidated = true;
         }
-        if (this.value != null && !this.value.isEmpty()) {
+        if (value != null && !value.isEmpty()) {
             valueValidated = true;
         }
+
+//        GWT.log("validatied" + tagValidated + " " + valueValidated);
+//        GWT.log("this.value " + this.value+ " " + this.va);
 
         if (tagValidated && valueValidated) {
             this.tagInputBox.clear();
