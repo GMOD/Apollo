@@ -24,8 +24,10 @@ class FeatureEvent {
     String uniqueName // from original top-level feature
     Long childId // will be the same, unless merged, then name will change
     Long childSplitId // on a split, then the name will change
+    Long organismId
 
     static constraints = {
+        organismId nullable: true
         editor nullable: true
         originalJsonCommand nullable: true
         newFeaturesJsonArray nullable: true
