@@ -975,7 +975,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
             , @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}")
     ])
-    def getSequence() {
+    def getSequences() {
         log.debug "getSequence ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {

@@ -637,6 +637,7 @@ class SequenceService {
         // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"
+        Organism organism = inputObject.has(FeatureStringEnum.ORGANISM.value) ? Organism.findById(inputObject.getString(FeatureStringEnum.ORGANISM.value) as Long) : null
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
         int flank
@@ -650,7 +651,7 @@ class SequenceService {
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            Feature gbolFeature = organism ? featureService.getFeatureByUniqueNameAndOrganism(uniqueName,organism) : Feature.findByUniqueName(uniqueName)
             String sequence = getSequenceForFeature(gbolFeature, type, flank)
 
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
