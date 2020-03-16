@@ -2117,27 +2117,19 @@ class RequestHandlingService {
 
         for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
             String uniqueName = entry.getKey();
-//            Feature feature = Feature.findByUniqueName(uniqueName);
-            println "looking for unqie name ${uniqueName}"
             Feature feature = uniqueName ==null ? null : featureService.getFeatureByUniqueNameAndSequence(uniqueName,sequence)
-            println "updating name for feature ${uniqueName} -> ${feature}"
             if (feature == null) {
                 log.info("Feature already deleted");
                 continue;
             }
             if (!isUpdateOperation) {
-                println "is not update operation "
                 // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
-                println "feature type is ${feature}"
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
-                    println "is a transcript? ${transcript}"
                     Gene gene = transcriptService.getGene(transcript)
-                    println "has a gene? ${gene}"
                     if (!gene) {
                         gene = transcriptService.getPseudogene(transcript)
-                        println "has a pseudogene? ${gene}"
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {

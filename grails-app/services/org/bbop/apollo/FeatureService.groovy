@@ -218,13 +218,11 @@ class FeatureService {
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
         println "jsonTranscript: ${jsonTranscript.toString()} ${sequence}"
         Gene gene = null
-        if (jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)) {
-            // only load it if its on the same sequence
-            // TODO: should I copy it from the other one if not?
-            // TODO: is there a use-case where this is used?
-
-//                = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
-        }
+//        if (jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)) {
+//            // only load it if its on the same sequence
+//            // TODO: should I copy it from the other one if not?
+//            // TODO: is there a use-case where this is used?
+//        }
         Transcript transcript = null
         boolean readThroughStopCodon = false
 

@@ -197,7 +197,6 @@ class AnnotatorController {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-//        Feature feature = Feature.findByUniqueNameAnd(data.uniquename)
         Feature feature = featureService.getFeatureByUniqueNameAndOrganism(data.uniquename, Organism.findById(data.organism as Long))
 
         FeatureOperation featureOperation = detectFeatureOperation(feature, data)
