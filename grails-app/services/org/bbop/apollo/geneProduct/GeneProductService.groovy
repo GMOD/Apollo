@@ -40,11 +40,11 @@ class GeneProductService {
      * @return
      */
     List<GeneProduct> convertGff3StringToGeneProducts(String geneProductInputString) {
-        println "input string: [${geneProductInputString}]"
+        log.debug "input string: [${geneProductInputString}]"
         List<GeneProduct> geneProducts = []
         def geneProductStrings = (geneProductInputString.trim().split("rank=") as List).findAll{it.trim().size() > 0}
-        println "gene product strings ${geneProductStrings.size()}: [${geneProductStrings}]"
-        println "joined ${geneProductStrings.join("|||||")}"
+        log.debug "gene product strings ${geneProductStrings.size()}: [${geneProductStrings}]"
+        log.debug "joined ${geneProductStrings.join("|||||")}"
         for (String geneProductString in geneProductStrings) {
             def attributes = geneProductString.trim().split(";")
             GeneProduct geneProduct = new GeneProduct()

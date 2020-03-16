@@ -36,11 +36,11 @@ class GoAnnotationService {
      * @return
      */
     List<GoAnnotation> convertGff3StringToGoAnnotations(String goAnnotationInputString) {
-        println "input string: [${goAnnotationInputString}]"
+        log.debug "input string: [${goAnnotationInputString}]"
         List<GoAnnotation> goAnnotations = []
         def goAnnotationStrings = (goAnnotationInputString.trim().split("rank=") as List).findAll { it.trim().size() > 0 }
-        println "gene product strings ${goAnnotationStrings.size()}: [${goAnnotationStrings}]"
-        println "joined ${goAnnotationStrings.join("|||||")}"
+        log.debug "gene product strings ${goAnnotationStrings.size()}: [${goAnnotationStrings}]"
+        log.debug "joined ${goAnnotationStrings.join("|||||")}"
         for (String goAnnotationString in goAnnotationStrings) {
             def attributes = goAnnotationString.trim().split(";")
             GoAnnotation goAnnotation = new GoAnnotation()
@@ -113,7 +113,7 @@ class GoAnnotationService {
         if (goAnnotation.getId()) {
             goObject.put("id", goAnnotation.getId())
         }
-        goObject.put("gene", goAnnotation.feature.uniqueName)
+        goObject.put("feature", goAnnotation.feature.uniqueName)
         goObject.put("aspect", goAnnotation.aspect)
         goObject.put("goTerm", goAnnotation.goRef)
         goObject.put("goTermLabel", goAnnotation.goRefLabel)
@@ -130,7 +130,7 @@ class GoAnnotationService {
     JSONArray convertAnnotationsToJson(Collection<GoAnnotation> goAnnotations) {
         JSONArray annotations = new JSONArray()
 //                {
-//                    "gene" : "e35ea570-f700-41fb-b479-70aa812174ad" , "goTerm" : "GO:0014731PHENOTYPE" ,
+//                    "feature" : "e35ea570-f700-41fb-b479-70aa812174ad" , "goTerm" : "GO:0014731PHENOTYPE" ,
 //                    "geneRelationship" : "RO:0002326" , "evidenceCode" : "ECO:0000361" , "negate" : false , "withOrFrom"
 //                    : ["asef:123123"] , "references" : ["ref:asdfasdf21"]
 //                }

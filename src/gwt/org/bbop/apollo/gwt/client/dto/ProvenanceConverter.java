@@ -34,7 +34,7 @@ public class ProvenanceConverter {
     if (object.containsKey("notes")) {
       String notesString = object.get("notes").isString().stringValue();
       JSONArray notesArray = JSONParser.parseLenient(notesString).isArray();
-      for (int i = 0; notesArray !=null && i < notesArray.size(); i++) {
+      for (int i = 0; notesArray!=null && i < notesArray.size(); i++) {
         noteList.add(notesArray.get(i).isString().stringValue());
       }
     }
@@ -61,20 +61,27 @@ public class ProvenanceConverter {
     if (provenance.getId() != null) {
       object.put("id", new JSONNumber(provenance.getId()));
     }
-    object.put("gene", new JSONString(provenance.getFeature()));
+    object.put("feature", new JSONString(provenance.getFeature()));
     object.put("field", new JSONString(provenance.getField()));
     object.put("evidenceCode", new JSONString(provenance.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(provenance.getEvidenceCodeLabel()));
     object.put("reference", new JSONString(provenance.getReference().getReferenceString()));
 
+    JSONArray notesArray = new JSONArray();
+    if(provenance.getNoteList()!=null && provenance.getNoteList().size()>0){
+      for (String note : provenance.getNoteList()) {
+        notesArray.set(notesArray.size(), new JSONString(note));
+      }
+    }
+
     // TODO: finish this
     JSONArray withArray = new JSONArray();
-
     for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
       withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
     }
 
     object.put("withOrFrom", withArray);
+    object.put("notes", notesArray);
 
     return object;
   }

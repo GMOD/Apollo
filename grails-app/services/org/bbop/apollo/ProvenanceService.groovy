@@ -36,11 +36,11 @@ class ProvenanceService {
      * @return
      */
     List<Provenance> convertGff3StringToProvenances(String provenanceInputString) {
-        println "input string: [${provenanceInputString}]"
+        log.debug "input string: [${provenanceInputString}]"
         List<Provenance> provenances = []
         def provenanceStrings = (provenanceInputString.trim().split("rank=") as List).findAll { it.trim().size() > 0 }
-        println "gene product strings ${provenanceStrings.size()}: [${provenanceStrings}]"
-        println "joined ${provenanceStrings.join("|||||")}"
+        log.debug "gene product strings ${provenanceStrings.size()}: [${provenanceStrings}]"
+        log.debug "joined ${provenanceStrings.join("|||||")}"
         for (String provenanceString in provenanceStrings) {
             def attributes = provenanceString.trim().split(";")
             Provenance provenance = new Provenance()

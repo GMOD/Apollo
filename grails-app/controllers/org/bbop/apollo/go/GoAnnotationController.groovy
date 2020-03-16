@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.Organism
+import org.bbop.apollo.Sequence
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -136,9 +137,9 @@ class GoAnnotationController {
     @Transactional
     def update() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(dataObject)
-        Feature feature = Feature.findByUniqueName(dataObject.feature)
+        Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
 
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -188,10 +189,10 @@ class GoAnnotationController {
     @Transactional
     def delete() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(dataObject)
 
-        Feature feature = Feature.findByUniqueName(dataObject.feature)
+        Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
         GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
