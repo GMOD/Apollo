@@ -56,7 +56,7 @@ RUN curl -s get.sdkman.io | bash && \
  		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
 USER root
-# remove from webapps and coipy it into a staging directory
+# remove from webapps and copy it into a staging directory
 RUN rm -rf ${CATALINA_BASE}/webapps/* && \
 	cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
 
