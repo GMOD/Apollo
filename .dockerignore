@@ -8,3 +8,9 @@ web-app/annotator
 web-app/jbrowse
 test
 scripts
+jbrowse
+sample-*
+gwt-unitCache
+classes
+data
+apollo_data
