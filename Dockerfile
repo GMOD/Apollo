@@ -67,6 +67,8 @@ WORKDIR /
 RUN git clone --single-branch --branch master https://github.com/scottcain/jbrowse_genomes_of_interest jbrowse
 RUN chown -R apollo:apollo /jbrowse
 
+WORKDIR /jbrowse/jbrowse/data/SARS-CoV-2/
+
 # wait and add organisms after launch if not already there, or do it in the launch script
 CMD "/launch.sh"
 
