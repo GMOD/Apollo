@@ -72,3 +72,4 @@ WORKDIR /jbrowse/jbrowse/data/SARS-CoV-2/
 # wait and add organisms after launch if not already there, or do it in the launch script
 CMD "/launch.sh"
 
+
