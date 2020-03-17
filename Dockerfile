@@ -61,4 +61,11 @@ RUN rm -rf ${CATALINA_BASE}/webapps/* && \
 
 ADD docker-files/createenv.sh /createenv.sh
 ADD docker-files/launch.sh /launch.sh
+
+WORKDIR /
+RUN git clone --single-branch --branch master https://github.com/scottcain/jbrowse_genomes_of_interest jbrowse
+RUN chown -R apollo:apollo /jbrowse
+
+# wait and add organisms after launch if not already there, or do it in the launch script
 CMD "/launch.sh"
+
