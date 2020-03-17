@@ -52,6 +52,7 @@ ADD gra* /apollo/
 COPY apollo /apollo/apollo
 ADD build* /apollo/
 ADD settings.gradle /apollo
+ADD application.properties /apollo
 RUN ls /apollo
 
 USER apollo
