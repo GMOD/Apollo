@@ -159,5 +159,11 @@ jbrowse {
             alwaysRecheck = "true"
             alwaysPull = "true"
         }
+        WormbaseGlyphs{
+            git = 'https://github.com/nathandunn/WormbaseGlyphs.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
+        }
     }
 }

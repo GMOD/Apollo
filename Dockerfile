@@ -64,7 +64,7 @@ ADD docker-files/createenv.sh /createenv.sh
 ADD docker-files/launch.sh /launch.sh
 
 WORKDIR /
-RUN git clone --single-branch --branch master https://github.com/scottcain/jbrowse_genomes_of_interest jbrowse
+RUN git clone --single-branch --branch apollo https://github.com/nathandunn/jbrowse_genomes_of_interest jbrowse
 RUN chown -R apollo:apollo /jbrowse
 
 WORKDIR /jbrowse/jbrowse/data/SARS-CoV-2/
