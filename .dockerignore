@@ -1,3 +1,14 @@
 .git
 .gitignore
 .github
+target
+out
+docs
+web-app/annotator
+web-app/jbrowse
+jbrowse
+sample-*
+gwt-unitCache
+classes
+data
+apollo_data
