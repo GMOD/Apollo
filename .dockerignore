@@ -1,13 +1,13 @@
 .git
 .gitignore
 .github
+# test
+# scripts
 target
 out
 docs
 web-app/annotator
 web-app/jbrowse
-test
-scripts
 jbrowse
 sample-*
 gwt-unitCache
