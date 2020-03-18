@@ -55,29 +55,26 @@ ADD settings.gradle /apollo
 ADD application.properties /apollo
 RUN ls /apollo
 
-USER apollo
-RUN curl -s get.sdkman.io | bash && \
-		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
- 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1"
-
-USER root
 
 COPY docker-files/build.sh /bin/build.sh
 # Everything above here can be pre-built.
 
-USER root
-# install grails
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 RUN chown -R apollo:apollo /apollo
 
+# install grails
 USER apollo
-RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+RUN curl -s get.sdkman.io | bash && \
+		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
+ 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1" && \
+        /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
 USER root
 # remove from webapps and copy it into a staging directory
 RUN rm -rf ${CATALINA_BASE}/webapps/* && \
 	cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
 
+# TODO: rm -rf build files here
 
 ADD docker-files/createenv.sh /createenv.sh
 ADD docker-files/launch.sh /launch.sh
