@@ -59,8 +59,6 @@ RUN ls /apollo
 
 
 COPY docker-files/build.sh /bin/build.sh
-# Everything above here can be pre-built.
-
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 RUN chown -R apollo:apollo /apollo
 
@@ -75,8 +73,6 @@ USER root
 # remove from webapps and copy it into a staging directory
 RUN rm -rf ${CATALINA_BASE}/webapps/* && \
 	cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
-
-# TODO: rm -rf build files here
 
 ADD docker-files/createenv.sh /createenv.sh
 ADD docker-files/launch.sh /launch.sh
