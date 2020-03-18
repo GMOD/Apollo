@@ -32,6 +32,13 @@ RUN npm i -g yarn
 
 RUN useradd -ms /bin/bash -d /apollo apollo
 
+USER apollo
+RUN curl -s get.sdkman.io | bash && \
+		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
+ 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1"
+
+USER root
+
 RUN curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o /usr/local/bin/blat && \
  		chmod +x /usr/local/bin/blat && \
  		curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/faToTwoBit" -o /usr/local/bin/faToTwoBit && \
@@ -65,10 +72,7 @@ RUN chown -R apollo:apollo /apollo
 
 # install grails
 USER apollo
-RUN curl -s get.sdkman.io | bash && \
-		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
- 		/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1" && \
-        /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
 USER root
 # remove from webapps and copy it into a staging directory
