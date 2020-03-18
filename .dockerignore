@@ -1,8 +1,6 @@
 .git
 .gitignore
 .github
-# test
-# scripts
 target
 out
 docs
