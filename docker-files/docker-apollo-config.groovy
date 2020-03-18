@@ -135,26 +135,35 @@ jbrowse {
         branch = "1.16.8-release"
     }
     plugins {
-        WebApollo {
-            included = true
+        ScreenShotPlugin{
+            git = 'https://github.com/bhofmei/jbplugin-screenshot.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
         }
-        NeatHTMLFeatures {
-            included = true
+        ColorByCDS{
+            git = 'https://github.com/scottcain/colorbycds.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
         }
-        NeatCanvasFeatures {
-            included = true
+        MAFViewer{
+            git = 'https://github.com/cmdcolin/mafviewer.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
         }
-        RegexSequenceSearch {
-            included = true
+        FeatureSequence{
+            git = 'https://github.com/twsaari/FeatureSequence.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
         }
-        HideTrackLabels {
-            included = true
+        WormbaseGlyphs{
+            git = 'https://github.com/nathandunn/WormbaseGlyphs.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
         }
-//        GCContent{
-//            git = 'https://github.com/cmdcolin/GCContent'
-//            branch = 'master'
-//            alwaysRecheck = "true"
-//            alwaysPull = "true"
-//        }
     }
 }
