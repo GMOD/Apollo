@@ -60,7 +60,8 @@ class FeatureEventService {
                                             , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
                                             , User user, Long organismId) {
-        Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName1, organismId, null)
+        println "splitting features with organism ${organismId}"
+        Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName1, organismId )
         featureEventMap.putAll(extractFeatureEventGroup(uniqueName2,organismId))
         List<FeatureEvent> featureEventList = new ArrayList<>()
         JSONArray oldFeatureArray = new JSONArray()
@@ -537,8 +538,13 @@ class FeatureEventService {
             it.uniqueName
         }
 
-        Sequence sequence = Feature.findByUniqueNameInList(newUniqueNames).featureLocation.sequence.findAll{ it.organismId == organismId }.first()
-        log.debug "sequence: ${sequence}"
+
+        println "input sequence list "
+        List<Sequence> sequenceList = Feature.findByUniqueNameInList(newUniqueNames).featureLocations.sequence
+        println "sequence list ${sequenceList} ${sequenceList.size()} ${sequenceList.first()}"
+        println "sequence list first id ${sequenceList.first().organismId}"
+        Sequence sequence = sequenceList.find{ it.organismId == organismId }
+        println "sequence: ${sequence}"
 
 
         assert evaluateSetTransactionForFeature(uniqueName, count,organismId)

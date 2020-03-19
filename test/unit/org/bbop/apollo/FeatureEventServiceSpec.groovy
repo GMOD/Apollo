@@ -545,13 +545,13 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another event to 1 (2 no longer is accessible)"
-        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.all.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we have 3 on 1 and 2 on 2"
-        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0],Organism.first().id).size()
-        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0],Organism.first().id).size()
+        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.all.first().id)[0]).size()
+        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.all.first().id)[0]).size()
         assert 4 == featureEventList1.size()
 
         assert !featureEventList1[0][0].current
@@ -621,7 +621,7 @@ class FeatureEventServiceSpec extends Specification {
 
         when: "we go all the way forward on 2"
         currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 3,Organism.first().id)
-        featureEventList1 = service.getHistory(uniqueName1)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
 
         then: "no change on 1, 2 goes to flip strand"
@@ -1011,7 +1011,7 @@ class FeatureEventServiceSpec extends Specification {
 
         when: "when we undo again (current index is 1) (A2B1)"
         service.setTransactionForFeature(uniqueName2, 0,Organism.first().id)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
