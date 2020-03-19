@@ -17,7 +17,6 @@ import java.text.DateFormat
 class FeatureEventService {
 
     def permissionService
-    def transcriptService
     def featureService
     def requestHandlingService
     def jsonWebUtilityService
@@ -33,7 +32,7 @@ class FeatureEventService {
      * @return
      */
     FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String geneName, String transcriptUniqueName, JSONObject commandObject, JSONObject jsonObject, User user,Long organismId) {
-        addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, user)
+        addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, user,organismId)
     }
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String name, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user,Long organismId) {
@@ -67,7 +66,7 @@ class FeatureEventService {
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldFeatureObject)
 
-        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1, featureEventMap)
+        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1,organismId, featureEventMap)
         if (lastFeatureEventList.size() != 1) {
             throw new AnnotationException("Not one current feature event being split for: " + uniqueName1)
         }
@@ -391,13 +390,13 @@ class FeatureEventService {
 
 
     @Timed
-    def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
+    def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user,Long organismId) {
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(newJsonObject)
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldJsonObject)
 
-        return addNewFeatureEvent(featureOperation, name, uniqueName, inputCommand, oldFeatureArray, newFeatureArray, user)
+        return addNewFeatureEvent(featureOperation, name, uniqueName, inputCommand, oldFeatureArray, newFeatureArray, user,organismId)
     }
 
     /**
@@ -589,14 +588,14 @@ class FeatureEventService {
         Set transcriptsToUpdate = new HashSet()
         transcriptsToCheckForIsoformOverlap.each {
             transcriptsToUpdate.add(it)
-            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
+            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it as String)).uniqueName)
         }
 
         // firing update annotation event
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                Transcript transcript = Transcript.findByUniqueName(it)
+                Transcript transcript = Transcript.findByUniqueName(it as String)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
             }
             if (sequence) {

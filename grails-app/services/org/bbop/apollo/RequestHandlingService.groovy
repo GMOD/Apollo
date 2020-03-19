@@ -207,6 +207,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = featureService.getFeatureByUniqueNameAndSequence(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value), sequence)
             JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
@@ -238,8 +239,8 @@ class RequestHandlingService {
             User user = permissionService.getCurrentUser(inputObject)
             featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_DBXREF,
                     feature.name,
+                    feature.uniqueName,
                     uniqueName,
-                    inputObject,
                     oldFeaturesJsonArray,
                     newFeaturesJsonArray,
                     user,
@@ -1916,7 +1917,7 @@ class RequestHandlingService {
 
                         featureService.addOwnersByString(inputObject.username, newFeature)
                         if (!suppressHistory) {
-                            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user,sequence.organismId)
                         }
                         returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject)
                     }
@@ -1929,7 +1930,7 @@ class RequestHandlingService {
 
                 if (!suppressHistory) {
                     featureService.addOwnersByString(inputObject.username, newFeature)
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user,sequence.organismId)
                 }
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject)
             }
