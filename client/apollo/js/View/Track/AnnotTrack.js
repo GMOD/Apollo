@@ -5971,12 +5971,30 @@ define([
                     historyRows.scrollTop = selectedIndex * coords.h;
                 };
 
+                var fetchClientToken = function(){
+                    // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+                    // to
+                    // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+                    var hrefString = window.location.href;
+                    var hrefTokens = hrefString.split("\/");
+                    var organism ;
+                    for(var h in hrefTokens){
+                        // alert(hrefTokens[h]);
+                        if(hrefTokens[h]=="jbrowse"){
+                            organism = hrefTokens[h-1] ;
+                        }
+                    }
+                    return organism ;
+                };
+
                 var fetchHistory = function () {
                     var features = '"features": [';
+                    console.log('fetch history organism',clientToken);
                     for (var i in selected) {
                         var record = selected[i];
                         var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
                         var uniqueName = annot.id();
+                        console.log('annot',annot);
                         // just checking to ensure that all features in selection are
                         // from this track
                         if (record.track === track) {
@@ -5986,14 +6004,15 @@ define([
                             if (i > 0) {
                                 features += ',';
                             }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features += ` { "uniquename": '${uniqueName}' } `;
                         }
                     }
                     features += ']';
                     var operation = "get_history_for_features";
                     var trackName = track.getUniqueTrackName();
+                    var clientToken = fetchClientToken();
                     dojo.xhrPost({
-                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                        postData: `{ "track": '${trackName}', '${features}', "operation": '${operation}',"clientToken",${clientToken}`,
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -6719,7 +6738,7 @@ define([
                 });
             },
 
-            showAnnotatorPanel: function(){
+            getOrganismToken: function(){
                 // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
                 // to
                 // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
@@ -6728,13 +6747,17 @@ define([
                 var organism ;
                 for(var h in hrefTokens){
                     // alert(hrefTokens[h]);
-                    if(hrefTokens[h]=="jbrowse"){
+                    if(hrefTokens[h]==='jbrowse'){
                         organism = hrefTokens[h-1] ;
                     }
                 }
+                return organism ;
+            },
+
+            showAnnotatorPanel: function(){
 
                 // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
-
+                var organism = this.getOrganismToken();
                 var jbrowseString = "/jbrowse/index.html?";
                 var jbrowseIndex = hrefString.indexOf(jbrowseString);
                 var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
