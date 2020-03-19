@@ -472,8 +472,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         Organism organism = Organism.all.first()
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueNameGB40787)
-        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787,organism)
-        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788,organism)
+        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787,organism.id)
+        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788,organism.id)
         historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
