@@ -6012,7 +6012,7 @@ define([
                     var trackName = track.getUniqueTrackName();
                     var clientToken = fetchClientToken();
                     dojo.xhrPost({
-                        postData: `{ "track": '${trackName}', '${features}', "operation": '${operation}',"clientToken",${clientToken}`,
+                        postData: `{ "track": '${trackName}', '${features}', "operation": '${operation}' }`,
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -6757,6 +6757,7 @@ define([
             showAnnotatorPanel: function(){
 
                 // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
+                var hrefString = window.location.href;
                 var organism = this.getOrganismToken();
                 var jbrowseString = "/jbrowse/index.html?";
                 var jbrowseIndex = hrefString.indexOf(jbrowseString);
