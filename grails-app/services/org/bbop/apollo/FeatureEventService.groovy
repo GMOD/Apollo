@@ -237,6 +237,7 @@ class FeatureEventService {
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: new Date()
                 , lastUpdated: new Date()
+                , organismId: organismId
         ).save(flush: true)
 
         // set the children here properly
