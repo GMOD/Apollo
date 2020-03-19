@@ -5988,7 +5988,7 @@ define([
                 };
 
                 var fetchHistory = function () {
-                    var features = '"features": [';
+                    var features = `'features': [`;
                     console.log('fetch history organism',clientToken);
                     for (var i in selected) {
                         var record = selected[i];
@@ -6012,7 +6012,7 @@ define([
                     var trackName = track.getUniqueTrackName();
                     var clientToken = fetchClientToken();
                     dojo.xhrPost({
-                        postData: `{ "track": '${trackName}', '${features}', "operation": '${operation}' }`,
+                        postData: `{ "track": '${trackName}', ${features}, "operation": '${operation}' }`,
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
