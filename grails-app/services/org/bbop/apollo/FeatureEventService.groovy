@@ -97,6 +97,7 @@ class FeatureEventService {
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: addDate
                 , lastUpdated: addDate
+                , organismId: organismId
         ).save()
 
         FeatureEvent featureEvent2 = new FeatureEvent(
@@ -110,6 +111,7 @@ class FeatureEventService {
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: addDate
                 , lastUpdated: addDate
+                , organismId: organismId
         ).save()
 
         lastFeatureEvent.childId = featureEvent1.id
@@ -185,6 +187,7 @@ class FeatureEventService {
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: addDate
                 , lastUpdated: addDate
+                , organismId: organismId
         ).save()
 
 
