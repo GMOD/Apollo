@@ -4,7 +4,6 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
@@ -49,7 +48,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String exon2UniqueName = Exon.all[1].uniqueName
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have two of everything now"
         assert Exon.count == 2
@@ -64,7 +63,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
         undoString2 = undoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
         redoString1 = redoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
-        requestHandlingService.undo(JSON.parse(undoString1))
+        requestHandlingService.undo(JSON.parse(undoString1) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -73,7 +72,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript"
-        requestHandlingService.redo(JSON.parse(redoString1))
+        requestHandlingService.redo(JSON.parse(redoString1) as JSONObject)
         def allFeatures = Feature.all
 
         then: "we should have two transcripts"
@@ -84,7 +83,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "when we undo transcript B"
-        requestHandlingService.undo(JSON.parse(undoString2))
+        requestHandlingService.undo(JSON.parse(undoString2) as JSONObject)
         def allFeatureEvents = FeatureEvent.all
 
         then: "we should have the original transcript"
@@ -94,7 +93,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript 1"
-        requestHandlingService.redo(JSON.parse(redoString1))
+        requestHandlingService.redo(JSON.parse(redoString1) as JSONObject)
 
         then: "we should have two transcripts, A3/B2"
         assert Exon.count == 2
@@ -126,7 +125,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String exon2UniqueName = Exon.all[1].uniqueName
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have two of everything now"
         assert Exon.count == 2
@@ -139,7 +138,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
         String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
         undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
-        requestHandlingService.undo(JSON.parse(undoString1))
+        requestHandlingService.undo(JSON.parse(undoString1) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -149,7 +148,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we undo the same transcript again"
         def allFeatures = Feature.all
-        requestHandlingService.undo(JSON.parse(undoString1))
+        requestHandlingService.undo(JSON.parse(undoString1) as JSONObject)
         allFeatures = Feature.all
 
         then: "we have a transcript"
@@ -183,7 +182,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String exon2UniqueName = Exon.all[1].uniqueName
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have two of everything now"
         assert Exon.count == 2
@@ -196,7 +195,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
         String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
         undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
-        requestHandlingService.undo(JSON.parse(undoString1))
+        requestHandlingService.undo(JSON.parse(undoString1) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -207,7 +206,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "when we undo the same transcript again"
         def allFeatures = Feature.all
         redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
-        requestHandlingService.redo(JSON.parse(redoString2))
+        requestHandlingService.redo(JSON.parse(redoString2) as JSONObject)
         allFeatures = Feature.all
 
         then: "we should have two of everything now"
@@ -242,7 +241,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String exon2UniqueName = Exon.all[1].uniqueName
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have two of everything now"
         assert Exon.count == 2
@@ -257,7 +256,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
         undoString2 = undoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
         redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
-        requestHandlingService.undo(JSON.parse(undoString1))
+        requestHandlingService.undo(JSON.parse(undoString1) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -267,7 +266,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we redo transcript 2"
         def allFeatures = Feature.all
-        requestHandlingService.redo(JSON.parse(redoString2))
+        requestHandlingService.redo(JSON.parse(redoString2) as JSONObject)
         allFeatures = Feature.all
 
         then: "we should have two transcripts, A3/B1"
@@ -277,7 +276,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 2
 
         when: "when we undo transcript A"
-        requestHandlingService.undo(JSON.parse(undoString2))
+        requestHandlingService.undo(JSON.parse(undoString2) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -286,7 +285,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript 2 again"
-        requestHandlingService.redo(JSON.parse(redoString2))
+        requestHandlingService.redo(JSON.parse(redoString2) as JSONObject)
 
         then: "we shuld have A3/B2"
         assert Exon.count == 2
@@ -307,8 +306,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String redoString2 = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
 
         when: "we insert two transcripts"
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString1))
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString2))
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString1) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString2)  as JSONObject)
 
         then: "we have a transcript"
         assert Exon.count == 2
@@ -329,7 +328,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         mergeString = mergeString.replaceAll("@TRANSCRIPT_2@", transcript2UniqueName)
         redoString1 = redoString1.replaceAll("@TRANSCRIPT_1@", transcript1UniqueName)
         redoString2 = redoString2.replaceAll("@TRANSCRIPT_2@", transcript2UniqueName)
-        JSONObject mergeJsonObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeString))
+        JSONObject mergeJsonObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeString) as JSONObject)
         FeatureEvent currentFeatureEvent = FeatureEvent.findByCurrent(true)
         undoString = undoString.replaceAll("@TRANSCRIPT_1@", currentFeatureEvent.uniqueName)
         allFeatures = Feature.all
@@ -346,7 +345,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we undo transcript A"
         def allFeatureEvents = FeatureEvent.all
-        requestHandlingService.undo(JSON.parse(undoString))
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -471,10 +470,11 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we get the feature history"
         JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
+        Organism organism = Organism.all.first()
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueNameGB40787)
-        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787)
-        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788)
-        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787,organism)
+        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788,organism)
+        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
@@ -582,6 +582,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String redoOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String setExonBoundaryCommand = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${newFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
+        Organism organism = Organism.all.first()
 
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
@@ -639,9 +640,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
 
         when: "when we get the feature history"
-        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer()
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", MRNA.first().uniqueName)
-        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
 
 
@@ -655,8 +656,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
-        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        def history = featureEventService.getHistory(firstMRNA.uniqueName)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName,organism.id)
+        def history = featureEventService.getHistory(firstMRNA.uniqueName,organism.id)
 
 
         then: "we see the changed model"
@@ -693,8 +694,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         def lastMRNA = MRNA.last()
-        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(lastMRNA.uniqueName)
-        history = featureEventService.getHistory(lastMRNA.uniqueName)
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(lastMRNA.uniqueName,organism.id)
+        history = featureEventService.getHistory(lastMRNA.uniqueName,organism.id)
 
         then: "we see the changed model"
         assert currentFeatureEvent.size() == 2
@@ -742,6 +743,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String redoOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String setExonBoundaryCommand = "{${testCredentials} \"track\":\"Group1.10\",${testCredentials} \"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${newFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ ${testCredentials} \"track\": \"Group1.10\", ${testCredentials} \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
+        Organism organism = Organism.all.first()
 
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
@@ -803,7 +805,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "when we get the feature history"
         JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", firstMrna.uniqueName)
-        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
 
 
@@ -813,14 +815,14 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we undo the merge"
         MRNA firstMRNA = MRNA.first()
-        def history = featureEventService.getHistory(firstMRNA.uniqueName)
-        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        def history = featureEventService.getHistory(firstMRNA.uniqueName,organism.id)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName,organism.id)
         String undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
-        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        history = featureEventService.getHistory(firstMRNA.uniqueName)
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName,organism.id)
+        history = featureEventService.getHistory(firstMRNA.uniqueName,organism.id)
 
 
         then: "we see the changed model"
@@ -843,8 +845,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "when we undo again"
         undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        history = featureEventService.getHistory(firstMRNA.uniqueName)
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName,organism.id)
+        history = featureEventService.getHistory(firstMRNA.uniqueName,organism.id)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
 
@@ -896,6 +898,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String setExonBoundary40788Command = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${gb40788Fmin},\"fmax\":${new40788Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundary40787Command = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${new40787Fmin},\"fmax\":${gb40787Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
+        Organism organism = Organism.all.first()
 
 
         when: "we add the two transcripts"
@@ -1002,7 +1005,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40787.uniqueName)
-        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(thisHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(thisHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
@@ -1036,7 +1039,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we verify the history for the other side"
         JSONObject historyContainer2 = jsonWebUtilityService.createJSONFeatureContainer();
         def historyString2 = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40788.uniqueName)
-        historyContainer2 = featureEventService.generateHistory(historyContainer2, (JSON.parse(historyString2) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        historyContainer2 = featureEventService.generateHistory(historyContainer2, (JSON.parse(historyString2) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         featuresArray = historyContainer2.getJSONArray(FeatureStringEnum.FEATURES.value)
         historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
@@ -1125,6 +1128,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String undoOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
         String redoOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String getHistoryString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
+        Organism organism = Organism.all.first()
 
 
         when: "we add the two transcripts"
@@ -1171,7 +1175,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         println "right fmin: ${sortedExons[2].fmin}"
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have two of everything now"
         assert Exon.count == 5
@@ -1183,13 +1187,13 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we get the history of the two transcripts"
         JSONObject history787Container = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistory787String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40787.uniqueName)
-        history787Container = featureEventService.generateHistory(history787Container, (JSON.parse(thisHistory787String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        history787Container = featureEventService.generateHistory(history787Container, (JSON.parse(thisHistory787String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray features787Array = history787Container.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray history787Array = features787Array.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
         JSONObject history788Container = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistory788String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40788.uniqueName)
-        history788Container = featureEventService.generateHistory(history788Container, (JSON.parse(thisHistory788String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        history788Container = featureEventService.generateHistory(history788Container, (JSON.parse(thisHistory788String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value),organism)
         JSONArray features788Array = history788Container.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray history788Array = features788Array.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
@@ -1265,6 +1269,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String redoOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String getHistoryString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
         String deleteString1 = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"delete_feature\" }"
+        Organism organism = Organism.all.first()
 
 
         when: "we add the two transcripts"
@@ -1293,7 +1298,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         println "right fmin: ${sortedExons[2].fmin}"
         splitString = splitString.replace("@EXON_1@", exon1UniqueName)
         splitString = splitString.replace("@EXON_2@", exon2UniqueName)
-        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString) as JSONObject)
 
         then: "we should have three of everything now"
         assert Exon.count == 5

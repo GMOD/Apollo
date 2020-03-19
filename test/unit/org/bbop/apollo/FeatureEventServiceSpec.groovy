@@ -20,21 +20,24 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-        Organism o = new Organism(
-                commonName: "Some organism"
-        ).save()
-        FeatureEvent f1 = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: false).save(failOnError: true,organismId: o.id)
-        FeatureEvent f2 = new FeatureEvent(operation: FeatureOperation.SPLIT_TRANSCRIPT, parentId: f1.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 6, current: false,organismId: o.id).save(failOnError: true)
+        Organism organism = new Organism(
+                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
+                ,commonName: "sampleAnimal"
+                ,genus: "Sample"
+                ,species: "animal"
+        ).save(failOnError: true)
+        FeatureEvent f1 = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: false).save(failOnError: true,organismId: organism.id)
+        FeatureEvent f2 = new FeatureEvent(operation: FeatureOperation.SPLIT_TRANSCRIPT, parentId: f1.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 6, current: false,organismId: organism.id).save(failOnError: true)
         f1.childId = f2.id
-        FeatureEvent f3 = new FeatureEvent(operation: FeatureOperation.SET_TRANSLATION_END, parentId: f2.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 5, current: false,organismId: o.id).save(failOnError: true)
+        FeatureEvent f3 = new FeatureEvent(operation: FeatureOperation.SET_TRANSLATION_END, parentId: f2.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 5, current: false,organismId: organism.id).save(failOnError: true)
         f2.childId = f3.id
-        FeatureEvent f4 = new FeatureEvent(operation: FeatureOperation.SET_READTHROUGH_STOP_CODON, parentId: f3.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 4, current: false,organismId: o.id).save(failOnError: true)
+        FeatureEvent f4 = new FeatureEvent(operation: FeatureOperation.SET_READTHROUGH_STOP_CODON, parentId: f3.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 4, current: false,organismId: organism.id).save(failOnError: true)
         f3.childId = f4.id
-        FeatureEvent f5 = new FeatureEvent(operation: FeatureOperation.SET_BOUNDARIES, parentId: f4.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 3, current: true,organismId: o.id).save(failOnError: true)
+        FeatureEvent f5 = new FeatureEvent(operation: FeatureOperation.SET_BOUNDARIES, parentId: f4.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 3, current: true,organismId: organism.id).save(failOnError: true)
         f4.childId = f5.id
-        FeatureEvent f6 = new FeatureEvent(operation: FeatureOperation.ADD_EXON, parentId: f5.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 2, current: false,organismId: o.id).save(failOnError: true)
+        FeatureEvent f6 = new FeatureEvent(operation: FeatureOperation.ADD_EXON, parentId: f5.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 2, current: false,organismId: organism.id).save(failOnError: true)
         f5.childId = f6.id
-        FeatureEvent f7 = new FeatureEvent(operation: FeatureOperation.MERGE_TRANSCRIPTS, parentId: f6.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 1, current: false,organismId: o.id).save(failOnError: true)
+        FeatureEvent f7 = new FeatureEvent(operation: FeatureOperation.MERGE_TRANSCRIPTS, parentId: f6.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 1, current: false,organismId: organism.id).save(failOnError: true)
         f1.save()
         f2.save()
         f3.save()
@@ -144,7 +147,7 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName = "abc123"
 
         when: "we add a feature event"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see a feature event"
@@ -153,7 +156,7 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another feature event"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see two feature events, with the second one current and the prior one before"
@@ -166,7 +169,7 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add a third feature event"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_START, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_START, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see three feature events, with the third one current and the prior two before"
@@ -195,7 +198,7 @@ class FeatureEventServiceSpec extends Specification {
         assert !featureEventList[0][0].current
 
         when: "we add another feature event"
-        service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
 
@@ -236,7 +239,7 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add a feature event"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see a feature event"
@@ -244,7 +247,7 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see an extra operation"
@@ -295,7 +298,7 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another event to 2"
-        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         futureEvents = service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0])
@@ -354,7 +357,7 @@ class FeatureEventServiceSpec extends Specification {
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         List<FeatureEvent> thisCurrentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
-        previousEvents = service.findPreviousFeatureEvents(thisCurrentFeatureEvents,Organism.first().id)
+        previousEvents = service.findPreviousFeatureEvents(thisCurrentFeatureEvents)
         futureEvents = service.findFutureFeatureEvents(thisCurrentFeatureEvents)
 
         then: "we have 3 on 1"
@@ -486,8 +489,8 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
@@ -498,7 +501,7 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see an extra operation"
@@ -542,7 +545,7 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another event to 1 (2 no longer is accessible)"
-        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
@@ -655,8 +658,8 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
@@ -667,7 +670,7 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we should see an extra operation"
@@ -715,7 +718,7 @@ class FeatureEventServiceSpec extends Specification {
         featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
-        List<List<FeatureEvent>> futureEvents = service.findFutureFeatureEvents(currentFeatureEventArray,Organism.first().id)
+        List<List<FeatureEvent>> futureEvents = service.findFutureFeatureEvents(currentFeatureEventArray)
         List<List<FeatureEvent>> previousEvents = service.findPreviousFeatureEvents(currentFeatureEventArray)
 
         then: "we should see one feature events, with the second one current and the prior one before"
@@ -887,8 +890,8 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
@@ -899,8 +902,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we we add exons to each and merge them"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         JSONArray oldJsonArray = new JSONArray()
         oldJsonArray.add(new JSONObject())
         service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
@@ -1106,12 +1109,12 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         JSONArray oldJsonArray = new JSONArray()
         oldJsonArray.add(new JSONObject())
         service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
