@@ -1709,7 +1709,7 @@ class RequestHandlingService {
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
                 featureService.addOwnersByString(inputObject.username, feature)
                 if (transcriptService.getGene((Transcript) feature)) {
-                    featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
+                    featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject),sequence.organismId)
                     if (transcriptsToUpdate.size() > 0) {
                         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
                         transcriptsToUpdate.each {
@@ -1729,7 +1729,7 @@ class RequestHandlingService {
                 }
             } else {
                 feature = featureService.flipStrand(feature)
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature), permissionService.getCurrentUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature), permissionService.getCurrentUser(inputObject),sequence.organismId)
             }
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false))
         }
