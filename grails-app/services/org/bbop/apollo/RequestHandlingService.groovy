@@ -2115,6 +2115,9 @@ class RequestHandlingService {
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
                     goAnnotationService.removeGoAnnotationsFromFeature(feature)
+                    provenanceService.removeProvenancesFromFeature(feature)
+                    geneProductService.removeGeneProductsFromFeature(feature)
+                    featureEventService.deleteEntireRecord(feature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {

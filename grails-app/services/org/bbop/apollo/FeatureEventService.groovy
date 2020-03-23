@@ -918,4 +918,15 @@ class FeatureEventService {
         }
         return historyContainer
     }
+
+    int deleteEntireRecord(Feature feature) {
+        String uniqueName = feature.uniqueName
+        Long organismId = feature.featureLocation.sequence.organismId
+        def featureEvents = FeatureEvent.findAllByUniqueNameAndOrganismId(uniqueName,organismId)
+
+        println "unqiue name ${uniqueName} and ${organismId}"
+        println "feature events fround ${featureEvents} -> ${featureEvents.size()}"
+        FeatureEvent.deleteAll(featureEvents)
+        return featureEvents.size()
+    }
 }
