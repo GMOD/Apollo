@@ -12,7 +12,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	git build-essential libpq-dev wget \
+	git build-essential libpq-dev wget python3-pip \
 	lsb-release gnupg2 wget xmlstarlet netcat libpng-dev postgresql-common \
 	zlib1g-dev libexpat1-dev curl ssl-cert zip unzip openjdk-8-jdk-headless
 
@@ -59,12 +59,16 @@ COPY docker-files/build.sh /bin/build.sh
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 RUN chown -R apollo:apollo /apollo
 
-# install grails
+# install grails and python libraries
 USER apollo
+
+RUN pip3 install setuptools nose apollo
+
 RUN curl -s get.sdkman.io | bash && \
      /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
      /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1" && \
      /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+
 
 USER root
 # remove from webapps and copy it into a staging directory
