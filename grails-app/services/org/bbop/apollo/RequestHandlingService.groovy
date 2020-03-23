@@ -2117,7 +2117,7 @@ class RequestHandlingService {
                     goAnnotationService.removeGoAnnotationsFromFeature(feature)
                     provenanceService.removeProvenancesFromFeature(feature)
                     geneProductService.removeGeneProductsFromFeature(feature)
-                    featureEventService.deleteEntireRecord(feature)
+//                    featureEventService.deleteEntireRecord(feature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {

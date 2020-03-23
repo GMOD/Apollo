@@ -6,8 +6,6 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class FeatureRelationshipService {
 
-    def featureEventService
-
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         def list = new ArrayList<Feature>()
         if (feature?.parentFeatureRelationships != null) {
@@ -225,12 +223,12 @@ class FeatureRelationshipService {
 
         // last, delete self or save updated relationships
         if (!feature.parentFeatureRelationships && !feature.childFeatureRelationships) {
-            println "would I delete here?  ${feature.uniqueName} ${feature.ontologyId}"
-            featureEventService.deleteEntireRecord(feature)
+//            println "would I delete here?  ${feature.uniqueName} ${feature.ontologyId}"
+//            featureEventService.deleteEntireRecord(feature)
             feature.delete(flush: true)
         } else {
-            println "or here?  ${feature.uniqueName} ${feature.ontologyId}"
-            featureEventService.deleteEntireRecord(feature)
+//            println "or here?  ${feature.uniqueName} ${feature.ontologyId}"
+//            featureEventService.deleteEntireRecord(feature)
             feature.save(flush: true)
         }
 
