@@ -236,7 +236,6 @@ public class SequencePanel extends Composite {
                             JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                             MainPanel mainPanel = MainPanel.getInstance();
                             SequenceInfo currentSequence = mainPanel.setCurrentSequenceAndEnds(SequenceInfoConverter.convertFromJson(sequenceInfoJson));
-                            mainPanel.sequenceSuggestBox.setText(currentSequence.getName());
                             Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(), mainPanel.getCurrentOrganism().getName()));
                             MainPanel.updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStartBp(), currentSequence.getEndBp(), true, false);
                         }
