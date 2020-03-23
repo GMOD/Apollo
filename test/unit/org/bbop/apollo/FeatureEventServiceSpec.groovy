@@ -12,7 +12,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(FeatureEventService)
-@Mock([FeatureEvent])
+@Mock([FeatureEvent,Organism])
 class FeatureEventServiceSpec extends Specification {
 
     Date today = new Date()
@@ -20,18 +20,24 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-        FeatureEvent f1 = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: false).save(failOnError: true)
-        FeatureEvent f2 = new FeatureEvent(operation: FeatureOperation.SPLIT_TRANSCRIPT, parentId: f1.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 6, current: false).save(failOnError: true)
+        Organism organism = new Organism(
+                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
+                ,commonName: "sampleAnimal"
+                ,genus: "Sample"
+                ,species: "animal"
+        ).save(failOnError: true)
+        FeatureEvent f1 = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: false).save(failOnError: true,organismId: organism.id)
+        FeatureEvent f2 = new FeatureEvent(operation: FeatureOperation.SPLIT_TRANSCRIPT, parentId: f1.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 6, current: false,organismId: organism.id).save(failOnError: true)
         f1.childId = f2.id
-        FeatureEvent f3 = new FeatureEvent(operation: FeatureOperation.SET_TRANSLATION_END, parentId: f2.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 5, current: false).save(failOnError: true)
+        FeatureEvent f3 = new FeatureEvent(operation: FeatureOperation.SET_TRANSLATION_END, parentId: f2.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 5, current: false,organismId: organism.id).save(failOnError: true)
         f2.childId = f3.id
-        FeatureEvent f4 = new FeatureEvent(operation: FeatureOperation.SET_READTHROUGH_STOP_CODON, parentId: f3.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 4, current: false).save(failOnError: true)
+        FeatureEvent f4 = new FeatureEvent(operation: FeatureOperation.SET_READTHROUGH_STOP_CODON, parentId: f3.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 4, current: false,organismId: organism.id).save(failOnError: true)
         f3.childId = f4.id
-        FeatureEvent f5 = new FeatureEvent(operation: FeatureOperation.SET_BOUNDARIES, parentId: f4.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 3, current: true).save(failOnError: true)
+        FeatureEvent f5 = new FeatureEvent(operation: FeatureOperation.SET_BOUNDARIES, parentId: f4.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 3, current: true,organismId: organism.id).save(failOnError: true)
         f4.childId = f5.id
-        FeatureEvent f6 = new FeatureEvent(operation: FeatureOperation.ADD_EXON, parentId: f5.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 2, current: false).save(failOnError: true)
+        FeatureEvent f6 = new FeatureEvent(operation: FeatureOperation.ADD_EXON, parentId: f5.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 2, current: false,organismId: organism.id).save(failOnError: true)
         f5.childId = f6.id
-        FeatureEvent f7 = new FeatureEvent(operation: FeatureOperation.MERGE_TRANSCRIPTS, parentId: f6.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 1, current: false).save(failOnError: true)
+        FeatureEvent f7 = new FeatureEvent(operation: FeatureOperation.MERGE_TRANSCRIPTS, parentId: f6.id, name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 1, current: false,organismId: organism.id).save(failOnError: true)
         f1.save()
         f2.save()
         f3.save()
@@ -78,6 +84,7 @@ class FeatureEventServiceSpec extends Specification {
                 , uniqueName: "AAAA"
                 , current: false
                 , dateCreated: new Date() - 1
+                , organismId: Organism.first().id
         ).save()
         FeatureEvent f3 = new FeatureEvent(
                 operation: FeatureOperation.ADD_TRANSCRIPT
@@ -86,6 +93,7 @@ class FeatureEventServiceSpec extends Specification {
                 , childId: f4.id
                 , current: false
                 , dateCreated: new Date() - 2
+                , organismId: Organism.first().id
         ).save()
         FeatureEvent f2 = new FeatureEvent(
                 operation: FeatureOperation.SPLIT_TRANSCRIPT
@@ -94,6 +102,7 @@ class FeatureEventServiceSpec extends Specification {
                 , childId: f3.id
                 , current: true
                 , dateCreated: new Date() - 3
+                , organismId: Organism.first().id
         ).save()
         // this is the first one!
         FeatureEvent f1 = new FeatureEvent(
@@ -103,6 +112,7 @@ class FeatureEventServiceSpec extends Specification {
                 , uniqueName: "AAAA"
                 , current: false
                 , dateCreated: new Date() - 4
+                , organismId: Organism.first().id
         ).save()
         f4.parentId = f3.id
         f4.save()
@@ -123,7 +133,7 @@ class FeatureEventServiceSpec extends Specification {
         assert currentFeatureEventList.get(0).operation == FeatureOperation.SPLIT_TRANSCRIPT
 
         when: "we find the current index"
-        int currentIndex = service.getCurrentFeatureEventIndex("AAAA")
+        int currentIndex = service.getCurrentFeatureEventIndex("AAAA",Organism.first().id)
 
         then: "it should match the current index"
         assert currentIndex == 1
@@ -137,8 +147,8 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName = "abc123"
 
         when: "we add a feature event"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList = service.getHistory(uniqueName)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see a feature event"
         assert 1 == FeatureEvent.countByUniqueName(uniqueName)
@@ -146,8 +156,8 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another feature event"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList = service.getHistory(uniqueName)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see two feature events, with the second one current and the prior one before"
         assert featureEventList.size() == 2
@@ -159,8 +169,8 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add a third feature event"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_START, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList = service.getHistory(uniqueName)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_START, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see three feature events, with the third one current and the prior two before"
         assert featureEventList.size() == 3
@@ -174,8 +184,8 @@ class FeatureEventServiceSpec extends Specification {
         assert !featureEventList[0][0].current
 
         when: "if we make the second one current"
-        service.setTransactionForFeature(uniqueName, 1)
-        featureEventList = service.getHistory(uniqueName)
+        service.setTransactionForFeature(uniqueName, 1,Organism.first().id)
+        featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "we should see one in front and one behind"
         assert featureEventList.size() == 3
@@ -188,8 +198,8 @@ class FeatureEventServiceSpec extends Specification {
         assert !featureEventList[0][0].current
 
         when: "we add another feature event"
-        service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList = service.getHistory(uniqueName)
+        service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, name, uniqueName, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
 
         then: "the last one disappears"
@@ -203,10 +213,10 @@ class FeatureEventServiceSpec extends Specification {
         assert !featureEventList[0][0].current
 
         when: "we set the first one current"
-        service.setTransactionForFeature(uniqueName, 0)
+        service.setTransactionForFeature(uniqueName, 0,Organism.first().id)
         assert 1 == FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)
 
-        featureEventList = service.getHistory(uniqueName)
+        featureEventList = service.getHistory(uniqueName,Organism.first().id)
 
         then: "the first one will be current"
         assert featureEventList.size() == 3
@@ -229,16 +239,16 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add a feature event"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see a feature event"
         assert 1 == FeatureEvent.countByUniqueName(uniqueName1)
         assert featureEventList1.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList1 = service.getHistory(uniqueName1)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see an extra operation"
         assert 2 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -250,10 +260,10 @@ class FeatureEventServiceSpec extends Specification {
         JSONArray newJsonArray = new JSONArray()
         newJsonArray.add(new JSONObject())
         newJsonArray.add(new JSONObject())
-        service.addSplitFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), new JSONObject(), newJsonArray, null)
-        featureEventList1 = service.getHistory(uniqueName1)
-        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
-        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
+        service.addSplitFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), new JSONObject(), newJsonArray, null,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)[0]
         List<List<FeatureEvent>> previousEvents = service.findPreviousFeatureEvents(currentFeature)
         List<List<FeatureEvent>> futureEvents = service.findFutureFeatureEvents(currentFeature)
 
@@ -269,8 +279,8 @@ class FeatureEventServiceSpec extends Specification {
         assert previousEvents.get(1).first().operation == FeatureOperation.SET_TRANSLATION_ENDS
 
         assert featureEventList2.size() == 3
-        assert 3 == service.getHistory(uniqueName1).size()
-        assert 3 == service.getHistory(uniqueName2).size()
+        assert 3 == service.getHistory(uniqueName1,Organism.first().id).size()
+        assert 3 == service.getHistory(uniqueName2,Organism.first().id).size()
         assert featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
         assert !featureEventList1[1][0].current
@@ -288,19 +298,19 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another event to 2"
-        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        futureEvents = service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0])
-        previousEvents = service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0])
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        futureEvents = service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0])
+        previousEvents = service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0])
 
         then: "we have 2 on 2"
         assert 0 == futureEvents.size()
         assert 2 == previousEvents.size()
 
         when: "we test the other sizde"
-        def currentFeatureEvent2 = service.findCurrentFeatureEvent(uniqueName2)
-        def currentFeatureEvent1 = service.findCurrentFeatureEvent(uniqueName1)
+        def currentFeatureEvent2 = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
+        def currentFeatureEvent1 = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
         futureEvents = service.findFutureFeatureEvents(currentFeatureEvent2[0])
         previousEvents = service.findPreviousFeatureEvents(currentFeatureEvent2[0])
 
@@ -343,17 +353,17 @@ class FeatureEventServiceSpec extends Specification {
 
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
-        FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2, 1)[0]
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        List<FeatureEvent> thisCurrentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1)
+        FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2, 1,Organism.first().id)[0]
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<FeatureEvent> thisCurrentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
         previousEvents = service.findPreviousFeatureEvents(thisCurrentFeatureEvents)
         futureEvents = service.findFutureFeatureEvents(thisCurrentFeatureEvents)
 
         then: "we have 3 on 1"
         assert thisCurrentFeatureEvents.size() == 1
         assert thisCurrentFeatureEvents[0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert service.findCurrentFeatureEvent(uniqueName2)[0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)[0].operation == FeatureOperation.SET_TRANSLATION_ENDS
         assert 2 == futureEvents.size()
         assert 1 == previousEvents.size()
 
@@ -383,16 +393,16 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we go forward on 1 (2 does not exist anymore unless we go forward)"
-        List<FeatureEvent> currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2)
+        List<FeatureEvent> currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2,Organism.first().id)
         assert currentFeatureEvents.size() == 2
         assert currentFeatureEvents[0].current
         assert currentFeatureEvents[1].current
         assert currentFeatureEvents[0].operation == FeatureOperation.SPLIT_TRANSCRIPT
         assert currentFeatureEvents[1].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        def currentFeatureEvents1 = service.findCurrentFeatureEvent(uniqueName1)
-        def currentFeatureEvents2 = service.findCurrentFeatureEvent(uniqueName2)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        def currentFeatureEvents1 = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
+        def currentFeatureEvents2 = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
         def currentFeatureEventUniqueName1 = currentFeatureEvents1.find(){ it.uniqueName == uniqueName1}
         def currentFeatureEventUniqueName2 = currentFeatureEvents2.find(){ it.uniqueName == uniqueName2}
 //        currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2)
@@ -433,10 +443,10 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1 == featureEventList2
 
         when: "we go all the way forward on 2"
-        def current = service.setTransactionForFeature(uniqueName2, 3)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2)
+        def current = service.setTransactionForFeature(uniqueName2, 3,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
         currentFeatureEvent1 = null
         currentFeatureEvent2 = null
         currentFeatureEvent1 = currentFeatureEvents.find(){ it.uniqueName==uniqueName1}
@@ -479,10 +489,10 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
-        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we should see a feature event"
         assert 1 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -491,8 +501,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList1 = service.getHistory(uniqueName1)
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
         then: "we should see an extra operation"
         assert 2 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -504,12 +514,12 @@ class FeatureEventServiceSpec extends Specification {
         JSONArray oldJsonArray = new JSONArray()
 //        newJsonArray.add(new JSONObject())
         oldJsonArray.add(new JSONObject())
-        service.addMergeFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), oldJsonArray, new JSONObject(), null)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
+        service.addMergeFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
         // TODO: not sure if this is accurate, or possible
 //        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
-        List<FeatureEvent> currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
         FeatureEvent currentFeature = currentFeatureEvents[0]
 
         then: "we should see one feature events, with the second one current and the prior one before"
@@ -522,7 +532,7 @@ class FeatureEventServiceSpec extends Specification {
         assert 2 == service.findPreviousFeatureEvents(currentFeature).size()
 
         assert featureEventList1==featureEventList2
-        assert 3 == service.getHistory(uniqueName1).size()
+        assert 3 == service.getHistory(uniqueName1,Organism.first().id).size()
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
         assert featureEventList1[1].size() == 2
@@ -535,13 +545,13 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we add another event to 1 (2 no longer is accessible)"
-        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.all.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we have 3 on 1 and 2 on 2"
-        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.all.first().id)[0]).size()
+        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.all.first().id)[0]).size()
         assert 4 == featureEventList1.size()
 
         assert !featureEventList1[0][0].current
@@ -558,8 +568,8 @@ class FeatureEventServiceSpec extends Specification {
 
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "it should be active on the split transcript event for both"
         assert 4 == featureEventList1.size()  // we can fast-forward all the way up through 2 and the split
@@ -580,9 +590,9 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we go forward on 1 we should re-merge, goes beyond 2, so just stops at end"
-        currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
 
         then: "since 2 is further then 1, it should stop on the most recent for both, but one disappears"
@@ -590,8 +600,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1==featureEventList2
         assert currentFeatureEvents.size() == 1
         assert currentFeatureEvents[0].current
-        assert 1 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 2 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 1 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0]).size()
+        assert 2 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0]).size()
         assert 4 == featureEventList1.size()
 
 
@@ -610,8 +620,8 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we go all the way forward on 2"
-        currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 3)
-        featureEventList1 = service.getHistory(uniqueName1)
+        currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 3,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
 
 
         then: "no change on 1, 2 goes to flip strand"
@@ -619,8 +629,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1==featureEventList2
         assert currentFeatureEvents.size() == 1
         assert currentFeatureEvents[0].current
-        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 0 == service.findFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0]).size()
+        assert 3 == service.findPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)[0]).size()
         assert 4 == featureEventList1.size()
 
 
@@ -648,10 +658,10 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
-        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we should see a feature event"
         assert 1 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -660,8 +670,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we do an operation"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        featureEventList2 = service.getHistory(uniqueName2)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we should see an extra operation"
         assert 2 == FeatureEvent.countByUniqueName(uniqueName2)
@@ -675,11 +685,11 @@ class FeatureEventServiceSpec extends Specification {
         when: "let's merge feature events"
         JSONArray oldJsonArray = new JSONArray()
         oldJsonArray.add(new JSONObject())
-        service.addMergeFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), oldJsonArray, new JSONObject(), null)
-        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.addMergeFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
+        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
 
-        Map<String, Map<Long, FeatureEvent>> featureEventMap = service.extractFeatureEventGroup(uniqueName1)
+        Map<String, Map<Long, FeatureEvent>> featureEventMap = service.extractFeatureEventGroup(uniqueName1,Organism.first().id)
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName1, true)
         FeatureEvent currentFeature = featureEventList.first()
 
@@ -695,7 +705,7 @@ class FeatureEventServiceSpec extends Specification {
         assert previousFeatureEvents.size() == 2
 
         when: "we get the current feature event"
-        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
 
         then: "it should not be null"
         // this hsould return
@@ -704,10 +714,10 @@ class FeatureEventServiceSpec extends Specification {
         assert currentFeatureEventArray.first().operation == FeatureOperation.MERGE_TRANSCRIPTS
 
         when: "we get the histories"
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         List<List<FeatureEvent>> futureEvents = service.findFutureFeatureEvents(currentFeatureEventArray)
         List<List<FeatureEvent>> previousEvents = service.findPreviousFeatureEvents(currentFeatureEventArray)
 
@@ -741,8 +751,8 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo one (current index is 2)"
-        service.setTransactionForFeature(uniqueName1, 1)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
+        service.setTransactionForFeature(uniqueName1, 1,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
 
         then: "we should get both back as current, with set exon boundary"
         assert currentFeatureEventArray != null
@@ -751,10 +761,10 @@ class FeatureEventServiceSpec extends Specification {
         assert currentFeatureEventArray.first().operation == FeatureOperation.ADD_TRANSCRIPT
 
         when: "we get the histories"
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         FeatureEvent addTranscriptFeatureEvent = currentFeatureEventArray.first()
         FeatureEvent exonBoundariesFeatureEvent = currentFeatureEventArray.last()
         futureEvents = service.findFutureFeatureEvents(exonBoundariesFeatureEvent)
@@ -782,8 +792,8 @@ class FeatureEventServiceSpec extends Specification {
         assert previousEvents[0].size() == 1
         assert futureEvents[0].size() == 1
 
-        assert 3 == service.getHistory(uniqueName2).size()
-        assert 3 == service.getHistory(uniqueName1).size()
+        assert 3 == service.getHistory(uniqueName2,Organism.first().id).size()
+        assert 3 == service.getHistory(uniqueName1,Organism.first().id).size()
 
         assert featureEventList1[2].size() == 1
         assert !featureEventList1[2][0].current
@@ -805,8 +815,8 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo again (current index is 1)"
-        service.setTransactionForFeature(uniqueName2, 0)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2)
+        service.setTransactionForFeature(uniqueName2, 0,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
         FeatureEvent featureEvent1 = currentFeatureEventArray.find(){ it.uniqueName==uniqueName1}
         FeatureEvent featureEvent2 = currentFeatureEventArray.find(){ it.uniqueName==uniqueName2}
 
@@ -825,10 +835,10 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we get the histories"
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         futureEvents = service.findFutureFeatureEvents(featureEvent2)
         previousEvents = service.findPreviousFeatureEvents(featureEvent2)
 
@@ -880,10 +890,10 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
-        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
 
         then: "we should see a feature event"
         assert 1 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -892,15 +902,15 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2.size() == 1
 
         when: "we we add exons to each and merge them"
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         JSONArray oldJsonArray = new JSONArray()
         oldJsonArray.add(new JSONObject())
-        service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null)
-        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
+        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
 
-        Map<String, Map<Long, FeatureEvent>> featureEventMap = service.extractFeatureEventGroup(uniqueName1)
+        Map<String, Map<Long, FeatureEvent>> featureEventMap = service.extractFeatureEventGroup(uniqueName1,Organism.first().id)
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName2, true)
         FeatureEvent currentFeature = featureEventList.first()
 
@@ -911,7 +921,7 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventMap.size() == 2
 
         when: "we get the current feature event"
-        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
 
         then: "it should not be null"
         // this should return
@@ -919,10 +929,10 @@ class FeatureEventServiceSpec extends Specification {
         assert currentFeatureEventArray.first().operation == FeatureOperation.MERGE_TRANSCRIPTS
 
         when: "we get the histories"
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
         List<List<FeatureEvent>> futureEvents = service.findFutureFeatureEvents(currentFeatureEventArray.first())
         List<List<FeatureEvent>> previousEvents = service.findPreviousFeatureEvents(currentFeatureEventArray.first())
 
@@ -963,12 +973,12 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo merge on A2B2 (current index is 2)"
-        service.setTransactionForFeature(uniqueName1, 1)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.setTransactionForFeature(uniqueName1, 1,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         // just evaluate one side of this
         futureEvents = service.findFutureFeatureEvents(currentFeatureEventArray.first())
         previousEvents = service.findPreviousFeatureEvents(currentFeatureEventArray.first())
@@ -1000,12 +1010,12 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo again (current index is 1) (A2B1)"
-        service.setTransactionForFeature(uniqueName2, 0)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.setTransactionForFeature(uniqueName2, 0,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         // just evaluate one side of this
         FeatureEvent fe1 = currentFeatureEventArray.find(){ it.uniqueName == uniqueName1}
         FeatureEvent fe2 = currentFeatureEventArray.find(){ it.uniqueName == uniqueName2}
@@ -1045,12 +1055,12 @@ class FeatureEventServiceSpec extends Specification {
         assert futureEvents1[0][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
 
         when: "when we undo again (current index is 1) (A1B1)"
-        service.setTransactionForFeature(uniqueName1, 0)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.setTransactionForFeature(uniqueName1, 0,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         // just evaluate one side of this
         fe1 = currentFeatureEventArray.find(){ it.uniqueName == uniqueName1}
         fe2 = currentFeatureEventArray.find(){ it.uniqueName == uniqueName2}
@@ -1099,18 +1109,18 @@ class FeatureEventServiceSpec extends Specification {
         String uniqueName2 = "bbbbbb"
 
         when: "we add 2 feature events"
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
-        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
-        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null,Organism.first().id)
         JSONArray oldJsonArray = new JSONArray()
         oldJsonArray.add(new JSONObject())
-        service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null)
-        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
+        service.addMergeFeatureEvent(name2, uniqueName2, name1, uniqueName1, new JSONObject(), oldJsonArray, new JSONObject(), null,Organism.first().id)
+        Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
 
         then: "it should not be null"
         // this should return
@@ -1120,13 +1130,13 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo merge to get to A1, B2 so that they will have separate indices"
-        service.setTransactionForFeature(uniqueName1, 0)
-        service.setTransactionForFeature(uniqueName2, 1)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.setTransactionForFeature(uniqueName1, 0,Organism.first().id)
+        service.setTransactionForFeature(uniqueName2, 1,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         FeatureEvent currentFeatureEvent1 = currentFeatureEventArray.find(){it.uniqueName==uniqueName1}
         FeatureEvent currentFeatureEvent2 = currentFeatureEventArray.find(){it.uniqueName==uniqueName2}
         // just evaluate one side of this
@@ -1168,14 +1178,14 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we redo on A1 so A1 B2 -> AB"
-        service.setTransactionForFeature(uniqueName1, 2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
-        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2)
-        featureEventList1 = service.getHistory(uniqueName1)
-        featureEventList2 = service.getHistory(uniqueName2)
-        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
-        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        service.setTransactionForFeature(uniqueName1, 2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
+        currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2,Organism.first().id)
+        featureEventList1 = service.getHistory(uniqueName1,Organism.first().id)
+        featureEventList2 = service.getHistory(uniqueName2,Organism.first().id)
+        featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1,Organism.first().id)
+        featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2,Organism.first().id)
         // just evaluate one side of this
 //        currentFeatureEvent1 =currentFeatureEventArray.find(){ it.uniqueName == uniqueName1}
         currentFeatureEvent2= currentFeatureEventArray.find(){ it.uniqueName == uniqueName2}
