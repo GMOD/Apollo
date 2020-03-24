@@ -163,7 +163,7 @@ class FeatureRelationshipService {
     }
 
     @Transactional
-    public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
+    void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
         if (featureRelationship) {

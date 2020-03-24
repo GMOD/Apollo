@@ -296,7 +296,7 @@ public class GoPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GoRestService.getGoAnnotation(requestCallback, annotationInfo.getUniqueName());
+      GoRestService.getGoAnnotation(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
     }
   }
 

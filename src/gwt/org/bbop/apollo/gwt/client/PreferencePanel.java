@@ -24,12 +24,6 @@ public class PreferencePanel extends Composite {
     HTML adminPanel;
     @UiField
     Button updateCommonDirectoryButton;
-//    @UiField
-//    FlexTable statusList;
-//    @UiField
-//    TextBox newStatusField;
-//    @UiField
-//    Button newStatusButton;
 
     @UiHandler("updateCommonDirectoryButton")
     public void updateCommonDirectoryButton(ClickEvent clickEvent) {
@@ -70,45 +64,6 @@ public class PreferencePanel extends Composite {
 
     public PreferencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
         reload();
-
-
-//        /annotator/adminPanel
-
-
     }
-
-//    public PreferencePanel() {
-//        initWidget(ourUiBinder.createAndBindUi(this));
-//
-//
-//        statusList.setHTML(0,0,"Status");
-//        statusList.setHTML(0,1,"");
-//        statusList.setHTML(0,2,"# of Annotations");
-//
-//        statusList.setHTML(1,0,"Approve");
-//        statusList.setHTML(2,0,"Delete");
-//        statusList.setHTML(3,0,"Replace");
-//        statusList.setHTML(4,0,"Awaiting");
-//
-////        statusList.setWidget(1, 1, new Button("X"));
-////        statusList.setWidget(2, 1, new Button("X"));
-//        statusList.setWidget(3, 1, new Button("X"));
-////        statusList.setWidget(4, 1, new Button("X"));
-//
-//        statusList.setHTML(1,2,"3");
-//        statusList.setHTML(2,2,"4");
-//        statusList.setHTML(3,2,"0");
-//        statusList.setHTML(4,2,"10");
-//    }
-//
-//    @UiHandler("newStatusButton")
-//    public void newStatusButton(ClickEvent clickEvent){
-//        String newText = newStatusField.getText();
-//        int rowCount = statusList.getRowCount();
-//        statusList.setHTML(rowCount,0,newText);
-//        statusList.setWidget(rowCount,1, new Button("X"));
-//        newStatusField.setText("");
-//    }
 }

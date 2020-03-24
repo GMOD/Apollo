@@ -223,7 +223,9 @@ public class RepeatRegionDetailPanel extends Composite {
                 enableFields(true);
             }
         };
-        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+        RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
     }
     
     public void updateData(AnnotationInfo annotationInfo) {

@@ -8,6 +8,8 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.Anchor;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
 import org.bbop.apollo.gwt.shared.provenance.Provenance;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -31,9 +33,10 @@ public class ProvenanceRestService {
         RestService.sendRequest(requestCallback, "provenance/delete", "data=" + ProvenanceConverter.convertToJson(provenance).toString());
     }
 
-    public static void getProvenance(RequestCallback requestCallback, String featureUniqueName) {
+    public static void getProvenance(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("uniqueName",new JSONString(featureUniqueName));
+        jsonObject.put("uniqueName",new JSONString(annotationInfo.getUniqueName()));
+        jsonObject.put("organism",new JSONString(organismInfo.getId()));
         RestService.sendRequest(requestCallback, "provenance/", "data=" + jsonObject.toString());
     }
 

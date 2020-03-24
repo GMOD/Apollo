@@ -78,7 +78,7 @@ public class AnnotatorPanel extends Composite {
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
     private long requestIndex = 0;
-    String selectedChildUniqueName = null;
+    String selectedChildUniqueName ;
 
     private static int selectedSubTabIndex = 0;
     private static int pageSize = 25;
@@ -1184,5 +1184,9 @@ public class AnnotatorPanel extends Composite {
 
             row.endTR();
         }
+    }
+
+    public void setSelectedChildUniqueName(String selectedChildUniqueName) {
+        this.selectedChildUniqueName = selectedChildUniqueName;
     }
 }

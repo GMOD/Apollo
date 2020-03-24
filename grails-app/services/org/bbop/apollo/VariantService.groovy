@@ -218,22 +218,25 @@ class VariantService {
     }
 
     def updateAlleleInfo(JSONObject jsonFeature) {
-        Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+        SequenceAlteration variant = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+        String bases = jsonFeature.getJSONObject(FeatureStringEnum.ALLELE.value).getString(FeatureStringEnum.BASES.value)
+
         JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
         JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
 
         for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
             JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)
             JSONObject newAlleleInfoObject = newAlleleInfoArray.getJSONObject(i)
-            String oldAlleleBases = oldAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
-            String newAlleleBases = newAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
+            String oldAlleleBases = oldAlleleInfoObject.has(FeatureStringEnum.BASES.value) ? oldAlleleInfoObject.getString(FeatureStringEnum.BASES.value) : bases
+            String newAlleleBases = newAlleleInfoObject.has(FeatureStringEnum.BASES.value) ? newAlleleInfoObject.getString(FeatureStringEnum.BASES.value) : bases
             String oldTag = oldAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String oldValue = oldAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             if (oldAlleleBases != newAlleleBases) {
-                Allele oldAllele = Allele.findByVariantAndBases(feature, oldAlleleBases)
-                Allele newAllele = Allele.findByVariantAndBases(feature, newAlleleBases)
+                Allele oldAllele = Allele.findByVariantAndBases(variant, bases)
+                Allele newAllele = Allele.findByVariantAndBases(variant, bases)
+
                 AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
                 oldAlleleInfo.delete()
                 AlleleInfo newAlleleInfo = new AlleleInfo(
@@ -243,7 +246,7 @@ class VariantService {
                 ).save()
             }
             else {
-                Allele allele = Allele.findByVariantAndBases(feature, oldAlleleBases)
+                Allele allele = Allele.findByVariantAndBases(variant, bases)
                 AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, oldTag, oldValue)
                 if (oldAlleleInfo) {
                     oldAlleleInfo.tag = newTag
@@ -257,8 +260,8 @@ class VariantService {
 
 
         }
-        feature.save(flush: true, failOnError: true)
-        return feature
+        variant.save(flush: true, failOnError: true)
+        return variant
     }
 
     def createVariantInfo(SequenceAlteration variant, String tag, String value) {
