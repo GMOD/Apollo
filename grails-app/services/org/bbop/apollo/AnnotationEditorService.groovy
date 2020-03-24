@@ -17,6 +17,7 @@ class AnnotationEditorService {
         outputString = outputString.lastIndexOf("\"")==outputString.length()-1 ? outputString.substring(0,outputString.length()-1) : outputString
 //        outputString = outputString.replaceAll("/\\\\/","")
         outputString = outputString.replaceAll("\\\\\"","\"")
+        outputString = outputString.replaceAll("\\\\\"","'")
         return outputString
     }
 
