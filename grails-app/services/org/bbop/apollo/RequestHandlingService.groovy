@@ -268,7 +268,7 @@ class RequestHandlingService {
     def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -317,15 +317,6 @@ class RequestHandlingService {
             user)
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
-
         return updateFeatureContainer
 
 
@@ -338,7 +329,7 @@ class RequestHandlingService {
     def addComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -369,14 +360,6 @@ class RequestHandlingService {
             newFeaturesJsonArray,
             user)
         }
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
 
         return updateFeatureContainer
     }
@@ -384,7 +367,7 @@ class RequestHandlingService {
     def deleteComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -415,14 +398,6 @@ class RequestHandlingService {
             user)
 
         }
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
 
         return updateFeatureContainer
     }
@@ -430,7 +405,7 @@ class RequestHandlingService {
     def updateComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -465,14 +440,6 @@ class RequestHandlingService {
             newFeaturesJsonArray,
             user)
 
-        }
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
         }
         return updateFeatureContainer
     }
@@ -635,15 +602,6 @@ class RequestHandlingService {
             oldFeaturesJsonArray,
             newFeaturesJsonArray,
             user)
-        }
-
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.ADD
-            )
-            fireAnnotationEvent(annotationEvent)
         }
 
         return updateFeatureContainer
@@ -1543,15 +1501,6 @@ class RequestHandlingService {
             newFeaturesJsonArray,
             user)
         }
-
-//        AnnotationEvent annotationEvent = new AnnotationEvent(
-//                features: updateFeatureContainer
-//                , sequence:sequence
-//                , operation: AnnotationEvent.Operation.ADD
-//                , sequenceAlterationEvent: false
-//        )
-//
-//        fireAnnotationEvent(annotationEvent)
 
         return updateFeatureContainer
     }
