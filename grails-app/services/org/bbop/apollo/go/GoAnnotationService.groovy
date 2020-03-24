@@ -3,6 +3,7 @@ package org.bbop.apollo.go
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.Gene
+import org.bbop.apollo.Gff3ConstantEnum
 import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Transcript
 import org.codehaus.groovy.grails.web.json.JSONArray
