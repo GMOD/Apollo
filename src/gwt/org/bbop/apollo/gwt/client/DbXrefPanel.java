@@ -174,12 +174,18 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
+        GWT.log("updating data "+annotationInfo);
         if (annotationInfo == null) {
             return;
         }
+        GWT.log("with dblists "+annotationInfo.getDbXrefList().size());
         this.internalAnnotationInfo = annotationInfo;
-        dbXrefInfoList.clear();
-        dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
+        GWT.log("1 getting dbxref list "+annotationInfo.getDbXrefList().size());
+        dbXrefInfoList = annotationInfo.getDbXrefList();
+        dataProvider.setList(dbXrefInfoList);
+        GWT.log("2 getting dbxref list "+annotationInfo.getDbXrefList().size());
+        GWT.log("3 db dbxref list "+dbXrefInfoList.size());
+//        dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
         redrawTable();
         setVisible(true);
@@ -238,6 +244,7 @@ public class DbXrefPanel extends Composite {
     }
 
     public void redrawTable() {
+        GWT.log("redrawing table with: " + dataProvider.getList().size()) ;
         this.dataGrid.redraw();
     }
 
@@ -360,7 +367,9 @@ public class DbXrefPanel extends Composite {
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     dbXrefInfoList.add(newDbXrefInfo);
+                    GWT.log("add db xref info list: "+dbXrefInfoList.size());
                     internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
+                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
                 }
 
                 @Override
@@ -384,6 +393,7 @@ public class DbXrefPanel extends Composite {
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteDbXrefButton.setEnabled(false);
+                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
                     redrawTable();
                 }
 

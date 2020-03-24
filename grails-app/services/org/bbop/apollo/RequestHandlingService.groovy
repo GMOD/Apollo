@@ -2084,6 +2084,9 @@ class RequestHandlingService {
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
+                        goAnnotationService.deleteAnnotationFromFeature(topLevelFeature)
+                        provenanceService.deleteAnnotationFromFeature(topLevelFeature)
+                        geneProductService.deleteAnnotationFromFeature(topLevelFeature)
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                         if (!suppressEvents) {
@@ -2096,6 +2099,14 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
+                        goAnnotationService.deleteAnnotationFromFeature(transcript)
+                        provenanceService.deleteAnnotationFromFeature(transcript)
+                        geneProductService.deleteAnnotationFromFeature(transcript)
+
+                        goAnnotationService.removeGoAnnotationsFromFeature(transcript)
+                        provenanceService.removeProvenancesFromFeature(transcript)
+                        geneProductService.removeGeneProductsFromFeature(transcript)
+
                         featureRelationshipService.removeFeatureRelationship(gene, transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
@@ -2127,8 +2138,11 @@ class RequestHandlingService {
 //                    }
 
                 } else {
+                    // if we are deleting the top level
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
-                    goAnnotationService.removeGoAnnotationsFromFeature(feature)
+                    goAnnotationService.removeGoAnnotationsFromFeature(topLevelFeature)
+                    provenanceService.removeProvenancesFromFeature(topLevelFeature)
+                    geneProductService.removeGeneProductsFromFeature(topLevelFeature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {
