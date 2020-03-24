@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
-import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -182,7 +181,7 @@ class GeneProductController {
         permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(dataObject)
 
-        Feature feature = Feature.findByUniqueName(dataObject.gene)
+        Feature feature = Feature.findByUniqueName(dataObject.feature)
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
         GeneProduct geneProduct = GeneProduct.findById(dataObject.id)
