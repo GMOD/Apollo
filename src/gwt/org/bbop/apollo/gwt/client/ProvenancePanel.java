@@ -218,7 +218,7 @@ public class ProvenancePanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      ProvenanceRestService.getProvenance(requestCallback, annotationInfo.getUniqueName());
+      ProvenanceRestService.getProvenance(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
     }
   }
 

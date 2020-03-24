@@ -711,22 +711,6 @@ class FeatureEventService {
         def offset = deepestIndex - futureEvents.size() - previousEvents.size()
         def returnIndex = previousEvents.size() + offset
         return returnIndex
-//        Integer deepestIndex = getDeepestIndex(-1, currentFeatureEvent, featureEventMap)
-    }
-
-    int getDeepestIndex(int index, FeatureEvent currentFeatureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
-        ++index
-        FeatureEvent featureEvent1 = null
-        FeatureEvent featureEvent2 = null
-        if (currentFeatureEvent.parentId) {
-            featureEvent1 = findFeatureEventFromMap(currentFeatureEvent.parentId, featureEventMap)
-        }
-        if (currentFeatureEvent.parentMergeId) {
-            featureEvent2 = findFeatureEventFromMap(currentFeatureEvent.parentMergeId, featureEventMap)
-        }
-        Integer p1Id = featureEvent1 ? getDeepestIndex(index, featureEvent1, featureEventMap) : index
-        Integer p2Id = featureEvent2 ? getDeepestIndex(index, featureEvent2, featureEventMap) : index
-        return Math.max(p1Id, p2Id)
     }
 
     def undo(JSONObject inputObject, int countBackwards) {

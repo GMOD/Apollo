@@ -26,7 +26,7 @@ class GeneProductController {
     def featureEventService
     def featureService
 
-    @RestApiMethod(description = "Load Go Annotations for feature", path = "/geneProduct", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Load gene product for feature", path = "/geneProduct", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -53,7 +53,7 @@ class GeneProductController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-    @RestApiMethod(description = "Save New Go Annotations for gene", path = "/geneProduct/save", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Save New gene product for feature", path = "/geneProduct/save", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -110,7 +110,7 @@ class GeneProductController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/geneProduct/update", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update existing gene products for feature", path = "/geneProduct/update", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -168,7 +168,7 @@ class GeneProductController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/geneProduct/delete", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Delete existing gene product for feature", path = "/geneProduct/delete", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)

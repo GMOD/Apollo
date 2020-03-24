@@ -23,7 +23,7 @@ public class GoAnnotationConverter {
 //                    "[\"adf:12312\"]"
     goAnnotation.setId(Math.round(object.get("id").isNumber().doubleValue()));
     goAnnotation.setAspect(Aspect.valueOf(object.get("aspect").isString().stringValue()));
-    goAnnotation.setGene(object.get("gene").isString().stringValue());
+    goAnnotation.setGene(object.get("feature").isString().stringValue());
     goAnnotation.setGoTerm(object.get("goTerm").isString().stringValue());
     if(object.containsKey("goTermLabel")){
       goAnnotation.setGoTermLabel(object.get("goTermLabel").isString().stringValue());
@@ -40,7 +40,7 @@ public class GoAnnotationConverter {
     List<String> noteList = new ArrayList<>();
     if (object.containsKey("notes")) {
       String notesString = object.get("notes").isString().stringValue();
-      JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
+      JSONArray notesArray = JSONParser.parseLenient(notesString).isArray();
       for (int i = 0; i < notesArray.size(); i++) {
         noteList.add(notesArray.get(i).isString().stringValue());
       }
@@ -50,7 +50,7 @@ public class GoAnnotationConverter {
     List<WithOrFrom> withOrFromList = new ArrayList<>();
     if (object.get("withOrFrom").isString() != null) {
       String withOrFromString = object.get("withOrFrom").isString().stringValue();
-      JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
+      JSONArray withOrFromArray = JSONParser.parseLenient(withOrFromString).isArray();
       for (int i = 0; i < withOrFromArray.size(); i++) {
         WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
         withOrFromList.add(withOrFrom);
@@ -69,7 +69,7 @@ public class GoAnnotationConverter {
       object.put("id", new JSONNumber(goAnnotation.getId()));
     }
     object.put("aspect", new JSONString(goAnnotation.getAspect().name()));
-    object.put("gene", new JSONString(goAnnotation.getGene()));
+    object.put("feature", new JSONString(goAnnotation.getGene()));
     object.put("goTerm", new JSONString(goAnnotation.getGoTerm()));
     object.put("goTermLabel", new JSONString(goAnnotation.getGoTermLabel()));
     object.put("geneRelationship", new JSONString(goAnnotation.getGeneRelationship()));

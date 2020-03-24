@@ -16,7 +16,7 @@ class NameService {
     }
 
     String generateUniqueName(Feature thisFeature,String principalName = null ) {
-        Organism organism = thisFeature.featureLocation.sequence.organism
+        Organism organism = thisFeature?.featureLocation?.sequence?.organism
         if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
                 if(!principalName){
@@ -55,11 +55,13 @@ class NameService {
                 if(!principalName){
                     principalName = thisFeature.name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
+                if(organism) {
+                    return makeUniqueFeatureName(organism, principalName.trim(), new LetterPaddingStrategy())
+                }
             }
         }
         else{
-            generateUniqueName()
+            return generateUniqueName()
         }
     }
 
@@ -94,7 +96,7 @@ class NameService {
         // See https://github.com/GMOD/Apollo/issues/1276
         // only does sort over found results
         List<String> results= Feature.findAllByNameLike(principalName+"%").findAll(){
-            it.featureLocation.sequence.organism == organism
+            it.featureLocation?.sequence?.organism == organism
         }.name
 
         name = principalName + leftPaddingStrategy.pad(results.size())

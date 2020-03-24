@@ -211,7 +211,8 @@ public class GeneProductPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo.getUniqueName());
+      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
+
     }
   }
 
@@ -297,6 +298,12 @@ public class GeneProductPanel extends Composite {
 
       referenceFieldPrefix.setText(selectedGeneProduct.getReference().getPrefix());
       referenceFieldId.setText(selectedGeneProduct.getReference().getLookupId());
+
+      notesFlexTable.removeAllRows();
+      for (String noteString : selectedGeneProduct.getNoteList()) {
+        addReferenceSelection(noteString);
+      }
+      noteField.setText("");
 
     }
 
@@ -429,6 +436,7 @@ public class GeneProductPanel extends Composite {
     geneProduct.setWithOrFromList(getWithList());
     Reference reference = new Reference(referenceFieldPrefix.getText(), referenceFieldId.getText());
     geneProduct.setReference(reference);
+    geneProduct.setNoteList(getNoteList());
     return geneProduct;
   }
 

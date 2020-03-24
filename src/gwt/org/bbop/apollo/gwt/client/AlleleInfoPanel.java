@@ -301,10 +301,10 @@ public class AlleleInfoPanel extends Composite {
         boolean tagValidated = false;
         boolean valueValidated = false;
 
-        if (this.tag != null && !this.tag.isEmpty()) {
+        if (tag != null && !tag.isEmpty()) {
             tagValidated = true;
         }
-        if (this.value != null && !this.value.isEmpty()) {
+        if (value != null && !value.isEmpty()) {
             valueValidated = true;
         }
 

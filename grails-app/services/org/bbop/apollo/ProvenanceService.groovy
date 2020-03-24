@@ -3,12 +3,97 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import java.text.SimpleDateFormat
+
 
 @Transactional
 class ProvenanceService {
 
   def featureRelationshipService
+  final String DATE_FORMAT_STRING = "YYYY-MM-DD hh:mm:ss.s"
+  final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_STRING)
 
+  /**
+   gene_product : "rank=1;
+   term=geneproduct2;
+   db_xref=genereference2:11111;
+   evidence=ECO:0000318;
+   alternate=true;
+   note=[];
+   based_on=['genewith2:11111'];
+   last_updated=2020-03-12 11:55:20.712;
+   date_created=2020-03-12 11:55:20.712,rank=2;
+   term=geneproduc1;
+   db_xref=genereference:1111;
+   evidence=ECO:0000250;
+   alternate=true;
+   note=[];
+   based_on=['genewith1:2222','genewith1:1111'];
+   last_updated=2020-03-12 11:54:43.307;
+   date_created=2020-03-12 11:54:43.307"   "
+   * @param geneProductString
+   * @return
+   */
+  List<Provenance> convertGff3StringToProvenances(String provenanceInputString) {
+    log.debug "input string: [${provenanceInputString}]"
+    List<Provenance> provenances = []
+    def provenanceStrings = (provenanceInputString.trim().split("rank=") as List).findAll { it.trim().size() > 0 }
+    log.debug "gene product strings ${provenanceStrings.size()}: [${provenanceStrings}]"
+    log.debug "joined ${provenanceStrings.join("|||||")}"
+    for (String provenanceString in provenanceStrings) {
+      def attributes = provenanceString.trim().split(";")
+      Provenance provenance = new Provenance()
+      for (String attribute in attributes) {
+        if (attribute.contains("=")) {
+          def (key, value) = attribute.split("=")
+          switch (key) {
+            case Gff3ConstantEnum.FIELD.value:
+              provenance.field = value
+              break
+            case Gff3ConstantEnum.DB_XREF.value:
+              provenance.reference = value
+              break
+            case Gff3ConstantEnum.EVIDENCE.value:
+              provenance.evidenceRef = value
+              break
+            case Gff3ConstantEnum.NOTE.value:
+              provenance.notesArray = value
+              break
+            case Gff3ConstantEnum.BASED_ON.value:
+              provenance.withOrFromArray = value
+              break
+            case Gff3ConstantEnum.LAST_UPDATED.value:
+              provenance.lastUpdated = dateFormatter.parse(value)
+              break
+            case Gff3ConstantEnum.DATE_CREATED.value:
+              provenance.dateCreated = dateFormatter.parse(value)
+              break
+          }
+        }
+      }
+      provenances.add(provenance)
+    }
+    return provenances
+  }
+
+
+  String convertProvenancesToGff3String(Collection<Provenance> provenances) {
+    String productString = ""
+    int rank = 1
+    for (Provenance provenance in provenances) {
+      if (productString.length() > 0) productString += ","
+      productString += "${Gff3ConstantEnum.RANK.value}=${rank}"
+      productString += ";${Gff3ConstantEnum.FIELD.value}=${provenance.field}"
+      productString += ";${Gff3ConstantEnum.DB_XREF.value}=${provenance.reference}"
+      productString += ";${Gff3ConstantEnum.EVIDENCE.value}=${provenance.evidenceRef}"
+      productString += ";${Gff3ConstantEnum.NOTE.value}=${provenance.notesArray}"
+      productString += ";${Gff3ConstantEnum.BASED_ON.value}=${provenance.withOrFromArray}"
+      productString += ";${Gff3ConstantEnum.LAST_UPDATED.value}=${provenance.lastUpdated}"
+      productString += ";${Gff3ConstantEnum.DATE_CREATED.value}=${provenance.dateCreated}"
+      ++rank
+    }
+    return productString
+  }
 
   JSONObject convertAnnotationToJson(Provenance provenance) {
     JSONObject goObject = new JSONObject()
@@ -57,10 +142,13 @@ class ProvenanceService {
         parentFeature = thisFeature
       }
 
+      List<Provenance> annotations = []
       if (parentFeature) {
-        List<Provenance> annotations = Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature])
+        annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature]))
         Provenance.deleteAll(annotations)
       }
+      annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :feature", [feature: thisFeature]))
+      Provenance.deleteAll(annotations)
     }
   }
 
