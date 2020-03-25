@@ -674,6 +674,36 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description = "Get attribute (key/value) pairs for a feature", path = "/annotationEditor/getAttributes", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sequence name")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
+            , @RestApiParam(name = "feature", type = "JSONObject", paramType = RestApiParamType.QUERY, description = "object containing JSON objects with {'uniquename':'ABCD-1234','dbxrefs': [{'db': 'PMID', 'accession': '19448641'}]}.")
+    ])
+    def getAttributes() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONArray attributes = new JSONArray()
+            feature.featureProperties.each {
+                if(it.ontologyId!=Comment.ontologyId){
+                    JSONObject attributeObject = new JSONObject()
+                    attributeObject.put(FeatureStringEnum.TAG.value,it.tag)
+                    attributeObject.put(FeatureStringEnum.VALUE.value,it.value)
+                    attributes.add(attributeObject)
+                }
+            }
+            JSONObject returnObject = new JSONObject()
+            returnObject.put(FeatureStringEnum.ATTRIBUTES.value, attributes)
+            render returnObject as JSON
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     @RestApiMethod(description = "Get dbxrefs (db,id pairs) for a feature", path = "/annotationEditor/getDbxrefs", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -684,7 +714,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ])
     def getDbxrefs() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray annotations = new JSONArray()

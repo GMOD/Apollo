@@ -5,10 +5,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.AttributeInfoConverter;
-import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
-import org.bbop.apollo.gwt.client.dto.AttributeInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 /**
@@ -86,4 +83,10 @@ public class AttributeRestService {
         RestService.sendRequest(requestCallback, "annotationEditor/deleteAttribute", "data=" + requestObject.toString());
     }
 
+    public static void getAttributes(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
+        JSONObject featureObject= new JSONObject();
+        featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
+        featureObject.put(FeatureStringEnum.ORGANISM_ID.getValue(),new JSONString(organismInfo.getId()));
+        RestService.sendRequest(requestCallback, "annotationEditor/getAttributes", "data=" + featureObject.toString());
+    }
 }
