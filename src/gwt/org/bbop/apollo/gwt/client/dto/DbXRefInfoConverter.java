@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -30,5 +31,17 @@ public class DbXRefInfoConverter {
         jsonObject.put(FeatureStringEnum.TAG.getValue(),new JSONString(dbXrefInfo.getTag()));
         jsonObject.put(FeatureStringEnum.VALUE.getValue(),new JSONString(dbXrefInfo.getValue()));
         return jsonObject;
+    }
+
+    public static DbXrefInfo convertFromJson(JSONObject object) {
+        DbXrefInfo dbXrefInfo = new DbXrefInfo();
+
+//                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
+//                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
+//                    "[\"adf:12312\"]"
+        GWT.log(object.toString());
+        dbXrefInfo.setTag(object.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
+        dbXrefInfo.setValue(object.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue());
+        return dbXrefInfo;
     }
 }
