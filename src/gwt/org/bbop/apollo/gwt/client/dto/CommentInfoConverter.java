@@ -33,11 +33,6 @@ public class CommentInfoConverter {
 
     public static CommentInfo convertFromJson(JSONObject object) {
         CommentInfo commentInfo = new CommentInfo();
-
-//                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
-//                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
-//                    "[\"adf:12312\"]"
-        GWT.log(object.toString());
         commentInfo.setComment(object.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
         return commentInfo;
 

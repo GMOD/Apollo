@@ -211,15 +211,11 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("updating data "+annotationInfo);
         if (annotationInfo == null) {
             return;
         }
-        GWT.log("with dblists "+annotationInfo.getDbXrefList().size());
         this.internalAnnotationInfo = annotationInfo;
         loadData();
-//        dbXrefInfoList.clear();
-//        dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
     }
 
     public void updateData() {
@@ -275,7 +271,6 @@ public class DbXrefPanel extends Composite {
     }
 
     public void redrawTable() {
-        GWT.log("redrawing table with: " + dataProvider.getList().size()) ;
         this.dataGrid.redraw();
     }
 
@@ -398,11 +393,7 @@ public class DbXrefPanel extends Composite {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     dbXrefInfoList.add(newDbXrefInfo);
                     AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
-                    GWT.log("setting dbXrefInfo list "+ dbXrefInfoList.size() + " versus "+ AnnotatorPanel.selectedAnnotationInfo.getDbXrefList().size());
                     redrawTable();
-//                    GWT.log("add db xref info list: "+dbXrefInfoList.size());
-//                    internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
-//                    redrawTable();
                 }
 
                 @Override
