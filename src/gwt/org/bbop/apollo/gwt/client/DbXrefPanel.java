@@ -8,6 +8,8 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -23,16 +25,19 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
 import org.bbop.apollo.gwt.client.dto.DbXrefInfo;
+import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.DbXrefRestService;
+import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.client.rest.ProxyRestService;
+import org.bbop.apollo.gwt.shared.provenance.Provenance;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -96,6 +101,38 @@ public class DbXrefPanel extends Composite {
             }
         });
 
+    }
+
+    private void loadAnnotationsFromResponse(JSONObject inputObject) {
+
+        JSONArray annotationsArray = inputObject.get("annotations").isArray();
+        dbXrefInfoList.clear();
+        for (int i = 0; i < annotationsArray.size(); i++) {
+            DbXrefInfo dbXrefInfo = DbXRefInfoConverter.convertFromJson(annotationsArray.get(i).isObject());
+            dbXrefInfoList.add(dbXrefInfo);
+        }
+    }
+
+    private void loadData() {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadAnnotationsFromResponse(jsonObject);
+//                setVisible(true);
+                redrawTable();
+                ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("A problem with request: " + request.toString() + " " + exception.getMessage());
+            }
+        };
+        if (this.internalAnnotationInfo != null) {
+            DbXrefRestService.getDbXrefs(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
+        }
     }
 
     public void initializeTable() {
@@ -178,11 +215,7 @@ public class DbXrefPanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        dbXrefInfoList.clear();
-        dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
-        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        redrawTable();
-        setVisible(true);
+        loadData();
     }
 
     public void updateData() {
@@ -348,7 +381,6 @@ public class DbXrefPanel extends Composite {
 
     @UiHandler("addDbXrefButton")
     public void addDbXrefButton(ClickEvent ce) {
-        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
         if (validateTags()) {
             final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag, this.value);
             this.tagInputBox.clear();
@@ -360,7 +392,8 @@ public class DbXrefPanel extends Composite {
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     dbXrefInfoList.add(newDbXrefInfo);
-                    internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
+                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
+                    redrawTable();
                 }
 
                 @Override
@@ -384,6 +417,7 @@ public class DbXrefPanel extends Composite {
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteDbXrefButton.setEnabled(false);
+//                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
                     redrawTable();
                 }
 
@@ -394,7 +428,6 @@ public class DbXrefPanel extends Composite {
                 }
             };
             DbXrefRestService.deleteDbXref(requestCallBack, this.internalAnnotationInfo, this.internalDbXrefInfo);
-            ;
         }
     }
 }

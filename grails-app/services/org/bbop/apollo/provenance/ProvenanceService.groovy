@@ -7,6 +7,7 @@ import org.bbop.apollo.Gff3ConstantEnum
 import org.bbop.apollo.Provenance
 import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Transcript
+import org.bbop.apollo.go.GoAnnotation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import java.text.SimpleDateFormat
@@ -137,24 +138,15 @@ class ProvenanceService {
     return returnObject
   }
 
+  def deleteAnnotationFromFeature(Feature thisFeature) {
+    Provenance.deleteAll(Provenance.executeQuery("select ga from Provenance  ga join ga.feature f where f = :feature", [feature: thisFeature]))
+  }
+
   def deleteAnnotations(JSONArray featuresArray) {
     def featureUniqueNames = featuresArray.uniquename as List<String>
     List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
     for (Feature thisFeature in features) {
-      Feature parentFeature = null
-      if (thisFeature instanceof Transcript) {
-        parentFeature = featureRelationshipService.getParentForFeature(thisFeature, Gene.ontologyId, Pseudogene.ontologyId)
-      } else if (thisFeature instanceof Gene) {
-        parentFeature = thisFeature
-      }
-
-      List<Provenance> annotations = []
-      if (parentFeature) {
-        annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature]))
-        Provenance.deleteAll(annotations)
-      }
-      annotations.addAll(Provenance.executeQuery("select ga from Provenance ga join ga.feature f where f = :feature", [feature: thisFeature]))
-      Provenance.deleteAll(annotations)
+      deleteAnnotationFromFeature(thisFeature)
     }
   }
 

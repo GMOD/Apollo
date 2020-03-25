@@ -64,8 +64,6 @@ import java.util.Set;
  */
 public class AnnotatorPanel extends Composite {
 
-
-
     interface AnnotatorPanelUiBinder extends UiBinder<Widget, AnnotatorPanel> {
     }
 
@@ -125,8 +123,6 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    //    @UiField
-//    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
@@ -157,9 +153,8 @@ public class AnnotatorPanel extends Composite {
     private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
-    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
-    private static AsyncDataProvider<AnnotationInfo> dataProvider;
+
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
@@ -199,7 +194,7 @@ public class AnnotatorPanel extends Composite {
 
 
     public AnnotatorPanel() {
-        sequenceList = new SuggestBox(sequenceOracle);
+        sequenceList = new SuggestBox(new ReferenceSequenceOracle());
         sequenceList.getElement().setAttribute("placeHolder", "Reference Sequence");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
@@ -232,7 +227,7 @@ public class AnnotatorPanel extends Composite {
 
         handleDetails();
 
-        dataProvider = new AsyncDataProvider<AnnotationInfo>() {
+        AsyncDataProvider<AnnotationInfo> dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
             protected void onRangeChanged(HasData<AnnotationInfo> display) {
                 final Range range = display.getVisibleRange();

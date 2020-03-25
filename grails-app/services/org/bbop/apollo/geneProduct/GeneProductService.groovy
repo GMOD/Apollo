@@ -4,6 +4,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.Gene
 import org.bbop.apollo.Gff3ConstantEnum
+import org.bbop.apollo.Provenance
 import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Transcript
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -146,23 +147,15 @@ class GeneProductService {
         return returnObject
     }
 
+    def deleteAnnotationFromFeature(Feature thisFeature) {
+        GeneProduct.deleteAll(GeneProduct.executeQuery("select ga from GeneProduct  ga join ga.feature f where f = :feature", [feature: thisFeature]))
+    }
+
     def deleteAnnotations(JSONArray featuresArray) {
         def featureUniqueNames = featuresArray.uniquename as List<String>
         List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
         for (Feature thisFeature in features) {
-            Feature parentFeature = null
-            if (thisFeature instanceof Transcript) {
-                parentFeature = featureRelationshipService.getParentForFeature(thisFeature, Gene.ontologyId, Pseudogene.ontologyId)
-            } else if (thisFeature instanceof Gene) {
-                parentFeature = thisFeature
-            }
-
-            List<GeneProduct> annotations = []
-            if (parentFeature) {
-                annotations.addAll(GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :parentFeature ", [parentFeature: parentFeature]))
-            }
-            annotations.addAll(GeneProduct.executeQuery("select ga from GeneProduct ga join ga.feature f where f = :feature", [feature: thisFeature]))
-            GeneProduct.deleteAll(annotations)
+            deleteAnnotationFromFeature(thisFeature)
         }
     }
 

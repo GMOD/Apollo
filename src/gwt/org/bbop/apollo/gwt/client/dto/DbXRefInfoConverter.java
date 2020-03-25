@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -30,5 +31,12 @@ public class DbXRefInfoConverter {
         jsonObject.put(FeatureStringEnum.TAG.getValue(),new JSONString(dbXrefInfo.getTag()));
         jsonObject.put(FeatureStringEnum.VALUE.getValue(),new JSONString(dbXrefInfo.getValue()));
         return jsonObject;
+    }
+
+    public static DbXrefInfo convertFromJson(JSONObject object) {
+        DbXrefInfo dbXrefInfo = new DbXrefInfo();
+        dbXrefInfo.setTag(object.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
+        dbXrefInfo.setValue(object.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue());
+        return dbXrefInfo;
     }
 }

@@ -69,7 +69,7 @@ class ProvenanceController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
     Provenance provenance = new Provenance()
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -123,7 +123,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -173,7 +173,7 @@ class ProvenanceController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
 
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     Provenance provenance = Provenance.findById(dataObject.id)

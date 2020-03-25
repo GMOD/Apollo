@@ -6,10 +6,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.MainPanel;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.CommentInfoConverter;
-import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
-import org.bbop.apollo.gwt.client.dto.CommentInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 /**
@@ -71,6 +68,17 @@ public class CommentRestService {
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
         RestService.sendRequest(requestCallback, "annotationEditor/deleteComments", "data=" + requestObject.toString());
+    }
+
+    public static void getComments(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
+        JSONObject dataObject = new JSONObject();
+        JSONArray featuresArray = new JSONArray();
+        dataObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+        JSONObject featureObject= new JSONObject();
+        featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
+        featureObject.put(FeatureStringEnum.ORGANISM_ID.getValue(),new JSONString(organismInfo.getId()));
+        featuresArray.set(0,featureObject);
+        RestService.sendRequest(requestCallback, "annotationEditor/getComments", "data=" + dataObject.toString());
     }
 
     public static void getCannedComments(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {

@@ -139,7 +139,7 @@ public class ProvenancePanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        provenanceTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+        provenanceTitle.setText("Edit Annotations for " + AnnotatorPanel.selectedAnnotationInfo.getName());
         handleSelection();
         provenanceModal.show();
       }
@@ -303,6 +303,12 @@ public class ProvenancePanel extends Composite {
       referenceFieldPrefix.setText(selectedProvenance.getReference().getPrefix());
       referenceFieldId.setText(selectedProvenance.getReference().getLookupId());
 
+      notesFlexTable.removeAllRows();
+      for (String noteString : selectedProvenance.getNoteList()) {
+        addReferenceSelection(noteString);
+      }
+      noteField.setText("");
+
     }
 
   }
@@ -378,7 +384,7 @@ public class ProvenancePanel extends Composite {
     }
     List<String> validationErrors = validateProvenance(provenance);
     if (validationErrors.size() > 0) {
-      String errorString = "Invalid Gene Product <br/>";
+      String errorString = "Invalid Annotation <br/>";
       for (String error : validationErrors) {
         errorString += "&bull; " + error + "<br/>";
       }
@@ -440,6 +446,7 @@ public class ProvenancePanel extends Composite {
     provenance.setWithOrFromList(getWithList());
     Reference reference = new Reference(referenceFieldPrefix.getText(), referenceFieldId.getText());
     provenance.setReference(reference);
+    provenance.setNoteList(getNoteList());
     return provenance;
   }
 
@@ -484,7 +491,7 @@ public class ProvenancePanel extends Composite {
   @UiHandler("deleteGoButton")
   public void deleteProvenance(ClickEvent e) {
     final Provenance provenance = selectionModel.getSelectedObject();
-    Bootbox.confirm("Remove Gene Product: " + provenance.getField(), new ConfirmCallback() {
+    Bootbox.confirm("Remove Annotation: " + provenance.getField(), new ConfirmCallback() {
       @Override
       public void callback(boolean result) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -497,7 +504,7 @@ public class ProvenancePanel extends Composite {
 
           @Override
           public void onError(Request request, Throwable exception) {
-            Bootbox.alert("Failed to DELETE new Gene Product");
+            Bootbox.alert("Failed to DELETE new Annotation");
           }
         };
         if(result){

@@ -285,7 +285,6 @@ public class GeneProductPanel extends Composite {
 
       geneProductField.setText(selectedGeneProduct.getProductName());
       alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
-//      alternateCheckBox.setValue(selectedGeneProduct.get());
       evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
       evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
       GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
