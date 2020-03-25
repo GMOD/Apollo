@@ -544,18 +544,17 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
+        JSONArray commentsArray = new JSONArray()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            JSONArray commentsArray = new JSONArray()
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-
             for (Comment comment in featurePropertyService.getComments(feature)) {
                 String commentString = comment.value
-                commentsArray.put(commentString)
+                commentsArray.add(commentString)
             }
-            jsonFeature.put(FeatureStringEnum.COMMENTS.value, commentsArray)
         }
+        featureContainer.put(FeatureStringEnum.COMMENTS.value,commentsArray )
         return featureContainer
 
     }

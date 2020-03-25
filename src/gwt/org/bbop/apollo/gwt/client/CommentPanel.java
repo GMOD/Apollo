@@ -19,10 +19,10 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.CommentInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.CommentRestService;
+import org.bbop.apollo.gwt.client.rest.DbXrefRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
@@ -167,12 +167,7 @@ public class CommentPanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        commentInfoList.clear();
-        commentInfoList.addAll(annotationInfo.getCommentList());
-        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        loadCannedComments();
-        redrawTable();
-        setVisible(true);
+        loadData();
     }
 
     public void updateData() {
@@ -302,7 +297,37 @@ public class CommentPanel extends Composite {
                 }
             };
             CommentRestService.deleteComment(requestCallBack, this.internalAnnotationInfo, commentToDelete);
-            ;
+        }
+    }
+
+    private void loadAnnotationsFromResponse(JSONObject inputObject) {
+        JSONArray annotationsArray = inputObject.get(FeatureStringEnum.COMMENTS.getValue()).isArray();
+        commentInfoList.clear();
+        for (int i = 0; i < annotationsArray.size(); i++) {
+            CommentInfo commentInfo = new CommentInfo();
+            commentInfo.setComment(annotationsArray.get(i).isString().stringValue());
+            commentInfoList.add(commentInfo);
+        }
+    }
+
+    private void loadData() {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadAnnotationsFromResponse(jsonObject);
+                redrawTable();
+                ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("A problem with request: " + request.toString() + " " + exception.getMessage());
+            }
+        };
+        if (this.internalAnnotationInfo != null) {
+            CommentRestService.getComments(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
         }
     }
 }
