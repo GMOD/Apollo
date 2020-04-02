@@ -534,10 +534,10 @@ public class GoPanel extends Composite {
       validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
     }
     if (goAnnotation.getReference().getPrefix().length() == 0) {
-      validationErrors.add("You must provide at least a reference prefix.");
+      validationErrors.add("You must provide at least one reference prefix.");
     }
     if (goAnnotation.getReference().getLookupId().length() == 0) {
-      validationErrors.add("You must provide at least a reference id.");
+      validationErrors.add("You must provide at least one reference id.");
     }
     return validationErrors;
   }

@@ -428,12 +428,6 @@ public class ProvenancePanel extends Composite {
     if (!provenance.getEvidenceCode().contains(":")) {
       validationErrors.add("You must provide a prefix and suffix for the ECO term");
     }
-    if (provenance.getReference().getPrefix().length() == 0) {
-      validationErrors.add("You must provide at least a reference prefix.");
-    }
-    if (provenance.getReference().getLookupId().length() == 0) {
-      validationErrors.add("You must provide at least a reference id.");
-    }
     return validationErrors;
   }
 

@@ -416,12 +416,6 @@ public class GeneProductPanel extends Composite {
     if (!geneProduct.getEvidenceCode().contains(":")) {
       validationErrors.add("You must provide a prefix and suffix for the ECO term");
     }
-    if (geneProduct.getReference().getPrefix().length() == 0) {
-      validationErrors.add("You must provide at least a reference prefix.");
-    }
-    if (geneProduct.getReference().getLookupId().length() == 0) {
-      validationErrors.add("You must provide at least a reference id.");
-    }
     return validationErrors;
   }
 
