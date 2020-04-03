@@ -614,7 +614,7 @@ public class AnnotatorPanel extends Composite {
             annotationDescription.setHTML("nothing selected");
             return;
         }
-        annotationDescription.setHTML(annotationInfo.getName()  + " " + annotationInfo.getType());
+        setAnnotationDescription(annotationInfo);
         String type = annotationInfo.getType();
         hideDetailPanels();
         switch (type) {
@@ -739,6 +739,17 @@ public class AnnotatorPanel extends Composite {
         reselectSubTab();
 
 
+    }
+
+    private static void setAnnotationDescription(AnnotationInfo annotationInfo) {
+        if(annotationInfo!=null){
+            annotationDescription.setVisible(true);
+            annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;<b>"+annotationInfo.getType()  + "</b>:  " + annotationInfo.getName() +"");
+        }
+        else{
+            annotationDescription.setVisible(false);
+            annotationDescription.setHTML("");
+        }
     }
 
     private static void reselectSubTab() {
