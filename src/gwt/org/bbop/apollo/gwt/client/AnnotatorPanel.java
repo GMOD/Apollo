@@ -147,6 +147,8 @@ public class AnnotatorPanel extends Composite {
     Button showCurrentView;
     @UiField
     ListBox statusField;
+    @UiField
+    static HTML annotationDescription;
 
 
     // manage UI-state
@@ -609,8 +611,10 @@ public class AnnotatorPanel extends Composite {
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         if (annotationInfo == null) {
+            annotationDescription.setHTML("nothing selected");
             return;
         }
+        annotationDescription.setHTML(annotationInfo.getName()  + " " + annotationInfo.getType());
         String type = annotationInfo.getType();
         hideDetailPanels();
         switch (type) {
