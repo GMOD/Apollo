@@ -21,6 +21,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
+import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
@@ -38,14 +39,12 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle.*;
+
 /**
  * Created by ndunn on 1/9/15.
  */
 public class GoPanel extends Composite {
-
-  private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-  private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
-  private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
   interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
   }
@@ -119,7 +118,7 @@ public class GoPanel extends Composite {
   private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
   private AnnotationInfo annotationInfo;
-  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle("GO");
+  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle(BiolinkLookup.GO);
   private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle();
 
   public GoPanel() {

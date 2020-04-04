@@ -21,6 +21,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
+import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
@@ -37,12 +38,12 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle.ECO_BASE;
+
 /**
  * Created by ndunn on 1/9/15.
  */
 public class GeneProductPanel extends Composite {
-
-  private final String ECO_BASE = "http://www.evidenceontology.org/term/";
 
   interface GeneProductUiBinder extends UiBinder<Widget, GeneProductPanel> {
   }
@@ -100,7 +101,7 @@ public class GeneProductPanel extends Composite {
   private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
   private static List<GeneProduct> annotationInfoList = dataProvider.getList();
   private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
-  private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
+  private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle(BiolinkLookup.ECO);
 
   private AnnotationInfo annotationInfo;
 

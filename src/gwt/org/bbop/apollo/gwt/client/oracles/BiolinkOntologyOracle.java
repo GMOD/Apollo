@@ -8,6 +8,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.ibm.icu.impl.BOCU;
 import org.bbop.apollo.gwt.client.go.GoEvidenceCode;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -34,30 +35,35 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     private Boolean usePreferredSuggestions = true ;
 
     public BiolinkOntologyOracle() {
-        this("ECO", ECO_BASE);
+        this(BiolinkLookup.ECO, ECO_BASE);
     }
 
-    public BiolinkOntologyOracle(String prefix) {
-        this(prefix,null);
-        if(prefix.equals("ECO")){
-            baseUrl = ECO_BASE;
-        }
-        if(prefix.equals("GO")){
-            baseUrl = GO_BASE;
-        }
-        if(prefix.equals("RO")){
-            baseUrl = RO_BASE;
-        }
+    public BiolinkOntologyOracle(BiolinkLookup biolinkLookup) {
+        this(biolinkLookup,null);
     }
 
-    public BiolinkOntologyOracle(String prefix, String baseUrl) {
+    public BiolinkOntologyOracle(BiolinkLookup biolinkLookup, String baseUrl) {
         super();
-        this.prefix = prefix;
-        this.baseUrl = baseUrl;
-
-        if(this.prefix.equals("ECO")){
-            for(GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()){
-                addPreferredSuggestion(goEvidenceCode.name() , goEvidenceCode.getDescription(),goEvidenceCode.getCurie());
+        this.prefix = biolinkLookup.name();
+        if(baseUrl!=null){
+            this.baseUrl = baseUrl;
+        }
+        else{
+            switch (biolinkLookup){
+                case ECO:
+                    this.baseUrl = ECO_BASE;
+                    for(GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()){
+                        addPreferredSuggestion(goEvidenceCode.name() , goEvidenceCode.getDescription(),goEvidenceCode.getCurie());
+                    }
+                    break;
+                case GO:
+                    this.baseUrl = GO_BASE;
+                    break;
+                case RO:
+                    this.baseUrl = RO_BASE;
+                    break;
+                default:
+                    this.baseUrl = null ;
             }
         }
     }
