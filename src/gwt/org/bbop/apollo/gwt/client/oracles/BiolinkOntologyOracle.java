@@ -8,6 +8,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import org.bbop.apollo.gwt.client.go.GoEvidenceCode;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -22,19 +23,49 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
     private final Integer ROWS = 20;
     private final String FINAL_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
+    public final static String ECO_BASE = "http://www.evidenceontology.org/term/";
+    public final static String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
+    public final static String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
     private String prefix;
+    private String baseUrl;
     private String category = null;
     private JSONArray preferredSuggestions = new JSONArray();
+    private Boolean usePreferredSuggestions = true ;
 
-    public BiolinkOntologyOracle(String prefix) {
-        this.prefix = prefix;
+    public BiolinkOntologyOracle() {
+        this("ECO", ECO_BASE);
     }
 
-    public void addPreferredSuggestion(String label, String query, String id) {
+    public BiolinkOntologyOracle(String prefix) {
+        this(prefix,null);
+        if(prefix.equals("ECO")){
+            baseUrl = ECO_BASE;
+        }
+        if(prefix.equals("GO")){
+            baseUrl = GO_BASE;
+        }
+        if(prefix.equals("RO")){
+            baseUrl = RO_BASE;
+        }
+    }
+
+    public BiolinkOntologyOracle(String prefix, String baseUrl) {
+        super();
+        this.prefix = prefix;
+        this.baseUrl = baseUrl;
+
+        if(this.prefix.equals("ECO")){
+            for(GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()){
+                addPreferredSuggestion(goEvidenceCode.name() , goEvidenceCode.getDescription(),goEvidenceCode.getCurie());
+            }
+        }
+    }
+
+    public void addPreferredSuggestion(String name, String label, String id) {
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", new JSONString(name));
         jsonObject.put("label", new JSONString(label));
-        jsonObject.put("query", new JSONString(query));
         jsonObject.put("id", new JSONString(id));
         preferredSuggestions.set(preferredSuggestions.size(), jsonObject);
     }
@@ -133,5 +164,13 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Boolean getUsePreferredSuggestions() {
+        return usePreferredSuggestions;
+    }
+
+    public void setUsePreferredSuggestions(Boolean usePreferredSuggestions) {
+        this.usePreferredSuggestions = usePreferredSuggestions;
     }
 }
