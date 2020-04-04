@@ -147,6 +147,8 @@ public class AnnotatorPanel extends Composite {
     Button showCurrentView;
     @UiField
     ListBox statusField;
+    @UiField
+    static HTML annotationDescription;
 
 
     // manage UI-state
@@ -608,7 +610,16 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+
+        if(selectedAnnotationInfo!=null){
+            setAnnotationDescription(annotationInfo);
+        }
+        else{
+            setAnnotationDescription(null);
+        }
+
         if (annotationInfo == null) {
+            annotationDescription.setHTML("nothing selected");
             return;
         }
         String type = annotationInfo.getType();
@@ -735,6 +746,17 @@ public class AnnotatorPanel extends Composite {
         reselectSubTab();
 
 
+    }
+
+    private static void setAnnotationDescription(AnnotationInfo annotationInfo) {
+        if(annotationInfo!=null){
+            annotationDescription.setVisible(true);
+            annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;<b>"+annotationInfo.getType()  + "</b>:  " + annotationInfo.getName() +"");
+        }
+        else{
+            annotationDescription.setVisible(false);
+            annotationDescription.setHTML("");
+        }
     }
 
     private static void reselectSubTab() {
@@ -902,6 +924,7 @@ public class AnnotatorPanel extends Composite {
                     commentPanel.updateData();
                     attributePanel.updateData();
                 }
+                setAnnotationDescription(selectedAnnotationInfo);
             }
         });
 
@@ -930,6 +953,7 @@ public class AnnotatorPanel extends Composite {
         showAllSequences.setEnabled(true);
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
+            setAnnotationDescription(null);
             hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
