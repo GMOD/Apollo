@@ -610,11 +610,18 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+
+        if(selectedAnnotationInfo!=null){
+            setAnnotationDescription(annotationInfo);
+        }
+        else{
+            setAnnotationDescription(null);
+        }
+
         if (annotationInfo == null) {
             annotationDescription.setHTML("nothing selected");
             return;
         }
-        setAnnotationDescription(annotationInfo);
         String type = annotationInfo.getType();
         hideDetailPanels();
         switch (type) {
@@ -917,6 +924,7 @@ public class AnnotatorPanel extends Composite {
                     commentPanel.updateData();
                     attributePanel.updateData();
                 }
+                setAnnotationDescription(selectedAnnotationInfo);
             }
         });
 
@@ -945,6 +953,7 @@ public class AnnotatorPanel extends Composite {
         showAllSequences.setEnabled(true);
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
+            setAnnotationDescription(null);
             hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);

@@ -166,7 +166,7 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
-        <gwt:south size="440">
+        <gwt:south size="450">
             <gwt:DockLayoutPanel>
                 <gwt:north size="20">
                     <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="false" styleName="{style.annotationDescription}"/>
