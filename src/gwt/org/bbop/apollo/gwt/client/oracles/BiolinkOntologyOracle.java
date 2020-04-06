@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.oracles;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
@@ -8,7 +9,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
-import com.ibm.icu.impl.BOCU;
 import org.bbop.apollo.gwt.client.go.GoEvidenceCode;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -22,8 +22,8 @@ import java.util.Set;
  */
 public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
-    private final Integer ROWS = 20;
-    private final String FINAL_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
+    private final Integer ROWS = 40;
+    private final String BIOLINK_AUTOCOMPLETE_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
     public final static String ECO_BASE = "http://www.evidenceontology.org/term/";
     public final static String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
     public final static String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
@@ -32,29 +32,27 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     private String baseUrl;
     private String category = null;
     private JSONArray preferredSuggestions = new JSONArray();
-    private Boolean usePreferredSuggestions = true ;
+    private Boolean usePreferredSuggestions = true;
+    private Boolean useAllEco = false;
 
     public BiolinkOntologyOracle() {
         this(BiolinkLookup.ECO, ECO_BASE);
     }
 
     public BiolinkOntologyOracle(BiolinkLookup biolinkLookup) {
-        this(biolinkLookup,null);
+        this(biolinkLookup, null);
     }
 
     public BiolinkOntologyOracle(BiolinkLookup biolinkLookup, String baseUrl) {
         super();
         this.prefix = biolinkLookup.name();
-        if(baseUrl!=null){
+        GWT.log("initting Oracle with " + baseUrl + " " + this.prefix + " " + biolinkLookup);
+        if (baseUrl != null) {
             this.baseUrl = baseUrl;
-        }
-        else{
-            switch (biolinkLookup){
+        } else {
+            switch (biolinkLookup) {
                 case ECO:
                     this.baseUrl = ECO_BASE;
-                    for(GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()){
-                        addPreferredSuggestion(goEvidenceCode.name() , goEvidenceCode.getDescription(),goEvidenceCode.getCurie());
-                    }
                     break;
                 case GO:
                     this.baseUrl = GO_BASE;
@@ -63,7 +61,7 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
                     this.baseUrl = RO_BASE;
                     break;
                 default:
-                    this.baseUrl = null ;
+                    this.baseUrl = null;
             }
         }
     }
@@ -73,56 +71,27 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
         jsonObject.put("name", new JSONString(name));
         jsonObject.put("label", new JSONString(label));
         jsonObject.put("id", new JSONString(id));
-        preferredSuggestions.set(preferredSuggestions.size(), jsonObject);
+        this.preferredSuggestions.set(this.preferredSuggestions.size(), jsonObject);
+//        GWT.log("added: " + preferredSuggestions.size() + " " + jsonObject.toString());
     }
 
-
-    @Override
-    public void requestSuggestions(final Request suggestRequest, final Callback suggestCallback) {
-        String url = FINAL_URL + suggestRequest.getQuery() + "?rows=" + ROWS;
+    private void requestRemoteData(final Request suggestRequest, final Callback suggestCallback) {
+        String url = BIOLINK_AUTOCOMPLETE_URL + suggestRequest.getQuery() + "?rows=" + ROWS;
         if (prefix != null) {
             url += "&prefix=" + prefix;
         }
         if (category != null) {
             url += "&category=" + category;
         }
-
         RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
-
         try {
+
             rb.sendRequest(null, new RequestCallback() {
                 @Override
                 public void onResponseReceived(com.google.gwt.http.client.Request request, com.google.gwt.http.client.Response response) {
                     JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isObject().get("docs").isArray();
                     List<Suggestion> suggestionList = new ArrayList<>();
                     Set<String> ids = new HashSet<>();
-
-
-                    /*
-                      handle preferred suggestions
-                      **/
-                    for (int i = 0; i < preferredSuggestions.size(); i++) {
-                        final JSONObject jsonObject = preferredSuggestions.get(i).isObject();
-                        final String id = jsonObject.get("id").isString().stringValue();
-                        ids.add(id);
-                        Suggestion suggestion = new Suggestion() {
-                            @Override
-                            public String getDisplayString() {
-                                String displayString = jsonObject.get("label").isString().stringValue();
-                                displayString = displayString.replaceAll(suggestRequest.getQuery(), "<em>" + suggestRequest.getQuery() + "</em>");
-                                displayString += " (" + id + ") ";
-                                displayString = "<div style='font-weight:boldest;font-size:larger;'>" + displayString + "</div>";
-                                return displayString;
-                            }
-
-                            @Override
-                            public String getReplacementString() {
-                                return id;
-                            }
-                        };
-                        suggestionList.add(suggestion);
-                    }
-
 
                     for (int i = 0; i < jsonArray.size(); i++) {
                         final JSONObject jsonObject = jsonArray.get(i).isObject();
@@ -161,7 +130,61 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
             e.printStackTrace();
             Bootbox.alert("Request exception via " + e);
         }
+    }
 
+    private void requestDefaultGo(final Request suggestRequest, final Callback suggestCallback) {
+        List<Suggestion> suggestionList = new ArrayList<>();
+//        Set<String> ids = new HashSet<>();
+
+        this.preferredSuggestions = new JSONArray();
+        String query = suggestRequest.getQuery().toLowerCase().trim();
+
+        GWT.log("should be adding preferred suggestions: " + GoEvidenceCode.values().length);
+        for (GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()) {
+            addPreferredSuggestion(goEvidenceCode.name(), goEvidenceCode.getDescription(), goEvidenceCode.getCurie());
+        }
+        GWT.log("final preferred suggestions: " + this.preferredSuggestions.size());
+
+        GWT.log("getting preferred suggestions: " + this.preferredSuggestions.size());
+        for (final GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()) {
+            if (query.contains(goEvidenceCode.name().toLowerCase())
+                    || query.contains(goEvidenceCode.getCurie().toLowerCase())
+                    || query.contains(goEvidenceCode.getDescription().toLowerCase())
+                    || query.length()==0
+            ) {
+                Suggestion suggestion = new Suggestion() {
+                    @Override
+                    public String getDisplayString() {
+                        String displayString = goEvidenceCode.name() + " (" + goEvidenceCode.getCurie() +"): " + goEvidenceCode.getDescription();
+                        displayString = displayString.replaceAll(suggestRequest.getQuery(), "<em>" + suggestRequest.getQuery() + "</em>");
+                        displayString = "<div style='font-weight:boldest;font-size:larger;'>" + displayString + "</div>";
+                        return displayString;
+                    }
+
+                    @Override
+                    public String getReplacementString() {
+                        return goEvidenceCode.getCurie();
+                    }
+                };
+                suggestionList.add(suggestion);
+            }
+        }
+        GWT.log("preferrred suggestions:" + preferredSuggestions.size());
+        GWT.log("list size:" + suggestionList.size());
+        Response r = new Response();
+        r.setSuggestions(suggestionList);
+        suggestCallback.onSuggestionsReady(suggestRequest, r);
+    }
+
+
+    @Override
+    public void requestSuggestions(final Request suggestRequest, final Callback suggestCallback) {
+
+        if (!useAllEco && baseUrl.equals(ECO_BASE)) {
+            requestDefaultGo(suggestRequest, suggestCallback);
+        } else {
+            requestRemoteData(suggestRequest, suggestCallback);
+        }
     }
 
     public String getCategory() {
@@ -178,5 +201,13 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
     public void setUsePreferredSuggestions(Boolean usePreferredSuggestions) {
         this.usePreferredSuggestions = usePreferredSuggestions;
+    }
+
+    public void setUseAllEco(Boolean useAllEco) {
+        this.useAllEco = useAllEco;
+    }
+
+    public Boolean getUseAllEco() {
+        return useAllEco;
     }
 }

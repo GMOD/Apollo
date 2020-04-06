@@ -112,6 +112,8 @@ public class GoPanel extends Composite {
   org.gwtbootstrap3.client.ui.ListBox aspectField;
   @UiField
   HTML aspectLabel;
+  @UiField
+  org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
 
   private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
   private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
@@ -415,6 +417,11 @@ public class GoPanel extends Composite {
   @UiHandler("editGoButton")
   public void editGoAnnotation(ClickEvent e) {
     editGoModal.show();
+  }
+
+  @UiHandler("allEcoCheckBox")
+  public void allEcoCheckBox(ClickEvent e) {
+    ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
   }
 
   @UiHandler("addWithButton")

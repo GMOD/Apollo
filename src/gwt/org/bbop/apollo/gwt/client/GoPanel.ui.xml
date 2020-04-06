@@ -60,19 +60,22 @@
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_6">
+                                <b:Column size="MD_5">
                                     <b:Label>Relationship between Gene Product and GO Term</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
                                     <b:ListBox ui:field="geneProductRelationshipField"/>
                                     <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
-                                <b:Column size="MD_2">
+                                <b:Column size="MD_1">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
                                 </b:Column>
-                                <b:Column size="MD_3">
-                                  <b:Label>Evidence and Conclusion Ontology</b:Label>
+                                <b:Column size="MD_4">
+                                  <b:Label>Evidence</b:Label>
                                   <b:SuggestBox ui:field="evidenceCodeField"/>
                                   <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
+                                </b:Column>
+                                <b:Column size="MD_1">
+                                    <b:CheckBox text="All ECO Evidence" width="100%" ui:field="allEcoCheckBox"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

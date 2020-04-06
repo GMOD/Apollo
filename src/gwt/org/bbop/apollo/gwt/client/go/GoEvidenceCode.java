@@ -1,7 +1,7 @@
 package org.bbop.apollo.gwt.client.go;
 
 /**
- * Matching order and descriptions here
+ * Matching order and descriptions here:  http://geneontology.org/docs/guide-go-evidence-codes/
  */
 public enum GoEvidenceCode {
 
@@ -42,9 +42,6 @@ public enum GoEvidenceCode {
     ND("no biological data available","ECO:0000307"),
 
     IEA("evidence used in automatic assertion","ECO:0000501"),
-
-
-
     ;
 
 
