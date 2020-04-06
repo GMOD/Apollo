@@ -54,6 +54,13 @@ public enum GoEvidenceCode {
     private String description;
     private String curie;
 
+    public static boolean requiresWith(String evidenceCode) {
+        if(evidenceCode.equals(ISS.curie)) return true;
+        if(evidenceCode.equals(IMP.curie)) return true;
+        if(evidenceCode.equals(ISO.curie)) return true;
+        return false;
+    }
+
     public String getDescription() {
         return description;
     }

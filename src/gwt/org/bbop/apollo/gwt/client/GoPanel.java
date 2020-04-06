@@ -21,6 +21,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
+import org.bbop.apollo.gwt.client.go.GoEvidenceCode;
 import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
@@ -539,6 +540,9 @@ public class GoPanel extends Composite {
     }
     if (goAnnotation.getReference().getLookupId().length() == 0) {
       validationErrors.add("You must provide at least one reference id.");
+    }
+    if(GoEvidenceCode.requiresWith(goAnnotation.getEvidenceCode()) && goAnnotation.getWithOrFromList().size()==0){
+      validationErrors.add("You must provide at least 1 with for the evidence code "+goAnnotation.getEvidenceCode());
     }
     return validationErrors;
   }
