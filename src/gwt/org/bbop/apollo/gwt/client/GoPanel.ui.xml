@@ -76,6 +76,7 @@
                                 </b:Column>
                                 <b:Column size="MD_1">
                                     <b:CheckBox text="All ECO Evidence" width="100%" ui:field="allEcoCheckBox"/>
+                                    <gwt:Anchor text="Info" target="_blank" ui:field="helpLink"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

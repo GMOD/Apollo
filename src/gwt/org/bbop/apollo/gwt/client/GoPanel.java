@@ -115,6 +115,8 @@ public class GoPanel extends Composite {
   HTML aspectLabel;
   @UiField
   org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
+  @UiField
+  Anchor helpLink;
 
   private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
   private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
@@ -133,6 +135,8 @@ public class GoPanel extends Composite {
     dataGrid.setSelectionModel(selectionModel);
 
     initWidget(ourUiBinder.createAndBindUi(this));
+
+    allEcoCheckBox(null);
 
     aspectField.addItem("Choose", "");
     for (Aspect aspect : Aspect.values()) {
@@ -423,6 +427,12 @@ public class GoPanel extends Composite {
   @UiHandler("allEcoCheckBox")
   public void allEcoCheckBox(ClickEvent e) {
     ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
+    if(allEcoCheckBox.getValue()){
+      helpLink.setHref("https://www.ebi.ac.uk/ols/ontologies/eco");
+    }
+    else {
+      helpLink.setHref("http://geneontology.org/docs/guide-go-evidence-codes/");
+    }
   }
 
   @UiHandler("addWithButton")
