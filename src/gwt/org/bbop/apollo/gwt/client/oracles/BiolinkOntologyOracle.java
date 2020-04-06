@@ -31,8 +31,6 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     private String prefix;
     private String baseUrl;
     private String category = null;
-    private JSONArray preferredSuggestions = new JSONArray();
-    private Boolean usePreferredSuggestions = true;
     private Boolean useAllEco = false;
 
     public BiolinkOntologyOracle() {
@@ -46,7 +44,6 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     public BiolinkOntologyOracle(BiolinkLookup biolinkLookup, String baseUrl) {
         super();
         this.prefix = biolinkLookup.name();
-        GWT.log("initting Oracle with " + baseUrl + " " + this.prefix + " " + biolinkLookup);
         if (baseUrl != null) {
             this.baseUrl = baseUrl;
         } else {
@@ -64,15 +61,6 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
                     this.baseUrl = null;
             }
         }
-    }
-
-    public void addPreferredSuggestion(String name, String label, String id) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name", new JSONString(name));
-        jsonObject.put("label", new JSONString(label));
-        jsonObject.put("id", new JSONString(id));
-        this.preferredSuggestions.set(this.preferredSuggestions.size(), jsonObject);
-//        GWT.log("added: " + preferredSuggestions.size() + " " + jsonObject.toString());
     }
 
     private void requestRemoteData(final Request suggestRequest, final Callback suggestCallback) {
@@ -158,7 +146,6 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
                 suggestionList.add(suggestion);
             }
         }
-        GWT.log("list size:" + query + " vs " + suggestionList.size());
         Response r = new Response();
         r.setSuggestions(suggestionList);
         suggestCallback.onSuggestionsReady(suggestRequest, r);
@@ -183,19 +170,8 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
         this.category = category;
     }
 
-    public Boolean getUsePreferredSuggestions() {
-        return usePreferredSuggestions;
-    }
-
-    public void setUsePreferredSuggestions(Boolean usePreferredSuggestions) {
-        this.usePreferredSuggestions = usePreferredSuggestions;
-    }
 
     public void setUseAllEco(Boolean useAllEco) {
         this.useAllEco = useAllEco;
-    }
-
-    public Boolean getUseAllEco() {
-        return useAllEco;
     }
 }
