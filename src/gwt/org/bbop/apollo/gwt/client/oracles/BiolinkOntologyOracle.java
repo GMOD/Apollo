@@ -134,22 +134,11 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
     private void requestDefaultGo(final Request suggestRequest, final Callback suggestCallback) {
         List<Suggestion> suggestionList = new ArrayList<>();
-//        Set<String> ids = new HashSet<>();
-
-        this.preferredSuggestions = new JSONArray();
         String query = suggestRequest.getQuery().toLowerCase().trim();
-
-        GWT.log("should be adding preferred suggestions: " + GoEvidenceCode.values().length);
-        for (GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()) {
-            addPreferredSuggestion(goEvidenceCode.name(), goEvidenceCode.getDescription(), goEvidenceCode.getCurie());
-        }
-        GWT.log("final preferred suggestions: " + this.preferredSuggestions.size());
-
-        GWT.log("getting preferred suggestions: " + this.preferredSuggestions.size());
         for (final GoEvidenceCode goEvidenceCode : GoEvidenceCode.values()) {
-            if (query.contains(goEvidenceCode.name().toLowerCase())
-                    || query.contains(goEvidenceCode.getCurie().toLowerCase())
-                    || query.contains(goEvidenceCode.getDescription().toLowerCase())
+            if (goEvidenceCode.name().toLowerCase().contains(query)
+                    || goEvidenceCode.getCurie().toLowerCase().contains(query)
+                    || goEvidenceCode.getDescription().toLowerCase().contains(query)
                     || query.length()==0
             ) {
                 Suggestion suggestion = new Suggestion() {
@@ -169,8 +158,7 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
                 suggestionList.add(suggestion);
             }
         }
-        GWT.log("preferrred suggestions:" + preferredSuggestions.size());
-        GWT.log("list size:" + suggestionList.size());
+        GWT.log("list size:" + query + " vs " + suggestionList.size());
         Response r = new Response();
         r.setSuggestions(suggestionList);
         suggestCallback.onSuggestionsReady(suggestRequest, r);

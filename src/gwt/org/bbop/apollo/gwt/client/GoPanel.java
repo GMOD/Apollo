@@ -23,6 +23,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
+import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.Aspect;
@@ -61,7 +62,7 @@ public class GoPanel extends Composite {
   @UiField
   org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
   @UiField(provided = true)
-  SuggestBox evidenceCodeField;
+  BiolinkSuggestBox evidenceCodeField;
   @UiField
   TextBox withFieldPrefix;
   @UiField
@@ -262,7 +263,7 @@ public class GoPanel extends Composite {
 
   private void initLookups() {
     goTermField = new SuggestBox(goLookup);
-    evidenceCodeField = new SuggestBox(ecoLookup);
+    evidenceCodeField = new BiolinkSuggestBox(ecoLookup);
   }
 
   private void loadData() {
