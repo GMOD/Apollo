@@ -24,6 +24,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
+import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.shared.provenance.Provenance;
@@ -60,7 +61,7 @@ public class ProvenancePanel extends Composite {
   @UiField
   ListBox provenanceField;
   @UiField(provided = true)
-  SuggestBox evidenceCodeField;
+  BiolinkSuggestBox evidenceCodeField;
   @UiField
   TextBox withFieldPrefix;
   @UiField
@@ -97,6 +98,10 @@ public class ProvenancePanel extends Composite {
 //    Button referenceValidateButton;
   @UiField
   HTML provenanceTitle;
+  @UiField
+  org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
+  @UiField
+  Anchor helpLink;
 
   private static ListDataProvider<Provenance> dataProvider = new ListDataProvider<>();
   private static List<Provenance> annotationInfoList = dataProvider.getList();
@@ -115,6 +120,7 @@ public class ProvenancePanel extends Composite {
 
     initWidget(ourUiBinder.createAndBindUi(this));
     initFields();
+    allEcoCheckBox(null);
 
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -185,7 +191,7 @@ public class ProvenancePanel extends Composite {
   }
 
   private void initLookups() {
-    evidenceCodeField = new SuggestBox(ecoLookup);
+    evidenceCodeField = new BiolinkSuggestBox(ecoLookup);
   }
 
   private void loadData() {
@@ -357,6 +363,17 @@ public class ProvenancePanel extends Composite {
     for (int i = 0; i < annotationsArray.size(); i++) {
       Provenance provenanceInstance = ProvenanceConverter.convertFromJson(annotationsArray.get(i).isObject());
       annotationInfoList.add(provenanceInstance);
+    }
+  }
+
+  @UiHandler("allEcoCheckBox")
+  public void allEcoCheckBox(ClickEvent e) {
+    ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
+    if(allEcoCheckBox.getValue()){
+      helpLink.setHref("https://www.ebi.ac.uk/ols/ontologies/eco");
+    }
+    else {
+      helpLink.setHref("http://geneontology.org/docs/guide-go-evidence-codes/");
     }
   }
 

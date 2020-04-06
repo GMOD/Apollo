@@ -23,6 +23,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
+import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
 import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
@@ -58,7 +59,7 @@ public class GeneProductPanel extends Composite {
   @UiField
   TextBox geneProductField;
   @UiField(provided = true)
-  SuggestBox evidenceCodeField;
+  BiolinkSuggestBox evidenceCodeField;
   @UiField
   TextBox withFieldPrefix;
   @UiField
@@ -97,6 +98,10 @@ public class GeneProductPanel extends Composite {
 //    Button referenceValidateButton;
   @UiField
   HTML geneProductTitle;
+  @UiField
+  org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
+  @UiField
+  Anchor helpLink;
 
   private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
   private static List<GeneProduct> annotationInfoList = dataProvider.getList();
@@ -179,7 +184,7 @@ public class GeneProductPanel extends Composite {
 
   private void initLookups() {
     // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
-    evidenceCodeField = new SuggestBox(ecoLookup);
+    evidenceCodeField = new BiolinkSuggestBox(ecoLookup);
   }
 
   private void loadData() {
@@ -306,6 +311,17 @@ public class GeneProductPanel extends Composite {
     notesFlexTable.removeAllRows();
     selectionModel.clear();
     editGoModal.show();
+  }
+
+  @UiHandler("allEcoCheckBox")
+  public void allEcoCheckBox(ClickEvent e) {
+    ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
+    if(allEcoCheckBox.getValue()){
+      helpLink.setHref("https://www.ebi.ac.uk/ols/ontologies/eco");
+    }
+    else {
+      helpLink.setHref("http://geneontology.org/docs/guide-go-evidence-codes/");
+    }
   }
 
   @UiHandler("editGoButton")
