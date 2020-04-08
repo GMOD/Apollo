@@ -4,6 +4,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.Transcript
 import org.bbop.apollo.Gene
+import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Gff3ConstantEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -170,9 +171,9 @@ class GoAnnotationService {
         }
   }
 
-//    def deleteAnnotationFromFeature(Feature thisFeature) {
-//        GoAnnotation.deleteAll(GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :feature", [feature: thisFeature]))
-//    }
+    def deleteAnnotationFromFeature(Feature thisFeature) {
+        GoAnnotation.deleteAll(GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :feature", [feature: thisFeature]))
+    }
 //
 //    def deleteAnnotations(JSONArray featuresArray) {
 //        def featureUniqueNames = featuresArray.uniquename as List<String>

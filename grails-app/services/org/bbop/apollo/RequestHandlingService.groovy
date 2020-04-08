@@ -332,7 +332,7 @@ class RequestHandlingService {
     def addComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -380,7 +380,7 @@ class RequestHandlingService {
     def deleteComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
