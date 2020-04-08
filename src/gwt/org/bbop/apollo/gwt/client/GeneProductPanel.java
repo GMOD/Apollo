@@ -56,8 +56,8 @@ public class GeneProductPanel extends Composite {
   DataGrid<GeneProduct> dataGrid = new DataGrid<>(200, tablecss);
   @UiField
   TextBox noteField;
-  @UiField
-  TextBox geneProductField;
+  @UiField(provided =  true)
+  SuggestBox geneProductField;
   @UiField(provided = true)
   BiolinkSuggestBox evidenceCodeField;
   @UiField
@@ -107,10 +107,12 @@ public class GeneProductPanel extends Composite {
   private static List<GeneProduct> annotationInfoList = dataProvider.getList();
   private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
   private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle(BiolinkLookup.ECO);
+  private SuggestedGeneProductOracle suggestedGeneProductOracle = new SuggestedGeneProductOracle();
 
   private AnnotationInfo annotationInfo;
 
   public GeneProductPanel() {
+    geneProductField = new SuggestBox(suggestedGeneProductOracle);
 
     initLookups();
     dataGrid.setWidth("100%");
@@ -158,13 +160,6 @@ public class GeneProductPanel extends Composite {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
         evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
-      }
-    });
-
-    geneProductField.addChangeHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        String selectedItemText = geneProductField.getText();
       }
     });
 
@@ -234,7 +229,6 @@ public class GeneProductPanel extends Composite {
       return -1;
     }
 
-
   }
 
   private void addWithSelection(WithOrFrom withOrFrom) {
@@ -256,7 +250,7 @@ public class GeneProductPanel extends Composite {
   }
 
   private void clearModal() {
-    geneProductField.clear();
+    geneProductField.setText("");
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
