@@ -26,7 +26,7 @@ class GeneProductController {
     def featureEventService
     def featureService
 
-    @RestApiMethod(description = "Returns a JSON array of all suggested gene products", path = "/geneProduct/search", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Returns a JSON array of all suggested gene product names", path = "/geneProduct/search", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "query", type = "string", paramType = RestApiParamType.QUERY, description = "Query value")
     ])
