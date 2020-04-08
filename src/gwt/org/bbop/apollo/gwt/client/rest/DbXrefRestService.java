@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
 import org.bbop.apollo.gwt.client.dto.DbXrefInfo;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -95,6 +96,13 @@ public class DbXrefRestService {
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
         RestService.sendRequest(requestCallback, "annotationEditor/deleteDbxref", "data=" + requestObject.toString());
+    }
+
+    public static void getDbXrefs(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(),new JSONString(organismInfo.getId()));
+        RestService.sendRequest(requestCallback, "annotationEditor/getDbxrefs", "data=" + jsonObject.toString());
     }
 
 }

@@ -23,27 +23,27 @@ class ProvenanceController {
     def featureEventService
     def featureService
 
-    @RestApiMethod(description = "Load Go Annotations for feature", path = "/provenance", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Feature name to query on")
-            , @RestApiParam(name = "organism", type = "Organism ID", paramType = RestApiParamType.QUERY, description = "Organism ID of feature")
-    ]
-    )
-    def index() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.READ)
-        Organism organism = Organism.findById(dataObject.organism as Long)
-        Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String, organism)
-        if (feature) {
-            JSONObject annotations = provenanceService.getAnnotations(feature)
-            // TODO: register with marshaller
-            render annotations as JSON
-        } else {
-            render status: NOT_FOUND
-        }
+  @RestApiMethod(description = "Load Annotations for feature", path = "/provenance", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Feature name to query on")
+    , @RestApiParam(name = "organism", type = "Organism ID", paramType = RestApiParamType.QUERY, description = "Organism ID of feature")
+  ]
+  )
+  def index() {
+    JSONObject dataObject = permissionService.handleInput(request, params)
+    permissionService.checkPermissions(dataObject, PermissionEnum.READ)
+    Organism organism = Organism.findById(dataObject.organism as Long)
+    Feature feature = featureService.getFeatureByUniqueNameAndOrganism(dataObject.uniqueName as String, organism)
+    if (feature) {
+      JSONObject annotations = provenanceService.getAnnotations(feature)
+      // TODO: register with marshaller
+      render annotations as JSON
+    } else {
+      render status: NOT_FOUND
     }
+  }
 
 //        {"feature":"e35ea570-f700-41fb-b479-70aa812174ad",
 //        "goTerm":"GO:0060841",
@@ -52,7 +52,7 @@ class ProvenanceController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-    @RestApiMethod(description = "Save New Go Annotations for feature", path = "/provenance/save", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Save New Provenance Annotations for feature", path = "/provenance/save", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -106,26 +106,27 @@ class ProvenanceController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "Update existing Go Annotations for feature", path = "/provenance/update", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
-            , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
-            , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
-            , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
-            , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-            , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
-            , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
-    ]
-    )
-    @Transactional
-    def update() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
-        User user = permissionService.getCurrentUser(dataObject)
-        Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
-        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+  @RestApiMethod(description = "Update existing annotations for feature", path = "/provenance/update", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
+    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "field type annotated")
+    , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
+    , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
+    , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
+    , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
+    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
+  ]
+  )
+  @Transactional
+  def update() {
+    JSONObject dataObject = permissionService.handleInput(request, params)
+    Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    User user = permissionService.getCurrentUser(dataObject)
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
 
         Provenance provenance = Provenance.findById(dataObject.id)
@@ -159,22 +160,22 @@ class ProvenanceController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "Delete existing Go Annotations for feature", path = "/provenance/delete", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to delete (required)")
-            , @RestApiParam(name = "uniqueName", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to remove feature from")
-    ]
-    )
-    @Transactional
-    def delete() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
-        User user = permissionService.getCurrentUser(dataObject)
+  @RestApiMethod(description = "Delete existing annotations for feature", path = "/provenance/delete", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to delete (required)")
+    , @RestApiParam(name = "uniqueName", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to remove feature from")
+  ]
+  )
+  @Transactional
+  def delete() {
+    JSONObject dataObject = permissionService.handleInput(request, params)
+    Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    User user = permissionService.getCurrentUser(dataObject)
 
-        Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
-        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
         Provenance provenance = Provenance.findById(dataObject.id)
         feature.removeFromProvenances(provenance)

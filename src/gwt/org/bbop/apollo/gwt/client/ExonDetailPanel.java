@@ -194,9 +194,7 @@ public class ExonDetailPanel extends Composite {
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
-        GWT.log("sublist: " + annotationInfo.getChildAnnotations().size());
         for (AnnotationInfo annotationInfo1 : annotationInfo.getChildAnnotations()) {
-            GWT.log("adding: " + annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }
 
@@ -213,7 +211,6 @@ public class ExonDetailPanel extends Composite {
         // updates the detail section (3' and 5' coordinates) when user clicks on any of the types in the table.
         // mRNA information is not available
         this.internalAnnotationInfo = annotationInfo;
-        GWT.log("updating exon detail panel");
         coordinatesToPrime(annotationInfo.getMin(), annotationInfo.getMax());
         if (internalAnnotationInfo.getStrand() > 0) {
             positiveStrandValue.setType(ButtonType.PRIMARY);
@@ -265,9 +262,6 @@ public class ExonDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-
-//                GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
 
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));

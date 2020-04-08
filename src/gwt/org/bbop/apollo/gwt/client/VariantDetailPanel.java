@@ -286,11 +286,9 @@ public class VariantDetailPanel extends Composite {
         StringBuilder sb = new StringBuilder();
         JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
         data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
-//        RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
         sb.append("data=" + data.toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         builder.setRequestData(sb.toString());
-        GWT.log(sb.toString());
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override

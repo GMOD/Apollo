@@ -64,8 +64,6 @@ import java.util.Set;
  */
 public class AnnotatorPanel extends Composite {
 
-
-
     interface AnnotatorPanelUiBinder extends UiBinder<Widget, AnnotatorPanel> {
     }
 
@@ -125,12 +123,10 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    //    @UiField
-//    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
-    GoPanel goPanel;
+    static GoPanel goPanel;
     @UiField
     static GeneProductPanel geneProductPanel;
     @UiField
@@ -151,15 +147,16 @@ public class AnnotatorPanel extends Composite {
     Button showCurrentView;
     @UiField
     ListBox statusField;
+    @UiField
+    static HTML annotationDescription;
 
 
     // manage UI-state
     private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
-    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
-    private static AsyncDataProvider<AnnotationInfo> dataProvider;
+
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
@@ -199,7 +196,7 @@ public class AnnotatorPanel extends Composite {
 
 
     public AnnotatorPanel() {
-        sequenceList = new SuggestBox(sequenceOracle);
+        sequenceList = new SuggestBox(new ReferenceSequenceOracle());
         sequenceList.getElement().setAttribute("placeHolder", "Reference Sequence");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
@@ -232,7 +229,7 @@ public class AnnotatorPanel extends Composite {
 
         handleDetails();
 
-        dataProvider = new AsyncDataProvider<AnnotationInfo>() {
+        AsyncDataProvider<AnnotationInfo> dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
             protected void onRangeChanged(HasData<AnnotationInfo> display) {
                 final Range range = display.getVisibleRange();
@@ -613,7 +610,16 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+
+        if(selectedAnnotationInfo!=null){
+            setAnnotationDescription(annotationInfo);
+        }
+        else{
+            setAnnotationDescription(null);
+        }
+
         if (annotationInfo == null) {
+            annotationDescription.setHTML("nothing selected");
             return;
         }
         String type = annotationInfo.getType();
@@ -622,6 +628,7 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
+                goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
@@ -641,6 +648,7 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
+                goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
@@ -651,9 +659,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
-                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
-                // TODO: make it visible for transcripts
-//                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
@@ -669,6 +675,7 @@ public class AnnotatorPanel extends Composite {
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
@@ -679,9 +686,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
-                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
-                // TODO: make it visible for transcripts
-//                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(type.equals("mRNA"));
                 tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
@@ -741,6 +746,17 @@ public class AnnotatorPanel extends Composite {
         reselectSubTab();
 
 
+    }
+
+    private static void setAnnotationDescription(AnnotationInfo annotationInfo) {
+        if(annotationInfo!=null){
+            annotationDescription.setVisible(true);
+            annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;<b>"+annotationInfo.getType()  + "</b>:  " + annotationInfo.getName() +"");
+        }
+        else{
+            annotationDescription.setVisible(false);
+            annotationDescription.setHTML("");
+        }
     }
 
     private static void reselectSubTab() {
@@ -908,6 +924,7 @@ public class AnnotatorPanel extends Composite {
                     commentPanel.updateData();
                     attributePanel.updateData();
                 }
+                setAnnotationDescription(selectedAnnotationInfo);
             }
         });
 
@@ -936,6 +953,7 @@ public class AnnotatorPanel extends Composite {
         showAllSequences.setEnabled(true);
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
+            setAnnotationDescription(null);
             hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
@@ -1193,5 +1211,4 @@ public class AnnotatorPanel extends Composite {
     public void setSelectedChildUniqueName(String selectedChildUniqueName) {
         this.selectedChildUniqueName = selectedChildUniqueName;
     }
-
 }

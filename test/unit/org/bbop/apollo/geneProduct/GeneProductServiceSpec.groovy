@@ -14,7 +14,7 @@ import spock.lang.Specification
 @TestFor(GeneProductService)
 @Mock([Feature, GeneProduct])
 class GeneProductServiceSpec extends Specification {
-    
+
 
     def setup() {
     }
@@ -25,7 +25,7 @@ class GeneProductServiceSpec extends Specification {
         FeatureLocation.deleteAll(FeatureLocation.all)
         Feature.deleteAll(Feature.all)
     }
- 
+
 
     void "test parsing input"(){
         given: "given an inputt string"

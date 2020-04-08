@@ -31,7 +31,7 @@ The [User's Guide](docs/UsersGuide.md) provides guidance on how to use it.  Plea
 We provide a [Setup guide](docs/Setup.md) for deploying a [configuring](docs/Configure.md) a production instance.  
 
 Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Community AMIs in the N. Virginia region under 'Apollo'](docs/images/EC2Image.png).  
-Specific information for [setting up AWS instances](Aws_setup.md) is provided for 2.4.1 instances.
+Specific information for [setting up AWS instances](docs/Aws_setup.md) is provided for 2.4.1 instances.
  
 Apollo may be launched from [Docker](docs/Docker.md) as well.  
 
@@ -42,7 +42,7 @@ The [guide for developers](docs/Apollo2Build.md) shows how to get started with A
 
 ## Migrating data from older versions
 
-You can follow steps in our [migration guide](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md) to move annotations and data from older versions.
+You can follow steps in our [migration guide](docs/Migration.md) to move annotations and data from older versions.
 
 ### Note about data directories
 
@@ -94,7 +94,6 @@ for monitoring and profiling Java and .NET applications.
 YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>,
 <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
 and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
-
 
 
 

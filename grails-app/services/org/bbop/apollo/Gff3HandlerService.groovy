@@ -182,7 +182,7 @@ class Gff3HandlerService {
         }
     }
     
-    public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
+    void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
         for (Feature feature : features) {
             if (feature instanceof SequenceAlterationArtifact) {
                 writeFastaForSequenceAlteration(writeObject, feature)
@@ -190,7 +190,7 @@ class Gff3HandlerService {
         }
     }
     
-    public void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlterationArtifact sequenceAlteration) {
+    void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlterationArtifact sequenceAlteration) {
         int lineLength = 60;
         String residues = null
         residues = sequenceAlteration.getAlterationResidue()
@@ -345,14 +345,14 @@ class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.GO_ANNOTATIONS.value) && feature.getGoAnnotations() != null && feature.goAnnotations.size() > 0 ) {
-                String productString  = goAnnotationService.convertGoAnnotationsToGff3String(feature.goAnnotations)
+                String productString  =  goAnnotationService.convertGoAnnotationsToGff3String(feature.goAnnotations)
                 attributes.put(FeatureStringEnum.GO_ANNOTATIONS.value, encodeString(productString))
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
                 String productString  = provenanceService.convertProvenancesToGff3String(feature.provenances)
                 attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null && feature.geneProducts.size() >0) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null) {
                 String productString  = geneProductService.convertGeneProductsToGff3String(feature.geneProducts)
                 attributes.put(FeatureStringEnum.GENE_PRODUCT.value, encodeString(productString))
             }
@@ -437,23 +437,18 @@ class Gff3HandlerService {
     }
 
 
-    public enum Mode {
+    enum Mode {
         READ,
         WRITE
     }
 
-    public enum Format {
+    enum Format {
         TEXT,
         GZIP
     }
     
     private boolean isBlank(String attributeValue) {
-        if (attributeValue == "") {
-            return true
-        }
-        else {
-            return false
-        }
+        return attributeValue == ""
     }
 
     private class WriteObject {

@@ -264,7 +264,7 @@ class RequestHandlingService {
     def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -313,15 +313,6 @@ class RequestHandlingService {
                     user)
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
-
         return updateFeatureContainer
 
 
@@ -334,7 +325,7 @@ class RequestHandlingService {
     def addComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -365,14 +356,14 @@ class RequestHandlingService {
                     newFeaturesJsonArray,
                     user)
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.UPDATE
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
 
         return updateFeatureContainer
     }
@@ -380,7 +371,7 @@ class RequestHandlingService {
     def deleteComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -411,14 +402,14 @@ class RequestHandlingService {
                     user)
 
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.UPDATE
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
 
         return updateFeatureContainer
     }
@@ -426,7 +417,7 @@ class RequestHandlingService {
     def updateComments(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -462,14 +453,14 @@ class RequestHandlingService {
                     user)
 
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.UPDATE
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
         return updateFeatureContainer
     }
 
@@ -573,16 +564,18 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
+        JSONArray commentsArray = new JSONArray()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            JSONArray commentsArray = new JSONArray()
-            Feature feature = featureService.getFeatureByUniqueNameAndSequence(jsonFeature.get(FeatureStringEnum.UNIQUENAME.value), sequence)
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value)
+//            Feature feature = Feature.findByUniqueName(uniqueName)
+            Feature feature = featureService.getFeatureByUniqueNameAndSequence(uniqueName, sequence)
             for (Comment comment in featurePropertyService.getComments(feature)) {
                 String commentString = comment.value
-                commentsArray.put(commentString)
+                commentsArray.add(commentString)
             }
-            jsonFeature.put(FeatureStringEnum.COMMENTS.value, commentsArray)
         }
+        featureContainer.put(FeatureStringEnum.COMMENTS.value,commentsArray )
         return featureContainer
 
     }
@@ -631,14 +624,14 @@ class RequestHandlingService {
                     user)
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.ADD
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.ADD
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
 
         return updateFeatureContainer
 
@@ -2043,6 +2036,9 @@ class RequestHandlingService {
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
+                        goAnnotationService.deleteAnnotationFromFeature(topLevelFeature)
+                        provenanceService.deleteAnnotationFromFeature(topLevelFeature)
+                        geneProductService.deleteAnnotationFromFeature(topLevelFeature)
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                         if (!suppressEvents) {
@@ -2055,6 +2051,14 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
+                        goAnnotationService.deleteAnnotationFromFeature(transcript)
+                        provenanceService.deleteAnnotationFromFeature(transcript)
+                        geneProductService.deleteAnnotationFromFeature(transcript)
+
+                        goAnnotationService.removeGoAnnotationsFromFeature(transcript)
+                        provenanceService.removeProvenancesFromFeature(transcript)
+                        geneProductService.removeGeneProductsFromFeature(transcript)
+
                         featureRelationshipService.removeFeatureRelationship(gene, transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
@@ -2086,8 +2090,11 @@ class RequestHandlingService {
 //                    }
 
                 } else {
+                    // if we are deleting the top level
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
-                    goAnnotationService.removeGoAnnotationsFromFeature(feature)
+                    goAnnotationService.removeGoAnnotationsFromFeature(topLevelFeature)
+                    provenanceService.removeProvenancesFromFeature(topLevelFeature)
+                    geneProductService.removeGeneProductsFromFeature(topLevelFeature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {

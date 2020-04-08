@@ -1,7 +1,12 @@
 package org.bbop.apollo.geneProduct
 
 import grails.transaction.Transactional
-import org.bbop.apollo.*
+import org.bbop.apollo.Feature
+import org.bbop.apollo.Gene
+import org.bbop.apollo.Gff3ConstantEnum
+import org.bbop.apollo.Provenance
+import org.bbop.apollo.Pseudogene
+import org.bbop.apollo.Transcript
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -42,7 +47,7 @@ class GeneProductService {
     List<GeneProduct> convertGff3StringToGeneProducts(String geneProductInputString) {
         log.debug "input string: [${geneProductInputString}]"
         List<GeneProduct> geneProducts = []
-        def geneProductStrings = (geneProductInputString.trim().split("rank=") as List).findAll{it.trim().size() > 0}
+        def geneProductStrings = (geneProductInputString.trim().split("rank=") as List).findAll { it.trim().size() > 0 }
         log.debug "gene product strings ${geneProductStrings.size()}: [${geneProductStrings}]"
         log.debug "joined ${geneProductStrings.join("|||||")}"
         for (String geneProductString in geneProductStrings) {
@@ -162,6 +167,18 @@ class GeneProductService {
         }
 
     }
+
+    def deleteAnnotationFromFeature(Feature thisFeature) {
+        GeneProduct.deleteAll(GeneProduct.executeQuery("select ga from GeneProduct  ga join ga.feature f where f = :feature", [feature: thisFeature]))
+    }
+
+//    def deleteAnnotations(JSONArray featuresArray) {
+//        def featureUniqueNames = featuresArray.uniquename as List<String>
+//        List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
+//        for (Feature thisFeature in features) {
+//            deleteAnnotationFromFeature(thisFeature)
+//        }
+//    }
 
     def removeGeneProductsFromFeature(Feature feature) {
         def geneProducts = feature.geneProducts

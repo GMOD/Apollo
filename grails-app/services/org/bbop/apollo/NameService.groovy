@@ -15,9 +15,9 @@ class NameService {
         UUID.randomUUID().toString()
     }
 
-    String generateUniqueName(Feature thisFeature, String principalName = null) {
+    String generateUniqueName(Feature thisFeature,String principalName = null ) {
         Organism organism = thisFeature?.featureLocation?.sequence?.organism
-        if (thisFeature.name) {
+        if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
                 if (!principalName) {
                     Gene gene = transcriptService.getGene((Transcript) thisFeature)
@@ -53,10 +53,13 @@ class NameService {
                 if (!principalName) {
                     principalName = thisFeature.name
                 }
-                if(organism){
+                if(organism) {
                     return makeUniqueFeatureName(organism, principalName.trim(), new LetterPaddingStrategy())
                 }
             }
+        }
+        else{
+            return generateUniqueName()
         }
         return generateUniqueName()
     }
@@ -91,7 +94,7 @@ class NameService {
 //        List results = (Feature.executeQuery("select f.name from Transcript f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name like :name ",[org:organism,name:principalName+'%']))
         // See https://github.com/GMOD/Apollo/issues/1276
         // only does sort over found results
-        List<String> results = Feature.findAllByNameLike(principalName + "%").findAll() {
+        List<String> results= Feature.findAllByNameLike(principalName+"%").findAll(){
             it.featureLocation?.sequence?.organism == organism
         }.name
 

@@ -74,6 +74,7 @@ public class ProvenanceConverter {
       }
     }
 
+
     // TODO: finish this
     JSONArray withArray = new JSONArray();
     for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
@@ -82,6 +83,7 @@ public class ProvenanceConverter {
 
     object.put("withOrFrom", withArray);
     object.put("notes", notesArray);
+
 
     return object;
   }

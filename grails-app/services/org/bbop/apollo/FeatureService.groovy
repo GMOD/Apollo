@@ -1509,12 +1509,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureSynonyms(featureSynonym)
                 }
             }
-
-            if (configWrapperService.storeOrigId()) {
+            if(configWrapperService.storeOrigId()){
                 if (jsonFeature.has(FeatureStringEnum.ORIG_ID.value)) {
                     FeatureProperty gsolProperty = new FeatureProperty()
                     gsolProperty.setTag(FeatureStringEnum.ORIG_ID.value)
-                    gsolProperty.setValue(jsonFeature.get(FeatureStringEnum.ORIG_ID.value))
+                    gsolProperty.setValue(jsonFeature.getString(FeatureStringEnum.ORIG_ID.value))
                     gsolProperty.setFeature(gsolFeature)
                     gsolProperty.save()
                     gsolFeature.addToFeatureProperties(gsolProperty)
@@ -1535,6 +1534,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureProperties(comment)
                 }
             }
+
 
             // handle status here
             if (jsonFeature.has(FeatureStringEnum.STATUS.value)) {
@@ -1557,7 +1557,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value)
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
-                    JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
+                    JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value)
                     String propertyName = null
                     if (property.has(FeatureStringEnum.NAME.value)) {
                         propertyName = property.get(FeatureStringEnum.NAME.value)
@@ -1613,13 +1613,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                 }
             }
-
             // from a GFF3 OGS
             if (jsonFeature.has(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase())) {
                 JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase());
                 for (String dbxrefString in dbxrefs) {
                     def (dbString, accessionString) = dbxrefString.split(":")
-//                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
                     DB newDB = DB.findOrSaveByName(dbString)
                     DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(newDB, accessionString).save()
                     gsolFeature.addToFeatureDBXrefs(newDBXref)
@@ -1627,8 +1625,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
 
-            // from somethign else
-            // TODO: this may need to be kept here, unclear
             if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
                 JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
                 for (int i = 0; i < dbxrefs.length(); ++i) {

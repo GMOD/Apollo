@@ -225,9 +225,9 @@ class VariantService {
         String bases = jsonFeature.getJSONObject(FeatureStringEnum.ALLELE.value).getString(FeatureStringEnum.BASES.value)
         JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
         JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
-        println "old allele info array ${oldAlleleInfoArray as JSON}"
-        println "new allele info array ${newAlleleInfoArray as JSON}"
-        println "json feature input ${bases}"
+//        println "old allele info array ${oldAlleleInfoArray as JSON}"
+//        println "new allele info array ${newAlleleInfoArray as JSON}"
+//        println "json feature input ${bases}"
 
         for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
             JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)

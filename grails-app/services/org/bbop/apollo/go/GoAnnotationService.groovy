@@ -1,7 +1,10 @@
 package org.bbop.apollo.go
 
 import grails.transaction.Transactional
-import org.bbop.apollo.*
+import org.bbop.apollo.Feature
+import org.bbop.apollo.Transcript
+import org.bbop.apollo.Gene
+import org.bbop.apollo.Gff3ConstantEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -61,7 +64,7 @@ class GoAnnotationService {
                             goAnnotation.evidenceRef = value
                             break
                         case Gff3ConstantEnum.GENE_PRODUCT_RELATIONSHIP.value:
-                            goAnnotation.geneProductRelationshipRef= value
+                            goAnnotation.geneProductRelationshipRef = value
                             break
                         case Gff3ConstantEnum.NEGATE.value:
                             goAnnotation.negate = value
@@ -165,13 +168,23 @@ class GoAnnotationService {
             annotations.addAll(GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :feature", [feature: thisFeature]))
             GoAnnotation.deleteAll(annotations)
         }
-    }
+  }
 
+//    def deleteAnnotationFromFeature(Feature thisFeature) {
+//        GoAnnotation.deleteAll(GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :feature", [feature: thisFeature]))
+//    }
+//
+//    def deleteAnnotations(JSONArray featuresArray) {
+//        def featureUniqueNames = featuresArray.uniquename as List<String>
+//        List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
+//        for (Feature thisFeature in features) {
+//            deleteAnnotationFromFeature(thisFeature)
+//        }
+//    }
     def removeGoAnnotationsFromFeature(Feature feature) {
         def goAnnotations = feature.goAnnotations
         for (def annotation in goAnnotations) {
             feature.removeFromGoAnnotations(annotation)
         }
     }
-
 }
