@@ -51,7 +51,7 @@
                                 <b:Column size="MD_5">
                                     <b:Label>Product</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
-                                    <b:TextBox ui:field="geneProductField"/>
+                                    <b:SuggestBox ui:field="geneProductField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Alternate" width="100%" ui:field="alternateCheckBox"/>
