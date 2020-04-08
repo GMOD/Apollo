@@ -3,7 +3,6 @@ package org.bbop.apollo.geneProduct
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
-import org.bbop.apollo.Organism
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
