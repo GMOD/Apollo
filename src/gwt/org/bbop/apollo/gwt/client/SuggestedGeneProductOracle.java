@@ -15,9 +15,6 @@ import java.util.List;
 public class SuggestedGeneProductOracle extends SuggestOracle {
 
 
-    private String organismName;
-    private String featureType;
-
 
     @Override
     public void requestSuggestions(final Request suggestRequest, final Callback suggestCallback) {
@@ -27,10 +24,8 @@ public class SuggestedGeneProductOracle extends SuggestOracle {
         final String queryString = suggestRequest.getQuery();
 
 
-        String url = Annotator.getRootUrl() + "suggestedName/search";
+        String url = Annotator.getRootUrl() + "geneProduct/search";
         url += "?query=" + suggestRequest.getQuery();
-        url += "&organism=" + organismName;
-        url += "&featureType=" + featureType;
         RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
 
         try {
@@ -53,8 +48,8 @@ public class SuggestedGeneProductOracle extends SuggestOracle {
                     JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isArray();
                     for (int i = 0; i < jsonArray.size(); i++) {
                         // always suggest thyself
-                        JSONObject jsonObject = jsonArray.get(i).isObject();
-                        final String name = jsonObject.get("name").isString().stringValue();
+                        final String name = jsonArray.get(i).isString().stringValue();
+//                        final String name = jsonObject.get("name").isString().stringValue();
                         suggestionList.add(new Suggestion() {
                             @Override
                             public String getDisplayString() {
@@ -84,21 +79,5 @@ public class SuggestedGeneProductOracle extends SuggestOracle {
         } catch (RequestException e) {
             Bootbox.alert("Request exception via " + e);
         }
-    }
-
-    public String getOrganismName() {
-        return organismName;
-    }
-
-    public void setOrganismName(String organismName) {
-        this.organismName = organismName;
-    }
-
-    public String getFeatureType() {
-        return featureType;
-    }
-
-    public void setFeatureType(String featureType) {
-        this.featureType = featureType;
     }
 }

@@ -3,6 +3,7 @@ package org.bbop.apollo.geneProduct
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.Organism
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -24,6 +25,26 @@ class GeneProductController {
     def geneProductService
     def featureEventService
     def featureService
+
+    @RestApiMethod(description = "Returns a JSON array of all suggested gene products", path = "/geneProduct/search", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "query", type = "string", paramType = RestApiParamType.QUERY, description = "Query value")
+    ])
+    def search() {
+        try {
+            JSONObject nameJson = permissionService.handleInput(request, params)
+            String query = nameJson.getString("query")
+            JSONArray searchArray = new JSONArray()
+            for(GeneProduct geneProduct in GeneProduct.findAllByProductNameIlike(query+"%")){
+                searchArray.add(geneProduct.productName)
+            }
+            render searchArray as JSON
+        } catch (Exception e) {
+            def error = [error: 'problem finding gene product names for : '+ e]
+            log.error(error.error)
+            render error as JSON
+        }
+    }
 
     @RestApiMethod(description = "Load gene product for feature", path = "/geneProduct", verb = RestApiVerb.POST)
     @RestApiParams(params = [
