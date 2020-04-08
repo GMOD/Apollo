@@ -17,6 +17,7 @@ class FeatureEventControllerSpec extends Specification {
         params["uniqueName"] = 'someValidNameUniqueName'
         params["operation"] = FeatureOperation.ADD_EXON
         params["current"] = true
+        params["organismId"] = 3
     }
 
     void "Test the index action returns the correct model"() {
