@@ -102,7 +102,7 @@ class IOServiceController extends AbstractApolloController {
 
             def st = System.currentTimeMillis()
             def queryParams = [organism: organism]
-            def features = []
+            def features
 
             if (exportAllSequences) {
                 sequences = []
