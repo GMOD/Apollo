@@ -9,14 +9,11 @@ class TranscriptService {
 
     List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
 
-    // services
     def featureService
     def featureRelationshipService
-    def exonService
     def nameService
     def nonCanonicalSplitSiteService
     def sequenceService
-    def featureEventService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -279,6 +276,7 @@ class TranscriptService {
     }
 
     Transcript getParentTranscriptForFeature(Feature feature) {
+        println "geting parent transcript for feature ${feature}"
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 

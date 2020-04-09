@@ -286,7 +286,7 @@ class AnnotatorController {
                 data,
                 oldFeaturesJsonArray,
                 newFeaturesJsonArray,
-                user)
+                user,sequence.organismId)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
