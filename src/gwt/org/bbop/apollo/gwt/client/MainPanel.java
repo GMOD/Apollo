@@ -97,7 +97,7 @@ public class MainPanel extends Composite {
     @UiField
     static DockLayoutPanel eastDockPanel;
     @UiField
-    static DockLayoutPanel mainDockPanel;
+    static SplitLayoutPanel mainDockPanel;
     @UiField
     static TabLayoutPanel detailTabs;
     @UiField
@@ -874,7 +874,7 @@ public class MainPanel extends Composite {
             openPanel();
         }
 
-        mainDockPanel.animate(50);
+        mainDockPanel.animate(0);
 
         toggleOpen = !toggleOpen;
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);

@@ -91,7 +91,7 @@
         }
 
     </ui:style>
-    <gwt:DockLayoutPanel ui:field="mainDockPanel">
+    <gwt:SplitLayoutPanel ui:field="mainDockPanel">
         <gwt:center>
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
         </gwt:center>
@@ -207,5 +207,5 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:east>
-    </gwt:DockLayoutPanel>
+    </gwt:SplitLayoutPanel>
 </ui:UiBinder>
