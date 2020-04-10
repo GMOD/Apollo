@@ -148,6 +148,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
         synonymsField.setEnabled(enabled);
+        deleteAnnotation.setEnabled(enabled);
     }
 
 
@@ -195,7 +196,6 @@ public class GeneDetailPanel extends Composite {
         userField.setText(internalAnnotationInfo.getOwner());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
-        deleteAnnotation.setEnabled(MainPanel.getInstance().isCurrentUserAdmin() || MainPanel.getInstance().getHighestPermissionForUser().getRank()>= PermissionEnum.WRITE.getRank());
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = internalAnnotationInfo.getMin().toString();
@@ -339,6 +339,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(editable);
         descriptionField.setEnabled(editable);
         synonymsField.setEnabled(editable);
+        deleteAnnotation.setEnabled(editable);
 
     }
 }
