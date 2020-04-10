@@ -6435,14 +6435,21 @@ define([
                     url: url ,
                     handleAs: "json",
                     load: function (response, ioArgs) {
-                        dojo.create("a", {
-                            innerHTML: response.filename,
-                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format,
-                            onclick:  function(){
-                                track.closeDialog();
-                            }
+                        if(response.error){
+                            // dojo.style(waitingDiv, {display: "none"});
+                            responseDiv.innerHTML = response.error
+                            // track.handleError(response);
+                        }
+                        else{
+                            dojo.create("a", {
+                                innerHTML: response.filename,
+                                href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format,
+                                onclick:  function(){
+                                    track.closeDialog();
+                                }
 
-                        }, content);
+                            }, content);
+                        }
                         dojo.style(waitingDiv, {display: "none"});
                     },
                     // The ERROR function will be called in an error case.
