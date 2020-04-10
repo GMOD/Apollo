@@ -53,6 +53,7 @@ import java.util.Set;
  */
 public class SequencePanel extends Composite {
 
+
     interface SequencePanelUiBinder extends UiBinder<Widget, SequencePanel> {
     }
 
@@ -108,6 +109,8 @@ public class SequencePanel extends Composite {
     private Integer selectedCount = 0;
     private Boolean exportAll = false;
     private Boolean chadoExportStatus = false;
+    private Boolean allowExport = false ;
+
 
     public SequencePanel() {
 
@@ -150,13 +153,14 @@ public class SequencePanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 Set<SequenceInfo> selectedSequenceInfo = multiSelectionModel.getSelectedSet();
+                if(!getAllowExport()) return;
                 if (selectedSequenceInfo.size() == 1) {
                     setSequenceInfo(selectedSequenceInfo.iterator().next());
                     selectSelectedButton.setEnabled(true);
                 } else {
                     setSequenceInfo(null);
                 }
-                if (selectedSequenceInfo.size() > 0) {
+                if (selectedSequenceInfo.size() > 0 && getAllowExport()) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
                     deleteSequencesButton.setText("Annotations on " + selectedSequenceInfo.size() + " seq");
                 } else {
@@ -291,6 +295,7 @@ public class SequencePanel extends Composite {
                                 exportAllButton.setEnabled(allowExport);
                                 exportSelectedButton.setEnabled(allowExport);
                                 selectedSequenceDisplay.setEnabled(allowExport);
+                                setAllowExport(allowExport);
                                 break;
                         }
                     }
@@ -316,6 +321,7 @@ public class SequencePanel extends Composite {
     }
 
     private void updatedExportSelectedButton() {
+        if(!this.allowExport) return ;
         if (selectedCount > 0) {
             exportSelectedButton.setEnabled(true);
             exportSelectedButton.setText("Selected (" + multiSelectionModel.getSelectedSet().size() + ")");
@@ -571,5 +577,13 @@ public class SequencePanel extends Composite {
     public void setChadoExportStatus(String exportStatus) {
         this.chadoExportStatus = exportStatus.equals("true");
         this.exportChadoButton.setEnabled(this.chadoExportStatus);
+    }
+
+    public void setAllowExport(boolean allowExport) {
+        this.allowExport = allowExport;
+    }
+
+    public boolean getAllowExport() {
+        return allowExport;
     }
 }
