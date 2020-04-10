@@ -65,7 +65,7 @@ public class MainPanel extends Composite {
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
     private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
-
+    private PermissionEnum highestPermissionForUser = PermissionEnum.NONE;
     private static boolean handlingNavEvent = false;
 
 
@@ -1308,6 +1308,16 @@ public class MainPanel extends Composite {
         currentSequence.setStartBp(currentStartBp);
         currentSequence.setEndBp(currentEndBp);
         return currentSequence;
+    }
+
+
+    public void setHighestPermissionForUser(PermissionEnum highestPermissionForUser) {
+
+        this.highestPermissionForUser = highestPermissionForUser;
+    }
+
+    public PermissionEnum getHighestPermissionForUser() {
+        return highestPermissionForUser;
     }
 
 }
