@@ -6005,7 +6005,9 @@ define([
                         },
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) { //
+                            console.log('response error',response)
                             track.handleError(response);
+                            console.log('response ',response)
                             return response; //
                         }
 
@@ -6295,15 +6297,21 @@ define([
                         timeout: 5000 * 1000, // Time in milliseconds
                         load: function (response, ioArgs) {
                             var textAreaContent = "";
-                            for (var i = 0; i < response.features.length; ++i) {
-                                var feature = response.features[i];
-                                var cvterm = feature.type;
-                                var residues = feature.residues;
-                                var loc = feature.location;
-                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
-                                var lineLength = 60;
-                                for (var j = 0; j < residues.length; j += lineLength) {
-                                    textAreaContent += residues.substr(j, lineLength) + "\n";
+                            if(response.error){
+                                textAreaContent = response.error ;
+                                // track.handleError(response)
+                            }
+                            else{
+                                for (var i = 0; i < response.features.length; ++i) {
+                                    var feature = response.features[i];
+                                    var cvterm = feature.type;
+                                    var residues = feature.residues;
+                                    var loc = feature.location;
+                                    textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
+                                    var lineLength = 60;
+                                    for (var j = 0; j < residues.length; j += lineLength) {
+                                        textAreaContent += residues.substr(j, lineLength) + "\n";
+                                    }
                                 }
                             }
                             dojo.attr(textArea, "innerHTML", textAreaContent);
