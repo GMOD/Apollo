@@ -65,6 +65,7 @@ public class CommentPanel extends Composite {
     private SingleSelectionModel<CommentInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell commentCell = new EditTextCell();
     private static List<String> cannedComments = new ArrayList<>();
+    private Boolean editable  = false ;
 
 
     public CommentPanel() {
@@ -130,6 +131,10 @@ public class CommentPanel extends Composite {
         commentColumn.setFieldUpdater(new FieldUpdater<CommentInfo, String>() {
             @Override
             public void update(int i, CommentInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Accession can not be blank");
                     commentCell.clearViewData(object);
@@ -329,5 +334,12 @@ public class CommentPanel extends Composite {
         if (this.internalAnnotationInfo != null) {
             CommentRestService.getComments(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
         }
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+        commentInputBox.setEnabled(editable);
+        addCommentButton.setEnabled(editable);
+        deleteCommentButton.setEnabled(editable);
     }
 }

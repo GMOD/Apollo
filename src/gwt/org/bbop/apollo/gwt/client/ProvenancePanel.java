@@ -107,6 +107,7 @@ public class ProvenancePanel extends Composite {
   private static List<Provenance> annotationInfoList = dataProvider.getList();
   private SingleSelectionModel<Provenance> selectionModel = new SingleSelectionModel<>();
   private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle(BiolinkLookup.ECO);
+  private Boolean editable  = false ;
 
   private AnnotationInfo annotationInfo;
 
@@ -133,7 +134,7 @@ public class ProvenancePanel extends Composite {
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        if (selectionModel.getSelectedObject() != null) {
+        if (selectionModel.getSelectedObject() != null && editable) {
           deleteGoButton.setEnabled(true);
           editGoButton.setEnabled(true);
         } else {
@@ -147,9 +148,11 @@ public class ProvenancePanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        provenanceTitle.setText("Edit Annotations for " + AnnotatorPanel.selectedAnnotationInfo.getName());
-        handleSelection();
-        provenanceModal.show();
+        if(editable) {
+          provenanceTitle.setText("Edit Annotations for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+          handleSelection();
+          provenanceModal.show();
+        }
       }
     }, DoubleClickEvent.getType());
 
@@ -591,5 +594,12 @@ public class ProvenancePanel extends Composite {
     loadData();
   }
 
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+//    dataGrid.setEnabled(editable);
+    newGoButton.setEnabled(editable);
+    editGoButton.setEnabled(editable);
+    deleteGoButton.setEnabled(editable);
+  }
 
 }

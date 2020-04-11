@@ -108,6 +108,7 @@ public class GeneProductPanel extends Composite {
   private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
   private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle(BiolinkLookup.ECO);
   private SuggestedGeneProductOracle suggestedGeneProductOracle = new SuggestedGeneProductOracle();
+  private Boolean editable  = false ;
 
   private AnnotationInfo annotationInfo;
 
@@ -133,7 +134,7 @@ public class GeneProductPanel extends Composite {
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        if (selectionModel.getSelectedObject() != null) {
+        if (selectionModel.getSelectedObject() != null && editable) {
           deleteGoButton.setEnabled(true);
           editGoButton.setEnabled(true);
         } else {
@@ -147,9 +148,11 @@ public class GeneProductPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
-        handleSelection();
-        editGoModal.show();
+        if(editable) {
+          geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+          handleSelection();
+          editGoModal.show();
+        }
       }
     }, DoubleClickEvent.getType());
 
@@ -574,5 +577,12 @@ public class GeneProductPanel extends Composite {
     loadData();
   }
 
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+//    dataGrid.setEnabled(editable);
+    newGoButton.setEnabled(editable);
+    editGoButton.setEnabled(editable);
+    deleteGoButton.setEnabled(editable);
+  }
 
 }
