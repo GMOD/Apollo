@@ -6005,9 +6005,7 @@ define([
                         },
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) { //
-                            console.log('response error',response)
                             track.handleError(response);
-                            console.log('response ',response)
                             return response; //
                         }
 
