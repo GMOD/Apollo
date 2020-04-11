@@ -462,7 +462,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-
     @RestApiMethod(description = "Get sequence alterations for a given sequence", path = "/annotationEditor/getSequenceAlterations", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -691,10 +690,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray attributes = new JSONArray()
             feature.featureProperties.each {
-                if(it.ontologyId!=Comment.ontologyId){
+                if (it.ontologyId != Comment.ontologyId) {
                     JSONObject attributeObject = new JSONObject()
-                    attributeObject.put(FeatureStringEnum.TAG.value,it.tag)
-                    attributeObject.put(FeatureStringEnum.VALUE.value,it.value)
+                    attributeObject.put(FeatureStringEnum.TAG.value, it.tag)
+                    attributeObject.put(FeatureStringEnum.VALUE.value, it.value)
                     attributes.add(attributeObject)
                 }
             }
@@ -722,8 +721,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             JSONArray annotations = new JSONArray()
             feature.featureDBXrefs.each {
                 JSONObject dbxrefObject = new JSONObject()
-                dbxrefObject.put(FeatureStringEnum.TAG.value,it.db.name)
-                dbxrefObject.put(FeatureStringEnum.VALUE.value,it.accession)
+                dbxrefObject.put(FeatureStringEnum.TAG.value, it.db.name)
+                dbxrefObject.put(FeatureStringEnum.VALUE.value, it.accession)
                 annotations.add(dbxrefObject)
 
             }
@@ -982,14 +981,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequences() {
         log.debug "getSequence ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
+        try{
+            permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)
+            JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer()
+            JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
+            render featureContainer
         }
-        JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-        JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
-        featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
-        render featureContainer
+        catch (AnnotationException ae) {
+            def error = [error: ae.message]
+            render error as JSON
+        }
     }
 
     @RestApiMethod(description = "Get sequences search tools", path = "/annotationEditor/getSequenceSearchTools")
@@ -1111,13 +1113,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def searchSequence() {
         log.debug "sequenceSearch data ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
+        try{
+            permissionService.hasPermissions(inputObject, PermissionEnum.READ)
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            log.debug "Organism to string:  ${organism as JSON}"
+            render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
         }
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        log.debug "Organism to string:  ${organism as JSON}"
-        render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
+        catch (AnnotationException ae) {
+            def error = [error: ae.message]
+            render error as JSON
+        }
     }
 
 
@@ -1130,14 +1135,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getGff3() {
         log.debug "getGff3 ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
         try {
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            println "FOUND ORGANISM ${organism}"
-            File outputFile = File.createTempFile("feature", ".gff3");
+            File outputFile = File.createTempFile("feature", ".gff3")
             sequenceService.getGff3ForFeature(inputObject, outputFile, organism)
             Charset encoding = Charset.defaultCharset()
             byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
@@ -1145,8 +1145,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             outputFile.delete() // deleting temp file
             render gff3String
 
-        } catch (IOException e) {
-            log.debug("Cannot create a temp file for 'get GFF3' operation")
+        }
+        catch (AnnotationException ae) {
+            def error = [error: ae.message]
+            render error as JSON
+        }
+        catch (IOException e) {
+            log.debug("Cannot create a temp file for 'get GFF3' operation", e)
             e.printStackTrace()
         }
     }
@@ -1174,8 +1179,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render error as JSON
         }
     }
-
-
 
 
     @MessageMapping("/AnnotationNotification")

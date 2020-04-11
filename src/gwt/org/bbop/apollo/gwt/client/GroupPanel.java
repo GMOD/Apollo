@@ -52,7 +52,7 @@ public class GroupPanel extends Composite {
     interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, GroupPanel> {
     }
 
-    private static UserGroupBrowserPanelUiBinder ourUiBinder = GWT.create(UserGroupBrowserPanelUiBinder.class);
+    private static final UserGroupBrowserPanelUiBinder ourUiBinder = GWT.create(UserGroupBrowserPanelUiBinder.class);
     @UiField
     TextBox name;
 
@@ -94,12 +94,12 @@ public class GroupPanel extends Composite {
     @UiField
     static TextBox nameSearchBox;
 
-    static private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
-    private static List<GroupInfo> groupInfoList = new ArrayList<>();
-    private static List<GroupInfo> filteredGroupInfoList = dataProvider.getList();
+    private static final ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
+    private static final List<GroupInfo> groupInfoList = new ArrayList<>();
+    private static final List<GroupInfo> filteredGroupInfoList = dataProvider.getList();
 
 
-    private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
+    private final SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
     private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
     private List<UserInfo> allUsersList = new ArrayList<>();

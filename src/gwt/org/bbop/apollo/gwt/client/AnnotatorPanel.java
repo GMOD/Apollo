@@ -488,6 +488,17 @@ public class AnnotatorPanel extends Composite {
                                 geneDetailPanel.setEditable(editable);
                                 exonDetailPanel.setEditable(editable);
                                 repeatRegionDetailPanel.setEditable(editable);
+//                                variantAllelesPanel.setEditable(editable);
+//                                variantInfoPanel.setEditable(editable);
+//                                alleleInfoPanel.setEditable(editable);
+                                goPanel.setEditable(editable);
+                                geneProductPanel.setEditable(editable);
+                                provenancePanel.setEditable(editable);
+                                attributePanel.setEditable(editable);
+
+
+                                dbXrefPanel.setEditable(editable);
+                                commentPanel.setEditable(editable);
                                 reload();
                                 break;
                         }

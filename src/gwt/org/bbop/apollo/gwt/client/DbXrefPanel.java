@@ -78,6 +78,7 @@ public class DbXrefPanel extends Composite {
     private SingleSelectionModel<DbXrefInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell tagCell = new EditTextCell();
     EditTextCell valueCell = new EditTextCell();
+    private Boolean editable  = false ;
 
     public DbXrefPanel() {
 
@@ -92,6 +93,7 @@ public class DbXrefPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
+                if(!editable) return ;
                 if (selectionModel.getSelectedSet().isEmpty()) {
                     deleteDbXrefButton.setEnabled(false);
                 } else {
@@ -145,6 +147,10 @@ public class DbXrefPanel extends Composite {
         tagColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Prefix can not be blank");
                     tagCell.clearViewData(object);
@@ -169,6 +175,10 @@ public class DbXrefPanel extends Composite {
         valueColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Accession can not be blank");
                     valueCell.clearViewData(object);
@@ -429,5 +439,18 @@ public class DbXrefPanel extends Composite {
             };
             DbXrefRestService.deleteDbXref(requestCallBack, this.internalAnnotationInfo, this.internalDbXrefInfo);
         }
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+
+        addPmidButton.setEnabled(editable);
+        addDbXrefButton.setEnabled(editable);
+        deleteDbXrefButton.setEnabled(editable);
+
+        tagInputBox.setEnabled(editable);
+        valueInputBox.setEnabled(editable);
+        pmidInputBox.setEnabled(editable);
+
     }
 }

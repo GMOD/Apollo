@@ -78,6 +78,7 @@ public class AttributePanel extends Composite {
     private SingleSelectionModel<AttributeInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell tagCell = new EditTextCell();
     EditTextCell valueCell = new EditTextCell();
+    private Boolean editable  = false ;
 
     public AttributePanel() {
 
@@ -96,7 +97,7 @@ public class AttributePanel extends Composite {
                     deleteAttributeButton.setEnabled(false);
                 } else {
                     selectAttributeData(selectionModel.getSelectedObject());
-                    deleteAttributeButton.setEnabled(true);
+                    deleteAttributeButton.setEnabled(true && editable);
                 }
             }
         });
@@ -145,6 +146,10 @@ public class AttributePanel extends Composite {
         tagColumn.setFieldUpdater(new FieldUpdater<AttributeInfo, String>() {
             @Override
             public void update(int i, AttributeInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Tag can not be blank");
                     tagCell.clearViewData(object);
@@ -169,6 +174,10 @@ public class AttributePanel extends Composite {
         valueColumn.setFieldUpdater(new FieldUpdater<AttributeInfo, String>() {
             @Override
             public void update(int i, AttributeInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Value can not be blank");
                     valueCell.clearViewData(object);
@@ -433,5 +442,13 @@ public class AttributePanel extends Composite {
         if (this.internalAnnotationInfo != null) {
             AttributeRestService.getAttributes(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
         }
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+        addAttributeButton.setEnabled(editable);
+        deleteAttributeButton.setEnabled(editable);
+        valueInputBox.setEnabled(editable);
+        tagInputBox.setEnabled(editable);
     }
 }
