@@ -75,9 +75,9 @@ public class ExonDetailPanel extends Composite {
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
-    private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
-    private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
-    private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
+    private static final ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
+    private static final List<AnnotationInfo> annotationInfoList = dataProvider.getList();
+    private final SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
     private Boolean editable = false;
 
@@ -242,14 +242,14 @@ public class ExonDetailPanel extends Composite {
     }
 
     private void enableFields(boolean enabled) {
-        decreaseFivePrime.setEnabled(enabled);
-        increaseFivePrime.setEnabled(enabled);
-        decreaseThreePrime.setEnabled(enabled);
-        increaseThreePrime.setEnabled(enabled);
+        decreaseFivePrime.setEnabled(enabled && this.editable);
+        increaseFivePrime.setEnabled(enabled && this.editable);
+        decreaseThreePrime.setEnabled(enabled && this.editable);
+        increaseThreePrime.setEnabled(enabled && this.editable);
     }
 
     public void setEditable(boolean editable) {
-        this.editable = editable;
+        this.editable = editable ;
     }
 
     private boolean isEditableType(String type) {

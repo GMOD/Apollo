@@ -303,5 +303,6 @@ public class RepeatRegionDetailPanel extends Composite {
         nameField.setEnabled(editable);
         descriptionField.setEnabled(editable);
         synonymsField.setEnabled(editable);
+        deleteAnnotation.setEnabled(editable);
     }
 }

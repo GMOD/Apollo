@@ -297,9 +297,10 @@ public class TranscriptDetailPanel extends Composite {
     }
 
     private void enableFields(boolean enabled) {
-        nameField.setEnabled(enabled && editable);
-        descriptionField.setEnabled(enabled && editable);
-        synonymsField.setEnabled(enabled && editable);
+        nameField.setEnabled(enabled && this.editable);
+        descriptionField.setEnabled(enabled && this.editable);
+        synonymsField.setEnabled(enabled && this.editable);
+        deleteAnnotation.setEnabled(enabled && this.editable);
     }
 
     public void setEditable(boolean editable) {
@@ -307,5 +308,6 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setEnabled(this.editable);
         descriptionField.setEnabled(this.editable);
         synonymsField.setEnabled(this.editable);
+        deleteAnnotation.setEnabled(this.editable);
     }
 }

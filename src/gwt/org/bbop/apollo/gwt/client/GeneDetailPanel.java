@@ -22,6 +22,7 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -147,6 +148,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
         synonymsField.setEnabled(enabled);
+        deleteAnnotation.setEnabled(enabled);
     }
 
 
@@ -337,6 +339,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(editable);
         descriptionField.setEnabled(editable);
         synonymsField.setEnabled(editable);
+        deleteAnnotation.setEnabled(editable);
 
     }
 }
