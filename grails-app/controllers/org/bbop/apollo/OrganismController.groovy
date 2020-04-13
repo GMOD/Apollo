@@ -599,12 +599,14 @@ class OrganismController {
         CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
         CommonsMultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
 
+        // if this is an uploaded organism
         if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
           // organism data is in common data directory
           File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
           JSONObject trackListObject = JSON.parse(trackListJsonFile.text) as JSONObject
           JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
 
+          // if it is a massive zip file
           if (trackDataFile) {
             // check if track exists in trackList.json
             if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.getString(FeatureStringEnum.LABEL.value)) == null) {
@@ -633,7 +635,9 @@ class OrganismController {
               log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${trackService.TRACKLIST}"
               returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${trackService.TRACKLIST}.")
             }
-          } else {
+          }
+          else {
+            // if it is just a simple track
             // trackDataFile is null; use data from trackFile and trackFileIndex, if available
             if (trackFile) {
               if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.getString(FeatureStringEnum.LABEL.value)) == null) {
@@ -682,7 +686,9 @@ class OrganismController {
               }
             }
           }
-        } else {
+        }
+          // if it is a preconfigured track
+        else {
 
 
           // organism data is somewhere on the server where we don't want to modify anything
@@ -708,6 +714,7 @@ class OrganismController {
               }
             }
 
+            // if it is a trackDataFile upload
             if (trackDataFile) {
               File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
               JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text) as JSONObject
@@ -741,6 +748,8 @@ class OrganismController {
                 }
               }
             } else {
+
+              // if it is a trackfile upload
               if (trackFile) {
                 if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
                   // add track config to trackList.json
