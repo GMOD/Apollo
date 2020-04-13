@@ -429,9 +429,7 @@ public class DbXrefPanel extends Composite {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteDbXrefButton.setEnabled(false);
                     dbXrefInfoList.remove(interalDbXref);
-//                    dbXrefInfoList.remove(newDbXrefInfo);
                     AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
-//                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
                     redrawTable();
                 }
 
