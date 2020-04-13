@@ -85,6 +85,7 @@ public class CommentPanel extends Composite {
                     deleteCommentButton.setEnabled(false);
                 } else {
                     selectCommentData(selectionModel.getSelectedObject());
+                    loadCannedComments();
                     deleteCommentButton.setEnabled(true);
                 }
             }

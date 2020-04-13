@@ -380,7 +380,6 @@ public class DbXrefPanel extends Composite {
                 @Override
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("invalid PMID: " + pmidValue);
-
                 }
             };
             ProxyRestService.findPubMedId(validationCallBack, pmidValue);
