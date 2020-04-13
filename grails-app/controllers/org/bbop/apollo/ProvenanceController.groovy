@@ -18,10 +18,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 class ProvenanceController {
 
 
-    def permissionService
-    def provenanceService
-    def featureEventService
-    def featureService
+  def permissionService
+  def provenanceService
+  def featureEventService
+  def featureService
 
   @RestApiMethod(description = "Load Annotations for feature", path = "/provenance", verb = RestApiVerb.POST)
   @RestApiParams(params = [
@@ -52,59 +52,62 @@ class ProvenanceController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-    @RestApiMethod(description = "Save New Provenance Annotations for feature", path = "/provenance/save", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to query on")
-            , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
-            , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
-            , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
-            , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-            , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
-            , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
-    ]
+  @RestApiMethod(description = "Save New Provenance Annotations for feature", path = "/provenance/save", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to query on")
+    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
+    , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
+    , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
+    , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
+    , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
+    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
+  ]
+  )
+  @Transactional
+  def save() {
+    JSONObject dataObject = permissionService.handleInput(request, params)
+    Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    User user = permissionService.getCurrentUser(dataObject)
+    Provenance provenance = new Provenance()
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature, sequence)
+
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+    provenance.feature = feature
+    provenance.field = dataObject.field
+    provenance.evidenceRef = dataObject.evidenceCode
+    provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
+    provenance.withOrFromArray = dataObject.withOrFrom
+    provenance.notesArray = dataObject.notes
+    provenance.reference = dataObject.reference
+    provenance.lastUpdated = new Date()
+    provenance.dateCreated = new Date()
+    provenance.addToOwners(user)
+    feature.addToProvenances(provenance)
+    provenance.save(flush: true, failOnError: true)
+
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
+
+    featureEventService.addNewFeatureEvent(
+      FeatureOperation.ADD_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user,
+      sequence.organismId
     )
-    @Transactional
-    def save() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
-        User user = permissionService.getCurrentUser(dataObject)
-        Provenance provenance = new Provenance()
-        Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
 
-        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-
-        provenance.feature = feature
-        provenance.field = dataObject.field
-        provenance.evidenceRef = dataObject.evidenceCode
-        provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
-        provenance.withOrFromArray = dataObject.withOrFrom
-        provenance.notesArray = dataObject.notes
-        provenance.reference = dataObject.reference
-        provenance.lastUpdated = new Date()
-        provenance.dateCreated = new Date()
-        provenance.addToOwners(user)
-        feature.addToProvenances(provenance)
-        provenance.save(flush: true, failOnError: true)
-
-        JSONArray oldFeaturesJsonArray = new JSONArray()
-        oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        JSONArray newFeaturesJsonArray = new JSONArray()
-        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-        newFeaturesJsonArray.add(currentFeatureJsonObject)
-
-        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_GO_ANNOTATION,
-                feature.name,
-                feature.uniqueName,
-                dataObject,
-                oldFeaturesJsonArray,
-                newFeaturesJsonArray,
-                user)
-
-        JSONObject annotations = provenanceService.getAnnotations(feature)
-        render annotations as JSON
-    }
+    JSONObject annotations = provenanceService.getAnnotations(feature)
+    render annotations as JSON
+  }
 
   @RestApiMethod(description = "Update existing annotations for feature", path = "/provenance/update", verb = RestApiVerb.POST)
   @RestApiParams(params = [
@@ -125,40 +128,43 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature, sequence)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
 
-        Provenance provenance = Provenance.findById(dataObject.id)
-        provenance.feature = feature
-        provenance.field = dataObject.field
-        provenance.evidenceRef = dataObject.evidenceCode
-        provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
-        provenance.withOrFromArray = dataObject.withOrFrom
-        provenance.notesArray = dataObject.notes
-        provenance.reference = dataObject.reference
-        provenance.lastUpdated = new Date()
-        provenance.dateCreated = new Date()
-        provenance.addToOwners(user)
-        provenance.save(flush: true, failOnError: true, insert: false)
+    Provenance provenance = Provenance.findById(dataObject.id)
+    provenance.feature = feature
+    provenance.field = dataObject.field
+    provenance.evidenceRef = dataObject.evidenceCode
+    provenance.evidenceRefLabel = dataObject.evidenceCodeLabel
+    provenance.withOrFromArray = dataObject.withOrFrom
+    provenance.notesArray = dataObject.notes
+    provenance.reference = dataObject.reference
+    provenance.lastUpdated = new Date()
+    provenance.dateCreated = new Date()
+    provenance.addToOwners(user)
+    provenance.save(flush: true, failOnError: true, insert: false)
 
-        JSONArray oldFeaturesJsonArray = new JSONArray()
-        oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        JSONArray newFeaturesJsonArray = new JSONArray()
-        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-        newFeaturesJsonArray.add(currentFeatureJsonObject)
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_GO_ANNOTATION,
-                feature.name,
-                feature.uniqueName,
-                dataObject,
-                oldFeaturesJsonArray,
-                newFeaturesJsonArray,
-                user)
+    featureEventService.addNewFeatureEvent(
+      FeatureOperation.UPDATE_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user,
+      sequence.organismId
+    )
 
-        JSONObject annotations = provenanceService.getAnnotations(feature)
-        render annotations as JSON
-    }
+    JSONObject annotations = provenanceService.getAnnotations(feature)
+    render annotations as JSON
+  }
 
   @RestApiMethod(description = "Delete existing annotations for feature", path = "/provenance/delete", verb = RestApiVerb.POST)
   @RestApiParams(params = [
@@ -174,28 +180,31 @@ class ProvenanceController {
     Sequence sequence = permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
 
-    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature,sequence)
+    Feature feature = featureService.getFeatureByUniqueNameAndSequence(dataObject.feature, sequence)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
-        Provenance provenance = Provenance.findById(dataObject.id)
-        feature.removeFromProvenances(provenance)
-        provenance.delete(flush: true)
+    Provenance provenance = Provenance.findById(dataObject.id)
+    feature.removeFromProvenances(provenance)
+    provenance.delete(flush: true)
 
-        JSONArray oldFeaturesJsonArray = new JSONArray()
-        oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        JSONArray newFeaturesJsonArray = new JSONArray()
-        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-        newFeaturesJsonArray.add(currentFeatureJsonObject)
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_GO_ANNOTATION,
-                feature.name,
-                feature.uniqueName,
-                dataObject,
-                oldFeaturesJsonArray,
-                newFeaturesJsonArray,
-                user)
+    featureEventService.addNewFeatureEvent(
+      FeatureOperation.REMOVE_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user,
+      sequence.organismId
+    )
 
-        JSONObject annotations = provenanceService.getAnnotations(feature)
-        render annotations as JSON
-    }
+    JSONObject annotations = provenanceService.getAnnotations(feature)
+    render annotations as JSON
+  }
 }
