@@ -609,7 +609,7 @@ class OrganismController {
           if (trackDataFile) {
             println "is a track data file I hope not"
             // check if track exists in trackList.json
-            if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+            if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.getString(FeatureStringEnum.LABEL.value)) == null) {
               // add track config to trackList.json
               tracksArray.add(trackConfigObject)
               // unpack track data into organism directory
@@ -619,7 +619,7 @@ class OrganismController {
                 String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                 String trackDirectoryName = urlTemplate.split("/").first()
                 String path = organismDirectoryName + File.separator + trackDirectoryName
-                fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)
+                fileService.decompress(archiveFile, path, trackConfigObject.getString(FeatureStringEnum.LABEL.value), true)
 
                 // write to trackList.json
                 def trackListJsonWriter = trackListJsonFile.newWriter()
@@ -640,7 +640,7 @@ class OrganismController {
             println "not a track data file"
             if (trackFile) {
               println "has a track file! ${trackFile}"
-              if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+              if (trackService.findTrackFromArrayByLabel(tracksArray, trackConfigObject.getString(FeatureStringEnum.LABEL.value)) == null) {
                 // add track config to trackList.json
                 tracksArray.add(trackConfigObject)
                 try {
@@ -650,16 +650,26 @@ class OrganismController {
 //                                    fileService.store(trackFile, path)
                   TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                   String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
-                  File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
-                  if (trackFileIndex.originalFilename) {
-                    String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
+
+
+                  if (trackFile.originalFilename.endsWith("gz")) {
+                    decompressFileToRawDirectory(trackFile, path, trackConfigObject, newFileName)
+                  } else {
+
+                    File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                    if (trackFileIndex.originalFilename) {
+                      String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                        fileService.store(trackFileIndex, path)
-                    fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                      fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                    }
+
+                    if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
+                      trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries, trackConfigObject.apollo.topType)
+                    }
                   }
 
-                  if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
-                    trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries, trackConfigObject.apollo.topType)
-                  }
+
+
 
                   // write to trackList.json
                   def trackListJsonWriter = trackListJsonFile.newWriter()
@@ -708,12 +718,12 @@ class OrganismController {
 
             if (trackDataFile) {
               File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
-              JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
+              JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text) as JSONObject
 
-              JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+              JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value) as JSONArray
               println "we have a track data file now?!@? ${trackDataFile}"
               // check if track exists in extendedTrackList.json
-              if (trackService.findTrackFromArrayByLabel(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
+              if (trackService.findTrackFromArrayByLabel(extendedTracksArray, trackConfigObject.getString(FeatureStringEnum.LABEL.value)) != null) {
                 log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}"
                 returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}.")
               } else {
@@ -777,16 +787,7 @@ class OrganismController {
                       String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
                       if (trackFile.originalFilename.endsWith("gz")) {
-                        File archiveFile = new File(trackFile.getOriginalFilename())
-                        trackFile.transferTo(archiveFile)
-                        List<String> fileNames = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), false)
-                        println "filenames ${fileNames.join(" ")} renaming to ${newFileName}"
-                        File inputFile = new File(fileNames.get(0))
-                        File finalPath = new File(path + "/" + newFileName)
-                        println "moving ${inputFile} to ${newFileName} or ${path} = ${finalPath}"
-//                        println "input file ${inputF}"
-//                        printn ""
-                        inputFile.renameTo(finalPath)
+                        decompressFileToRawDirectory(trackFile, path, trackConfigObject, newFileName)
                       } else {
                         File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                         println "stroing with name ${destinationFile} ${newFileName}"
@@ -798,20 +799,7 @@ class OrganismController {
                         if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
                           trackService.generateJSONForGff3(destinationFile, extendedDirectory.absolutePath, pathToJBrowseBinaries, trackConfigObject.apollo.topType)
                         }
-//                                            File destinationFile
-//                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
-//                                                File archiveFile = new File(trackFile.originalFilename)
-//                                                trackFile.transferTo(archiveFile)
-////                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
-//                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
-//                                                destinationFile = new File(outputFilePath)
-////                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
-//                                            }
-//                                            else{
-//                                            destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
-//                                            }
                       }
-
 
                       extendedTracksArray.add(trackConfigObject)
                       extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
@@ -1589,6 +1577,16 @@ class OrganismController {
       def error = [error: e.message]
       render error as JSON
     }
+  }
+
+  private def decompressFileToRawDirectory(CommonsMultipartFile trackFile, String path, JSONObject trackConfigObject, String newFileName) {
+    File archiveFile = new File(trackFile.getOriginalFilename())
+    trackFile.transferTo(archiveFile)
+    List<String> fileNames = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), false)
+    File inputFile = new File(fileNames.get(0))
+    File finalPath = new File(path + "/" + newFileName)
+    inputFile.renameTo(finalPath)
+    return inputFile
   }
 
 /**
