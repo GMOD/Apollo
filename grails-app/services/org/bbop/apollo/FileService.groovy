@@ -308,7 +308,10 @@ class FileService {
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
         String tempFileName = UUID.randomUUID().toString() + ".temp"
 
+        new File(initialLocation).mkdirs()
+
         File outputFile = new File(initialLocation, tempFileName)
+        println "writing output file ${outputFile}"
         assert outputFile.createNewFile()
         log.debug "${initialLocation} -> can write: ${outputFile.absolutePath} -> ${outputFile.exists()} -> ${outputFile.canWrite()}"
         try {
