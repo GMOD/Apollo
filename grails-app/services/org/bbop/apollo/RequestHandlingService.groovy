@@ -250,14 +250,14 @@ class RequestHandlingService {
             )
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.UPDATE
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
 
         return updateFeatureContainer
 
@@ -269,7 +269,7 @@ class RequestHandlingService {
     def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)

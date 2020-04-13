@@ -422,11 +422,15 @@ public class DbXrefPanel extends Composite {
     public void deleteDbXref(ClickEvent ce) {
 
         if (this.internalDbXrefInfo != null) {
+            final DbXrefInfo interalDbXref = this.internalDbXrefInfo;
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteDbXrefButton.setEnabled(false);
+                    dbXrefInfoList.remove(interalDbXref);
+//                    dbXrefInfoList.remove(newDbXrefInfo);
+                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
 //                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
                     redrawTable();
                 }
