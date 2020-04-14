@@ -9,6 +9,11 @@
         margin-bottom: 0.3em;
         margin-left: 1.8em;
     }
+    h3 {
+        margin-top: 2em;
+        margin-bottom: 0.3em;
+        margin-left: 2.4em;
+    }
 
     ul {
         margin-left: 2em;
@@ -50,9 +55,10 @@
         <li>
             <a href="https://github.com/gmod/apollo/issues/new">Request Feature / Report Bug</a>
         </li>
-      <li>
-        <a href="https://groups.google.com/a/lbl.gov/forum/#!forum/apollo">User's Group</a> archive and signup.  <a href="mailto:apollo@lbl.gov">Email user's group directly</a>.
-      </li>
+        <li>
+            <a href="https://groups.google.com/a/lbl.gov/forum/#!forum/apollo">User's Group</a> archive and signup.  <a
+                href="mailto:apollo@lbl.gov">Email user's group directly</a>.
+        </li>
     </ul>
 
     <hr/>
@@ -71,6 +77,24 @@
         <li>Groovy version: ${GroovySystem.getVersion()}</li>
         <li>JVM version: ${System.getProperty('java.version')}</li>
         <li>Servlet Container Version: ${application.getServerInfo()}</li>
+        <li>JBrowse config: ${grailsApplication.config.jbrowse.git.branch ? grailsApplication.config.jbrowse.git.branch : grailsApplication.config.jbrowse.git.tag}</li>
+        <li>JBrowse url: ${grailsApplication.config.jbrowse.git.url}</li>
+    </ul>
+
+    <h3>JBrowse Plugins</h3>
+    <ul>
+        <g:each in="${grailsApplication.config.jbrowse.plugins}">
+            <li>${it}</li>
+        </g:each>
+    </ul>
+
+    <h3>Apollo Config</h3>
+    <ul>
+        <g:each in="${grailsApplication.config.apollo}">
+            <g:if test="${!it.toString().toLowerCase().contains('password')}">
+                <li>${it}</li>
+            </g:if>
+        </g:each>
     </ul>
 
 </div>
