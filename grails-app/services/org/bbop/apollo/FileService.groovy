@@ -195,6 +195,7 @@ class FileService {
                         log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
 //                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
                     }
+                    Files.createDirectories(path.getParent());
                     Files.createSymbolicLink(path, Paths.get(dest));
                     fileNames.add(destAbsPath.toString())
                 }
