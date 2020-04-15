@@ -1642,7 +1642,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
       // from a GFF3 OGS
       if (jsonFeature.has(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase())) {
         def dbxrefs = jsonFeature.get(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase())
-        println "A"
         if (dbxrefs instanceof JSONArray) {
           for (String dbxrefString in dbxrefs) {
             createDbXrefs(dbxrefString, gsolFeature)
@@ -1650,13 +1649,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         } else {
           createDbXrefs(dbxrefs as String,gsolFeature)
         }
-        println "B"
       }
 
       if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
-        println "C"
         JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
-        println "D"
         for (int i = 0; i < dbxrefs.length(); ++i) {
           JSONObject dbxref = dbxrefs.getJSONObject(i);
           JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
@@ -1669,9 +1665,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
           ).save()
           gsolFeature.addToFeatureDBXrefs(newDBXref)
           gsolFeature.save()
-          println "E"
         }
-        println "F"
       }
       // TODO: gene_product
       // only coming from GFF3

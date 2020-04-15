@@ -2083,9 +2083,7 @@ class RequestHandlingService {
                         provenanceService.removeProvenancesFromFeature(transcript)
                         geneProductService.removeGeneProductsFromFeature(transcript)
 
-                      println "deleted top-level "
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
-                        println "deleted features and children"
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2096,9 +2094,7 @@ class RequestHandlingService {
 
                             fireAnnotationEvent(annotationEvent)
                         }
-                        println "fired"
                     } else {
-                        println "deleting only transcirpts"
                         goAnnotationService.deleteAnnotationFromFeature(transcript)
                         provenanceService.deleteAnnotationFromFeature(transcript)
                         geneProductService.deleteAnnotationFromFeature(transcript)
@@ -2111,7 +2107,6 @@ class RequestHandlingService {
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
                         gene.save()
-                        println "deleted only transcript from gene"
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
