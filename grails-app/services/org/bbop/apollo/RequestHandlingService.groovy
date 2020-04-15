@@ -2017,18 +2017,23 @@ class RequestHandlingService {
             println "deleting feature found to delete ${feature}"
             if (feature) {
                 if (feature instanceof Exon) {
+                    println "trying to delete an exon  ${feature}"
                     Transcript transcript = exonService.getTranscript((Exon) feature)
+                    println "got transcript from the exon ${transcript}"
                     // if its the same transcript, we don't want to overwrite it
                     if (!oldFeatureMap.containsKey(transcript.uniqueName)) {
                         oldFeatureMap.put(transcript.uniqueName, featureService.convertFeatureToJSON(transcript))
                     }
+                    println "was converted to JSON for some reason"
                 } else {
                     if (!oldFeatureMap.containsKey(feature.uniqueName)) {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
                 }
                 // is this a bug?
+                println "turning to delete a feature ${feature}"
                 isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation
+                println "was an update operation ${feature}"
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
                 if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
@@ -2061,12 +2066,26 @@ class RequestHandlingService {
                         gene = transcriptService.getPseudogene(transcript)
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
+                    println "deleting N transcript ${numberTranscripts}"
                     if (numberTranscripts == 1) {
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
                         goAnnotationService.deleteAnnotationFromFeature(topLevelFeature)
                         provenanceService.deleteAnnotationFromFeature(topLevelFeature)
                         geneProductService.deleteAnnotationFromFeature(topLevelFeature)
+
+                        // we still need to delete everything from the transcript as well
+                        goAnnotationService.removeGoAnnotationsFromFeature(topLevelFeature)
+                        provenanceService.removeProvenancesFromFeature(topLevelFeature)
+                        geneProductService.removeGeneProductsFromFeature(topLevelFeature)
+
+                        // we still need to delete everything from the transcript as well
+                        goAnnotationService.removeGoAnnotationsFromFeature(transcript)
+                        provenanceService.removeProvenancesFromFeature(transcript)
+                        geneProductService.removeGeneProductsFromFeature(transcript)
+
+                      println "deleted top-level "
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+                        println "deleted features and children"
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2077,7 +2096,9 @@ class RequestHandlingService {
 
                             fireAnnotationEvent(annotationEvent)
                         }
+                        println "fired"
                     } else {
+                        println "deleting only transcirpts"
                         goAnnotationService.deleteAnnotationFromFeature(transcript)
                         provenanceService.deleteAnnotationFromFeature(transcript)
                         geneProductService.deleteAnnotationFromFeature(transcript)
@@ -2090,6 +2111,7 @@ class RequestHandlingService {
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
                         gene.save()
+                        println "deleted only transcript from gene"
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
