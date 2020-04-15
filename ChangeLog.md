@@ -13,6 +13,7 @@ Features
 - Remove sequence lookup at the top [2407](https://github.com/GMOD/Apollo/pull/2407)
 - Provide better security and feedback when trying to export with insufficient permissions [2431](https://github.com/GMOD/Apollo/pull/2431)
 - Split out default GO Evidence Codes from ECO codes [2429](https://github.com/GMOD/Apollo/pull/2429)
+- Added more info (e.g, JBrowse and general settings) to the about window and is visible on login [47f469f7](https://github.com/GMOD/Apollo/commit/47f469f7586c49f51e1c2f23b59a0a2102ca224a)
 
 
 Infrastructure Changes
@@ -28,6 +29,8 @@ Bug Fixes
 - Fixed export of non-coding RNA if exon not present [2353](https://github.com/GMOD/Apollo/pull/2353)
 - Removed sequence panel lookup [2388](https://github.com/GMOD/Apollo/pull/2353)
 - Annotator/updateFeature should store history properly [2390](https://github.com/GMOD/Apollo/pull/2353)
+- Makes sure that parent directory exists when unpacking [2437](https://github.com/GMOD/Apollo/pull/2437)
+- Fixed bug when decompressing gff3.gz data when adding a new track [2434](https://github.com/GMOD/Apollo/pull/2434)
 
 
 ## 2.5.0
