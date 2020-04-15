@@ -4,25 +4,30 @@
 Features
 
 - Remove popups for annotations in favor of annotator panel [2334](https://github.com/GMOD/Apollo/pull/2334)
-- Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312) 
+- Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
 - Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
 - Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
 - Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
 - Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
-- Show variants and genes in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
+- Show genome features in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
 - Remove sequence lookup at the top [2407](https://github.com/GMOD/Apollo/pull/2407)
+- Provide better security and feedback when trying to export with insufficient permissions [2431](https://github.com/GMOD/Apollo/pull/2431)
+- Split out default GO Evidence Codes from ECO codes [2429](https://github.com/GMOD/Apollo/pull/2429)
 
 
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.8](https://github.com/GMOD/jbrowse/releases/tag/1.16.8-release)
 - Upgrade to [Node 13](https://github.com/GMOD/Apollo/issues/2358)
+- Add python library to the docker image [2409](https://github.com/GMOD/Apollo/issues/2409)
 
 Bug Fixes
 
 - Open by unqiuename to get only the results of the name we are interested in [2338](https://github.com/GMOD/Apollo/pull/2338)
 - Fixed ability to add multiple BAMs at once [2352](https://github.com/GMOD/Apollo/pull/2352)
 - Fixed export of non-coding RNA if exon not present [2353](https://github.com/GMOD/Apollo/pull/2353)
+- Removed sequence panel lookup [2388](https://github.com/GMOD/Apollo/pull/2353)
+- Annotator/updateFeature should store history properly [2390](https://github.com/GMOD/Apollo/pull/2353)
 
 
 ## 2.5.0
