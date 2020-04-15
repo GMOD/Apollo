@@ -719,7 +719,7 @@ return declare( [JBPlugin, HelpMixin],
             id: 'about_apollo',
             label: 'About Apollo',
             onClick: function() {
-              window.open("../about.jsp",'help_window').focus();
+              window.open("../about",'help_window').focus();
             }
         })
       );

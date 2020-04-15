@@ -19,6 +19,18 @@
         margin-left: 2em;
         font-size: larger;
     }
+        .big-annotator-button{
+            margin-left: 50px;
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 50px;
+            background-color: #396494;
+            border: solid black 5px ;
+            border-radius: 10px;
+            width: 280px;
+            color: white !important;
+            font-weight: bolder;
+        }
 
     </style>
 </head>
@@ -35,6 +47,12 @@
     </div>
 
 </nav>
+
+<div class="big-annotator-button">
+    <a href="../annotator/" target="_blank" style="color: white;">
+        Annotate
+    </a>
+</div>
 
 <div id="list-track" class="content scaffold-list" role="main">
     <h2>Apollo Genome Annotation Editor</h2>
