@@ -109,12 +109,12 @@ apollo {
 
     google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID") ?: ["UA-62921593-1"]
 
-    admin {
-        username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"
-        password = System.getenv("APOLLO_ADMIN_PASSWORD") ?: "password"
-        firstName = System.getenv("APOLLO_ADMIN_FIRST_NAME") ?: "Ad"
-        lastName = System.getenv("APOLLO_ADMIN_LAST_NAME") ?: "min"
-    }
+//    admin {
+//        username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"
+//        password = System.getenv("APOLLO_ADMIN_PASSWORD") ?: "password"
+//        firstName = System.getenv("APOLLO_ADMIN_FIRST_NAME") ?: "Ad"
+//        lastName = System.getenv("APOLLO_ADMIN_LAST_NAME") ?: "min"
+//    }
     authentications = [
         [
             "name":"Remote User Authenticator",
