@@ -2003,7 +2003,7 @@ COPY public.go_annotation_grails_user (go_annotation_owners_id, user_id) FROM st
 --
 
 COPY public.grails_user (id, version, first_name, inactive, last_name, metadata, password_hash, username) FROM stdin;
-20	4	Apollo	f	Admin	{}	7cda05e3f30b9cffc986ffc7c748e9dd045e42bfd2ef18f6c40ef9d0e58bb5b8	administrator
+20	4	Apollo	f	Admin	{}	0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d	administrator
 28	2	Demonstration	f	User	{"creator":"20"}	0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d	demouser
 \.
 
