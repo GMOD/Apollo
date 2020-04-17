@@ -15,6 +15,8 @@ To run Apollo as a standalone:
     
 Open url: http://hostname:8888/annotator/index    
 
+Pre-populated demo user is `demouser / demo1234`  and administrator user is `administrator / demo1234`.  
+
 * [Docker repo home](https://hub.docker.com/repository/docker/gmod/sars-cov-2-apollo)
 * Further [Apollo Docker Configurations](docs/Docker.md)
 * [Docker source](https://github.com/GMOD/Apollo/tree/covid-docker)
