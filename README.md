@@ -16,7 +16,7 @@ To run Apollo as a standalone:
 Open url: http://hostname:8888/annotator/index    
 
 * [Docker repo home](https://hub.docker.com/repository/docker/gmod/sars-cov-2-apollo)
-* Further [Apollo Docker Configuraitons](docs/Docker.md)
+* Further [Apollo Docker Configurations](docs/Docker.md)
 * [source](https://github.com/GMOD/Apollo/tree/covid-docker)
 * [Using JBrowse as a standalone COVID-9 viewer]((https://hub.docker.com/repository/docker/gmod/sars-cov-2-jbrowse)) (thanks @scottcain for compiling all of this data) [github repo](https://github.com/scottcain/jbrowse_genomes_of_interest) 
 
