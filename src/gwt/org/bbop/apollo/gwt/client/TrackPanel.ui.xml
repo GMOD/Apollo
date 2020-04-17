@@ -95,7 +95,7 @@
 <!--                                             onText="Hide" offText="Show" visible="true"/>-->
                     </b:Column>
                     <b:Column size="MD_2" >
-                        <b:Button text="New Track" icon="PLUS_CIRCLE" ui:field="addTrackButton" visible="false"/>
+                        <b:Button text="New Track" icon="PLUS_CIRCLE" ui:field="addTrackButton" visible="true"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

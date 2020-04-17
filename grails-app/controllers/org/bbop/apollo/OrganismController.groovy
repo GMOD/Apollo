@@ -465,7 +465,7 @@ class OrganismController {
     }
 
     try {
-      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
+      permissionService.checkPermissions(requestObject, PermissionEnum.WRITE)
       Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
       // find in the extended track list and remove
       File extendedDirectory = trackService.getExtendedDataDirectory(organism)
@@ -585,7 +585,7 @@ class OrganismController {
     }
 
     try {
-      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
+      permissionService.checkPermissions(requestObject, PermissionEnum.WRITE)
 //            log.debug "user ${requestObject.get(FeatureStringEnum.USERNAME.value)} is admin"
       Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
 
