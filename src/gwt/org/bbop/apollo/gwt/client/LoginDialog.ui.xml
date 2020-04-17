@@ -64,7 +64,7 @@
                     <b:Anchor text="Browse public genomes" href="../jbrowse/"/>
                     <bhtml:Hr/>
                     <b:Alert type="INFO">
-                        <bhtml:Text text=" This is an Apollo instance with a genome from the novel provided corona virus browser included."/>
+                        <bhtml:Text text="This is an instance of the Apollo genome annotation editor, configured for the SARS-CoV-2 reference genome."/>
                         <bhtml:Text text="The demonstration user is:"/>
                         <bhtml:Br/>
                         <bhtml:Strong text="demouser / demo1234"/>
