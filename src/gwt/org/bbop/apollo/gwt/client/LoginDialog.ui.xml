@@ -57,18 +57,11 @@
                 </b:Row>
             </b:Container>
 
-            <b:Row styleName="{style.spacer}">
-                <b:Anchor text="Browse public genomes" href="../jbrowse/"/>
-            </b:Row>
-
-<!--            <b:Row styleName="{style.spacer}">-->
-<!--                <gwt:HTML>-->
-<!--                    <hr/>-->
-<!--                </gwt:HTML>-->
-<!--            </b:Row>-->
 
             <b:Row styleName="{style.spacer}">
                 <b:Column size="MD_11">
+                    <bhtml:Hr/>
+                    <b:Anchor text="Browse public genomes" href="../jbrowse/"/>
                     <bhtml:Hr/>
                     <b:Alert type="INFO">
                         <bhtml:Text text=" This is an Apollo instance with a genome from the novel provided corona virus browser included."/>
@@ -77,20 +70,13 @@
                         <bhtml:Strong text="demouser / demo1234"/>
                         <bhtml:Br/>
                         <bhtml:Text text=" If you would like your own demonstration user in a sandbox you can"/>
-                        <gwt:Anchor styleName="{style.link}" target="mailto:apollo-dev@lbl.gov">email the dev team</gwt:Anchor>
-                        <bhtml:Text text="or run via your own docker instance "/>
-                        <gwt:Anchor styleName="{style.link}" target="https://hub.docker.com/repository/docker/gmod/sars-cov-2-apollo">or run via your own docker instance</gwt:Anchor>
-                        <bhtml:Text text="."/>
+                        <gwt:Anchor styleName="{style.link}" target="_blank" href="mailto:apollo-dev@lbl.gov?subject=Please add a user to http://covid19apollo.jbrowse.org/">email the dev team</gwt:Anchor>
+                        <bhtml:Text text=" or "/>
+                        <gwt:Anchor styleName="{style.link}" target="_blank" href="https://hub.docker.com/repository/docker/gmod/sars-cov-2-apollo">run your own docker instance locally.</gwt:Anchor>
                         <bhtml:Br/>
                     </b:Alert>
                     <bhtml:Hr/>
                 </b:Column>
-            </b:Row>
-
-            <b:Row styleName="{style.spacer}">
-                <gwt:HTML>
-                    <hr/>
-                </gwt:HTML>
             </b:Row>
 
 
