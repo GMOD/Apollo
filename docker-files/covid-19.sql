@@ -2003,7 +2003,8 @@ COPY public.go_annotation_grails_user (go_annotation_owners_id, user_id) FROM st
 --
 
 COPY public.grails_user (id, version, first_name, inactive, last_name, metadata, password_hash, username) FROM stdin;
-20	1	Ad	f	min	\N	5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8	admin@local.host
+20	4	Apollo	f	Admin	{}	7cda05e3f30b9cffc986ffc7c748e9dd045e42bfd2ef18f6c40ef9d0e58bb5b8	administrator
+28	2	Demonstration	f	User	{"creator":"20"}	0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d	demouser
 \.
 
 
@@ -2036,7 +2037,7 @@ COPY public.operation (id, version, attributes, feature_unique_name, new_feature
 --
 
 COPY public.organism (id, version, abbreviation, blatdb, comment, common_name, data_added_via_web_services, directory, genome_fasta, genome_fasta_index, genus, metadata, non_default_translation_table, obsolete, official_gene_set_track, public_mode, species, valid) FROM stdin;
-22	2	\N	\N	\N	Covid-19	\N	/jbrowse/jbrowse/data/SARS-CoV-2	\N	\N	Betacoronavirus	{"creator":"20"}	\N	f	\N	f	Sarbecovirus	t
+22	2	\N	\N	\N	Covid-19	\N	/jbrowse/jbrowse/data/SARS-CoV-2	\N	\N	Betacoronavirus	{"creator":"20"}	\N	f	\N	t	Sarbecovirus	t
 \.
 
 
@@ -2102,6 +2103,7 @@ COPY public.part_of (id, version) FROM stdin;
 
 COPY public.permission (id, version, organism_id, class, group_id, permissions, track_visibilities, user_id) FROM stdin;
 23	1	22	org.bbop.apollo.UserOrganismPermission	\N	["ADMINISTRATE"]	\N	20
+29	1	22	org.bbop.apollo.UserOrganismPermission	\N	["WRITE"]	\N	28
 \.
 
 
@@ -2142,7 +2144,6 @@ COPY public.phenotype_statement (id, version, environment_id, genotype_id, pheno
 --
 
 COPY public.preference (id, version, client_token, date_created, domain, last_updated, name, preferences_string, class, user_id, current_organism, endbp, native_track_list, organism_id, sequence_id, startbp) FROM stdin;
-25	0	1450178762145429689448776345	2020-03-17 03:56:18.477	\N	2020-03-17 03:56:18.477	\N	\N	org.bbop.apollo.UserOrganismPreference	20	t	29903	f	22	24	0
 \.
 
 
