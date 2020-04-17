@@ -21,7 +21,10 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
+import org.bbop.apollo.gwt.client.go.GoEvidenceCode;
+import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
+import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.Aspect;
@@ -38,14 +41,12 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle.*;
+
 /**
  * Created by ndunn on 1/9/15.
  */
 public class GoPanel extends Composite {
-
-  private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
-  private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-  private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
   interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
   }
@@ -62,7 +63,7 @@ public class GoPanel extends Composite {
   @UiField
   org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
   @UiField(provided = true)
-  SuggestBox evidenceCodeField;
+  BiolinkSuggestBox evidenceCodeField;
   @UiField
   TextBox withFieldPrefix;
   @UiField
@@ -113,13 +114,19 @@ public class GoPanel extends Composite {
   org.gwtbootstrap3.client.ui.ListBox aspectField;
   @UiField
   HTML aspectLabel;
+  @UiField
+  org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
+  @UiField
+  Anchor helpLink;
 
   private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
   private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
   private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
   private AnnotationInfo annotationInfo;
-  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle("GO");
+  private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle(BiolinkLookup.GO);
+  private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle();
+  private Boolean editable  = false ;
 
   public GoPanel() {
 
@@ -130,6 +137,8 @@ public class GoPanel extends Composite {
     dataGrid.setSelectionModel(selectionModel);
 
     initWidget(ourUiBinder.createAndBindUi(this));
+
+    allEcoCheckBox(null);
 
     aspectField.addItem("Choose", "");
     for (Aspect aspect : Aspect.values()) {
@@ -153,7 +162,7 @@ public class GoPanel extends Composite {
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        if (selectionModel.getSelectedObject() != null) {
+        if (selectionModel.getSelectedObject() != null && editable) {
           deleteGoButton.setEnabled(true);
           editGoButton.setEnabled(true);
         } else {
@@ -167,9 +176,11 @@ public class GoPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        goAnnotationTitle.setText("Edit GO Annotation for " + AnnotatorPanel.selectedAnnotationInfo.getName());
-        handleSelection();
-        editGoModal.show();
+        if(editable){
+          goAnnotationTitle.setText("Edit GO Annotation for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+          handleSelection();
+          editGoModal.show();
+        }
       }
     }, DoubleClickEvent.getType());
 
@@ -260,24 +271,7 @@ public class GoPanel extends Composite {
 
   private void initLookups() {
     goTermField = new SuggestBox(goLookup);
-
-    // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
-    BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
-    ecoLookup.addPreferredSuggestion("experimental evidence used in manual assertion (EXP)", "http://www.evidenceontology.org/term/ECO:0000269/", "ECO:0000269");
-    ecoLookup.addPreferredSuggestion("direct assay evidence used in manual assertion (IDA)", "http://www.evidenceontology.org/term/ECO:0000314/", "ECO:0000314");
-    ecoLookup.addPreferredSuggestion("physical interaction evidence used in manual assertion (IPI)", "http://www.evidenceontology.org/term/ECO:0000353/", "ECO:0000353");
-    ecoLookup.addPreferredSuggestion("mutant phenotype evidence used in manual assertion (IMP)", "http://www.evidenceontology.org/term/ECO:0000315/", "ECO:0000315");
-    ecoLookup.addPreferredSuggestion("genetic interaction evidence used in manual assertion (IGI)", "http://www.evidenceontology.org/term/ECO:0000316/", "ECO:0000316");
-    ecoLookup.addPreferredSuggestion("biological aspect of ancestor evidence used in manual assertion (IBA)", "http://www.evidenceontology.org/term/ECO:0000318/", "ECO:0000318");
-    ecoLookup.addPreferredSuggestion("biological aspect of descendant evidence used in manual assertion (IBD)", "http://www.evidenceontology.org/term/ECO:0000319/", "ECO:0000319");
-    ecoLookup.addPreferredSuggestion("sequence similarity evidence used in manual assertion (ISS)", "http://www.evidenceontology.org/term/ECO:0000250/", "ECO:0000250");
-    ecoLookup.addPreferredSuggestion("sequence orthology evidence used in manual assertion (ISO)", "http://www.evidenceontology.org/term/ECO:0000266/", "ECO:0000266");
-    ecoLookup.addPreferredSuggestion("sequence alignment evidence used in manual assertion (ISA)", "http://www.evidenceontology.org/term/ECO:0000247/", "ECO:0000247");
-    ecoLookup.addPreferredSuggestion("no biological data found used in manual assertion (ND)", "http://www.evidenceontology.org/term/ECO:0000307/", "ECO:0000307");
-    ecoLookup.addPreferredSuggestion("curator inference used in manual assertion (IC)", "http://www.evidenceontology.org/term/ECO:0000305/", "ECO:0000305");
-    ecoLookup.addPreferredSuggestion("evidence used in automatic assertion (IEA)", "http://www.evidenceontology.org/term/ECO:0000501/", "ECO:0000501");
-    ecoLookup.addPreferredSuggestion("high throughput direct assay evidence used in manual assertion (HDA)", "http://www.evidenceontology.org/term/ECO:0007005/", "ECO:0007005");
-    evidenceCodeField = new SuggestBox(ecoLookup);
+    evidenceCodeField = new BiolinkSuggestBox(ecoLookup);
   }
 
   private void loadData() {
@@ -296,7 +290,7 @@ public class GoPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GoRestService.getGoAnnotation(requestCallback, annotationInfo.getUniqueName());
+      GoRestService.getGoAnnotation(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
     }
   }
 
@@ -434,6 +428,17 @@ public class GoPanel extends Composite {
     editGoModal.show();
   }
 
+  @UiHandler("allEcoCheckBox")
+  public void allEcoCheckBox(ClickEvent e) {
+    ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
+    if(allEcoCheckBox.getValue()){
+      helpLink.setHref("https://www.ebi.ac.uk/ols/ontologies/eco");
+    }
+    else {
+      helpLink.setHref("http://geneontology.org/docs/guide-go-evidence-codes/");
+    }
+  }
+
   @UiHandler("addWithButton")
   public void addWith(ClickEvent e) {
     addWithSelection(withFieldPrefix.getText(), withFieldId.getText());
@@ -534,10 +539,13 @@ public class GoPanel extends Composite {
       validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
     }
     if (goAnnotation.getReference().getPrefix().length() == 0) {
-      validationErrors.add("You must provide at least a reference prefix.");
+      validationErrors.add("You must provide at least one reference prefix.");
     }
     if (goAnnotation.getReference().getLookupId().length() == 0) {
-      validationErrors.add("You must provide at least a reference id.");
+      validationErrors.add("You must provide at least one reference id.");
+    }
+    if(GoEvidenceCode.requiresWith(goAnnotation.getEvidenceCode()) && goAnnotation.getWithOrFromList().size()==0){
+      validationErrors.add("You must provide at least 1 with for the evidence code "+goAnnotation.getEvidenceCode());
     }
     return validationErrors;
   }
@@ -709,5 +717,13 @@ public class GoPanel extends Composite {
     loadData();
   }
 
+
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+//    dataGrid.setEnabled(editable);
+    newGoButton.setEnabled(editable);
+    editGoButton.setEnabled(editable);
+    deleteGoButton.setEnabled(editable);
+  }
 
 }

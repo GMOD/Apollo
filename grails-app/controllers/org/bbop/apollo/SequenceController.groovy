@@ -288,6 +288,7 @@ class SequenceController {
             , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
+    @Deprecated
     @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 

@@ -11,6 +11,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -27,9 +28,11 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AttributeInfo;
+import org.bbop.apollo.gwt.client.dto.AttributeInfoConverter;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AttributeRestService;
 import org.bbop.apollo.gwt.client.rest.CommentRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -75,6 +78,7 @@ public class AttributePanel extends Composite {
     private SingleSelectionModel<AttributeInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell tagCell = new EditTextCell();
     EditTextCell valueCell = new EditTextCell();
+    private Boolean editable  = false ;
 
     public AttributePanel() {
 
@@ -93,7 +97,7 @@ public class AttributePanel extends Composite {
                     deleteAttributeButton.setEnabled(false);
                 } else {
                     selectAttributeData(selectionModel.getSelectedObject());
-                    deleteAttributeButton.setEnabled(true);
+                    deleteAttributeButton.setEnabled(true && editable);
                 }
             }
         });
@@ -142,6 +146,10 @@ public class AttributePanel extends Composite {
         tagColumn.setFieldUpdater(new FieldUpdater<AttributeInfo, String>() {
             @Override
             public void update(int i, AttributeInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Tag can not be blank");
                     tagCell.clearViewData(object);
@@ -166,6 +174,10 @@ public class AttributePanel extends Composite {
         valueColumn.setFieldUpdater(new FieldUpdater<AttributeInfo, String>() {
             @Override
             public void update(int i, AttributeInfo object, String s) {
+                if(!editable) {
+                    Bootbox.alert("Not editable");
+                    return ;
+                }
                 if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Value can not be blank");
                     valueCell.clearViewData(object);
@@ -212,13 +224,7 @@ public class AttributePanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        attributeInfoList.clear();
-        attributeInfoList.addAll(annotationInfo.getAttributeList());
-        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        loadCannedKeys();
-        loadCannedValues();
-        redrawTable();
-        setVisible(true);
+        loadData();
     }
 
     public void updateData() {
@@ -403,5 +409,46 @@ public class AttributePanel extends Composite {
             AttributeRestService.deleteAttribute(requestCallBack, this.internalAnnotationInfo, this.internalAttributeInfo);
             ;
         }
+    }
+
+
+    private void loadAnnotationsFromResponse(JSONObject inputObject) {
+        JSONArray annotationsArray = inputObject.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray();
+        attributeInfoList.clear();
+        for (int i = 0; i < annotationsArray.size(); i++) {
+            AttributeInfo attributeInfo = AttributeInfoConverter.convertToAttributeFromObject(annotationsArray.get(i).isObject());
+            attributeInfoList.add(attributeInfo);
+        }
+    }
+
+    private void loadData() {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadCannedKeys();
+                loadCannedValues();
+                loadAnnotationsFromResponse(jsonObject);
+                redrawTable();
+                ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("A problem with request: " + request.toString() + " " + exception.getMessage());
+            }
+        };
+        if (this.internalAnnotationInfo != null) {
+            AttributeRestService.getAttributes(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
+        }
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+        addAttributeButton.setEnabled(editable);
+        deleteAttributeButton.setEnabled(editable);
+        valueInputBox.setEnabled(editable);
+        tagInputBox.setEnabled(editable);
     }
 }

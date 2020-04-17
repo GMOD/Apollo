@@ -2,7 +2,7 @@ package org.bbop.apollo
 /**
  * Created by Deepak on 3/9/15.
  */
-public class GFF3Entry {
+class GFF3Entry {
 
     private String seqId;
     private String source;
@@ -14,7 +14,7 @@ public class GFF3Entry {
     private String phase;
     private Map<String, String> attributes;
 
-    public GFF3Entry(String seqId, String source, String type, int start, int end, String score, String strand, String phase) {
+    GFF3Entry(String seqId, String source, String type, int start, int end, String score, String strand, String phase) {
         this.seqId = seqId;
         this.source = source;
         this.type = type;
@@ -26,83 +26,83 @@ public class GFF3Entry {
         this.attributes = new HashMap<String, String>();
     }
 
-    public String getSeqId() {
+    String getSeqId() {
         return seqId;
     }
 
-    public void setSeqId(String seqId) {
+    void setSeqId(String seqId) {
         this.seqId = seqId;
     }
 
-    public String getSource() {
+    String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    void setSource(String source) {
         this.source = source;
     }
 
-    public String getType() {
+    String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    void setType(String type) {
         this.type = type;
     }
 
-    public int getStart() {
+    int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    void setStart(int start) {
         this.start = start;
     }
 
-    public int getEnd() {
+    int getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    void setEnd(int end) {
         this.end = end;
     }
 
-    public String getScore() {
+    String getScore() {
         return score;
     }
 
-    public void setScore(String score) {
+    void setScore(String score) {
         this.score = score;
     }
 
-    public String getStrand() {
+    String getStrand() {
         return strand;
     }
 
-    public void setStrand(String strand) {
+    void setStrand(String strand) {
         this.strand = strand;
     }
 
-    public String getPhase() {
+    String getPhase() {
         return phase;
     }
 
-    public void setPhase(String phase) {
+    void setPhase(String phase) {
         this.phase = phase;
     }
 
-    public Map<String, String> getAttributes() {
+    Map<String, String> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, String> attributes) {
+    void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
 
-    public void addAttribute(String key, String value) {
+    void addAttribute(String key, String value) {
         attributes.put(key, value);
     }
 
-    public String toString() {
+    String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(String.format("%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t", getSeqId(), getSource(), getType(), getStart(), getEnd(), getScore(), getStrand(), getPhase()));
         Iterator<Map.Entry<String, String>> iter = attributes.entrySet().iterator();

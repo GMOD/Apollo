@@ -9,10 +9,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.HasDirection;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -25,6 +22,7 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -150,6 +148,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
         synonymsField.setEnabled(enabled);
+        deleteAnnotation.setEnabled(enabled);
     }
 
 
@@ -162,6 +161,7 @@ public class GeneDetailPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 enableFields(true);
+                MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
 //                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
@@ -171,7 +171,11 @@ public class GeneDetailPanel extends Composite {
                 enableFields(true);
             }
         };
-        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+//        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+
+        RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
 
     }
 
@@ -180,6 +184,7 @@ public class GeneDetailPanel extends Composite {
      */
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
+        MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
         suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
         suggestedNameOracle.setFeatureType("sequence:" + annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
@@ -334,6 +339,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setEnabled(editable);
         descriptionField.setEnabled(editable);
         synonymsField.setEnabled(editable);
+        deleteAnnotation.setEnabled(editable);
 
     }
 }

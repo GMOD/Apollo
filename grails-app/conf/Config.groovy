@@ -358,6 +358,8 @@ apollo {
     extraTabs = [
 //            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
 //            ['title': 'extra2', 'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>']
+//            ['title': 'GGA', 'url': 'https://gitter.im/galaxy-genome-annotation/Lobby/~embed']
+//            ['title': 'JBrowse', 'url': 'https://gitter.im/GMOD/jbrowse/~embed']
     ]
 
 

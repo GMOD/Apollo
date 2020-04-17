@@ -91,7 +91,7 @@
         }
 
     </ui:style>
-    <gwt:DockLayoutPanel ui:field="mainDockPanel">
+    <gwt:SplitLayoutPanel ui:field="mainDockPanel">
         <gwt:center>
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
         </gwt:center>
@@ -103,7 +103,6 @@
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                        <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
@@ -208,5 +207,5 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:east>
-    </gwt:DockLayoutPanel>
+    </gwt:SplitLayoutPanel>
 </ui:UiBinder>

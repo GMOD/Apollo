@@ -23,7 +23,7 @@ class ProvenanceController {
   def featureEventService
   def featureService
 
-  @RestApiMethod(description = "Load Go Annotations for gene", path = "/provenance", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Load Annotations for feature", path = "/provenance", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -50,11 +50,12 @@ class ProvenanceController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-  @RestApiMethod(description = "Save New Go Annotations for gene", path = "/provenance/save", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Save New Go Annotations for feature", path = "/provenance/save", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
+          , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to query on")
+    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "Field type to annotate ")
     , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
     , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
@@ -68,7 +69,7 @@ class ProvenanceController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
     Provenance provenance = new Provenance()
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -103,12 +104,13 @@ class ProvenanceController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/provenance/update", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Update existing annotations for feature", path = "/provenance/update", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
-    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
+    , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "field type annotated")
     , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
     , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
@@ -121,7 +123,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -157,7 +159,7 @@ class ProvenanceController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/provenance/delete", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Delete existing annotations for feature", path = "/provenance/delete", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -171,7 +173,7 @@ class ProvenanceController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
 
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     Provenance provenance = Provenance.findById(dataObject.id)

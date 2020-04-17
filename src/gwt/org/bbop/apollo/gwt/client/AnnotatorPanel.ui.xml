@@ -94,6 +94,11 @@
             width: 40px;
             margin-top: 5px;
         }
+
+        .annotationDescription {
+            border-top: solid 2px gray;
+            border-bottom: solid 2px gray;
+        }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
         <gwt:north size="140">
@@ -103,7 +108,8 @@
                         <b:Button text="Show All" ui:field="showAllSequences" addStyleNames="{style.showAllButtonRow}"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <b:Button text="Show Visible Only" ui:field="showCurrentView" addStyleNames="{style.showAllButtonRow}"/>
+                        <b:Button text="Show Visible Only" ui:field="showCurrentView"
+                                  addStyleNames="{style.showAllButtonRow}"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.topRowPadding}">
@@ -160,60 +166,67 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
-        <gwt:south size="440">
-            <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
-                <gwt:tab>
-                    <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
-                        <b:Row>
-                            <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
-                            <apollo:VariantDetailPanel ui:field="variantDetailPanel" visible="false"/>
-                            <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
-                            <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
-                        </b:Row>
-                    </b:Container>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Coding</gwt:header>
-                    <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Alternate Alleles</gwt:header>
-                    <apollo:VariantAllelesPanel ui:field="variantAllelesPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Variant Info</gwt:header>
-                    <apollo:VariantInfoPanel ui:field="variantInfoPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Allele Info</gwt:header>
-                    <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>GO</gwt:header>
-                    <apollo:GoPanel ui:field="goPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Gene Product</gwt:header>
-                    <apollo:GeneProductPanel ui:field="geneProductPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Provenance</gwt:header>
-                    <apollo:ProvenancePanel ui:field="provenancePanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>DbXref</gwt:header>
-                    <apollo:DbXrefPanel ui:field="dbXrefPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Comment</gwt:header>
-                    <apollo:CommentPanel ui:field="commentPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Attributes</gwt:header>
-                    <apollo:AttributePanel ui:field="attributePanel"/>
-                </gwt:tab>
-            </gwt:TabLayoutPanel>
+        <gwt:south size="450">
+            <gwt:DockLayoutPanel>
+                <gwt:north size="20">
+                    <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="false" styleName="{style.annotationDescription}"/>
+                </gwt:north>
+                <gwt:center>
+                    <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
+                        <gwt:tab>
+                            <gwt:header>Details</gwt:header>
+                            <b:Container fluid="true" width="100%">
+                                <b:Row>
+                                    <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
+                                    <apollo:VariantDetailPanel ui:field="variantDetailPanel" visible="false"/>
+                                    <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
+                                    <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
+                                </b:Row>
+                            </b:Container>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Coding</gwt:header>
+                            <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Alternate Alleles</gwt:header>
+                            <apollo:VariantAllelesPanel ui:field="variantAllelesPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Variant Info</gwt:header>
+                            <apollo:VariantInfoPanel ui:field="variantInfoPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Allele Info</gwt:header>
+                            <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>GO</gwt:header>
+                            <apollo:GoPanel ui:field="goPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Gene Product</gwt:header>
+                            <apollo:GeneProductPanel ui:field="geneProductPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Provenance</gwt:header>
+                            <apollo:ProvenancePanel ui:field="provenancePanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>DbXref</gwt:header>
+                            <apollo:DbXrefPanel ui:field="dbXrefPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Comment</gwt:header>
+                            <apollo:CommentPanel ui:field="commentPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Attributes</gwt:header>
+                            <apollo:AttributePanel ui:field="attributePanel"/>
+                        </gwt:tab>
+                    </gwt:TabLayoutPanel>
+                </gwt:center>
+            </gwt:DockLayoutPanel>
         </gwt:south>
     </gwt:DockLayoutPanel>
 </ui:UiBinder>

@@ -7,10 +7,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.HasDirection;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -254,7 +251,9 @@ public class TranscriptDetailPanel extends Composite {
                 enableFields(true);
             }
         };
-        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+        RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
     }
 
     private void loadStatuses() {
@@ -298,9 +297,10 @@ public class TranscriptDetailPanel extends Composite {
     }
 
     private void enableFields(boolean enabled) {
-        nameField.setEnabled(enabled && editable);
-        descriptionField.setEnabled(enabled && editable);
-        synonymsField.setEnabled(enabled && editable);
+        nameField.setEnabled(enabled && this.editable);
+        descriptionField.setEnabled(enabled && this.editable);
+        synonymsField.setEnabled(enabled && this.editable);
+        deleteAnnotation.setEnabled(enabled && this.editable);
     }
 
     public void setEditable(boolean editable) {
@@ -308,5 +308,6 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setEnabled(this.editable);
         descriptionField.setEnabled(this.editable);
         synonymsField.setEnabled(this.editable);
+        deleteAnnotation.setEnabled(this.editable);
     }
 }

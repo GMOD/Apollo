@@ -13,7 +13,7 @@ class FeaturePropertyService {
  * @return Comments for this feature
  */
     @Transactional
-    public Collection<Comment> getComments(Feature feature) {
+    Collection<Comment> getComments(Feature feature) {
         List<Comment> comments = new ArrayList<Comment>();
 
         // TODO: move out of loop and into own service method

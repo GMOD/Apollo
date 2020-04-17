@@ -95,7 +95,7 @@ public class UserPanel extends Composite {
     @UiField
     TabLayoutPanel userDetailTab;
     @UiField(provided = true)
-    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
+    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(25, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)

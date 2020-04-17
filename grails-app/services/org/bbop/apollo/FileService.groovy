@@ -195,6 +195,7 @@ class FileService {
                         log.info("Archive includes a symlink outside the current path $entry.name -> ${dest.toString()}")
 //                        throw new RuntimeException("Archive includes an invalid symlink: " + entry.getName() + " -> " + dest);
                     }
+                    Files.createDirectories(path.getParent());
                     Files.createSymbolicLink(path, Paths.get(dest));
                     fileNames.add(destAbsPath.toString())
                 }
@@ -307,6 +308,8 @@ class FileService {
         log.debug "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
         String tempFileName = UUID.randomUUID().toString() + ".temp"
+
+        new File(initialLocation).mkdirs()
 
         File outputFile = new File(initialLocation, tempFileName)
         assert outputFile.createNewFile()

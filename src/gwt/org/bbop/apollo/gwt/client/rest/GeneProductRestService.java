@@ -8,7 +8,9 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.Anchor;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -31,9 +33,10 @@ public class GeneProductRestService {
         RestService.sendRequest(requestCallback, "geneProduct/delete", "data=" + GeneProductConverter.convertToJson(geneProduct).toString());
     }
 
-    public static void getGeneProduct(RequestCallback requestCallback, String featureUniqueName) {
+    public static void getGeneProduct(RequestCallback requestCallback, AnnotationInfo annotationInfo, OrganismInfo organismInfo) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("uniqueName",new JSONString(featureUniqueName));
+        jsonObject.put("uniqueName",new JSONString(annotationInfo.getUniqueName()));
+        jsonObject.put("organism",new JSONString(organismInfo.getId()));
         RestService.sendRequest(requestCallback, "geneProduct/", "data=" + jsonObject.toString());
     }
 

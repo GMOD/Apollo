@@ -25,11 +25,11 @@ class GoAnnotationController {
   def featureEventService
   def featureService
 
-  @RestApiMethod(description = "Load Go Annotations for gene", path = "/goAnnotation", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Load Go Annotations for feature", path = "/goAnnotation", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "uniqueName", type = "Gene uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+    , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Feature name to query on")
   ]
   )
   def index() {
@@ -52,11 +52,11 @@ class GoAnnotationController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-  @RestApiMethod(description = "Save New Go Annotations for gene", path = "/goAnnotation/save", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Save New Go Annotations for feature", path = "/goAnnotation/save", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature feature to query on")
     , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
     , @RestApiParam(name = "goTermLabel", type = "string", paramType = RestApiParamType.QUERY, description = "GO Term Label")
     , @RestApiParam(name = "aspect", type = "string", paramType = RestApiParamType.QUERY, description = "(required) BP, MF, CC")
@@ -74,7 +74,7 @@ class GoAnnotationController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
     GoAnnotation goAnnotation = new GoAnnotation()
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -113,12 +113,12 @@ class GoAnnotationController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/goAnnotation/update", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Update existing Go Annotations for feature", path = "/goAnnotation/update", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
-    , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
     , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
     , @RestApiParam(name = "goTermLabel", type = "string", paramType = RestApiParamType.QUERY, description = "GO Term Label")
     , @RestApiParam(name = "aspect", type = "string", paramType = RestApiParamType.QUERY, description = "(required) BP, MF, CC")
@@ -135,7 +135,7 @@ class GoAnnotationController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -173,7 +173,7 @@ class GoAnnotationController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/goAnnotation/delete", verb = RestApiVerb.POST)
+  @RestApiMethod(description = "Delete existing Go Annotations for feature", path = "/goAnnotation/delete", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -187,7 +187,7 @@ class GoAnnotationController {
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
 
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    Feature feature = Feature.findByUniqueName(dataObject.feature)
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)

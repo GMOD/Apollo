@@ -131,8 +131,6 @@ public class AnnotationRestService extends RestService {
     }
 
     public static void updateCommonPath(RequestCallback requestCallback, String directory) {
-//        JSONObject directoryObject = new JSONObject();
-//        directoryObject.put("directory")
         sendRequest(requestCallback, "annotator/updateCommonPath", "directory="+directory);
     }
 

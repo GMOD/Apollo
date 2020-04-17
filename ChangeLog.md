@@ -1,10 +1,36 @@
 
 ## 2.6.0
 
+Features
+
+- Remove popups for annotations in favor of annotator panel [2334](https://github.com/GMOD/Apollo/pull/2334)
+- Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
+- Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
+- Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
+- Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
+- Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
+- Show genome features in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
+- Remove sequence lookup at the top [2407](https://github.com/GMOD/Apollo/pull/2407)
+- Provide better security and feedback when trying to export with insufficient permissions [2431](https://github.com/GMOD/Apollo/pull/2431)
+- Split out default GO Evidence Codes from ECO codes [2429](https://github.com/GMOD/Apollo/pull/2429)
+- Added more info (e.g, JBrowse and general settings) to the about window and is visible on login [47f469f7](https://github.com/GMOD/Apollo/commit/47f469f7586c49f51e1c2f23b59a0a2102ca224a)
+
+
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.8](https://github.com/GMOD/jbrowse/releases/tag/1.16.8-release)
 - Upgrade to [Node 13](https://github.com/GMOD/Apollo/issues/2358)
+- Add python library to the docker image [2409](https://github.com/GMOD/Apollo/issues/2409)
+
+Bug Fixes
+
+- Open by unqiuename to get only the results of the name we are interested in [2338](https://github.com/GMOD/Apollo/pull/2338)
+- Fixed ability to add multiple BAMs at once [2352](https://github.com/GMOD/Apollo/pull/2352)
+- Fixed export of non-coding RNA if exon not present [2353](https://github.com/GMOD/Apollo/pull/2353)
+- Removed sequence panel lookup [2388](https://github.com/GMOD/Apollo/pull/2353)
+- Annotator/updateFeature should store history properly [2390](https://github.com/GMOD/Apollo/pull/2353)
+- Makes sure that parent directory exists when unpacking [2437](https://github.com/GMOD/Apollo/pull/2437)
+- Fixed bug when decompressing gff3.gz data when adding a new track [2434](https://github.com/GMOD/Apollo/pull/2434)
 
 
 ## 2.5.0
@@ -61,7 +87,6 @@ Infrastructure Changes
 - Allow for the export of a gene with uncertain internal structure - allow no CDS for an gene [1989](https://github.com/GMOD/Apollo/issues/1989)
 - Added shortcut for sequence and GFF3 popups [2116](https://github.com/GMOD/Apollo/issues/2116)
 - Added the ability to do group add /delete in bulk and group update in bulk [2105](https://github.com/GMOD/Apollo/issues/2105)
-- Added basic support for community level private evidence track [17](https://github.com/GMOD/Apollo/issues/17)
 
 
 Infrastructure Changes

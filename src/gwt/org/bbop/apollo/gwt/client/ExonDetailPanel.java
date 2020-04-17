@@ -75,9 +75,9 @@ public class ExonDetailPanel extends Composite {
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
-    private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
-    private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
-    private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
+    private static final ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
+    private static final List<AnnotationInfo> annotationInfoList = dataProvider.getList();
+    private final SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
     private Boolean editable = false;
 
@@ -194,9 +194,7 @@ public class ExonDetailPanel extends Composite {
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
-        GWT.log("sublist: " + annotationInfo.getChildAnnotations().size());
         for (AnnotationInfo annotationInfo1 : annotationInfo.getChildAnnotations()) {
-            GWT.log("adding: " + annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }
 
@@ -213,7 +211,6 @@ public class ExonDetailPanel extends Composite {
         // updates the detail section (3' and 5' coordinates) when user clicks on any of the types in the table.
         // mRNA information is not available
         this.internalAnnotationInfo = annotationInfo;
-        GWT.log("updating exon detail panel");
         coordinatesToPrime(annotationInfo.getMin(), annotationInfo.getMax());
         if (internalAnnotationInfo.getStrand() > 0) {
             positiveStrandValue.setType(ButtonType.PRIMARY);
@@ -245,14 +242,14 @@ public class ExonDetailPanel extends Composite {
     }
 
     private void enableFields(boolean enabled) {
-        decreaseFivePrime.setEnabled(enabled);
-        increaseFivePrime.setEnabled(enabled);
-        decreaseThreePrime.setEnabled(enabled);
-        increaseThreePrime.setEnabled(enabled);
+        decreaseFivePrime.setEnabled(enabled && this.editable);
+        increaseFivePrime.setEnabled(enabled && this.editable);
+        decreaseThreePrime.setEnabled(enabled && this.editable);
+        increaseThreePrime.setEnabled(enabled && this.editable);
     }
 
     public void setEditable(boolean editable) {
-        this.editable = editable;
+        this.editable = editable ;
     }
 
     private boolean isEditableType(String type) {
@@ -265,9 +262,6 @@ public class ExonDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-
-//                GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
 
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));

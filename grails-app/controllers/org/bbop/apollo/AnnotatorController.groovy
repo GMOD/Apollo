@@ -221,7 +221,6 @@ class AnnotatorController {
 
         for (syn in synonymsToRemove) {
             def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name", [feature: feature, name: syn])
-            println "features to remove ${featureSynonymsToRemove.size()} ${featureSynonymsToRemove}"
             for (fs in featureSynonymsToRemove) {
                 feature.removeFromFeatureSynonyms(fs)
                 Synonym synonym = fs.synonym
@@ -275,11 +274,6 @@ class AnnotatorController {
         oldFeaturesJsonArray.add(originalFeatureJsonObject)
         JSONArray newFeaturesJsonArray = new JSONArray()
         newFeaturesJsonArray.add(currentFeatureJsonObject)
-
-        println "feature operation ${featureOperation}"
-        println "feature ${feature.name} ${feature.uniqueName}"
-        println "feature data ${data}"
-        println "feature user ${user}"
         featureEventService.addNewFeatureEvent(featureOperation,
                 feature.name,
                 feature.uniqueName,
@@ -418,7 +412,7 @@ class AnnotatorController {
                         eq('organism', organism)
                     }
                     if (range) {
-                        Sequence sequenceNameRange = Sequence.findByName(range.split(":")[0])
+                        Sequence sequenceNameRange = Sequence.findByNameAndOrganism(range.split(":")[0],organism)
                         Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
                         Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
                         eq('sequence', sequenceNameRange)

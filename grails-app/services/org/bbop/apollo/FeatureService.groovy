@@ -3,6 +3,8 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
@@ -32,6 +34,8 @@ class FeatureService {
     def organismService
     def sessionFactory
     def goAnnotationService
+    def geneProductService
+    def provenanceService
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
@@ -1426,14 +1430,41 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else {
                 gsolFeature.setLastUpdated(new Date());
             }
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_ALIAS.value.toLowerCase())) {
+                for (String synonymString in jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_ALIAS.value.toLowerCase())) {
+                    Synonym synonym = new Synonym(
+                            name: synonymString
+                    ).save()
+                    FeatureSynonym featureSynonym = new FeatureSynonym(
+                            feature: gsolFeature,
+                            synonym: synonym
+                    ).save()
+                    gsolFeature.addToFeatureSynonyms(featureSynonym)
+                }
+            }
             if(configWrapperService.storeOrigId()){
                 if (jsonFeature.has(FeatureStringEnum.ORIG_ID.value)) {
                     FeatureProperty gsolProperty = new FeatureProperty()
                     gsolProperty.setTag(FeatureStringEnum.ORIG_ID.value)
-                    gsolProperty.setValue(jsonFeature.get(FeatureStringEnum.ORIG_ID.value))
+                    gsolProperty.setValue(jsonFeature.getString(FeatureStringEnum.ORIG_ID.value))
                     gsolProperty.setFeature(gsolFeature)
                     gsolProperty.save()
                     gsolFeature.addToFeatureProperties(gsolProperty)
+                }
+            }
+
+            // push notes into comment field if at the top-level
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_NOTE.value.toLowerCase())) {
+                JSONArray exportNoteArray = jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_NOTE.value.toLowerCase())
+//                String propertyValue = property.get(FeatureStringEnum.VALUE.value)
+                int rank = 0
+                for (String noteString in exportNoteArray) {
+                    Comment comment = new Comment(
+                            feature: gsolFeature,
+                            rank: rank++,
+                            value: noteString
+                    ).save()
+                    gsolFeature.addToFeatureProperties(comment)
                 }
             }
 
@@ -1456,10 +1487,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
-                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
+                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value)
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
-                    JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
+                    JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value)
                     String propertyName = null
                     if (property.has(FeatureStringEnum.NAME.value)) {
                         propertyName = property.get(FeatureStringEnum.NAME.value)
@@ -1518,6 +1549,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                 }
             }
+            // from a GFF3 OGS
+            if (jsonFeature.has(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase())) {
+                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.EXPORT_DBXREF.value.toLowerCase());
+                for (String dbxrefString in dbxrefs) {
+                    def (dbString, accessionString) = dbxrefString.split(":")
+//                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
+                    DB newDB = DB.findOrSaveByName(dbString)
+                    DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(newDB, accessionString).save()
+                    gsolFeature.addToFeatureDBXrefs(newDBXref)
+                    gsolFeature.save()
+                }
+            }
+
             if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
                 JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
                 for (int i = 0; i < dbxrefs.length(); ++i) {
@@ -1533,6 +1577,46 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureDBXrefs(newDBXref)
                     gsolFeature.save()
                 }
+            }
+            // TODO: gene_product
+            // only coming from GFF3
+            if (jsonFeature.has(FeatureStringEnum.GENE_PRODUCT.value)) {
+                String geneProductString = jsonFeature.getString(FeatureStringEnum.GENE_PRODUCT.value)
+                log.debug "gene product array ${geneProductString}"
+                List<GeneProduct> geneProducts = geneProductService.convertGff3StringToGeneProducts(geneProductString)
+                log.debug "gene products outputs ${geneProducts}: ${geneProducts.size()}"
+                geneProducts.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToGeneProducts(it)
+                }
+                gsolFeature.save()
+            }
+            // TODO: provenance
+            if (jsonFeature.has(FeatureStringEnum.PROVENANCE.value)) {
+                String provenanceString = jsonFeature.getString(FeatureStringEnum.PROVENANCE.value)
+                log.debug "provenance array ${provenanceString}"
+                List<Provenance> listOfProvenances = provenanceService.convertGff3StringToProvenances(provenanceString)
+                log.debug "gene products outputs ${listOfProvenances}: ${listOfProvenances.size()}"
+                listOfProvenances.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToProvenances(it)
+                }
+                gsolFeature.save()
+            }
+            // TODO: go_annotation
+            if (jsonFeature.has(FeatureStringEnum.GO_ANNOTATIONS.value)) {
+                String goAnnotationString = jsonFeature.getString(FeatureStringEnum.GO_ANNOTATIONS.value)
+                log.debug "go annotations array ${goAnnotationString}"
+                List<GoAnnotation> goAnnotations = goAnnotationService.convertGff3StringToGoAnnotations(goAnnotationString)
+                log.debug "gene products outputs ${goAnnotations}: ${goAnnotations.size()}"
+                goAnnotations.each {
+                    it.feature = gsolFeature
+                    it.save()
+                    gsolFeature.addToGoAnnotations(it)
+                }
+                gsolFeature.save()
             }
         }
         catch (JSONException e) {

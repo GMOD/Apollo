@@ -21,7 +21,9 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
+import org.bbop.apollo.gwt.client.oracles.BiolinkLookup;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
+import org.bbop.apollo.gwt.client.oracles.BiolinkSuggestBox;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
 import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
@@ -37,12 +39,12 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle.ECO_BASE;
+
 /**
  * Created by ndunn on 1/9/15.
  */
 public class GeneProductPanel extends Composite {
-
-  private final String ECO_BASE = "http://www.evidenceontology.org/term/";
 
   interface GeneProductUiBinder extends UiBinder<Widget, GeneProductPanel> {
   }
@@ -54,10 +56,10 @@ public class GeneProductPanel extends Composite {
   DataGrid<GeneProduct> dataGrid = new DataGrid<>(200, tablecss);
   @UiField
   TextBox noteField;
-  @UiField
-  TextBox geneProductField;
+  @UiField(provided =  true)
+  SuggestBox geneProductField;
   @UiField(provided = true)
-  SuggestBox evidenceCodeField;
+  BiolinkSuggestBox evidenceCodeField;
   @UiField
   TextBox withFieldPrefix;
   @UiField
@@ -96,14 +98,22 @@ public class GeneProductPanel extends Composite {
 //    Button referenceValidateButton;
   @UiField
   HTML geneProductTitle;
+  @UiField
+  org.gwtbootstrap3.client.ui.CheckBox allEcoCheckBox;
+  @UiField
+  Anchor helpLink;
 
   private static ListDataProvider<GeneProduct> dataProvider = new ListDataProvider<>();
   private static List<GeneProduct> annotationInfoList = dataProvider.getList();
   private SingleSelectionModel<GeneProduct> selectionModel = new SingleSelectionModel<>();
+  private BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle(BiolinkLookup.ECO);
+  private SuggestedGeneProductOracle suggestedGeneProductOracle = new SuggestedGeneProductOracle();
+  private Boolean editable  = false ;
 
   private AnnotationInfo annotationInfo;
 
   public GeneProductPanel() {
+    geneProductField = new SuggestBox(suggestedGeneProductOracle);
 
     initLookups();
     dataGrid.setWidth("100%");
@@ -124,7 +134,7 @@ public class GeneProductPanel extends Composite {
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        if (selectionModel.getSelectedObject() != null) {
+        if (selectionModel.getSelectedObject() != null && editable) {
           deleteGoButton.setEnabled(true);
           editGoButton.setEnabled(true);
         } else {
@@ -138,9 +148,11 @@ public class GeneProductPanel extends Composite {
     dataGrid.addDomHandler(new DoubleClickHandler() {
       @Override
       public void onDoubleClick(DoubleClickEvent event) {
-        geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
-        handleSelection();
-        editGoModal.show();
+        if(editable) {
+          geneProductTitle.setText("Edit Gene Product for " + AnnotatorPanel.selectedAnnotationInfo.getName());
+          handleSelection();
+          editGoModal.show();
+        }
       }
     }, DoubleClickEvent.getType());
 
@@ -151,13 +163,6 @@ public class GeneProductPanel extends Composite {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
         evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
-      }
-    });
-
-    geneProductField.addChangeHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        String selectedItemText = geneProductField.getText();
       }
     });
 
@@ -177,22 +182,7 @@ public class GeneProductPanel extends Composite {
 
   private void initLookups() {
     // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
-    BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
-    ecoLookup.addPreferredSuggestion("experimental evidence used in manual assertion (EXP)", "http://www.evidenceontology.org/term/ECO:0000269/", "ECO:0000269");
-    ecoLookup.addPreferredSuggestion("direct assay evidence used in manual assertion (IDA)", "http://www.evidenceontology.org/term/ECO:0000314/", "ECO:0000314");
-    ecoLookup.addPreferredSuggestion("physical interaction evidence used in manual assertion (IPI)", "http://www.evidenceontology.org/term/ECO:0000353/", "ECO:0000353");
-    ecoLookup.addPreferredSuggestion("mutant phenotype evidence used in manual assertion (IMP)", "http://www.evidenceontology.org/term/ECO:0000315/", "ECO:0000315");
-    ecoLookup.addPreferredSuggestion("genetic interaction evidence used in manual assertion (IGI)", "http://www.evidenceontology.org/term/ECO:0000316/", "ECO:0000316");
-    ecoLookup.addPreferredSuggestion("biological aspect of ancestor evidence used in manual assertion (IBA)", "http://www.evidenceontology.org/term/ECO:0000318/", "ECO:0000318");
-    ecoLookup.addPreferredSuggestion("biological aspect of descendant evidence used in manual assertion (IBD)", "http://www.evidenceontology.org/term/ECO:0000319/", "ECO:0000319");
-    ecoLookup.addPreferredSuggestion("sequence similarity evidence used in manual assertion (ISS)", "http://www.evidenceontology.org/term/ECO:0000250/", "ECO:0000250");
-    ecoLookup.addPreferredSuggestion("sequence orthology evidence used in manual assertion (ISO)", "http://www.evidenceontology.org/term/ECO:0000266/", "ECO:0000266");
-    ecoLookup.addPreferredSuggestion("sequence alignment evidence used in manual assertion (ISA)", "http://www.evidenceontology.org/term/ECO:0000247/", "ECO:0000247");
-    ecoLookup.addPreferredSuggestion("no biological data found used in manual assertion (ND)", "http://www.evidenceontology.org/term/ECO:0000307/", "ECO:0000307");
-    ecoLookup.addPreferredSuggestion("curator inference used in manual assertion (IC)", "http://www.evidenceontology.org/term/ECO:0000305/", "ECO:0000305");
-    ecoLookup.addPreferredSuggestion("evidence used in automatic assertion (IEA)", "http://www.evidenceontology.org/term/ECO:0000501/", "ECO:0000501");
-    ecoLookup.addPreferredSuggestion("high throughput direct assay evidence used in manual assertion (HDA)", "http://www.evidenceontology.org/term/ECO:0007005/", "ECO:0007005");
-    evidenceCodeField = new SuggestBox(ecoLookup);
+    evidenceCodeField = new BiolinkSuggestBox(ecoLookup);
   }
 
   private void loadData() {
@@ -211,7 +201,8 @@ public class GeneProductPanel extends Composite {
       }
     };
     if (annotationInfo != null) {
-      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo.getUniqueName());
+      GeneProductRestService.getGeneProduct(requestCallback, annotationInfo,MainPanel.getInstance().getCurrentOrganism());
+
     }
   }
 
@@ -241,7 +232,6 @@ public class GeneProductPanel extends Composite {
       return -1;
     }
 
-
   }
 
   private void addWithSelection(WithOrFrom withOrFrom) {
@@ -263,7 +253,7 @@ public class GeneProductPanel extends Composite {
   }
 
   private void clearModal() {
-    geneProductField.clear();
+    geneProductField.setText("");
     evidenceCodeField.setText("");
     evidenceCodeLink.setText("");
     withFieldPrefix.setText("");
@@ -284,7 +274,6 @@ public class GeneProductPanel extends Composite {
 
       geneProductField.setText(selectedGeneProduct.getProductName());
       alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
-//      alternateCheckBox.setValue(selectedGeneProduct.get());
       evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
       evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
       GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
@@ -297,6 +286,12 @@ public class GeneProductPanel extends Composite {
 
       referenceFieldPrefix.setText(selectedGeneProduct.getReference().getPrefix());
       referenceFieldId.setText(selectedGeneProduct.getReference().getLookupId());
+
+      notesFlexTable.removeAllRows();
+      for (String noteString : selectedGeneProduct.getNoteList()) {
+        addReferenceSelection(noteString);
+      }
+      noteField.setText("");
 
     }
 
@@ -313,6 +308,17 @@ public class GeneProductPanel extends Composite {
     notesFlexTable.removeAllRows();
     selectionModel.clear();
     editGoModal.show();
+  }
+
+  @UiHandler("allEcoCheckBox")
+  public void allEcoCheckBox(ClickEvent e) {
+    ecoLookup.setUseAllEco(allEcoCheckBox.getValue());
+    if(allEcoCheckBox.getValue()){
+      helpLink.setHref("https://www.ebi.ac.uk/ols/ontologies/eco");
+    }
+    else {
+      helpLink.setHref("http://geneontology.org/docs/guide-go-evidence-codes/");
+    }
   }
 
   @UiHandler("editGoButton")
@@ -410,12 +416,6 @@ public class GeneProductPanel extends Composite {
     if (!geneProduct.getEvidenceCode().contains(":")) {
       validationErrors.add("You must provide a prefix and suffix for the ECO term");
     }
-    if (geneProduct.getReference().getPrefix().length() == 0) {
-      validationErrors.add("You must provide at least a reference prefix.");
-    }
-    if (geneProduct.getReference().getLookupId().length() == 0) {
-      validationErrors.add("You must provide at least a reference id.");
-    }
     return validationErrors;
   }
 
@@ -429,6 +429,7 @@ public class GeneProductPanel extends Composite {
     geneProduct.setWithOrFromList(getWithList());
     Reference reference = new Reference(referenceFieldPrefix.getText(), referenceFieldId.getText());
     geneProduct.setReference(reference);
+    geneProduct.setNoteList(getNoteList());
     return geneProduct;
   }
 
@@ -576,5 +577,12 @@ public class GeneProductPanel extends Composite {
     loadData();
   }
 
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+//    dataGrid.setEnabled(editable);
+    newGoButton.setEnabled(editable);
+    editGoButton.setEnabled(editable);
+    deleteGoButton.setEnabled(editable);
+  }
 
 }
