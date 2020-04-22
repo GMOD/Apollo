@@ -65,7 +65,7 @@ RUN chown -R apollo:apollo /apollo
 USER apollo
 
 RUN pip3 install setuptools
-RUN pip3 install nose apollo
+RUN pip3 install nose "apollo==4.2"
 
 RUN curl -s get.sdkman.io | bash && \
      /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
