@@ -68,7 +68,7 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 2.4.2.2) Click on `Create annotation from hit` and confirm that an annotation is creating with the same dimensions and the same strand.
 
-2.4.2.3) Open the genomic annotation sequence via the pop using nucleotide sequences.  Click on `Search sequences` and confirm that the sequences are loaded into the search panel.   
+2.4.2.3) Open the genomic annotation sequence via the popup using nucleotide sequences.  Click on `Search sequences` and confirm that the sequences are loaded into the search panel.   
 Click on search sequence and confirm that hits are generated and repeat the steps in 2.4.2.  
 
 2.4.2.4) Repeat 2.4.2 with a genomic annotation using nucleotide sequences.  In this example, view the sequences form that annotation and click on `Search sequences`.
