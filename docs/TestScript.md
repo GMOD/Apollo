@@ -123,7 +123,7 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 7.1.6) Show _History_ from the right click menu, and test the ability to revert to any of the previous versions of the feature by clicking on the arrow buttons to the right of each version.
 
-7.1.7) Annotation Information Editor: Name, Symbol, DBXRefs, Comments, Gene Ontology IDs (when present again), and PubMed IDs.
+7.1.7) Annotation Editor popup removed, but selecting "Edit Annotation should work".
 
 7.1.8) Use both the genomic feature you are currently annotating and a genomic feature from one of the evidence tracks to modify the exon and UTR boundaries for the annotation in the _User-created Annotations_ area using the following operations from the right-click menu: _Set as 3' end_, _Set as 5' end_, _Set both ends_.
 
@@ -165,15 +165,25 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.4) Test that you can delete an annotation from the Details menu.
 
-13.1.5) Check that when selecting a Gene that the GO tab appears.
+13.2) Set Defaults First in Admin: Create Canned Comments, Canned Keys, Canned Values, Suggested Names, and Statuses for certain organisms and feature types.  Verify add, edit, and delete for each.
 
-13.1.5.1) Check that you can add three GO Annotations for the gene.
+13.3.1) Details: Name, Symbol, DBXRefs / PubMed IDs, Alias, and Status.   For a gene verify that Suggested Names show up and that multiple aliases can be added and changed from 1 to 2 and 2 to 1.  
 
-13.1.5.2) Check that you can edit a GO Annotation.
+13.3.2) Details: Name, Symbol, DBXRefs / PubMed IDs, Alias, and Status.   Verify that same thing for the transcript on the gene, and the other main feature types (e.,g,. Terminator, non-coding RNA, Pseudogene).
 
-13.1.5.3) Check that you can delete a GO Annotation.
+13.3.3) Test with GO, Gene Product, and Provenance.  Should be able to edit, delete, and add.  Both ECO and default evidence should be available. 
 
-13.1.5.4) Check that you can filter GO Annotations by clicking the checkbox at the top.
+13.3.4) Test with DbXref, Comment, and Attributes.  Should be able to edit, delete, and add.  Both ECO and default evidence should be available.  Verify that the defaults are there from earlier step and respect organism and feature type boundaries.
+
+13.3.5) Verify that the right-clicking GFF3 matches the annotations just added.  Verify that you can export the GFF3 (you will need that for later). 
+
+13.3.6) Verify that "GO" and "ID" work appropriate.
+
+13.3.7) Right-clicking this feature, should show this. 
+
+13.3.8) Clicking on "Show Visible" and "Show All" should also work.
+
+13.3.9) Check that you can filter GO Annotations by clicking the checkbox at the top.
 
 
 13.2) Tracks
