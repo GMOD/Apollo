@@ -309,29 +309,14 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 16.1.3) Confirm that you can create a Canvas Variant Annotation by right-clicking on it and click on Annotation.
 
-16.2) On any of the annotations, option-click (or right-click and select "Edit Information") on the created variant and confirm that data is identical to what it has been added from.
-
-16.2.1)  Make changes to the name and description fields.
-
-16.2.2)  Add two Allele Info.  Remove one Allele INFO.  
-
-16.2.3)  Add two Variant Info.  Remove one Variant INFO.  
-
-16.2.4)  Add two Human Phenotype Ontology terms and remove one.
-
-16.2.5)  Add an invalid Human Phenotype Ontology and ensure that the operation fails with a proper error.
-
-16.2.5)  Repeat for Comment, DBXRefs, and PubMed Ids.
-
-16.2.6)  Change name and confirm name is changed.
-
+16.2) On any of the annotations, option-click (or right-click and select "Edit Information") and observe that it is selected and the details show for the variant in the Annotator Panel.
 
 
 16.3) Right-click on variant annotation and confirm that only that annotation appears in the Annotator Panel
 
-16.3.1) Observe that four tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, and Allele Info.
+16.3.1) Observe that the tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, Allele Info, DbXref, Comments, and Attributes.
 
-16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor.
+16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor and that you can change everything not grayed out.
 
 16.3.3) In the Variant Info tab confirm that the added info appears. 
 
