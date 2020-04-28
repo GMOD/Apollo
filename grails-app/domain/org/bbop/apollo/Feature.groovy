@@ -64,6 +64,9 @@ class Feature implements Ontological{
             childFeatureRelationships cascade: 'all-delete-orphan'
             parentFeatureRelationships cascade: 'all-delete-orphan'
             featureLocations cascade: 'all-delete-orphan' // lazy: false  since most / all feature locations have a single element join is more efficient
+            goAnnotations cascade: 'all-delete-orphan'
+            geneProducts cascade: 'all-delete-orphan'
+            provenances cascade: 'all-delete-orphan'
             name type: 'text'
             description type: 'text'
     }

@@ -2072,12 +2072,23 @@ class RequestHandlingService {
                         gene = transcriptService.getPseudogene(transcript)
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
-                    if (numberTranscripts == 1) {
-                        Feature topLevelFeature = featureService.getTopLevelFeature(gene)
-                        goAnnotationService.deleteAnnotationFromFeature(topLevelFeature)
-                        provenanceService.deleteAnnotationFromFeature(topLevelFeature)
-                        geneProductService.deleteAnnotationFromFeature(topLevelFeature)
-                        featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+                  // if the # of transcripts is 1, then delete the gene as well
+                  goAnnotationService.deleteAnnotationFromFeature(transcript)
+                  provenanceService.deleteAnnotationFromFeature(transcript)
+                  geneProductService.deleteAnnotationFromFeature(transcript)
+
+                  goAnnotationService.removeGoAnnotationsFromFeature(transcript)
+                  provenanceService.removeProvenancesFromFeature(transcript)
+                  geneProductService.removeGeneProductsFromFeature(transcript)
+
+                  featureRelationshipService.removeFeatureRelationship(gene, transcript)
+                  featureRelationshipService.deleteFeatureAndChildren(transcript)
+                  if (numberTranscripts == 1) {
+//                        Feature topLevelFeature = featureService.getTopLevelFeature(gene)
+                        goAnnotationService.deleteAnnotationFromFeature(gene)
+                        provenanceService.deleteAnnotationFromFeature(gene)
+                        geneProductService.deleteAnnotationFromFeature(gene)
+                        featureRelationshipService.deleteFeatureAndChildren(gene)
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2089,16 +2100,6 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
-                        goAnnotationService.deleteAnnotationFromFeature(transcript)
-                        provenanceService.deleteAnnotationFromFeature(transcript)
-                        geneProductService.deleteAnnotationFromFeature(transcript)
-
-                        goAnnotationService.removeGoAnnotationsFromFeature(transcript)
-                        provenanceService.removeProvenancesFromFeature(transcript)
-                        geneProductService.removeGeneProductsFromFeature(transcript)
-
-                        featureRelationshipService.removeFeatureRelationship(gene, transcript)
-                        featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
                         gene.save()
 
