@@ -343,15 +343,15 @@ class Gff3HandlerService {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
                 attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.GO_ANNOTATIONS.value) && feature.getGoAnnotations() != null && feature.goAnnotations.size() > 0 ) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.GO_ANNOTATIONS.value) && feature.goAnnotations ) {
                 String productString  =  goAnnotationService.convertGoAnnotationsToGff3String(feature.goAnnotations)
                 attributes.put(FeatureStringEnum.GO_ANNOTATIONS.value, encodeString(productString))
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.getProvenances() != null && feature.provenances.size() > 0 ) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.PROVENANCE.value) && feature.provenances ) {
                 String productString  = provenanceService.convertProvenancesToGff3String(feature.provenances)
                 attributes.put(FeatureStringEnum.PROVENANCE.value, encodeString(productString))
             }
-            if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.getGeneProducts() != null) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.GENE_PRODUCT.value) && feature.geneProducts) {
                 String productString  = geneProductService.convertGeneProductsToGff3String(feature.geneProducts)
                 attributes.put(FeatureStringEnum.GENE_PRODUCT.value, encodeString(productString))
             }
