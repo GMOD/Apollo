@@ -321,6 +321,7 @@ public class CommentPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadCannedComments();
                 loadAnnotationsFromResponse(jsonObject);
                 redrawTable();
                 ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
