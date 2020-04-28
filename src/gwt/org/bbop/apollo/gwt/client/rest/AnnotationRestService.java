@@ -88,8 +88,10 @@ public class AnnotationRestService extends RestService {
 
     featureObject.put(FeatureStringEnum.LOCATION.getValue(),generateLocationObject(annotationInfo));
     featureObject.put(FeatureStringEnum.TYPE.getValue(),generateTypeObject(annotationInfo.getType()));
-    featureObject.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString("created with blat hit") );
-    featureObject.put(FeatureStringEnum.SYNONYMS.getValue(),new JSONString(annotationInfo.getSynonyms()) );
+    featureObject.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString("created with search hit") );
+    if(annotationInfo.getSynonyms()!=null){
+      featureObject.put(FeatureStringEnum.SYNONYMS.getValue(),new JSONString(annotationInfo.getSynonyms()) );
+    }
 
 
     sendRequest(requestCallback, "annotationEditor/addTranscript", "data=" + jsonObject.toString());
