@@ -53,7 +53,7 @@ public class AlleleInfoPanel extends Composite {
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<AllelePropertyInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<AllelePropertyInfo> dataGrid = new DataGrid<>(100, tablecss);
 
     private static ListDataProvider<AllelePropertyInfo> dataProvider = new ListDataProvider<>();
     private static List<AllelePropertyInfo> allelePropertyInfoList = dataProvider.getList();
