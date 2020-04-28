@@ -7189,7 +7189,7 @@ define([
                     contextMenuItems["flip_strand"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
 
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set Translation Start",
@@ -7241,7 +7241,7 @@ define([
                     }));
                     contextMenuItems["set_readthrough_stop_codon"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
 
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set as 5' end",
@@ -7265,7 +7265,7 @@ define([
                     }));
                     contextMenuItems["set_both_ends"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
                     contextMenuItems["set_downstream_donor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set to Downstream Splice Donor",
@@ -7295,7 +7295,7 @@ define([
                         }
                     }));
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Undo",
                         onClick: function (event) {
@@ -8154,16 +8154,22 @@ define([
                 var selected = this.selectionManager.getSelection();
                 var currentType = selected[0].feature.get('type');
                 var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
+                console.log('parent',parent)
+                console.log('features to compare',selected.length)
                 for (var i = 1; i < selected.length; ++i) {
-                    if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
+                    console.log('feature to compare ',i,selected[i].feature)
+                    if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) !== parent) {
                         menuItem.set("disabled", true);
                         return;
                     }
                 }
+
                 if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    console.log('is not a variant type?',currentType.toUpperCase(),JSONUtils.variantTypes)
                     menuItem.set("disabled", true);
                     return;
                 }
+                console.log('output disabled')
                 menuItem.set("disabled", false);
             },
 
