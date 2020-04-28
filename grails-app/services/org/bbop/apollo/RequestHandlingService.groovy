@@ -231,31 +231,22 @@ class RequestHandlingService {
 
             featureService.addOwnersByString(inputObject.username, feature)
             feature.save(flush: true, failOnError: true)
-          JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-          updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
 
-          JSONArray oldFeaturesJsonArray = new JSONArray()
-          oldFeaturesJsonArray.add(originalFeatureJsonObject)
-          JSONArray newFeaturesJsonArray = new JSONArray()
-          newFeaturesJsonArray.add(currentFeatureJsonObject)
-          User user = permissionService.getCurrentUser(inputObject)
-          featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_DBXREF,
+            JSONArray oldFeaturesJsonArray = new JSONArray()
+            oldFeaturesJsonArray.add(originalFeatureJsonObject)
+            JSONArray newFeaturesJsonArray = new JSONArray()
+            newFeaturesJsonArray.add(currentFeatureJsonObject)
+            User user = permissionService.getCurrentUser(inputObject)
+            featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_DBXREF,
             feature.name,
             uniqueName,
             inputObject,
             oldFeaturesJsonArray,
             newFeaturesJsonArray,
             user)
-        }
-
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
         }
 
         return updateFeatureContainer

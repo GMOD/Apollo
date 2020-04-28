@@ -428,6 +428,9 @@ public class DbXrefPanel extends Composite {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteDbXrefButton.setEnabled(false);
 //                    AnnotatorPanel.selectedAnnotationInfo.setDbXrefList(dbXrefInfoList);
+                    dbXrefInfoList.remove(internalDbXrefInfo);
+                    internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
+                    deleteDbXrefButton.setEnabled(false);
                     redrawTable();
                 }
 
