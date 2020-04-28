@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -657,6 +658,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
@@ -677,6 +679,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "mRNA":
             case "miRNA":
@@ -704,6 +707,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "terminator":
             case "transposable_element":
@@ -723,6 +727,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "deletion":
             case "insertion":
@@ -745,10 +750,12 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(false);
-                tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(true);
+                // we aren't exporting it, so not going to track it
+                tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);

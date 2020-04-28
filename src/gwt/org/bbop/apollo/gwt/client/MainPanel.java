@@ -1102,7 +1102,9 @@ public class MainPanel extends Composite {
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
             MainPanel.getInstance().addOpenTranscript(parentName);
-            MainPanel.getInstance().selectOpenTranscript(childName);
+            if(childName!=null){
+                MainPanel.getInstance().selectOpenTranscript(childName);
+            }
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
