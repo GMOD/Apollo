@@ -258,7 +258,9 @@ public class TrackPanel extends Composite {
                 if (trackInfoList.isEmpty()) {
                     return true;
                 }
-                handleAdminState();
+                if(canAdminTracks()){
+                  handleAdminState();
+                }
                 return false;
             }
         }, delay);
