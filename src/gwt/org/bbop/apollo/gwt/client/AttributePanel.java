@@ -220,9 +220,6 @@ public class AttributePanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        if (annotationInfo == null) {
-            return;
-        }
         this.internalAnnotationInfo = annotationInfo;
         loadData();
     }

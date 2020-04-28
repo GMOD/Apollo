@@ -420,8 +420,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                TAB_INDEX tab = TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex);
-                switch (tab) {
+                switch (TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex)) {
                     case DETAILS:
                         break;
                     case CODING:
@@ -441,13 +440,13 @@ public class AnnotatorPanel extends Composite {
                     case PROVENANCE:
                         provenancePanel.redraw();
                     case DB_XREF:
-                        dbXrefPanel.updateData(selectedAnnotationInfo);
+                        dbXrefPanel.redrawTable();
                         break;
                     case COMMENT:
-                        commentPanel.updateData(selectedAnnotationInfo);
+                        commentPanel.redrawTable();
                         break;
                     case ATTRIBUTES:
-                        attributePanel.updateData(selectedAnnotationInfo);
+                        attributePanel.redrawTable();
                 }
             }
         });
@@ -1060,9 +1059,7 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-        GWT.log("updated? " + selectedAnnotationInfo.getUniqueName());
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
-        GWT.log("again?? " + selectedAnnotationInfo.getUniqueName());
     }
 
     public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo) {
