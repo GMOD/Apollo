@@ -599,7 +599,9 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        UserRestService.loadUsers(requestCallback);
+        if(MainPanel.getInstance().isCurrentUserAdmin()){
+            UserRestService.loadUsers(requestCallback);
+        }
     }
 
     private void initializeTypes() {
@@ -617,7 +619,6 @@ public class AnnotatorPanel extends Composite {
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
         variantDetailPanel.setVisible(false);
-//        exonDetailPanel.setVisible(false);
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
