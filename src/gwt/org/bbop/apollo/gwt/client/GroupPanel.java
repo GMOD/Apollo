@@ -310,6 +310,7 @@ public class GroupPanel extends Composite {
     }
 
     void cancelAddState() {
+        nameSearchBox.setVisible(true);
         createButton.setVisible(true);
         createGroupField.setVisible(false);
         saveButton.setVisible(false);
@@ -318,6 +319,7 @@ public class GroupPanel extends Composite {
     }
 
     void setAddState() {
+        nameSearchBox.setVisible(false);
         createButton.setVisible(false);
         createGroupField.setVisible(true);
         saveButton.setVisible(true);
