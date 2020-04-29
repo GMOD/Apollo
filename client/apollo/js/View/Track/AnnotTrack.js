@@ -6944,8 +6944,6 @@ define([
                     contextMenuItems["history"] = index++;
                 }
 
-                console.log('final context menu items',contextMenuItems)
-
                 annot_context_menu.onOpen = function (event) {
                     // keeping track of mousedown event that triggered annot_context_menu popup
                     // because need mouse position of that event for some actions
@@ -7782,7 +7780,6 @@ define([
                 var currentType = selected[0].feature.get('type');
                 var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
                 for (var i = 1; i < selected.length; ++i) {
-                    console.log('feature to compare ',i,selected[i].feature)
                     if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                         menuItem.set("disabled", true);
                         return;
@@ -7793,7 +7790,6 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                console.log('output disabled')
                 menuItem.set("disabled", false);
             },
 
