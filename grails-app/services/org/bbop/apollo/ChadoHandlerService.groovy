@@ -29,7 +29,6 @@ class ChadoHandlerService {
 
     def configWrapperService
     def sequenceService
-    def featureRelationshipService
     def transcriptService
     def cdsService
 
@@ -41,8 +40,6 @@ class ChadoHandlerService {
     private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
-    ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
-    ArrayList<org.bbop.apollo.Feature> failedFeatures = new ArrayList<org.bbop.apollo.Feature>()
 
     def writeFeatures(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, boolean exportAllSequences = false) {
         JSONObject returnObject = new JSONObject()
@@ -119,8 +116,7 @@ class ChadoHandlerService {
             deleteChadoFeature(chadoFeature)
         }
 
-        JSONObject exportStatistics = new JSONObject()
-        exportStatistics = [ "Organism count" : chadoOrganismsMap.size(),
+        JSONObject exportStatistics = [ "Organism count" : chadoOrganismsMap.size(),
                              "Sequence count" : exportStatisticsMap.get("sequence_feature_count"),
                              "Feature count" : exportStatisticsMap.get("feature_count"),
                              "Featureloc count" : exportStatisticsMap.get("featureloc_count"),
