@@ -53,9 +53,9 @@ class RequestHandlingService {
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
-            Pseudogene.class.name
-            PseudogenicRegion.class.name
-            ProcessedPseudogene.class.name
+            Pseudogene.class.name,
+            PseudogenicRegion.class.name,
+            ProcessedPseudogene.class.name,
     ]
 
     public static final List<String> nonCodingAnnotationTranscriptList = [
@@ -66,16 +66,16 @@ class RequestHandlingService {
             NcRNA.class.name,
             RRNA.class.name,
             MiRNA.class.name,
-            GuideRNA.class,
-            RNaseMRPRNA.class,
-            TelomeraseRNA.class,
-            SrpRNA.class,
-            LncRNA.class,
-            RNaseMRPRNA.class,
-            ScRNA.class,
-            PiRNA.class,
-            TmRNA.class,
-            EnzymaticRNA.class,
+            GuideRNA.class.name,
+            RNaseMRPRNA.class.name,
+            TelomeraseRNA.class.name,
+            SrpRNA.class.name,
+            LncRNA.class.name,
+            RNaseMRPRNA.class.name,
+            ScRNA.class.name,
+            PiRNA.class.name,
+            TmRNA.class.name,
+            EnzymaticRNA.class.name,
     ]
 
     public static final List<String> viewableAnnotationTranscriptList = [MRNA.class.name] + nonCodingAnnotationTranscriptList
