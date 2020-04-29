@@ -1254,54 +1254,18 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
 
-
-
         var nonCodingRnaAnnotationMenu = new dijitMenu();
 
+        for( var ncRNAType of atrack.getNonCodingRNAs()){
+            nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                label: ncRNAType,
+                onClick: dojo.hitch(this, function() {
+                    atrack.createGenericAnnotations(this._handleSelectedFeatures(), ncRNAType, null, "gene");
+                })
+            }));
+        }
 
 
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "scRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "scRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "tRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "tRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "snRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "snRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "snoRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "snoRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "ncRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "ncRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "rRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "rRNA", null, "gene");
-            })
-        }));
-        nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "miRNA",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "miRNA", null, "gene");
-            })
-        }));
 
         var nonCodingRnaAnnotationMenuItem = new dijitPopupMenuItem({
             label: "Non-coding RNA",

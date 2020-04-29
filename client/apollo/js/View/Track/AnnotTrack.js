@@ -1049,6 +1049,15 @@ define([
                 }
             },
 
+            getNonCodingRNAs: function(){
+                return [
+                    'transcript' ,'tRNA','snRNA','snoRNA',
+                    'ncRNA','rRNA','mRNA','miRNA',
+                    'guide_RNA', 'RNase_MRP_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA',
+                    'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA',
+                ];
+            },
+
             createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = [];
@@ -1171,12 +1180,11 @@ define([
 
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
-                    var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA',
-                        'ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator',
-                        'guide_RNA', 'RNase_MRP_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA',
-                        'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA',
-                    ];
+                    var recognizedBioType = this.getNonCodingRNAs();
+                    recognizedBioType.add('repeat_region')
+                    recognizedBioType.add('transposable_element')
+                    recognizedBioType.add('terminator')
+                    recognizedBioType.add('shine_dalgarno_sequence')
                     var strandedOneLevelTypes = ['terminator'];
 
                     if(force_type) {
