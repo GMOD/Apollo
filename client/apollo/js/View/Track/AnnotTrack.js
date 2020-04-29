@@ -6618,6 +6618,35 @@ define([
                             thisB.changeAnnotationType("transcript");
                         }
                     }));
+
+                    var pseudoGeneAnnotationMenu = new dijitMenu();
+                    pseudoGeneAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "pseudogene",
+                        onClick: dojo.hitch(this, function() {
+                            atrack.createGenericAnnotations(this._handleSelectedFeatures(), "transcript", null, "pseudogene");
+                        })
+                    }));
+                    pseudoGeneAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "pseudogenic region",
+                        onClick: dojo.hitch(this, function() {
+                            atrack.createGenericAnnotations(this._handleSelectedFeatures(), "transcript", null, "pseudogenic_region");
+                        })
+                    }));
+                    pseudoGeneAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "processed pseudogene",
+                        onClick: dojo.hitch(this, function() {
+                            atrack.createGenericAnnotations(this._handleSelectedFeatures(), "transcript", null, "processed_pseudogene");
+                        })
+                    }));
+
+                    var pseudoGeneAnnotationMenuItem = new dijitPopupMenuItem({
+                        label: "Pseudogenes",
+                        popup: pseudoGeneAnnotationMenu,
+                    });
+                    changeAnnotationMenu.addChild(pseudoGeneAnnotationMenuItem)
+
+
+
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "rRNA",
                         onClick: function(event) {
