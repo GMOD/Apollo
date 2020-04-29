@@ -132,11 +132,7 @@ define([
                 this.verbose_render = false;
                 this.verbose_server_notification = false;
 
-                // NOTE: this shows the old popup menu
-                this.show_old_menu = false;
-
                 var track = this;
-
 
                 this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                     if (currRegion.ref != this.refSeq.name) {
@@ -1034,10 +1030,10 @@ define([
                             target_track.addToAnnotation(target_track.annot_under_mouse.feature, dropped_feats);
                         }
                         else if (target_track.track_under_mouse_drag) {
-                            if (target_track.verbose_drop || true) {
+                            if (target_track.verbose_drop) {
                                 console.log("draggable dropped on AnnotTrack");
+                                console.log('dropped on target track',target_track,dropped_feats);
                             }
-                            console.log('droping dropped on target rack',target_track,dropped_feats);
                             target_track.createAnnotations(dropped_feats,false);
                         }
                         // making sure annot_under_mouse is cleared
@@ -1052,7 +1048,7 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records,force_type,is_official) {
+            createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = [];
                 var parentFeatures = {};
@@ -1060,15 +1056,9 @@ define([
                 var strand;
                 var parentFeature;
                 var variantSelectionRecords = [];
-                // maybe unnecessary, but making explicitly false
-                var official = is_official===undefined ? false : is_official;
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
-                    if(selection_records[i].track){
-                        var sourceTrack = selection_records[i].track.key;
-                        official = target_track.getApollo().isOfficialTrack(sourceTrack ) ? true : official;
-                    }
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
@@ -1142,7 +1132,7 @@ define([
                     }
                     featureToAdd.set('orig_id', featureToAdd.get('id'));
                     featureToAdd.set("strand", strand);
-                  var fmin;
+                    var fmin;
                     var fmax;
                     featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
@@ -1175,7 +1165,9 @@ define([
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
 
+
                     var biotype ;
+
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
                     var recognizedBioType = [
@@ -1186,6 +1178,7 @@ define([
                     if(force_type) {
                         biotype = featureToAdd.get('type');
                         if(!recognizedBioType[biotype]){
+                            console.debug('biotype not found ['+biotype + '] converting to mRNA');
                             biotype = 'mRNA';
                         }
                     }
@@ -1200,15 +1193,15 @@ define([
                     var afeat ;
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true,undefined,official);
+                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene',official);
+                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
                     }
                     else {
-                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0,official);
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
                     }
 
                   var postData = {
@@ -1299,11 +1292,10 @@ define([
                 }
             },
 
-            createGenericAnnotations: function (feats, type, subfeatType, topLevelType,is_official) {
+            createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
                 var target_track = this;
                 var featuresToAdd = [];
                 var parentFeatures = {};
-                var official = is_official===undefined ? false : is_official;
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1345,7 +1337,7 @@ define([
                         }
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
-                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType,official);
+                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
                         if (topLevelType) {
                             var topLevel = {};
                             topLevel.orig_id = dojo.clone(afeat.id);
@@ -1361,7 +1353,7 @@ define([
                     else {
                         for (var k = 0; k < featArray.length; ++k) {
                             var dragfeat = featArray[k];
-                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType,official);
+                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
                                 var topLevel = new Object();
                                 topLevel.orig_id = dojo.clone(afeat.id);
@@ -1380,9 +1372,8 @@ define([
                 target_track.executeUpdateOperation(postData);
             },
 
-            createGenericOneLevelAnnotations: function (feats, type, strandless,is_official) {
+            createGenericOneLevelAnnotations: function (feats, type, strandless) {
 
-                var official = is_official===undefined ? false : is_official;
 
                 var target_track = this;
                 var featuresToAdd = new Array();
@@ -1431,7 +1422,7 @@ define([
                         if (strandless) {
                             featureToAdd.set("strand", 0);
                         }
-                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true,undefined,official);
+                        var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true);
                         /*
                          * if (topLevelType) { var topLevel = new Object();
                          * topLevel.location = dojo.clone(afeat.location);
@@ -1452,7 +1443,7 @@ define([
                                 dragfeat.set("strand", 0);
                             }
                             dragfeat.set("name", featArray[k].get("name"));
-                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true,undefined,official);
+                            var afeat = JSONUtils.createApolloFeature(dragfeat, type, true);
                             /*
                              * if (topLevelType) { var topLevel = new
                              * Object(); topLevel.location =
@@ -2351,11 +2342,6 @@ define([
                 track.executeUpdateOperation(postData);
             },
 
-            getOldAnnotationInfoEditor: function () {
-                var selected = this.selectionManager.getSelection();
-                this.getAnnotationInfoEditorForSelectedFeatures(selected);
-            },
-
             getNewAnnotationInfoEditor: function () {
                 var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
                 var selected = this.selectionManager.getSelection();
@@ -2413,80 +2399,6 @@ define([
                 }).show();
             },
 
-            getAnnotationInfoEditorForSelectedFeatures: function (records) {
-                var track = this;
-                var record = records[0];
-                if(!record){
-                    console.error('No record selected');
-                }
-                var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
-                var seltrack = record.track;
-                // just checking to ensure that all features in selection are from this
-                // track
-                if (seltrack !== track) {
-                    return;
-                }
-                track.getAnnotationInfoEditorConfigs(track.getUniqueTrackName());
-                var content = dojo.create("div", {'class': "annotation_info_editor_container"});
-                if (annot.afeature.parent_id) {
-                    var selectorDiv = dojo.create("div", {'class': "annotation_info_editor_selector"}, content);
-                    var selectorLabel = dojo.create("label", {
-                        innerHTML: "Select " + annot.get("type"),
-                        'class': "annotation_info_editor_selector_label"
-                    }, selectorDiv);
-                    var data = [];
-                    var feats = track.topLevelParents[annot.afeature.parent_id];
-                    for (var i in feats) {
-                        var feat = feats[i];
-                        data.push({id: feat.uniquename, label: feat.name});
-                    }
-                    var store = new Memory({
-                        data: data
-                    });
-                    var os = new ObjectStore({objectStore: store});
-                    var selector = new Select({store: os});
-                    selector.placeAt(selectorDiv);
-                    selector.attr("value", annot.afeature.uniquename);
-                    selector.attr("style", "width: 50%;");
-                    var first = true;
-                    dojo.connect(selector, "onChange", function (id) {
-                        if (!first) {
-                            dojo.destroy("child_annotation_info_editor");
-                            annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
-                            dojo.attr(annotContent, "class", "annotation_info_editor");
-                            dojo.attr(annotContent, "id", "child_annotation_info_editor");
-                            dojo.place(annotContent, content);
-                        }
-                        first = false;
-                    });
-                }
-                var numItems = 0;
-                // if annotation has parent, get comments for parent
-                if (annot.afeature.parent_id) {
-                    var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
-                    dojo.attr(parentContent, "class", "parent_annotation_info_editor");
-                    dojo.place(parentContent, content);
-                    ++numItems;
-                }
-                var annotContent;
-                if (JSONUtils.variantTypes.indexOf(annot.afeature.type.name.toUpperCase()) != -1) {
-                    // feature is a variant
-                    annotContent = this.createAnnotationInfoEditorPanelForVariant(annot.id(), track.getUniqueTrackName(), selector, false);
-                }
-                else {
-                    annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
-                }
-                dojo.attr(annotContent, "class", "annotation_info_editor");
-                dojo.attr(annotContent, "id", "child_annotation_info_editor");
-                dojo.place(annotContent, content);
-                ++numItems;
-                dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-                track.openDialog("Information Editor", content);
-                AnnotTrack.popupDialog.resize();
-                AnnotTrack.popupDialog._position();
-
-
-            },
 
             getAnnotationInfoEditorConfigs: function (trackName) {
                 var track = this;
@@ -3270,129 +3182,6 @@ define([
                     }
                 };
 
-                // initialize Attributes
-                //var initAttributes = function (feature, config) {
-                //    if (config.hasAttributes) {
-                //        cannedKeys = feature.canned_keys;
-                //        cannedValues = feature.canned_values;
-                //        var oldTag;
-                //        var oldValue;
-                //        var attributes = new dojoItemFileWriteStore({
-                //            data: {
-                //                items: []
-                //            }
-                //        });
-                //        for (var i = 0; i < feature.non_reserved_properties.length; ++i) {
-                //            var attribute = feature.non_reserved_properties[i];
-                //            attributes.newItem({tag: attribute.tag, value: attribute.value});
-                //        }
-                //
-                //
-                //        var attributeTableLayout = [{
-                //            cells: [
-                //                {
-                //                    name: 'Tag',
-                //                    field: 'tag',
-                //                    width: '40%',
-                //                    type: dojox.grid.cells.ComboBox,
-                //                    //type: dojox.grid.cells.Select,
-                //                    options: cannedKeys,
-                //                    formatter: function (tag) {
-                //                        if (!tag) {
-                //                            return "Enter new tag";
-                //                        }
-                //                        return tag;
-                //                    },
-                //                    editable: hasWritePermission
-                //                },
-                //                {
-                //                    name: 'Value',
-                //                    field: 'value',
-                //                    width: '60%',
-                //                    type: dojox.grid.cells.ComboBox,
-                //                    //type: dojox.grid.cells.Select,
-                //                    options: cannedValues,
-                //                    formatter: function (value) {
-                //                        if (!value) {
-                //                            return "Enter new value";
-                //                        }
-                //                        return value;
-                //                    },
-                //                    editable: hasWritePermission
-                //                }
-                //            ]
-                //        }];
-                //
-                //        var attributeTable = new dojoxDataGrid({
-                //            singleClickEdit: true,
-                //            store: attributes,
-                //            updateDelay: 0,
-                //            structure: attributeTableLayout
-                //        });
-                //
-                //        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
-                //            initTable(attributeTable.domNode, attributesTable, attributeTable);
-                //            dojo.disconnect(handle);
-                //        });
-                //        if (reload) {
-                //            initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
-                //        }
-                //
-                //        var dirty = false;
-                //
-                //        dojo.connect(attributeTable, "onStartEdit", function (inCell, inRowIndex) {
-                //            if (!dirty) {
-                //                oldTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-                //                oldValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-                //                dirty = true;
-                //            }
-                //        });
-                //
-                //        dojo.connect(attributeTable, "onCancelEdit", function (inRowIndex) {
-                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
-                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
-                //            dirty = false;
-                //        });
-                //
-                //        dojo.connect(attributeTable, "onApplyEdit", function (inRowIndex) {
-                //            var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-                //            var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-                //            if (!newTag || !newValue) {
-                //            }
-                //            else if (!oldTag || !oldValue) {
-                //                addAttribute(newTag, newValue);
-                //            }
-                //            else {
-                //                if (newTag != oldTag || newValue != oldValue) {
-                //                    updateAttribute(oldTag, oldValue, newTag, newValue);
-                //                }
-                //            }
-                //            dirty = false;
-                //        });
-                //
-                //        dojo.connect(addAttributeButton, "onclick", function () {
-                //            attributeTable.store.newItem({tag: "", value: ""});
-                //            attributeTable.scrollToRow(attributeTable.rowCount);
-                //        });
-                //
-                //        dojo.connect(deleteAttributeButton, "onclick", function () {
-                //            var toBeDeleted = new Array();
-                //            var selected = attributeTable.selection.getSelected();
-                //            for (var i = 0; i < selected.length; ++i) {
-                //                var item = selected[i];
-                //                var tag = attributeTable.store.getValue(item, "tag");
-                //                var value = attributeTable.store.getValue(item, "value");
-                //                toBeDeleted.push({tag: tag, value: value});
-                //            }
-                //            attributeTable.removeSelectedRows();
-                //            deleteAttributes(toBeDeleted);
-                //        });
-                //    }
-                //    else {
-                //        dojo.style(attributesDiv, "display", "none");
-                //    }
-                //
-                //};
 
                 // initialize Allele Info
                 var initAlleleInfo = function (feature) {
@@ -4052,39 +3841,6 @@ define([
                     updateTimeLastUpdated();
                 };
 
-                //var addAttribute = function (tag, value) {
-                //    tag = escapeString(tag);
-                //    value = escapeString(value);
-                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
-                //    var operation = "add_non_reserved_properties";
-                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                //    track.executeUpdateOperation(postData);
-                //    updateTimeLastUpdated();
-                //};
-                //
-                //var deleteAttributes = function (attributes) {
-                //    for (var i = 0; i < attributes.length; ++i) {
-                //        attributes[i].tag = escapeString(attributes[i].tag);
-                //        attributes[i].value = escapeString(attributes[i].value);
-                //    }
-                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
-                //    var operation = "delete_non_reserved_properties";
-                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                //    track.executeUpdateOperation(postData);
-                //    updateTimeLastUpdated();
-                //};
-                //
-                //var updateAttribute = function (oldTag, oldValue, newTag, newValue) {
-                //    oldTag = escapeString(oldTag);
-                //    oldValue = escapeString(oldValue);
-                //    newTag = escapeString(newTag);
-                //    newValue = escapeString(newValue);
-                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
-                //    var operation = "update_non_reserved_properties";
-                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                //    track.executeUpdateOperation(postData);
-                //    updateTimeLastUpdated();
-                //};
 
                 var addAlleleInfo = function(allele, tag, value) {
                     allele = escapeString(allele);
@@ -4339,30 +4095,6 @@ define([
                     }
                 };
 
-                //var deleteGoIds = function (goIds) {
-                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
-                //    var operation = "delete_non_primary_dbxrefs";
-                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                //    track.executeUpdateOperation(postData);
-                //    updateTimeLastUpdated();
-                //};
-                //
-                //var updateGoId = function (goIdTable, item, oldGoId, newGoId, valid) {
-                //    if (valid) {
-                //        var oldGoAccession = oldGoId.substr(goIdDb.length + 1);
-                //        var newGoAccession = newGoId.substr(goIdDb.length + 1);
-                //        var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
-                //        var operation = "update_non_primary_dbxrefs";
-                //        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                //        track.executeUpdateOperation(postData);
-                //        updateTimeLastUpdated();
-                //    }
-                //    else {
-                //        alert("Invalid ID " + newGoId + " - Undoing update");
-                //        goIdTable.store.setValue(item, "go_id", oldGoId);
-                //        goIdTable.close();
-                //    }
-                //};
 
                 var addComment = function (comment) {
                     comment = escapeString(comment);
@@ -5173,45 +4905,6 @@ define([
                                     name: 'Gene Ontology ID',
                                     field: 'go_id', // '_item',
                                     width: '100%',
-                                    // type: declare(dojox.grid.cells._Widget, {
-                                    //     widgetClass: dijitTextBox,
-                                    //     createWidget: function (inNode, inDatum, inRowIndex) {
-                                    //         var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
-                                    //         var textBox = widget.domNode.childNodes[0].childNodes[0];
-                                    //         dojo.connect(textBox, "onkeydown", function (event) {
-                                    //             if (event.keyCode == dojo.keys.ENTER) {
-                                    //                 if (dirty) {
-                                    //                     dirty = false;
-                                    //                     valid = validateGoId(textBox.value) ? true : false;
-                                    //                 }
-                                    //             }
-                                    //         });
-                                    //         var original = 'http://golr.geneontology.org/';
-                                    //         //var original = 'http://golr.geneontology.org/solr/';
-                                    //         //var original = 'http://golr.berkeleybop.org/solr/';
-                                    //         var encoded_original = encodeURI(original);
-                                    //         encoded_original = encoded_original.replace(/:/g, "%3A");
-                                    //         encoded_original = encoded_original.replace(/\//g, "%2F");
-                                    //
-                                    //         //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
-                                    //         var gserv = context_path + "/proxy/request/" + encoded_original;
-                                    //         var gconf = new bbop.golr.conf(amigo.data.golr);
-                                    //         var args = {
-                                    //             label_template: '{{annotation_class_label}} [{{annotation_class}}]',
-                                    //             value_template: '{{annotation_class}}',
-                                    //             list_select_callback: function (doc) {
-                                    //                 dirty = false;
-                                    //                 valid = true;
-                                    //                 goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
-                                    //             }
-                                    //         };
-                                    //         var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-                                    //         auto.set_personality('bbop_term_ac');
-                                    //         auto.add_query_filter('document_category', 'ontology_class');
-                                    //         auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-                                    //         return widget;
-                                    //     }
-                                    // }),
                                     formatter: function (goId, rowIndex, cell) {
                                         if (!goId) {
                                             return "Enter new Gene Ontology ID";
@@ -5244,13 +4937,10 @@ define([
                             dirty = true;
                         });
 
-                        // dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex, inCellIndex) {
                         dojo.connect(goIdTable.store, "onSet", function (item, attribute, oldValue, newValue) {
                             if (dirty) {
                                 return;
                             }
-                            // var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex),
-                            // "go_id");
                             var newGoId = newValue;
                             if (!newGoId) {
                             }
@@ -6759,28 +6449,6 @@ define([
 
             login: function () {
                 this.showAnnotatorPanel();
-                // var track = this;
-                // dojo.xhrGet({
-                //     url: context_path + "/Login",
-                //     handleAs: "text",
-                //     timeout: 5 * 60,
-                //     load: function (response, ioArgs) {
-                //         var dialog = new dojoxDialogSimple({
-                //             preventCache: true,
-                //             refreshOnShow: true,
-                //             executeScripts: true
-                //
-                //         });
-                //         if (track.browser.config.disableJBrowseMode) {
-                //             dialog.hide = function () {
-                //             };
-                //         }
-                //         dialog.startup();
-                //         dialog.set("title", "Login");
-                //         dialog.set("content", response);
-                //         dialog.show();
-                //     }
-                // });
             },
 
             initLoginMenu: function () {
@@ -6903,53 +6571,10 @@ define([
                 contextMenuItems["zoom_to_base_level"] = index++;
 
 
-              // annot_context_menu.addChild(new dijit.MenuItem({
-              //   label: "View Go Annotations",
-              //   onClick: function (event) {
-              //     var selected = thisB.selectionManager.getSelection();
-              //     var selectedFeature = selected[0].feature;
-              //     var selectedFeatureDetails = selectedFeature.afeature;
-              //     while(selectedFeature  ){
-              //       if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-              //         thisB.getApollo().viewGoPanel(selectedFeatureDetails.name);
-              //         return ;
-              //       }
-              //       else
-              //       if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-              //         thisB.getApollo().viewGoPanel(selectedFeatureDetails.parent_name);
-              //         return ;
-              //       }
-              //       selectedFeature = selectedFeature._parent ;
-              //       selectedFeatureDetails = selectedFeature.afeature ;
-              //     }
-              //     alert('Unable to focus on object');
-              //   }
-              // }));
-              // contextMenuItems["view_go_annotation"] = index++;
-
-
-
-                // annot_context_menu.addChild(new dijit.MenuSeparator());
-                // index++;
-                // annot_context_menu.addChild(new dijit.MenuItem({
-                //         label: "Information Editor (alt-click)",
-                //         onClick: function (event) {
-                //             thisB.getOldAnnotationInfoEditor();
-                //         }
-                //     }));
-                //     contextMenuItems["annotation_info_editor"] = index++;
                 if (permission & Permission.WRITE) {
-                    if(thisB.show_old_menu){
-                        annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Old Information Editor ",
-                            onClick: function (event) {
-                                thisB.getOldAnnotationInfoEditor();
-                            }
-                        }));
-                    }
 
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Edit Annotation (alt-click)",
+                        label: "Open Annotation (alt-click)",
                         onClick: function (event) {
                             thisB.getNewAnnotationInfoEditor();
                         }
@@ -6963,6 +6588,9 @@ define([
                         }
                     }));
                     contextMenuItems["close_editor"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
 
                     var changeAnnotationMenu = new dijitMenu();
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
@@ -7059,18 +6687,15 @@ define([
                             }
                         }
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
-                    annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
                     var changeAnnotationMenuItem = new dijitPopupMenuItem( {
                         label: "Change annotation type",
                         popup: changeAnnotationMenu
                     });
                     annot_context_menu.addChild(changeAnnotationMenuItem);
+                    contextMenuItems["change_annotation_type"] = index++;
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
 
                     //
                     var associateTranscriptToGeneItem = new dijit.MenuItem({
@@ -7295,7 +6920,7 @@ define([
                         }
                     }));
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Undo",
                         onClick: function (event) {
@@ -8160,6 +7785,7 @@ define([
                         return;
                     }
                 }
+
                 if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
