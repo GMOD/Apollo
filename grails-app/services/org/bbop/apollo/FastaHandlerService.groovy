@@ -72,7 +72,7 @@ public class FastaHandlerService {
         }
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
-            if(feature.class.name in [Gene.class.name, Pseudogene.class.name]) {
+            if(feature.class.name in [Gene.class.name, Pseudogene.class.name,PseudogenicRegion.class.name,ProcessedPseudogene.class.name]) {
                 def transcriptList = transcriptService.getTranscripts(feature)
                 for (Transcript transcript in transcriptList) {
                     writeFeature(transcript, seqType, metaDataToExport);
