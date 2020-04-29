@@ -6589,6 +6589,9 @@ define([
                     }));
                     contextMenuItems["close_editor"] = index++;
 
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+
                     var changeAnnotationMenu = new dijitMenu();
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                     label: "gene",
@@ -6684,18 +6687,15 @@ define([
                             }
                         }
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
-                    annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
                     var changeAnnotationMenuItem = new dijitPopupMenuItem( {
                         label: "Change annotation type",
                         popup: changeAnnotationMenu
                     });
                     annot_context_menu.addChild(changeAnnotationMenuItem);
+                    contextMenuItems["change_annotation_type"] = index++;
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
 
                     //
                     var associateTranscriptToGeneItem = new dijit.MenuItem({
@@ -6920,7 +6920,7 @@ define([
                         }
                     }));
                     annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+                    // index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Undo",
                         onClick: function (event) {
@@ -6943,6 +6943,8 @@ define([
                     }));
                     contextMenuItems["history"] = index++;
                 }
+
+                console.log('final context menu items',contextMenuItems)
 
                 annot_context_menu.onOpen = function (event) {
                     // keeping track of mousedown event that triggered annot_context_menu popup
