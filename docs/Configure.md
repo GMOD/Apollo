@@ -83,9 +83,9 @@ This can be shut off by setting this to false.  This can over-ridden as below in
 
 ```
 grails {
-  apollo.use_cds_for_new_transcripts = false
+  apollo.count_annotations = false
   apollo {
-    use_cds_for_new_transcripts = false
+    count_annotations = false
   }
 }
 ```
