@@ -1256,14 +1256,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         nonCodingRnaAnnotationMenu.addChild(
             new dijitMenuItem( {
-            label: 'transcript',
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericAnnotations(this._handleSelectedFeatures(), 'transcript', null, "gene");
-            })
-        }));
-
-        nonCodingRnaAnnotationMenu.addChild(
-            new dijitMenuItem( {
                 label: 'tRNA',
                 onClick: dojo.hitch(this, function() {
                     atrack.createGenericAnnotations(this._handleSelectedFeatures(), 'tRNA', null, "gene");

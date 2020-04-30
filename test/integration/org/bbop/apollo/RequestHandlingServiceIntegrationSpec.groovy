@@ -3894,7 +3894,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
-        assert Gene.count == 9
+        assert Gene.count == 10
         assert Pseudogene.count == 1
     }
 
