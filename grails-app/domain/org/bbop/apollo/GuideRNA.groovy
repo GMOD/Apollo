@@ -6,6 +6,6 @@ class GuideRNA extends NcRNA{
     }
 
     static String cvTerm =  "guide_RNA"
-    static String ontologyId = "SO:0000253"
+    static String ontologyId = "SO:0000602"
     static String alternateCvTerm = "GuideRNA"
 }

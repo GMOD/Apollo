@@ -10,7 +10,7 @@ class TranscriptService {
     List<String> ontologyIds = [
       Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId,
       MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId,
-      GuideRNA.ontologyId, RNaseMRPRNA.ontologyId, TelomeraseRNA.ontologyId, SrpRNA.ontologyId, LncRNA.ontologyId,
+      GuideRNA.ontologyId, RNasePRNA.ontologyId, TelomeraseRNA.ontologyId, SrpRNA.ontologyId, LncRNA.ontologyId,
       RNaseMRPRNA.ontologyId, ScRNA.ontologyId, PiRNA.ontologyId, TmRNA.ontologyId, EnzymaticRNA.ontologyId,
     ]
 
