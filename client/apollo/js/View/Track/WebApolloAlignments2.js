@@ -101,6 +101,76 @@ define( [
                             }
                         },
                         {
+                            "label": "guide_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"guide_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "RNase_MRP_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"RNase_MRP_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "telomerase_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"telomerase_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "SRP_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"SRP_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "lnc_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"lnc_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "RNase_MRP_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"RNase_MRP_RNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "scRNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"scRNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "piRNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"piRNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "tmRNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"tmRNA",null,"gene");
+                            }
+                        },
+                        {
+                            "label": "enzymatic_RNA",
+                            "action": function(event) {
+                                var atrack = thisB.webapollo.getAnnotTrack();
+                                atrack.createGenericAnnotations([this.feature],"enzymatic_RNA",null,"gene");
+                            }
+                        },
+                        {
                             "label": "repeat_region",
                             "action": function() {
                                 var atrack = thisB.webapollo.getAnnotTrack();

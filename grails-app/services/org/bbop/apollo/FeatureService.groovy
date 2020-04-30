@@ -1653,7 +1653,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
       case MiRNA.ontologyId: return new MiRNA()
       case NcRNA.ontologyId: return new NcRNA()
       case GuideRNA.ontologyId: return new GuideRNA()
-      case RNaseMRPRNA.ontologyId: return new RNasePRNA()
+      case RNasePRNA.ontologyId: return new RNasePRNA()
       case TelomeraseRNA.ontologyId: return new TelomeraseRNA()
       case SrpRNA.ontologyId: return new SrpRNA()
       case LncRNA.ontologyId: return new LncRNA()
@@ -1709,7 +1709,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         case MiRNA.cvTerm.toUpperCase(): return MiRNA.ontologyId
         case NcRNA.cvTerm.toUpperCase(): return NcRNA.ontologyId
         case GuideRNA.cvTerm.toUpperCase(): return GuideRNA.ontologyId
-        case RNaseMRPRNA.cvTerm.toUpperCase(): return RNasePRNA.ontologyId
+        case RNasePRNA.cvTerm.toUpperCase(): return RNasePRNA.ontologyId
         case TelomeraseRNA.cvTerm.toUpperCase(): return TelomeraseRNA.ontologyId
         case SrpRNA.cvTerm.toUpperCase(): return SrpRNA.ontologyId
         case LncRNA.cvTerm.toUpperCase(): return LncRNA.ontologyId
