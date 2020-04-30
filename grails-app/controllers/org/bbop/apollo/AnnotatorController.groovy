@@ -58,6 +58,7 @@ class AnnotatorController {
     def loadLink() {
         log.debug "Parameter for loadLink: ${params} vs ${request.parameterMap}"
         String clientToken
+        String searchName = null
         try {
             if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
                 clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
@@ -94,26 +95,30 @@ class AnnotatorController {
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             String location = params.loc
             // assume that the lookup is a symbol lookup value and not a location
-            if (location && location.contains(':') && location.contains('..')) {
-                String[] splitString = location.split(':')
-                log.debug "splitString : ${splitString}"
-                String sequenceString = splitString[0]
-                Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
-                String[] minMax = splitString[1].split("\\.\\.")
+            if (location) {
+                if(location.contains(':') && location.contains('..')){
+                    String[] splitString = location.split(':')
+                    log.debug "splitString : ${splitString}"
+                    String sequenceString = splitString[0]
+                    Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
+                    String[] minMax = splitString[1].split("\\.\\.")
 
-                log.debug "minMax: ${minMax}"
-                int fmin, fmax
-                try {
-                    fmin = minMax[0] as Integer
-                    fmax = minMax[1] as Integer
-                } catch (e) {
-                    log.error "error parsing ${e}"
-                    fmin = sequence.start
-                    fmax = sequence.end
+                    log.debug "minMax: ${minMax}"
+                    int fmin, fmax
+                    try {
+                        fmin = minMax[0] as Integer
+                        fmax = minMax[1] as Integer
+                    } catch (e) {
+                        log.error "error parsing ${e}"
+                        fmin = sequence.start
+                        fmax = sequence.end
+                    }
+                    log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
+                    preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax, clientToken)
                 }
-                log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
-
-                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax, clientToken)
+                else{
+                    searchName = location
+                }
             }
         }
 
@@ -133,6 +138,10 @@ class AnnotatorController {
             }
         }
 
+
+        if(searchName){
+            queryParamString += "&searchLocation=${searchName}"
+        }
         if (queryParamString.contains("http://") || queryParamString.contains("https://") ||
                 queryParamString.contains("ftp://")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
