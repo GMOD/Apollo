@@ -3889,12 +3889,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         }
 
         then: "we restore all the features from GFF3"
-        assert Gene.count == 10
         assert Transcript.count == 10
         assert SequenceAlterationArtifact.count == 3
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
+        assert Gene.count == 9
+        assert Pseudogene.count == 1
     }
 
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
