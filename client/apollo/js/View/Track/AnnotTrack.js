@@ -1053,7 +1053,7 @@ define([
                 return [
                     'transcript' ,'tRNA','snRNA','snoRNA',
                     'ncRNA','rRNA','mRNA','miRNA',
-                    'guide_RNA', 'RNase_MRP_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA',
+                    'guide_RNA', 'RNase_P_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA',
                     'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA',
                 ];
             },
@@ -6690,9 +6690,9 @@ define([
                         }
                     }));
                     nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "RNase_MRP_RNA",
+                        label: "RNase_P_RNA",
                         onClick: function(event) {
-                            thisB.changeAnnotationType("RNase_MRP_RNA");
+                            thisB.changeAnnotationType("RNase_P_RNA");
                         }
                     }));
                     nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {

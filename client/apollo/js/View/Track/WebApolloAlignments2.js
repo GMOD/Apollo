@@ -136,10 +136,10 @@ define( [
                             }
                         },
                         {
-                            "label": "RNase_MRP_RNA",
+                            "label": "RNase_P_RNA",
                             "action": function(event) {
                                 var atrack = thisB.webapollo.getAnnotTrack();
-                                atrack.createGenericAnnotations([this.feature],"RNase_MRP_RNA",null,"gene");
+                                atrack.createGenericAnnotations([this.feature],"RNase_P_RNA",null,"gene");
                             }
                         },
                         {
