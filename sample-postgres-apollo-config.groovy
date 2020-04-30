@@ -109,6 +109,7 @@ environments {
 //    gff3.source = "MyOrg" // also for GPAD export
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
+//    count_annotations = false
 //    store_orig_id = false
 //    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from // https://genome.ucsc.edu/goldenPath/help/blatSpec.html
 //    sequence_search_tools {
