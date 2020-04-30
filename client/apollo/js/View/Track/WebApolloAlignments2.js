@@ -183,7 +183,15 @@ define( [
                                 var atrack = thisB.webapollo.getAnnotTrack();
                                 atrack.createGenericOneLevelAnnotations([this.feature], "transposable_element", true);
                             }
-                        }
+                        },
+                        {
+                            "label" : "Terminator",
+                            "action" : function() {
+                                var atrack=thisB.webapollo.getAnnotTrack();
+                                var official = atrack.getApollo().isOfficialTrack(thisB.key);
+                                atrack.createGenericOneLevelAnnotations([this.feature], "terminator", true,official);
+                            }
+                        },
                     ]
                 });
                 return config;

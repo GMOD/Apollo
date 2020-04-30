@@ -638,6 +638,8 @@ public class AnnotatorPanel extends Composite {
         switch (type) {
             case "gene":
             case "pseudogene":
+            case "pseudogenic_region":
+            case "processed_pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
                 goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);

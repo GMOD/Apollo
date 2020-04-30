@@ -160,7 +160,6 @@ define([
                 var parentType = subfeature.parent().afeature.parent_type;
                 if (!this.isProteinCoding(subfeature.parent())) {
                     var clsName = parentType &&  ["pseudogene","pseudogenic_region","processed_pseudogene"].indexOf(parentType.name)>=0 ? parentType.name : subfeature.parent().get("type");
-                    console.log('class name for ',parentType, clsName,subfeature.parent(),this.config.style.alternateClasses)
                     var cfg = this.config.style.alternateClasses[clsName];
                     utrClass = cfg.className;
                 }
@@ -1049,15 +1048,6 @@ define([
                 }
             },
 
-            getNonCodingRNAs: function(){
-                return [
-                    'transcript' ,'tRNA','snRNA','snoRNA',
-                    'ncRNA','rRNA','mRNA','miRNA',
-                    'guide_RNA', 'RNase_P_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA',
-                    'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA',
-                ];
-            },
-
             createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = [];
@@ -1180,11 +1170,12 @@ define([
 
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
-                    var recognizedBioType = this.getNonCodingRNAs();
-                    recognizedBioType.add('repeat_region')
-                    recognizedBioType.add('transposable_element')
-                    recognizedBioType.add('terminator')
-                    recognizedBioType.add('shine_dalgarno_sequence')
+                    // initiall the ncRNA
+                    var recognizedBioType = ['transcript' ,'tRNA','snRNA','snoRNA', 'ncRNA','rRNA','mRNA','miRNA', 'guide_RNA', 'RNase_P_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA', 'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA'];
+                    recognizedBioType.push('repeat_region')
+                    recognizedBioType.push('transposable_element')
+                    recognizedBioType.push('terminator')
+                    recognizedBioType.push('shine_dalgarno_sequence')
                     var strandedOneLevelTypes = ['terminator'];
 
                     if(force_type) {
@@ -2355,7 +2346,7 @@ define([
             },
 
             getNewAnnotationInfoEditor: function () {
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene','pseudogenic_regions','processed_pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene','pseudogenic_region','processed_pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
                 var selected = this.selectionManager.getSelection();
                 var selectedFeature = selected[0].feature;
                 var selectedFeatureDetails = selectedFeature.afeature;
