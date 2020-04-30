@@ -3,11 +3,12 @@
 
 Features
 
-- Added 2 more pseudogenic SO terms and several more non-coding RNA terms and updated interfaces to reflect these [2475](https://github.com/GMOD/Apollo/pull/2475)
 - Remove popups for annotations in favor of annotator panel [2334](https://github.com/GMOD/Apollo/pull/2334)
+- Added 2 more pseudogenic SO terms and several more non-coding RNA terms and updated interfaces to reflect these [2475](https://github.com/GMOD/Apollo/pull/2475)
 - Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
 - Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
 - Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
+- loadLink can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
 - Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
 - Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
 - Show genome features in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
