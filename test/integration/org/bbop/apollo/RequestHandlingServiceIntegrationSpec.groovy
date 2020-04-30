@@ -3817,11 +3817,12 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
 
         then: "we should see these features"
-        assert Gene.count == 10
-        assert Transcript.count == 10
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert Terminator.count == 1
+        assert Transcript.count == 10
+        assert Pseudogene.count == 1
+        assert Gene.count == 9
 
         when: "we add some modifications"
         MRNA mrna = MRNA.findByName("GB40819-RA-00001")

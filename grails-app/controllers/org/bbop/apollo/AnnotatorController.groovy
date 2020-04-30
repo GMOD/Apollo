@@ -373,7 +373,10 @@ class AnnotatorController {
                 switch (type) {
                     case "Gene": viewableTypes.add(Gene.class.canonicalName)
                         break
-                    case "Pseudogene": viewableTypes.add(Pseudogene.class.canonicalName)
+                    case "Pseudogene":
+                        viewableTypes.add(Pseudogene.class.canonicalName)
+                        viewableTypes.add(PseudogenicRegion.class.canonicalName)
+                        viewableTypes.add(ProcessedPseudogene.class.canonicalName)
                         break
                     case "repeat_region": viewableTypes.add(RepeatRegion.class.canonicalName)
                         break

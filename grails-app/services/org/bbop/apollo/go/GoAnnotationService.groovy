@@ -2,7 +2,6 @@ package org.bbop.apollo.go
 
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
-import org.bbop.apollo.Gene
 import org.bbop.apollo.Gff3ConstantEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -11,8 +10,6 @@ import java.text.SimpleDateFormat
 
 @Transactional
 class GoAnnotationService {
-
-    def featureRelationshipService
 
     final String DATE_FORMAT_STRING = "YYYY-MM-DD hh:mm:ss.s"
     final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_STRING)

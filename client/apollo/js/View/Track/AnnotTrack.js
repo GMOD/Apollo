@@ -159,7 +159,7 @@ define([
                 var utrClass;
                 var parentType = subfeature.parent().afeature.parent_type;
                 if (!this.isProteinCoding(subfeature.parent())) {
-                    var clsName = parentType && parentType.name == "pseudogene" ? "pseudogene" : subfeature.parent().get("type");
+                    var clsName = parentType &&  ["pseudogene","pseudogenic_region","processed_pseudogene"].indexOf(parentType.name)>=0 ? parentType.name : subfeature.parent().get("type");
                     var cfg = this.config.style.alternateClasses[clsName];
                     utrClass = cfg.className;
                 }
@@ -1170,9 +1170,12 @@ define([
 
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
-                    var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
-                    ];
+                    // initiall the ncRNA
+                    var recognizedBioType = ['transcript' ,'tRNA','snRNA','snoRNA', 'ncRNA','rRNA','mRNA','miRNA', 'guide_RNA', 'RNase_P_RNA', 'telomerase_RNA', 'SRP_RNA', 'lnc_RNA', 'RNase_MRP_RNA', 'scRNA', 'piRNA', 'tmRNA', 'enzymatic_RNA'];
+                    recognizedBioType.push('repeat_region')
+                    recognizedBioType.push('transposable_element')
+                    recognizedBioType.push('terminator')
+                    recognizedBioType.push('shine_dalgarno_sequence')
                     var strandedOneLevelTypes = ['terminator'];
 
                     if(force_type) {
@@ -2343,7 +2346,7 @@ define([
             },
 
             getNewAnnotationInfoEditor: function () {
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene','pseudogenic_region','processed_pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
                 var selected = this.selectionManager.getSelection();
                 var selectedFeature = selected[0].feature;
                 var selectedFeatureDetails = selectedFeature.afeature;
@@ -2365,6 +2368,7 @@ define([
 
             changeAnnotationType: function(type) {
                 var selected = this.selectionManager.getSelection();
+                console.log('changing annotation type',type,selected[0])
                 if (selected[0].feature.afeature.type.name === type) {
                     this.alertAnnotationType(selected[0], type);
                 }
@@ -6606,42 +6610,114 @@ define([
                             thisB.changeAnnotationType("transcript");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+
+                    var nonCodingRnaAnnotationMenu = new dijitMenu();
+
+
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "rRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("rRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "snRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("snRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "snoRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("snoRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "tRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("tRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "ncRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("ncRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "miRNA",
                         onClick: function(event) {
                             thisB.changeAnnotationType("miRNA");
                         }
                     }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "guide_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("guide_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "RNase_MRP_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("RNase_MRP_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "telomerase_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("telomerase_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "SRP_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("SRP_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "lnc_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("lnc_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "RNase_P_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("RNase_P_RNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "scRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("scRNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "piRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("piRNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "tmRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("tmRNA");
+                        }
+                    }));
+                    nonCodingRnaAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "enzymatic_RNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("enzymatic_RNA");
+                        }
+                    }));
+
+                    var nonCodingRnaAnnotationMenuItem = new dijitPopupMenuItem({
+                        label: "Non-coding RNA",
+                        popup: nonCodingRnaAnnotationMenu,
+                    });
+                    changeAnnotationMenu.addChild(nonCodingRnaAnnotationMenuItem)
+
+
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "Terminator",
                         onClick: function(event) {

@@ -638,6 +638,8 @@ public class AnnotatorPanel extends Composite {
         switch (type) {
             case "gene":
             case "pseudogene":
+            case "pseudogenic_region":
+            case "processed_pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
                 goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
@@ -686,6 +688,16 @@ public class AnnotatorPanel extends Composite {
             case "snRNA":
             case "snoRNA":
             case "ncRNA":
+            case "guide_RNA":
+            case "RNase_MRP_RNA":
+            case "telomerase_RNA":
+            case "SRP_RNA":
+            case "lnc_RNA":
+            case "RNase_P_RNA":
+            case "scRNA":
+            case "piRNA":
+            case "tmRNA":
+            case "enzymatic_RNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 goPanel.updateData(annotationInfo);
