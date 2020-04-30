@@ -713,8 +713,10 @@ public class GoPanel extends Composite {
   }
 
   public void updateData(AnnotationInfo selectedAnnotationInfo) {
-    this.annotationInfo = selectedAnnotationInfo;
-    loadData();
+    if(!selectedAnnotationInfo.equals(this.annotationInfo)){
+      this.annotationInfo = selectedAnnotationInfo;
+      loadData();
+    }
   }
 
 

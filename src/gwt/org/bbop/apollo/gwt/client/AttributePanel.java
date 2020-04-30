@@ -220,8 +220,10 @@ public class AttributePanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        this.internalAnnotationInfo = annotationInfo;
-        loadData();
+        if(!annotationInfo.equals(this.internalAnnotationInfo)){
+            this.internalAnnotationInfo = annotationInfo;
+            loadData();
+        }
     }
 
     public void updateData() {

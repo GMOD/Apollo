@@ -224,8 +224,10 @@ public class DbXrefPanel extends Composite {
         if (annotationInfo == null) {
             return;
         }
-        this.internalAnnotationInfo = annotationInfo;
-        loadData();
+        if(!annotationInfo.equals(this.internalAnnotationInfo)){
+            this.internalAnnotationInfo = annotationInfo;
+            loadData();
+        }
     }
 
     public void updateData() {

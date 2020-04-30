@@ -169,10 +169,13 @@ public class CommentPanel extends Composite {
 
     public void updateData(AnnotationInfo annotationInfo) {
         if (annotationInfo == null) {
+            this.internalAnnotationInfo = annotationInfo;
             return;
         }
-        this.internalAnnotationInfo = annotationInfo;
-        loadData();
+        if(!annotationInfo.equals(this.internalAnnotationInfo)){
+            this.internalAnnotationInfo = annotationInfo;
+            loadData();
+        }
     }
 
     public void updateData() {
