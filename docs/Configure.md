@@ -76,6 +76,22 @@ grails {
 }
 ```
 
+### Count annotations
+
+By default annotations are counted, but in some cases this can be come prohibitive for performance if a lot of annotations. 
+This can be shut off by setting this to false.  This can over-ridden as below in the `apollo-config.groovy` file:
+
+```
+grails {
+  apollo.count_annotations = false
+  apollo {
+    count_annotations = false
+  }
+}
+```
+
+
+
 ### JBrowse Plugins and Configuration
 
 You can configure the installed Apollo JBrowse by modifying the `jbrowse` section of your ```apollo-config.groovy``` that overrides the JBrowse [configuration file](https://github.com/GMOD/Apollo/blob/develop/grails-app/conf/Config.groovy).

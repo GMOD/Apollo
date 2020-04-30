@@ -11,6 +11,7 @@ Features
 - loadLink can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
 - Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
 - Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
+- Allows for better performance when a large number of annotations are present [2477](https://github.com/GMOD/Apollo/pull/2477)
 - Show genome features in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
 - Remove sequence lookup at the top [2407](https://github.com/GMOD/Apollo/pull/2407)
 - Provide better security and feedback when trying to export with insufficient permissions [2431](https://github.com/GMOD/Apollo/pull/2431)
