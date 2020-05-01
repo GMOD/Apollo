@@ -572,7 +572,7 @@ public class AnnotatorPanel extends Composite {
         }, 1000);
     }
 
-    private void initializeUsers() {
+    protected void initializeUsers() {
         userField.clear();
         userField.addItem("All Users", "");
         RequestCallback requestCallback = new RequestCallback() {

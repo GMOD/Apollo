@@ -471,8 +471,7 @@ public class MainPanel extends Composite {
 
                         setUserNameForCurrentUser();
                     }
-
-
+                    annotatorPanel.initializeUsers();
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if (hasUsers) {
