@@ -249,7 +249,7 @@ class TrackController {
         for (JSONObject returnObject in renderedArray) {
             // only set if true?
             if (returnObject.name) {
-                returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
+                returnObject.sourceUrl = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
             }
             if (nameSet) {
                 if (returnObject.name && nameSet.contains(returnObject?.name)) {
