@@ -92,6 +92,7 @@ apollo {
     use_cds_for_new_transcripts = System.getenv("WEBAPOLLO_CDS_FOR_NEW_TRANSCRIPTS").equals("true")
     count_annotations = System.getenv("WEBAPOLLO_COUNT_ANNOTATIONS") ?: true
     // will default to false
+    phone.phoneHome = System.getenv("WEBAPOLLO_PHONE_HOME") ?: true
     feature_has_dbxrefs = System.getenv("WEBAPOLLO_FEATURE_HAS_DBXREFS") ?: true
     feature_has_attributes = System.getenv("WEBAPOLLO_FEATURE_HAS_ATTRS") ?: true
     feature_has_pubmed_ids = System.getenv("WEBAPOLLO_FEATURE_HAS_PUBMED") ?: true
