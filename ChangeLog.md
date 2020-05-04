@@ -34,6 +34,7 @@ Bug Fixes
 - Annotator/updateFeature should store history properly [2390](https://github.com/GMOD/Apollo/pull/2353)
 - Makes sure that parent directory exists when unpacking [2437](https://github.com/GMOD/Apollo/pull/2437)
 - Fixed bug when decompressing gff3.gz data when adding a new track [2434](https://github.com/GMOD/Apollo/pull/2434)
+- Fixed boolean environment options being interpreted correctly [be31b81f7](https://github.com/GMOD/Apollo/commit/be31b81f7d0668916bf92463a758506757cc5ada)
 
 
 ## 2.5.0
