@@ -5,6 +5,13 @@ System.getenv().each {
     }
 }
 
+Boolean checkBooleanEnvironment(String environment,Boolean defaultValue  ){
+    if(System.getenv(environment)==null){
+        return defaultValue
+    }
+    return System.getenv(environment).equals("true")
+}
+
 environments {
     development {
     }
@@ -77,7 +84,7 @@ environments {
     }
 }
 
-if (System.getenv("WEBAPOLLO_DEBUG") == "true") {
+if (checkBooleanEnvironment("WEBAPOLLO_DEBUG",false)) {
     log4j.main = {
         debug "grails.app"
     }
@@ -89,16 +96,15 @@ apollo {
     default_minimum_intron_size = System.getenv("WEBAPOLLO_MINIMUM_INTRON_SIZE") ? System.getenv("WEBAPOLLO_MINIMUM_INTRON_SIZE").toInteger() : 1
     history_size = System.getenv("WEBAPOLLO_HISTORY_SIZE") ? System.getenv("WEBAPOLLO_HISTORY_SIZE").toInteger() : 0
     overlapper_class = System.getenv("WEBAPOLLO_OVERLAPPER_CLASS") ?: "org.bbop.apollo.sequence.OrfOverlapper"
-    use_cds_for_new_transcripts = System.getenv("WEBAPOLLO_CDS_FOR_NEW_TRANSCRIPTS").equals("true")
-    count_annotations = System.getenv("WEBAPOLLO_COUNT_ANNOTATIONS") ?: true
-    // will default to false
-    phone.phoneHome = System.getenv("WEBAPOLLO_PHONE_HOME") ?: true
-    feature_has_dbxrefs = System.getenv("WEBAPOLLO_FEATURE_HAS_DBXREFS") ?: true
-    feature_has_attributes = System.getenv("WEBAPOLLO_FEATURE_HAS_ATTRS") ?: true
-    feature_has_pubmed_ids = System.getenv("WEBAPOLLO_FEATURE_HAS_PUBMED") ?: true
-    feature_has_go_ids = System.getenv("WEBAPOLLO_FEATURE_HAS_GO") ?: true
-    feature_has_comments = System.getenv("WEBAPOLLO_FEATURE_HAS_COMMENTS") ?: true
-    feature_has_status = System.getenv("WEBAPOLLO_FEATURE_HAS_STATUS") ?: true
+    use_cds_for_new_transcripts = checkBooleanEnvironment("WEBAPOLLO_CDS_FOR_NEW_TRANSCRIPTS",false)
+    count_annotations = checkBooleanEnvironment("WEBAPOLLO_COUNT_ANNOTATIONS",true)
+    phone.phoneHome = checkBooleanEnvironment("WEBAPOLLO_PHONE_HOME",true)
+    feature_has_dbxrefs = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_DBXREFS",true)
+    feature_has_attributes = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_ATTRS",true)
+    feature_has_pubmed_ids = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_PUBMED",true)
+    feature_has_go_ids = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_GO",true)
+    feature_has_comments = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_COMMENTS",true)
+    feature_has_status = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_STATUS",true)
     translation_table = "/config/translation_tables/ncbi_" + (System.getenv("WEBAPOLLO_TRANSLATION_TABLE") ?: "1") + "_translation_table.txt"
     get_translation_code = System.getenv("WEBAPOLLO_TRANSLATION_TABLE") ? System.getenv("WEBAPOLLO_TRANSLATION_TABLE").toInteger() : 1
 
@@ -121,12 +127,12 @@ apollo {
         [
             "name":"Remote User Authenticator",
             "className":"remoteUserAuthenticatorService",
-            "active": System.getenv("WEBAPOLLO_REMOTE_USER_AUTH") ?: false
+            "active": checkBooleanEnvironment("WEBAPOLLO_REMOTE_USER_AUTH",false)
         ],
         [
             "name":"Username Password Authenticator",
             "className":"usernamePasswordAuthenticatorService",
-            "active": System.getenv("WEBAPOLLO_USER_PASSWORD_AUTH") ?: true
+            "active": checkBooleanEnvironment("WEBAPOLLO_USER_PASSWORD_AUTH",true)
         ]
     ]
 }
