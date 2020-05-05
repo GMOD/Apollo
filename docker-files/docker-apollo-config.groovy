@@ -6,14 +6,12 @@ System.getenv().each {
 }
 
 Boolean checkBooleanEnvironment(String environment,Boolean defaultValue  ){
-    println "Checking boolean property '${environment}' with default '${defaultValue}'."
-    Boolean.valueOf(System.getenv(environment))
     if(System.getenv(environment)==null || System.getenv(environment).trim().replaceAll(/"/,"").replaceAll(/'/,"").size()==0){
-        println "${environment}=${System.getenv(environment)} not properly specified so returning default '${defaultValue}'"
+        println "'${environment}' not properly specified '${System.getenv(environment)}' so returning default '${defaultValue}'."
         return defaultValue
     }
     boolean returnValue = Boolean.valueOf(System.getenv(environment))
-    println "${environment} is set to ${System.getenv(environment)} so returning ${returnValue}"
+    println "Setting '${environment}' as '${System.getenv(environment)}' to '${returnValue}'."
     return returnValue
 }
 
