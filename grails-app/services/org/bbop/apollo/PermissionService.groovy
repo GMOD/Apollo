@@ -644,9 +644,7 @@ class PermissionService {
         def authentications = configWrapperService.authentications
 
         for (auth in authentications) {
-            println "authentication ${auth.className} is active ${auth.active}"
             if (auth.active) {
-                println "Authenticating with ${auth.className}"
                 def authenticationService
                 if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
