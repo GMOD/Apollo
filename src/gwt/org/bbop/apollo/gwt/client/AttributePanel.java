@@ -252,7 +252,7 @@ public class AttributePanel extends Composite {
                 JSONArray cannedKeyArray = JSONParser.parseStrict(response.getText()).isArray();
                 for(int i = 0 ; i < cannedKeyArray.size() ; i++){
                     String cannedKey = cannedKeyArray.get(i).isString().stringValue();
-                    cannedTagSelectorBox.addItem(cannedKey);
+                    cannedTagSelectorBox.addItem(cannedKey.toLowerCase());
                 }
             }
 
@@ -272,7 +272,7 @@ public class AttributePanel extends Composite {
                 JSONArray cannedValueArray = JSONParser.parseStrict(response.getText()).isArray();
                 for(int i = 0 ; i < cannedValueArray.size() ; i++){
                     String cannedValue = cannedValueArray.get(i).isString().stringValue();
-                    cannedValueSelectorBox.addItem(cannedValue);
+                    cannedValueSelectorBox.addItem(cannedValue.toLowerCase());
                 }
             }
 
@@ -358,7 +358,7 @@ public class AttributePanel extends Composite {
     public void addAttributeButton(ClickEvent ce) {
         final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
         if (validateTags()) {
-            final AttributeInfo newAttributeInfo = new AttributeInfo(this.tag, this.value);
+            final AttributeInfo newAttributeInfo = new AttributeInfo(this.tag.toLowerCase(), this.value);
             this.tagInputBox.clear();
             this.valueInputBox.clear();
 
