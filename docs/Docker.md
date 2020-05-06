@@ -8,7 +8,7 @@ You can see Apollo straight away:
 
     docker run -it -p 8888:8080 gmod/apollo:stable -v /jbrowse/root/directory/:/data
 
-Open (http://localhost:8888) in a browser and login with admin@local.host / password to get started.
+Open [http://localhost:8888](http://localhost:8888) in a web browser and login with admin@local.host / password to get started.
 
 Note: data is not guaranteed to be saved in this manner, but data is `/jbrowse/root/directory` will not be written to either.  
 
@@ -22,7 +22,7 @@ To **run in production** against **persistent** JBrowse data and a **persistent*
 - Put JBrowse data in a directory, e.g. `/jbrowse/root/directory/`.
 - If publicly visible set a username and password
 
-    
+```
     docker run -it  \
     -v /jbrowse/root/directory/:/data  \
     -v /postgres/data/directory:/var/lib/postgresql  \
@@ -30,8 +30,9 @@ To **run in production** against **persistent** JBrowse data and a **persistent*
     -e APOLLO_ADMIN_EMAIL=adminuser \
     -e APOLLO_ADMIN_PASSWORD=superdupersecretpassword \
     -p 8888:8080 quay.io/gmod/apollo:latest
+```    
 
-- As above, open http://localhost:8888 to begin setting up Apollo.
+- As above, open [http://localhost:8888](http://localhost:8888) in a browser to begin [setting up Apollo](UsersGuide.md).
 
 ### Additional configuration
 
