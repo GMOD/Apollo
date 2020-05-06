@@ -234,6 +234,7 @@ public class CommentPanel extends Composite {
         }
         else{
             this.commentInputBox.setText(cannedCommentSelectorBox.getSelectedValue());
+            valueInputBoxType(null);
         }
     }
 
@@ -343,7 +344,7 @@ public class CommentPanel extends Composite {
     public void setEditable(boolean editable) {
         this.editable = editable;
         commentInputBox.setEnabled(editable);
-        addCommentButton.setEnabled(editable);
-        deleteCommentButton.setEnabled(editable);
+//        addCommentButton.setEnabled(editable);
+//        deleteCommentButton.setEnabled(editable);
     }
 }
