@@ -8,7 +8,7 @@ You can see Apollo straight away:
 
     docker run -it -p 8888:8080 gmod/apollo:stable -v /jbrowse/root/directory/:/data
 
-Open http://localhost:8888 and login with admin@local.host / password to get started.
+Open (http://localhost:8888) in a browser and login with admin@local.host / password to get started.
 
 Note: data is not guaranteed to be saved in this manner, but data is `/jbrowse/root/directory` will not be written to either.  
 
@@ -16,11 +16,11 @@ Note: data is not guaranteed to be saved in this manner, but data is `/jbrowse/r
 ## Production
 
 To **run in production** against **persistent** JBrowse data and a **persistent** database you should:
-    - `docker pull gmod/apollo` (or `docker pull quay.io/gmod/apollo` if using quay.io)  if running `latest` build to guarantee you are using the latest build (not necessary for point releases).
-    - Create an empty directory for database data, e.g. `/postgres/data/directory` if you want to save data if the image goes down.
-    - If you want to upload tracks and genomes directories, create an empty directory for that, e.g., `/jbrowse/root/apollo_data`
-    - Put JBrowse data in a directory, e.g. `/jbrowse/root/directory/`.
-    - If publicly visible set a username and password
+- `docker pull gmod/apollo` (or `docker pull quay.io/gmod/apollo` if using quay.io)  if running `latest` build to guarantee you are using the latest build (not necessary for point releases).
+- Create an empty directory for database data, e.g. `/postgres/data/directory` if you want to save data if the image goes down.
+- If you want to upload tracks and genomes directories, create an empty directory for that, e.g., `/jbrowse/root/apollo_data`
+- Put JBrowse data in a directory, e.g. `/jbrowse/root/directory/`.
+- If publicly visible set a username and password
 
     
     docker run -it  \
