@@ -1253,7 +1253,7 @@ class OrganismController {
       }
     } else if (!refSeqFile.exists()) {
       organism.valid = false
-      throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
+      throw new Exception("Reference sequence file does not exist: " + refSeqFile.absolutePath)
     }
 
     organism.valid = true
