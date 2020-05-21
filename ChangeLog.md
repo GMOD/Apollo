@@ -4,13 +4,13 @@
 
 Infrastructure Changes
 
-- Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9)
+- Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
 
 Bug Fixes
 
 - Tabix upload of tracks was not including the index file [2487](https://github.com/GMOD/Apollo/pull/2487).  
 - Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).  
-- Removed unused database migration script causing issues with mysql [2489](https://github.com/GMOD/Apollo/pull/2489).  .
+- Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
 - Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).  
 
 
