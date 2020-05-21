@@ -101,7 +101,7 @@ There are two sections, ```plugins``` and ```git```, which specifies the JBrowse
 ```
  git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.8-release"
+        branch = "1.16.9-release"
 ```
    
 If a git block a ```tag``` or ```branch``` can be specified.  

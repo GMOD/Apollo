@@ -35,7 +35,6 @@ grails.mime.types = [ // the first one is the default format
                       rtf          : 'application/rtf',
                       excel        : 'application/vnd.ms-excel',
                       ods          : 'application/vnd.oasis.opendocument.spreadsheet',
-                      all          : '*/*',
                       form         : 'application/x-www-form-urlencoded',
                       html         : ['text/html', 'application/xhtml+xml'],
                       js           : 'text/javascript',
@@ -406,7 +405,7 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.8-release"
+        branch = "1.16.9-release"
 //		branch = "dev"
 //        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
         alwaysPull = true
