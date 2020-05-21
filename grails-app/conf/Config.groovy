@@ -35,7 +35,6 @@ grails.mime.types = [ // the first one is the default format
                       rtf          : 'application/rtf',
                       excel        : 'application/vnd.ms-excel',
                       ods          : 'application/vnd.oasis.opendocument.spreadsheet',
-                      all          : '*/*',
                       form         : 'application/x-www-form-urlencoded',
                       html         : ['text/html', 'application/xhtml+xml'],
                       js           : 'text/javascript',
