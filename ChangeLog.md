@@ -1,14 +1,31 @@
 
+## 2.6.1
+
+Infrastructure Changes
+
+- Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
+
+Bug Fixes
+
+- Tabix upload of tracks was not including the index file [2487](https://github.com/GMOD/Apollo/pull/2487).  
+- Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).  
+- Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
+
+
+
 ## 2.6.0
 
 Features
 
 - Remove popups for annotations in favor of annotator panel [2334](https://github.com/GMOD/Apollo/pull/2334)
+- Added 2 more pseudogenic SO terms and several more non-coding RNA terms and updated interfaces to reflect these [2475](https://github.com/GMOD/Apollo/pull/2475)
 - Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
 - Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
 - Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
+- loadLink can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
 - Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
 - Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
+- Allows for better performance when a large number of annotations are present [2477](https://github.com/GMOD/Apollo/pull/2477)
 - Show genome features in current view [2346](https://github.com/GMOD/Apollo/pull/2346)
 - Remove sequence lookup at the top [2407](https://github.com/GMOD/Apollo/pull/2407)
 - Provide better security and feedback when trying to export with insufficient permissions [2431](https://github.com/GMOD/Apollo/pull/2431)
@@ -31,6 +48,7 @@ Bug Fixes
 - Annotator/updateFeature should store history properly [2390](https://github.com/GMOD/Apollo/pull/2353)
 - Makes sure that parent directory exists when unpacking [2437](https://github.com/GMOD/Apollo/pull/2437)
 - Fixed bug when decompressing gff3.gz data when adding a new track [2434](https://github.com/GMOD/Apollo/pull/2434)
+- Fixed boolean environment options being interpreted correctly [be31b81f7](https://github.com/GMOD/Apollo/commit/be31b81f7d0668916bf92463a758506757cc5ada)
 
 
 ## 2.5.0

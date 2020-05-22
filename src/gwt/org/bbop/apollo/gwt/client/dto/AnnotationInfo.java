@@ -266,4 +266,40 @@ public class AnnotationInfo {
     public String getSynonyms() {
         return synonyms;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnnotationInfo that = (AnnotationInfo) o;
+        return uniqueName.equals(that.uniqueName) &&
+          name.equals(that.name) &&
+          type.equals(that.type) &&
+          min.equals(that.min) &&
+          max.equals(that.max) &&
+          Objects.equals(childAnnotations, that.childAnnotations) &&
+          Objects.equals(goAnnotations, that.goAnnotations) &&
+          Objects.equals(symbol, that.symbol) &&
+          Objects.equals(description, that.description) &&
+          strand.equals(that.strand) &&
+          Objects.equals(noteList, that.noteList) &&
+          Objects.equals(dbXrefList, that.dbXrefList) &&
+          sequence.equals(that.sequence) &&
+          Objects.equals(phase, that.phase) &&
+          Objects.equals(owner, that.owner) &&
+          Objects.equals(dateLastModified, that.dateLastModified) &&
+          Objects.equals(dateCreated, that.dateCreated) &&
+          Objects.equals(referenceAllele, that.referenceAllele) &&
+          Objects.equals(alternateAlleles, that.alternateAlleles) &&
+          Objects.equals(variantProperties, that.variantProperties) &&
+          Objects.equals(commentList, that.commentList) &&
+          Objects.equals(attributeList, that.attributeList) &&
+          Objects.equals(status, that.status) &&
+          Objects.equals(synonyms, that.synonyms);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uniqueName, name, type, min, max, childAnnotations, goAnnotations, symbol, description, strand, noteList, dbXrefList, sequence, phase, owner, dateLastModified, dateCreated, referenceAllele, alternateAlleles, variantProperties, commentList, attributeList, status, synonyms);
+    }
 }

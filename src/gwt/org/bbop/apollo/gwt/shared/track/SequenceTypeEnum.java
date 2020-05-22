@@ -8,9 +8,9 @@ public enum SequenceTypeEnum {
     FA_GZ("fa.gz","gz"),
     FNA_GZ("fna.gz","gz"),
     FA_ZIP("fa.zip","zip"),
-    FNA_ZIP("fna.zip","tar.gz"),
-    FA_TGZ("fa.tgz.zip","tar.gz"),
-    FNA_TGZ("fna.tgz.zip","zip"),
+    FNA_ZIP("fna.zip","zip"),
+    FA_TGZ("fa.tgz","tar.gz"),
+    FNA_TGZ("fna.tgz","tar.gz"),
     FA_TAR_GZ("fa.tar.gz","tar.gz"),
     FNA_TAR_GZ("fna.tar.gz","tar.gz");
 

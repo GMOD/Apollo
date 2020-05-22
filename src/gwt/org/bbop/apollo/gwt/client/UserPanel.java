@@ -55,6 +55,7 @@ public class UserPanel extends Composite {
     interface UserBrowserPanelUiBinder extends UiBinder<Widget, UserPanel> {
     }
 
+
     private static UserBrowserPanelUiBinder ourUiBinder = GWT.create(UserBrowserPanelUiBinder.class);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox firstName;
@@ -189,7 +190,7 @@ public class UserPanel extends Composite {
                             return;
                         }
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
-                        Integer userCount = 0;
+                        int userCount = 0;
                         if (jsonArray != null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             userCount = (int) jsonObject.get("userCount").isNumber().doubleValue();
@@ -214,10 +215,12 @@ public class UserPanel extends Composite {
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 if (nameSortInfo.getColumn().isSortable()) {
                     Column<UserInfo, ?> sortColumn = (Column<UserInfo, ?>) sortList.get(0).getColumn();
-                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
+                    int columnIndex = dataGrid.getColumnIndex(sortColumn);
                     String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending,showInactiveUsersButton.getValue());
+                    if(MainPanel.getInstance().isCurrentUserAdmin()){
+                        UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending,showInactiveUsersButton.getValue());
+                    }
                 }
             }
         };

@@ -19,7 +19,9 @@ JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transc
 JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene";
 JSONUtils.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE = "Manually dissociate feature from gene";
 
-/**
+
+
+           /**
 *  creates a feature in JBrowse JSON format
 *  takes as arguments:
 *      afeature: feature in ApolloEditorService JSON format,

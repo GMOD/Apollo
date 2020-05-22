@@ -62,8 +62,8 @@ public class TrackPanel extends Composite {
 
     @UiField
     static TextBox nameSearchBox;
-    @UiField
-    CheckBox isOfficialTrack;
+//    @UiField
+//    CheckBox isOfficialTrack;
     @UiField
     HTML trackName;
     @UiField
@@ -148,10 +148,10 @@ public class TrackPanel extends Composite {
     HTML topTypeHTML;
     @UiField
     com.google.gwt.user.client.ui.TextBox topTypeName;
-  @UiField
-  Column officialTrackColumn;
+//  @UiField
+//  Column officialTrackColumn;
 
-  public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
+   public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
 
@@ -258,7 +258,9 @@ public class TrackPanel extends Composite {
                 if (trackInfoList.isEmpty()) {
                     return true;
                 }
-                handleAdminState();
+                if(canAdminTracks()){
+                  handleAdminState();
+                }
                 return false;
             }
         }, delay);
@@ -274,7 +276,7 @@ public class TrackPanel extends Composite {
     private void setTrackInfo(TrackInfo selectedObject) {
         this.selectedTrackObject = selectedObject;
         if (selectedObject == null) {
-            officialTrackColumn.setVisible(false);
+//            officialTrackColumn.setVisible(false);
             southTabs.setVisible(false);
             trackName.setVisible(false);
             trackType.setVisible(false);
@@ -285,8 +287,8 @@ public class TrackPanel extends Composite {
             locationRow.setVisible(false);
         } else {
             southTabs.setVisible(true);
-            officialTrackColumn.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-            isOfficialTrack.setValue(selectedObject.isOfficialTrack());
+//            officialTrackColumn.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+//            isOfficialTrack.setValue(selectedObject.isOfficialTrack());
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -363,25 +365,25 @@ public class TrackPanel extends Composite {
         return TrackTypeEnum.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
 
-  @UiHandler("isOfficialTrack")
-  public void toggleOfficialTrack(ClickEvent clickEvent) {
-      String trackName = this.selectedTrackObject.getName();
-      selectedTrackObject.setOfficialTrack(isOfficialTrack.getValue());
-      // TODO: call rest service and reload on success
-      // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
-    RequestCallback requestCallback = new RequestCallback() {
-      @Override
-      public void onResponseReceived(Request request, Response response) {
-        reload();
-      }
-
-      @Override
-      public void onError(Request request, Throwable exception) {
-        Bootbox.alert("Problem setting official track:" + exception.getMessage());
-      }
-    };
-     OrganismRestService.updateOfficialTrack(requestCallback,MainPanel.getInstance().getCurrentOrganism(),trackName,selectedTrackObject.isOfficialTrack());
-  }
+//  @UiHandler("isOfficialTrack")
+//  public void toggleOfficialTrack(ClickEvent clickEvent) {
+//      String trackName = this.selectedTrackObject.getName();
+//      selectedTrackObject.setOfficialTrack(isOfficialTrack.getValue());
+//      // TODO: call rest service and reload on success
+//      // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
+//    RequestCallback requestCallback = new RequestCallback() {
+//      @Override
+//      public void onResponseReceived(Request request, Response response) {
+//        reload();
+//      }
+//
+//      @Override
+//      public void onError(Request request, Throwable exception) {
+//        Bootbox.alert("Problem setting official track:" + exception.getMessage());
+//      }
+//    };
+//     OrganismRestService.updateOfficialTrack(requestCallback,MainPanel.getInstance().getCurrentOrganism(),trackName,selectedTrackObject.isOfficialTrack());
+//  }
 
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
@@ -633,13 +635,13 @@ public class TrackPanel extends Composite {
             HTML trackNameHTML = new HTML(trackInfo.getName());
             label.add(trackNameHTML);
           inputGroup.add(label);
-          if(trackInfo.isOfficialTrack()){
-            trackNameHTML.addStyleName("official-track-entry");
-          }
-          else{
+//          if(trackInfo.isOfficialTrack()){
+//            trackNameHTML.addStyleName("official-track-entry");
+//          }
+//          else{
             trackNameHTML.addStyleName("text-html-left");
             label.addStyleName("text-left");
-          }
+//          }
           if (trackInfo.getApollo() != null && canAdminTracks()) {
 //                InputGroupAddon editLabel = new InputGroupAddon();
                 Button removeButton = new Button("Remove");

@@ -35,7 +35,59 @@
                   "renderClassName" : "gray-center-30pct annot-apollo",
                   "className" : "light-purple-80pct"
                },
-               "snRNA" : {
+              "pseudogenic_region" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "light-purple-80pct"
+              },
+              "processed_pseudogene" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "light-purple-80pct"
+              },
+              "scRNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "guide_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "RNase_MRP_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "telomerase_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "SRP_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "lnc_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "RNase_P_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "scRNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "piRNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "tmRNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "enzymatic_RNA" : {
+                "renderClassName" : "gray-center-30pct annot-apollo",
+                "className" : "brightgreen-80pct"
+              },
+              "snRNA" : {
                   "renderClassName" : "gray-center-30pct annot-apollo",
                   "className" : "brightgreen-80pct"
                },

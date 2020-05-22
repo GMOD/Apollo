@@ -651,15 +651,14 @@ class OrganismController {
                   TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                   String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
-
-                  if (trackFile.originalFilename.endsWith("gz")) {
+                  // if it is compressed, but not a indexed type (which should remain compressed)
+                  if (trackFile.originalFilename.endsWith("gz") && trackTypeEnum.getSuffixIndexString().length()==0) {
                     decompressFileToRawDirectory(trackFile, path, trackConfigObject, newFileName)
                   } else {
 
                     File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                     if (trackFileIndex.originalFilename) {
                       String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
-//                                        fileService.store(trackFileIndex, path)
                       fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                     }
 
@@ -1253,7 +1252,7 @@ class OrganismController {
       }
     } else if (!refSeqFile.exists()) {
       organism.valid = false
-      throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
+      throw new Exception("Reference sequence file does not exist: " + refSeqFile.absolutePath)
     }
 
     organism.valid = true

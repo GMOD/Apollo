@@ -3,7 +3,7 @@
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
              xmlns:select="urn:import:org.gwtbootstrap3.extras.select.client.ui"
-             xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
+             xmlns:wa="urn:import:org.bbop.apollo.gwt.client" xmlns:g="urn:import:com.google.gwt.user.client.ui"
 
 
 >
@@ -88,6 +88,11 @@
             background-color: orange;
             height: 40px;
 
+        }
+
+        .deleteButton {
+            padding-top: 20px;
+            margin-top: 20px;
         }</ui:style>
     <gwt:DockLayoutPanel addStyleNames="{style.dockLayoutPanel}">
         <gwt:north size="270">
@@ -134,11 +139,6 @@
                                                    marginLeft="1"
 
                             />
-                            <!--<select:Select ui:field="selectedSequenceDisplay" liveSearch="true" visibleSize="5"-->
-                            <!--enabled="false"  title="Selected sequences" width="165px"-->
-                            <!--marginLeft="1"-->
-
-                            <!--/>-->
                         </b:Row>
                         <b:ButtonGroup>
                             <b:Button ui:field="clearSelectionButton" icon="BAN" size="EXTRA_SMALL"
@@ -158,12 +158,15 @@
                     </b:Column>
                 </b:Row>
                 <b:Row addStyleNames="{style.addDangerRow}">
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_1" marginTop="4">
                         <gwt:HTML>
-                            <h5>Delete</h5>
+                            <div>Enable Delete</div>
                         </gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_9" marginTop="8">
+                    <b:Column size="MD_1" marginTop="8">
+                        <g:CheckBox ui:field="deleteOkayButton" styleName="{style.deleteButton}"/>
+                    </b:Column>
+                    <b:Column size="MD_8" marginTop="8">
                         <b:Button ui:field="deleteSequencesButton" icon="TRASH_O" size="EXTRA_SMALL"
                                   title="Annotations" marginLeft="1" text="Annotations"/>
                         <b:Button ui:field="deleteVariantEffectsButton" icon="TRASH_O" size="EXTRA_SMALL"

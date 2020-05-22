@@ -169,10 +169,13 @@ public class CommentPanel extends Composite {
 
     public void updateData(AnnotationInfo annotationInfo) {
         if (annotationInfo == null) {
+            this.internalAnnotationInfo = annotationInfo;
             return;
         }
-        this.internalAnnotationInfo = annotationInfo;
-        loadData();
+        if(!annotationInfo.equals(this.internalAnnotationInfo)){
+            this.internalAnnotationInfo = annotationInfo;
+            loadData();
+        }
     }
 
     public void updateData() {
@@ -231,6 +234,7 @@ public class CommentPanel extends Composite {
         }
         else{
             this.commentInputBox.setText(cannedCommentSelectorBox.getSelectedValue());
+            valueInputBoxType(null);
         }
     }
 
@@ -321,6 +325,7 @@ public class CommentPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadCannedComments();
                 loadAnnotationsFromResponse(jsonObject);
                 redrawTable();
                 ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
@@ -339,7 +344,7 @@ public class CommentPanel extends Composite {
     public void setEditable(boolean editable) {
         this.editable = editable;
         commentInputBox.setEnabled(editable);
-        addCommentButton.setEnabled(editable);
-        deleteCommentButton.setEnabled(editable);
+//        addCommentButton.setEnabled(editable);
+//        deleteCommentButton.setEnabled(editable);
     }
 }

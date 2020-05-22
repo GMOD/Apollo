@@ -645,7 +645,6 @@ class PermissionService {
 
         for (auth in authentications) {
             if (auth.active) {
-                log.info "Authenticating with ${auth.className}"
                 def authenticationService
                 if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService

@@ -68,17 +68,15 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 2.4.2.2) Click on `Create annotation from hit` and confirm that an annotation is creating with the same dimensions and the same strand.
 
-2.4.2.3) Open the genomic annotation sequence via the pop using nucleotide sequences.  Click on `Search sequences` and confirm that the sequences are loaded into the search panel.   
-Click on search sequence and confirm that hits are generated and repeat the steps in 2.4.2.  
+2.4.2.3) Open the genomic annotation sequence via the popup using nucleotide sequences.  Click on `Search sequences` and confirm that the sequences are loaded into the search panel.   Click on search sequence and confirm that hits are generated and repeat the steps in 2.4.2.  
 
-2.4.2.4) Repeat 2.4.2 with a genomic annotation using nucleotide sequences.  In this example, view the sequences form that annotation and click on `Search sequences`.
+2.4.2.4) Repeat 2.4.2 with a genomic annotation using nucleotide sequences.  In this example, view the sequences that form that annotation and click on `Search sequences`.
 
 
 
 2.5) Help
 
    Check that all links go to a new screen.
-
    
 
 3) Test the Navigation Bar
@@ -125,7 +123,7 @@ Click on search sequence and confirm that hits are generated and repeat the step
 
 7.1.6) Show _History_ from the right click menu, and test the ability to revert to any of the previous versions of the feature by clicking on the arrow buttons to the right of each version.
 
-7.1.7) Annotation Information Editor: Name, Symbol, DBXRefs, Comments, Gene Ontology IDs (when present again), and PubMed IDs.
+7.1.7) Annotation Editor popup removed, but selecting "Edit Annotation should work".
 
 7.1.8) Use both the genomic feature you are currently annotating and a genomic feature from one of the evidence tracks to modify the exon and UTR boundaries for the annotation in the _User-created Annotations_ area using the following operations from the right-click menu: _Set as 3' end_, _Set as 5' end_, _Set both ends_.
 
@@ -167,15 +165,25 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.4) Test that you can delete an annotation from the Details menu.
 
-13.1.5) Check that when selecting a Gene that the GO tab appears.
+13.2) Set Defaults First in Admin: Create Canned Comments, Canned Keys, Canned Values, Suggested Names, and Statuses for certain organisms and feature types.  Verify add, edit, and delete for each.
 
-13.1.5.1) Check that you can add three GO Annotations for the gene.
+13.3.1) Details: Name, Symbol, DBXRefs / PubMed IDs, Alias, and Status.   For a gene verify that Suggested Names show up and that multiple aliases can be added and changed from 1 to 2 and 2 to 1.  
 
-13.1.5.2) Check that you can edit a GO Annotation.
+13.3.2) Details: Name, Symbol, DBXRefs / PubMed IDs, Alias, and Status.   Verify that same thing for the transcript on the gene, and the other main feature types (e.,g,. Terminator, non-coding RNA, Pseudogene).
 
-13.1.5.3) Check that you can delete a GO Annotation.
+13.3.3) Test with GO, Gene Product, and Provenance.  Should be able to edit, delete, and add.  Both ECO and default evidence should be available. 
 
-13.1.5.4) Check that you can filter GO Annotations by clicking the checkbox at the top.
+13.3.4) Test with DbXref, Comment, and Attributes.  Should be able to edit, delete, and add.  Both ECO and default evidence should be available.  Verify that the defaults are there from earlier step and respect organism and feature type boundaries.
+
+13.3.5) Verify that the right-clicking GFF3 matches the annotations just added.  Verify that you can export the GFF3 (you will need that for later). 
+
+13.3.6) Verify that "GO" and "ID" work appropriate.
+
+13.3.7) Right-clicking this feature, should show this. 
+
+13.3.8) Clicking on "Show Visible" and "Show All" should also work.
+
+13.3.9) Check that you can filter GO Annotations by clicking the checkbox at the top.
 
 
 13.2) Tracks
@@ -301,29 +309,14 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 16.1.3) Confirm that you can create a Canvas Variant Annotation by right-clicking on it and click on Annotation.
 
-16.2) On any of the annotations, option-click (or right-click and select "Edit Information") on the created variant and confirm that data is identical to what it has been added from.
-
-16.2.1)  Make changes to the name and description fields.
-
-16.2.2)  Add two Allele Info.  Remove one Allele INFO.  
-
-16.2.3)  Add two Variant Info.  Remove one Variant INFO.  
-
-16.2.4)  Add two Human Phenotype Ontology terms and remove one.
-
-16.2.5)  Add an invalid Human Phenotype Ontology and ensure that the operation fails with a proper error.
-
-16.2.5)  Repeat for Comment, DBXRefs, and PubMed Ids.
-
-16.2.6)  Change name and confirm name is changed.
-
+16.2) On any of the annotations, option-click (or right-click and select "Edit Information") and observe that it is selected and the details show for the variant in the Annotator Panel.
 
 
 16.3) Right-click on variant annotation and confirm that only that annotation appears in the Annotator Panel
 
-16.3.1) Observe that four tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, and Allele Info.
+16.3.1) Observe that the tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, Allele Info, DbXref, Comments, and Attributes.
 
-16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor.
+16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor and that you can change everything not grayed out.
 
 16.3.3) In the Variant Info tab confirm that the added info appears. 
 

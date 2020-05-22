@@ -120,10 +120,10 @@
                                 <b:Column size="MD_7">
                                     <gwt:HTML ui:field="trackName" visible="false"/>
                                 </b:Column>
-                                <b:Column size="MD_2" ui:field="officialTrackColumn" visible="false">
-                                  <gwt:HTML text="Official" visible="true" addStyleNames="{style.inline-button}"/>
-                                  <gwt:CheckBox ui:field="isOfficialTrack" visible="true" addStyleNames="{style.inline-button}"/>
-                                </b:Column>
+<!--                                <b:Column size="MD_2" ui:field="officialTrackColumn" visible="false">-->
+<!--                                  <gwt:HTML text="Official" visible="true" addStyleNames="{style.inline-button}"/>-->
+<!--                                  <gwt:CheckBox ui:field="isOfficialTrack" visible="true" addStyleNames="{style.inline-button}"/>-->
+<!--                                </b:Column>-->
                             </b:Row>
                             <b:Row>
                                 <b:Column size="MD_2">

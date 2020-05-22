@@ -109,6 +109,7 @@ environments {
 //    gff3.source = "MyOrg" // also for GPAD export
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
+//    count_annotations = false
 //    store_orig_id = false
 //    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from // https://genome.ucsc.edu/goldenPath/help/blatSpec.html
 //    sequence_search_tools {
@@ -151,7 +152,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//         tag = "1.16.5-release"
+//         tag = "1.16.9-release"
 ////        branch = "dev"
 ////        hash = "09b71099bf73c50d37a0e911baf06b4975e3f6ca"
 //        alwaysPull = true

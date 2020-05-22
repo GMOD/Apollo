@@ -420,8 +420,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                TAB_INDEX tab = TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex);
-                switch (tab) {
+                switch (TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex)) {
                     case DETAILS:
                         break;
                     case CODING:
@@ -441,13 +440,13 @@ public class AnnotatorPanel extends Composite {
                     case PROVENANCE:
                         provenancePanel.redraw();
                     case DB_XREF:
-                        dbXrefPanel.updateData(selectedAnnotationInfo);
+                        dbXrefPanel.redrawTable();
                         break;
                     case COMMENT:
-                        commentPanel.updateData(selectedAnnotationInfo);
+                        commentPanel.redrawTable();
                         break;
                     case ATTRIBUTES:
-                        attributePanel.updateData(selectedAnnotationInfo);
+                        attributePanel.redrawTable();
                 }
             }
         });
@@ -573,7 +572,7 @@ public class AnnotatorPanel extends Composite {
         }, 1000);
     }
 
-    private void initializeUsers() {
+    protected void initializeUsers() {
         userField.clear();
         userField.addItem("All Users", "");
         RequestCallback requestCallback = new RequestCallback() {
@@ -599,7 +598,9 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        UserRestService.loadUsers(requestCallback);
+        if(MainPanel.getInstance().isCurrentUserAdmin()){
+            UserRestService.loadUsers(requestCallback);
+        }
     }
 
     private void initializeTypes() {
@@ -617,7 +618,6 @@ public class AnnotatorPanel extends Composite {
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
         variantDetailPanel.setVisible(false);
-//        exonDetailPanel.setVisible(false);
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
@@ -638,6 +638,8 @@ public class AnnotatorPanel extends Composite {
         switch (type) {
             case "gene":
             case "pseudogene":
+            case "pseudogenic_region":
+            case "processed_pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
                 goPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
@@ -656,6 +658,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
@@ -676,6 +679,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "mRNA":
             case "miRNA":
@@ -684,6 +688,16 @@ public class AnnotatorPanel extends Composite {
             case "snRNA":
             case "snoRNA":
             case "ncRNA":
+            case "guide_RNA":
+            case "RNase_MRP_RNA":
+            case "telomerase_RNA":
+            case "SRP_RNA":
+            case "lnc_RNA":
+            case "RNase_P_RNA":
+            case "scRNA":
+            case "piRNA":
+            case "tmRNA":
+            case "enzymatic_RNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 goPanel.updateData(annotationInfo);
@@ -703,6 +717,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "terminator":
             case "transposable_element":
@@ -722,6 +737,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             case "deletion":
             case "insertion":
@@ -744,10 +760,12 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.GENE_PRODUCT.index).getParent().setVisible(false);
-                tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(true);
+                // we aren't exporting it, so not going to track it
+                tabPanel.getTabWidget(TAB_INDEX.PROVENANCE.index).getParent().setVisible(false);
                 tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
                 tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
+                tabPanel.setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
@@ -1053,9 +1071,7 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-        GWT.log("updated? " + selectedAnnotationInfo.getUniqueName());
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
-        GWT.log("again?? " + selectedAnnotationInfo.getUniqueName());
     }
 
     public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo) {

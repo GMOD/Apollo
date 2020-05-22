@@ -42,7 +42,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
 
-
         then: "You should see that transcript"
         assert Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
@@ -465,7 +464,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
         Gene newGene = transcriptService.getGene(mrna00001)
         CDS cds00001 = transcriptService.getCDS(mrna00001)
-        def exons00001 = transcriptService.getSortedExons(mrna00001,true)
+        def exons00001 = transcriptService.getSortedExons(mrna00001, true)
 
         Gene originalGene = transcriptService.getGene(mrna00002)
         def exons00002 = transcriptService.getSortedExons(mrna00002, true)
@@ -520,10 +519,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         newGene = transcriptService.getGene(mrna00001)
         cds00001 = transcriptService.getCDS(mrna00001)
-        exons00001 = transcriptService.getSortedExons(mrna00001,true)
+        exons00001 = transcriptService.getSortedExons(mrna00001, true)
 
         originalGene = transcriptService.getGene(mrna00002)
-        exons00002 = transcriptService.getSortedExons(mrna00002,true)
+        exons00002 = transcriptService.getSortedExons(mrna00002, true)
         cds00002 = transcriptService.getCDS(mrna00002)
         childrenArray = mRNAObject00001.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
@@ -732,7 +731,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
 
 
-
         when: "we split an exon"
         commandString = commandString.replaceAll("@EXON_NAME@", exonToSplitUniqueName)
         JSONObject commandObject = JSON.parse(commandString) as JSONObject
@@ -815,7 +813,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 //        String exonToSplitUniqueName = sortedExons.get(1).uniqueName
         assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
         assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
-
 
 
         when: "we split a transcript "
@@ -2434,7 +2431,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    void "test translation start and end validation for negative strand"(){
+    void "test translation start and end validation for negative strand"() {
 
         given: "Two transcripts having separate parent gene"
         String transcript1 = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":953072,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950737},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950830},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951050,\"fmax\":951116},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951349,\"fmax\":951703},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952162,\"fmax\":952606},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952865,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":950737,\"fmax\":953072},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40735-RA\",\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -2489,7 +2486,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         ex.message.contains("Translation start 959090 must be upstream of the end 959100 (larger)")
         alteredCDS.fmin == 959100
         alteredCDS.fmax == 959201
-
 
 
         when: "we attempt to add a bad end location on transcript 1"
@@ -2552,13 +2548,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         alteredCDS.fmax == 592651
 
 
-
         when: "we attempt to add a bad end location on transcript 1"
 //        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
         setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
@@ -3817,11 +3811,12 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
 
         then: "we should see these features"
-        assert Gene.count == 10
-        assert Transcript.count == 10
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert Terminator.count == 1
+        assert Transcript.count == 10
+        assert Pseudogene.count == 1
+        assert Gene.count == 10
 
         when: "we add some modifications"
         MRNA mrna = MRNA.findByName("GB40819-RA-00001")
@@ -3860,7 +3855,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we delete all features"
         Feature.all.each {
-            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm,Terminator.cvTerm]) {
+            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm, Terminator.cvTerm]) {
                 featureRelationshipService.deleteFeatureAndChildren(it)
             }
         }
@@ -3888,12 +3883,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         }
 
         then: "we restore all the features from GFF3"
-        assert Gene.count == 10
         assert Transcript.count == 10
         assert SequenceAlterationArtifact.count == 3
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
+        assert Gene.count == 10
+        assert Pseudogene.count == 1
     }
 
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
@@ -4042,7 +4038,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    void "genes should conform to isoform length"(){
+    void "genes should conform to isoform length"() {
 
         given: "GB40751-RA"
         String addTranscriptString = "{ ${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":675719,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40751-RA\",\"children\":[{\"location\":{\"fmin\":675719,\"fmax\":676397,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":678693,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":678693,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\" }"
@@ -4058,21 +4054,21 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we delete overlapping exons"
         def mrna1 = MRNA.all.first()
-        def exon1s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna1,Exon.ontologyId).sort(){ a,b ->
+        def exon1s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna1, Exon.ontologyId).sort() { a, b ->
             a.fmin <=> b.fmin
         }
         def firstExon1 = exon1s.first()
 
         def mrna2 = MRNA.all.last()
-        def exon2s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna2,Exon.ontologyId).sort(){ a,b ->
+        def exon2s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna2, Exon.ontologyId).sort() { a, b ->
             a.fmin <=> b.fmin
         }
         def lastExon2 = exon2s.last()
 
         String deleteFeatureString = "{ ${testCredentials} \"track\":\"Group1.10\",\"operation\":\"delete_feature\",\"features\":[{\"uniquename\":\"@UNIQUE_NAME@\"}]}"
 
-        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@",firstExon1.uniqueName)))
-        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@",lastExon2.uniqueName)))
+        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@", firstExon1.uniqueName)))
+        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@", lastExon2.uniqueName)))
 
         def allMRNA = MRNA.all
         def allGene = Gene.all
@@ -4085,8 +4081,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.count == 2
 
         when: "we get the left-most gene / MRNA"
-        def gene1MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.first(),MRNA.ontologyId).first()
-        def gene2MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.last(),MRNA.ontologyId).first()
+        def gene1MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.first(), MRNA.ontologyId).first()
+        def gene2MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.last(), MRNA.ontologyId).first()
 
 
         then: "they should have the same fmin / fmax "

@@ -51,7 +51,7 @@ public class VariantInfoPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<VariantPropertyInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<VariantPropertyInfo> dataGrid = new DataGrid<>(100, tablecss);
 
     private static ListDataProvider<VariantPropertyInfo> dataProvider = new ListDataProvider<>();
     private static List<VariantPropertyInfo> variantPropertyInfoList = dataProvider.getList();

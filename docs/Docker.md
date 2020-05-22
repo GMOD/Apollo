@@ -1,59 +1,74 @@
 # Using Docker to Run Apollo
 
+You can [install Docker](https://docs.docker.com/engine/installation/) for your system if not previously done.  
+
 ## Running the Container
 
-The container is publicly available as `gmod/apollo:latest` (latest is develop branch, stable is master branch) or `gmod/apollo:<branch or tag>`.
+You can see Apollo straight away:
 
-See https://hub.docker.com/r/gmod/apollo or https://quay.io/repository/gmod/apollo for what is available. 
+    docker run -it -p 8888:8080 gmod/apollo:stable -v /jbrowse/root/directory/:/data
 
-There are a large number of environment variables that can be adjusted to suit
-your site's needs. These can be seen in the
-[apollo-config.groovy](https://github.com/GMOD/Apollo/blob/develop/docker-files/docker-apollo-config.groovy)
-file.
+Open [http://localhost:8888](http://localhost:8888) in a web browser and login with admin@local.host / password to get started.
 
-## Quickstart
+Note: data is not guaranteed to be saved in this manner, but data is `/jbrowse/root/directory` will not be written to either.  
 
-This procedure starts tomcat in a standard virtualized environment with a PostgreSQL database with [Chado](http://gmod.org/wiki/Introduction_to_Chado).
 
-Install [docker](https://docs.docker.com/engine/installation/) for your system if not previously done.
-
-Choose an option:
-
-- To test a versioned release to test installation, e.g.: `docker run -it -p 8888:8080  -v /directory/to/jbrowse/files:/data quay.io/gmod/apollo:2.5.0`  [Other available versions](https://quay.io/repository/gmod/apollo?tab=tags)
-
-- Install a latest release to test installation: `docker run -it -p 8888:8080 -v /directory/to/jbrowse/files:/data gmod/apollo:latest` 
-  -  To make sure you have the latest pull with ```docker pull gmod/apollo``` to fetch newer versions
-  
 ## Production
 
-- To **run in production** against **persistent** JBrowse data and a **persistent** database you should:
-    - Create an empty directory for database data, e.g. `postgres-data`.
-    - Put JBrowse data in a directory, e.g. `/jbrowse/root/directory/`.
-    - `docker run -it -v /jbrowse/root/directory/:/data -v /postgres/data/directory:/var/lib/postgresql -p 8888:8080 quay.io/gmod/apollo:latest`
-    
-- See [docker run instructions](https://docs.docker.com/engine/reference/run/) to run as a daemon (`-d`) and with a fresh container each time (`--rm`) depending on your use-case.
+To **run in production** against **persistent** JBrowse data and a **persistent** database you should:
+- `docker pull gmod/apollo` (or `docker pull quay.io/gmod/apollo` if using quay.io)  if running `latest` build to guarantee you are using the latest build (not necessary for point releases).
+- Create an empty directory for database data, e.g. `/postgres/data/directory` if you want to save data if the image goes down.
+- If you want to upload tracks and genomes directories, create an empty directory for that, e.g., `/jbrowse/root/apollo_data`
+- Put JBrowse data in a directory, e.g. `/jbrowse/root/directory/`.
+- If publicly visible set a username and password
 
-- You can run production using the build created by quay.io instead (https://quay.io/repository/gmod/apollo):
-    - `docker run -it -v /jbrowse/root/directory/:/data -v postgres-data:/var/lib/postgresql  -p 8888:8080 quay.io/gmod/apollo:latest`
+```
+    docker run -it  \
+    -v /jbrowse/root/directory/:/data  \
+    -v /postgres/data/directory:/var/lib/postgresql  \
+    -v /jbrowse/root/apollo_data:/data/temporary/apollo_data \
+    -e APOLLO_ADMIN_EMAIL=adminuser \
+    -e APOLLO_ADMIN_PASSWORD=superdupersecretpassword \
+    -p 8888:8080 quay.io/gmod/apollo:latest
+```    
 
-You can configure options if need be (though default will work) by setting environmental variables for [apollo-config.groovy](https://github.com/GMOD/apollo/blob/master/apollo-config.groovy) by passing through via [multiple `-e` parameters](https://vsupalov.com/docker-arg-env-variable-guide/) :
+- As above, open [http://localhost:8888](http://localhost:8888) in a browser to begin [setting up Apollo](UsersGuide.md).
 
-    - `docker run -it -e APOLLO_ADMIN_PASSWORD=superdupersecrect -v /jbrowse/root/directory/:/data -v postgres-data:/var/lib/postgresql  -p 8888:8080 quay.io/gmod/apollo:latest`
+### Additional configuration
 
-In all cases, Apollo will be available at [http://localhost:8888/](http://localhost:8888/) (or 8888 if you don't configure the port).
+See [docker run instructions](https://docs.docker.com/engine/reference/run/) to run as a daemon (`-d`) and with a fresh container each time (`--rm`) depending on your use-case.
 
-Additional options coudl be to set memory (required for running production off a mac) ` --memory=4g`, running a docker daemon `d` or adding debugging to the server ` -e "WEBAPOLLO_DEBUG=true"`.  For example (after creating the local `apollo_shared_dir`): 
+Additional options could be to set memory (required for running production off a mac) ` --memory=4g`, running a docker daemon `d` or adding debugging to the server ` -e "WEBAPOLLO_DEBUG=true"`.  For example (after creating the local `apollo_shared_dir`): 
 
     docker run --memory=4g -d -it -p 8888:8080 -v `pwd`/apollo_shared_dir/:`pwd`/apollo_shared_dir/ -e "WEBAPOLLO_DEBUG=true"  -v /postgres/data/directory:/var/lib/postgresql quay.io/gmod/apollo:latest 
 
-When you use the above mount directory ```/jbrowse/root/directory``` and your genome is in 
-```/jbrowse/root/directory/myawesomegenome``` you'll point to the directory: ```/data/myawesomegenome```.
+You can configure additional options by setting environmental variables for [docker apollo-config.groovy](https://github.com/GMOD/Apollo/blob/develop/docker-files/docker-apollo-config.groovy) by passing 
+through via [multiple `-e` parameters](https://vsupalov.com/docker-arg-env-variable-guide/).
 
+For example:
 - Change the root path of the url (e.g., <http://localhost:8888/otherpath>) by adding the argument `-e APOLLO_PATH=otherpath` when running.
+
 
 NOTE: If you don't use a locally mounted PostgreSQL database (e.g., creating an empty directory and mounting using `-v postgres-data:/var/lib/postgresql`)
 or [set appropriate environment variables](https://docs.docker.com/engine/reference/commandline/run/) for a remote database 
-( see variables [defined here](https://github.com/GMOD/apollo/blob/master/launch.sh)) your annotations and setup will not be persisted.
+( see variables [defined here](https://github.com/GMOD/apollo/blob/master/launch.sh)) your annotations and setup may not be persisted.
+
+
+
+### Notes on releases and availability
+
+The image is available on [docker hub](https://hub.docker.com/r/gmod/apollo) and [quay.io](https://quay.io/repository/gmod/apollo?tab=builds).
+
+On docker hub you always pull from `gmod/apollo:<version>` and from quay.io you pull from `quay.io/apollo:<version>`
+
+#### Versions
+
+On docker hub versions are `stable` is the `master` branch or the latest stable release  (e.g., 2.6.0), `latest` is the checkin, which has not necessarily been thoroughly tested and `release-X.Y.Z` represents the release of the tag `X.Y.Z` (e.g., `release-2.6.0`).   
+
+quay.io mirrors tags and all branches directly.  So `master` is `master` and `X.Y.Z` is the same.  So `quay.io/gmod/apollo:2.6.0` is the same as `gmod/apollo:release-2.6.0`
+
+See what is avaiable for [docker hub builds](https://hub.docker.com/r/gmod/apollo/tags)  or [quay.io builds](https://quay.io/repository/gmod/apollo?tab=builds).
+
 
 ### Logging In
 
@@ -77,12 +92,16 @@ you'll add the directory: `/data/yeast`.
 
 ![](images/organism_add.png)
 
-## Apollo Run-time OPTIONS
 
-Apollo run-time options are specified in the [createenv.sh](createenv.sh) file.  
+### Running your own preloaded data in a fork
 
-These are picked up in the [apollo-config.groovy](apollo-config.groovy) file and follows the rules of [regular apollo configuration](https://github.com/GMOD/Apollo/blob/develop/docs/Configure.md). 
+Here is an example of running pre-loaded data from Apollo: https://github.com/alliance-genome/agr_apollo_container
 
+Note that important changes here are in:
 
-Special cases include CHADO.  By default it is on, but use `WEBAPOLLO_USE_CHADO=false` to turn off. 
+- [the Docker file](https://github.com/alliance-genome/agr_apollo_container/blob/master/Dockerfile#L88-L92)
+- [adding a database dump script in the docker file](https://github.com/alliance-genome/agr_apollo_container/blob/master/Dockerfile#L59)
+- [loading the database dump script](https://github.com/alliance-genome/agr_apollo_container/blob/master/docker-files/launch.sh#L70)
+
+To create this we loaded the original, configured as we wanted and dumped the sql file out. 
 

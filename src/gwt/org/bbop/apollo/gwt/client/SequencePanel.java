@@ -20,6 +20,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -102,6 +103,8 @@ public class SequencePanel extends Composite {
     Button deleteSequencesButton;
     @UiField
     Button deleteVariantEffectsButton;
+    @UiField
+    CheckBox deleteOkayButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -533,16 +536,24 @@ public class SequencePanel extends Composite {
         exportValues(new ArrayList<SequenceInfo>());
     }
 
+    private void checkEnableButtons(int size){
+        if(size==0 || !deleteOkayButton.getValue()){
+            deleteSequencesButton.setEnabled(false);
+            deleteVariantEffectsButton.setEnabled(false);
+        }
+        else{
+            deleteSequencesButton.setEnabled(true);
+            deleteVariantEffectsButton.setEnabled(true);
+        }
+
+    }
+
     public void updateSelectedSequenceDisplay(Set<SequenceInfo> selectedSequenceInfoList) {
         selectedSequenceDisplay.clear();
         if (selectedSequenceInfoList.size() == 0) {
             selectedSequenceDisplay.setEnabled(false);
-            deleteSequencesButton.setEnabled(false);
-            deleteVariantEffectsButton.setEnabled(false);
         } else {
             selectedSequenceDisplay.setEnabled(true);
-            deleteSequencesButton.setEnabled(true);
-            deleteVariantEffectsButton.setEnabled(true);
             for (SequenceInfo s : selectedSequenceInfoList) {
                 Option option = new Option();
                 option.setValue(s.getName());
@@ -550,12 +561,18 @@ public class SequencePanel extends Composite {
                 selectedSequenceDisplay.add(option);
             }
         }
+        checkEnableButtons(selectedSequenceInfoList.size());
         selectedSequenceDisplay.refresh();
     }
 
     @UiHandler("clearSelectionButton")
     public void clearSelection(ClickEvent clickEvent) {
         multiSelectionModel.clear();
+    }
+
+    @UiHandler("deleteOkayButton")
+    public void deleteOkayButtonClick(ClickEvent event) {
+        checkEnableButtons(multiSelectionModel.getSelectedSet().size());
     }
 
     public void reload() {

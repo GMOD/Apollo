@@ -53,7 +53,9 @@ class RequestHandlingService {
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
-            Pseudogene.class.name
+            Pseudogene.class.name,
+            PseudogenicRegion.class.name,
+            ProcessedPseudogene.class.name,
     ]
 
     public static final List<String> nonCodingAnnotationTranscriptList = [
@@ -64,6 +66,16 @@ class RequestHandlingService {
             NcRNA.class.name,
             RRNA.class.name,
             MiRNA.class.name,
+            GuideRNA.class.name,
+            RNaseMRPRNA.class.name,
+            TelomeraseRNA.class.name,
+            SrpRNA.class.name,
+            LncRNA.class.name,
+            RNaseMRPRNA.class.name,
+            ScRNA.class.name,
+            PiRNA.class.name,
+            TmRNA.class.name,
+            EnzymaticRNA.class.name,
     ]
 
     public static final List<String> viewableAnnotationTranscriptList = [MRNA.class.name] + nonCodingAnnotationTranscriptList
@@ -231,31 +243,22 @@ class RequestHandlingService {
 
             featureService.addOwnersByString(inputObject.username, feature)
             feature.save(flush: true, failOnError: true)
-          JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-          updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
 
-          JSONArray oldFeaturesJsonArray = new JSONArray()
-          oldFeaturesJsonArray.add(originalFeatureJsonObject)
-          JSONArray newFeaturesJsonArray = new JSONArray()
-          newFeaturesJsonArray.add(currentFeatureJsonObject)
-          User user = permissionService.getCurrentUser(inputObject)
-          featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_DBXREF,
+            JSONArray oldFeaturesJsonArray = new JSONArray()
+            oldFeaturesJsonArray.add(originalFeatureJsonObject)
+            JSONArray newFeaturesJsonArray = new JSONArray()
+            newFeaturesJsonArray.add(currentFeatureJsonObject)
+            User user = permissionService.getCurrentUser(inputObject)
+            featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_DBXREF,
             feature.name,
             uniqueName,
             inputObject,
             oldFeaturesJsonArray,
             newFeaturesJsonArray,
             user)
-        }
-
-      if (sequence) {
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
         }
 
         return updateFeatureContainer
@@ -1939,7 +1942,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             useName = jsonFeature.has(FeatureStringEnum.USE_NAME.value) ? jsonFeature.get(FeatureStringEnum.USE_NAME.value) : false
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.cvTerm ||
-                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.cvTerm) {
+                   FeatureService.PSEUDOGENIC_FEATURE_TYPES.contains(jsonFeature.get(FeatureStringEnum.TYPE.value).name)) {
                 // if jsonFeature is of type gene or pseudogene
                 JSONObject jsonGene = JSON.parse(jsonFeature.toString())
                 jsonGene.remove(FeatureStringEnum.CHILDREN.value)
@@ -2081,12 +2084,23 @@ class RequestHandlingService {
                         gene = transcriptService.getPseudogene(transcript)
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
-                    if (numberTranscripts == 1) {
-                        Feature topLevelFeature = featureService.getTopLevelFeature(gene)
-                        goAnnotationService.deleteAnnotationFromFeature(topLevelFeature)
-                        provenanceService.deleteAnnotationFromFeature(topLevelFeature)
-                        geneProductService.deleteAnnotationFromFeature(topLevelFeature)
-                        featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+                  // if the # of transcripts is 1, then delete the gene as well
+                  goAnnotationService.deleteAnnotationFromFeature(transcript)
+                  provenanceService.deleteAnnotationFromFeature(transcript)
+                  geneProductService.deleteAnnotationFromFeature(transcript)
+
+                  goAnnotationService.removeGoAnnotationsFromFeature(transcript)
+                  provenanceService.removeProvenancesFromFeature(transcript)
+                  geneProductService.removeGeneProductsFromFeature(transcript)
+
+                  featureRelationshipService.removeFeatureRelationship(gene, transcript)
+                  featureRelationshipService.deleteFeatureAndChildren(transcript)
+                  if (numberTranscripts == 1) {
+//                        Feature topLevelFeature = featureService.getTopLevelFeature(gene)
+                        goAnnotationService.deleteAnnotationFromFeature(gene)
+                        provenanceService.deleteAnnotationFromFeature(gene)
+                        geneProductService.deleteAnnotationFromFeature(gene)
+                        featureRelationshipService.deleteFeatureAndChildren(gene)
 
                         if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2098,16 +2112,6 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
-                        goAnnotationService.deleteAnnotationFromFeature(transcript)
-                        provenanceService.deleteAnnotationFromFeature(transcript)
-                        geneProductService.deleteAnnotationFromFeature(transcript)
-
-                        goAnnotationService.removeGoAnnotationsFromFeature(transcript)
-                        provenanceService.removeProvenancesFromFeature(transcript)
-                        geneProductService.removeGeneProductsFromFeature(transcript)
-
-                        featureRelationshipService.removeFeatureRelationship(gene, transcript)
-                        featureRelationshipService.deleteFeatureAndChildren(transcript)
                         featureService.updateGeneBoundaries(gene)
                         gene.save()
 
@@ -2572,9 +2576,6 @@ class RequestHandlingService {
         User user = permissionService.getCurrentUser(inputObject)
         JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
-        def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm, Terminator.cvTerm]
-        def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
-
         for (int i = 0; i < features.length(); i++) {
             String type = features.get(i).type
             String uniqueName = features.get(i).uniquename
@@ -2587,7 +2588,7 @@ class RequestHandlingService {
 
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
-            } else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
+            } else if (originalType in FeatureService.SINGLETON_FEATURE_TYPES && type in FeatureService.RNA_FEATURE_TYPES) {
                 log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)

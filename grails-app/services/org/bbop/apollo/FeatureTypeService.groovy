@@ -19,6 +19,8 @@ class FeatureTypeService {
     def stubDefaultFeatureTypes(){
         createFeatureTypeForFeature(Gene.class,Gene.cvTerm)
         createFeatureTypeForFeature(Pseudogene.class,Pseudogene.cvTerm)
+        createFeatureTypeForFeature(PseudogenicRegion.class,PseudogenicRegion.cvTerm)
+        createFeatureTypeForFeature(ProcessedPseudogene.class,ProcessedPseudogene.cvTerm)
         createFeatureTypeForFeature(Transcript.class,Transcript.cvTerm)
         createFeatureTypeForFeature(MRNA.class,MRNA.cvTerm)
         createFeatureTypeForFeature(SnRNA.class,SnRNA.cvTerm)
@@ -26,6 +28,18 @@ class FeatureTypeService {
         createFeatureTypeForFeature(MiRNA.class,MiRNA.cvTerm)
         createFeatureTypeForFeature(TRNA.class,TRNA.cvTerm)
         createFeatureTypeForFeature(NcRNA.class,NcRNA.cvTerm)
+
+        createFeatureTypeForFeature(GuideRNA.class, GuideRNA.cvTerm)
+        createFeatureTypeForFeature(RNaseMRPRNA.class, RNasePRNA.cvTerm)
+        createFeatureTypeForFeature(TelomeraseRNA.class, TelomeraseRNA.cvTerm)
+        createFeatureTypeForFeature(SrpRNA.class, SrpRNA.cvTerm)
+        createFeatureTypeForFeature(LncRNA.class, LncRNA.cvTerm)
+        createFeatureTypeForFeature(RNaseMRPRNA.class, RNaseMRPRNA.cvTerm)
+        createFeatureTypeForFeature(ScRNA.class, ScRNA.cvTerm)
+        createFeatureTypeForFeature(PiRNA.class, PiRNA.cvTerm)
+        createFeatureTypeForFeature(TmRNA.class, TmRNA.cvTerm)
+        createFeatureTypeForFeature(EnzymaticRNA.class, EnzymaticRNA.cvTerm)
+
         createFeatureTypeForFeature(RRNA.class,RRNA.cvTerm)
         createFeatureTypeForFeature(RepeatRegion.class,RepeatRegion.cvTerm)
         createFeatureTypeForFeature(Terminator.class,Terminator.alternateCvTerm)

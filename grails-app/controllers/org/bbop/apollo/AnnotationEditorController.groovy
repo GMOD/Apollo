@@ -673,6 +673,56 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description = "Get information about a sequence alteration object e.g,. features[{'uniquename':'someunqiuenamestring'}],", path = "/annotationEditor/getInformation", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+      @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+      , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+      , @RestApiParam(name = "array of uniquename features", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename of sequence alteration retrieve stringsgs embedded in a features array.")
+    ])
+    def getInformation() {
+        JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer();
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
+            render new JSONObject() as JSON
+            return
+        }
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            JSONObject info = new JSONObject();
+            info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName)
+            info.put("time_accessioned", gbolFeature.lastUpdated)
+            info.put("owner", gbolFeature.owner ? gbolFeature.owner.username : "N/A")
+            info.put("location", gbolFeature.featureLocation.fmin)
+            if(gbolFeature instanceof SequenceAlterationArtifact){
+                info.put("length", gbolFeature.offset)
+            }
+            if(gbolFeature instanceof SequenceAlteration && gbolFeature.alterationResidue){
+                info.put("length", gbolFeature?.alterationResidue?.size())
+            }
+            String parentIds = "";
+            featureRelationshipService.getParentForFeature(gbolFeature).each {
+                if (parentIds.length() > 0) {
+                    parentIds += ", ";
+                }
+                parentIds += it.getUniqueName();
+            }
+            if (parentIds.length() > 0) {
+                info.put("parent_ids", parentIds);
+            }
+            def featureProperties = featurePropertyService.getNonReservedProperties(gbolFeature);
+            featureProperties.each {
+                info.put(it.tag, it.value);
+            }
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
+        }
+
+        render featureContainer
+    }
+
     @RestApiMethod(description = "Get attribute (key/value) pairs for a feature", path = "/annotationEditor/getAttributes", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)

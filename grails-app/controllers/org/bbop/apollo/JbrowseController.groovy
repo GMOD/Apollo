@@ -210,7 +210,6 @@ class JbrowseController {
      */
     def data() {
         String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-        log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
         String fileName = FilenameUtils.getName(params.path)
@@ -218,12 +217,13 @@ class JbrowseController {
 
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            log.debug "params.path: ${params.path} directory ${dataDirectory}"
+            prinltn "params.path: ${params.path} directory ${dataDirectory}"
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
             file = new File(dataFileName)
         }
+
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
