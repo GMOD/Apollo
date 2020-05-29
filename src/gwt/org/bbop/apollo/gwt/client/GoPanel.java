@@ -199,7 +199,7 @@ public class GoPanel extends Composite {
       public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
-        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
+        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString()+"/");
       }
     });
 
@@ -387,7 +387,7 @@ public class GoPanel extends Composite {
       GoRestService.lookupTerm(geneProductRelationshipLink, selectedGoAnnotation.getGeneRelationship());
 
       evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode()+"/");
       GoRestService.lookupTerm(evidenceCodeLink, selectedGoAnnotation.getEvidenceCode());
 
       notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
