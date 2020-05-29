@@ -20,14 +20,13 @@ import java.util.Set;
  */
 public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
-    private final Integer ROWS = 40;
-    private final String BIOLINK_AUTOCOMPLETE_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
+    public final static String BIOLINK_AUTOCOMPLETE_URL = "https://api.geneontology.org/api/search/entity/autocomplete/";
     public final static String ECO_BASE = "http://www.evidenceontology.org/term/";
     public final static String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
     public final static String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
-    private String prefix;
-    private String baseUrl;
+    private final String prefix;
+    private final String baseUrl;
     private String category = null;
     private Boolean useAllEco = false;
 
@@ -62,6 +61,7 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     }
 
     private void requestRemoteData(final Request suggestRequest, final Callback suggestCallback) {
+        Integer ROWS = 40;
         String url = BIOLINK_AUTOCOMPLETE_URL + suggestRequest.getQuery() + "?rows=" + ROWS;
         if (prefix != null) {
             url += "&prefix=" + prefix;

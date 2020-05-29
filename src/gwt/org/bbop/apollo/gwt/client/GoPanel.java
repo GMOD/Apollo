@@ -199,7 +199,7 @@ public class GoPanel extends Composite {
       public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
-        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
+        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString()+"/");
       }
     });
 
@@ -207,8 +207,9 @@ public class GoPanel extends Composite {
       @Override
       public void onChange(ChangeEvent event) {
         String selectedItemText = geneProductRelationshipField.getSelectedItemText();
+        String selectedItemValue = geneProductRelationshipField.getSelectedValue();
         geneProductRelationshipLink.setHTML(selectedItemText + " (" + geneProductRelationshipField.getSelectedValue() + ")");
-        geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
+        geneProductRelationshipLink.setHref(RO_BASE + selectedItemValue.replace(":", "_"));
       }
     });
 
@@ -387,7 +388,7 @@ public class GoPanel extends Composite {
       GoRestService.lookupTerm(geneProductRelationshipLink, selectedGoAnnotation.getGeneRelationship());
 
       evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode()+"/");
       GoRestService.lookupTerm(evidenceCodeLink, selectedGoAnnotation.getEvidenceCode());
 
       notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
