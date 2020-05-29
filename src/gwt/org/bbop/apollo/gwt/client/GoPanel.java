@@ -207,8 +207,9 @@ public class GoPanel extends Composite {
       @Override
       public void onChange(ChangeEvent event) {
         String selectedItemText = geneProductRelationshipField.getSelectedItemText();
+        String selectedItemValue = geneProductRelationshipField.getSelectedValue();
         geneProductRelationshipLink.setHTML(selectedItemText + " (" + geneProductRelationshipField.getSelectedValue() + ")");
-        geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
+        geneProductRelationshipLink.setHref(RO_BASE + selectedItemValue.replace(":", "_"));
       }
     });
 

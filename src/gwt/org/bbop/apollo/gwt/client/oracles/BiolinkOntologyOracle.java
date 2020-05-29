@@ -23,7 +23,7 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     public final static String BIOLINK_AUTOCOMPLETE_URL = "https://api.geneontology.org/api/search/entity/autocomplete/";
     public final static String ECO_BASE = "http://www.evidenceontology.org/term/";
     public final static String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
-    public final static String RO_BASE = "https://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
+    public final static String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
     private final String prefix;
     private final String baseUrl;
