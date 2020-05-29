@@ -33,7 +33,6 @@ import org.bbop.apollo.gwt.shared.provenance.Reference;
 import org.bbop.apollo.gwt.shared.provenance.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
-import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -162,7 +161,7 @@ public class ProvenancePanel extends Composite {
       public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
-        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
+        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString()+"/");
       }
     });
 
@@ -286,7 +285,7 @@ public class ProvenancePanel extends Composite {
       int indexForField = getFieldIndex(selectedProvenance.getField());
       provenanceField.setSelectedIndex(indexForField);
       evidenceCodeField.setText(selectedProvenance.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedProvenance.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedProvenance.getEvidenceCode()+"/");
       ProvenanceRestService.lookupTerm(evidenceCodeLink, selectedProvenance.getEvidenceCode());
 
       withEntriesFlexTable.removeAllRows();

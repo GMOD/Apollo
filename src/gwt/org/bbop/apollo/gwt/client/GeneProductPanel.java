@@ -162,7 +162,7 @@ public class GeneProductPanel extends Composite {
       public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
         SuggestOracle.Suggestion suggestion = event.getSelectedItem();
         evidenceCodeLink.setHTML(suggestion.getDisplayString());
-        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
+        evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString()+"/");
       }
     });
 
@@ -275,7 +275,7 @@ public class GeneProductPanel extends Composite {
       geneProductField.setText(selectedGeneProduct.getProductName());
       alternateCheckBox.setValue(selectedGeneProduct.isAlternate());
       evidenceCodeField.setText(selectedGeneProduct.getEvidenceCode());
-      evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode());
+      evidenceCodeLink.setHref(ECO_BASE + selectedGeneProduct.getEvidenceCode()+"/");
       GeneProductRestService.lookupTerm(evidenceCodeLink, selectedGeneProduct.getEvidenceCode());
 
       withEntriesFlexTable.removeAllRows();
