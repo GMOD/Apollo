@@ -49,17 +49,17 @@ class GeneProductController {
         }
     }
 
-//    @RestApiMethod(description = "Load gene product for feature", path = "/geneProduct", verb = RestApiVerb.POST)
-//    @RestApiParams(params = [
-//            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-//            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-//            , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
-//    ]
-//    )
-//    @Transactional
+    @RestApiMethod(description = "Load gene product for feature", path = "/geneProduct", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+    ]
+    )
+    @Transactional
     def index() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-//        permissionService.checkPermissions(dataObject, PermissionEnum.READ)
+        permissionService.checkPermissions(dataObject, PermissionEnum.READ)
         Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
         if (feature) {
             JSONObject annotations = geneProductService.getAnnotations(feature)
