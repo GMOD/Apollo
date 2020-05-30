@@ -3,7 +3,9 @@ package org.bbop.apollo.geneProduct
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.SuggestedName
 import org.bbop.apollo.User
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -15,6 +17,7 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
 @Transactional(readOnly = true)
 class GeneProductController {
@@ -224,5 +227,40 @@ class GeneProductController {
 
         JSONObject annotations = geneProductService.getAnnotations(feature)
         render annotations as JSON
+    }
+
+    @RestApiMethod(description = "A comma-delimited list of gene product names", path = "/geneProduct/addGeneProductNames", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+        , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of gene product names to add")
+    ])
+    @Transactional
+    def addGeneProductNames() {
+        try {
+            JSONObject nameJson = permissionService.handleInput(request, params)
+            println "Adding suggested gene product names ${nameJson}"
+            if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
+                println "DOES NOT have global permissions"
+                render status: UNAUTHORIZED
+                return
+            }
+
+            if (nameJson.names) {
+                for (name in nameJson.names) {
+                    GeneProduct.findOrSaveByProductName(name)
+                }
+                render  nameJson.names as JSON
+            } else {
+                def error = [error: 'names not found']
+                println(error.error)
+                render error as JSON
+            }
+        }
+        catch (Exception e) {
+            def error = [error: 'problem adding suggested names: ' + e]
+            log.error(error.error)
+            render error as JSON
+        }
     }
 }
