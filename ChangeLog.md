@@ -4,6 +4,7 @@
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
+- Fixed python dependency for travis for BioPython (3.7) and upgraded to Xenial [2493](https://github.com/GMOD/Apollo/pull/2493).
 
 Bug Fixes
 
