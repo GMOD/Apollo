@@ -251,38 +251,4 @@ class GeneProductController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "A comma-delimited list of gene product names", path = "/geneProduct/addGeneProductNames", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of gene product names to add")
-    ])
-    @Transactional
-    def addGeneProductNames() {
-        try {
-            JSONObject nameJson = permissionService.handleInput(request, params)
-            println "Adding suggested gene product names ${nameJson}"
-            if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
-                println "DOES NOT have global permissions"
-                render status: UNAUTHORIZED
-                return
-            }
-
-            if (nameJson.names) {
-                for (name in nameJson.names) {
-                    GeneProduct.findOrSaveByProductName(name)
-                }
-                render nameJson.names as JSON
-            } else {
-                def error = [error: 'names not found']
-                println(error.error)
-                render error as JSON
-            }
-        }
-        catch (Exception e) {
-            def error = [error: 'problem adding suggested names: ' + e]
-            log.error(error.error)
-            render error as JSON
-        }
-    }
 }
