@@ -29,6 +29,7 @@ class SecurityFilters {
                         || controllerName == "cannedKey"
                         || controllerName == "cannedValue"
                         || controllerName == "suggestedName"
+                        || controllerName == "geneProduct"
                         || controllerName == "cannedComment"
                         || controllerName == "availableStatus"
                         || controllerName == "proxy"

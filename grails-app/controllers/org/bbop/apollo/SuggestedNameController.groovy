@@ -305,17 +305,6 @@ class SuggestedNameController {
             log.debug "Showing suggested name ${nameJson}"
             String featureTypeString = nameJson.featureType
             Organism organism = Organism.findByCommonName(nameJson.organism)
-//            def names = SuggestedName.findAllByNameIlike(nameJson.query + "%")
-//            // if name has a feature type it must match
-//            def filteredNames = names.findAll{ name ->
-//                boolean match = true
-//                if(name.featureTypes){
-//                    match = match && name.featureTypes.contains(featureType)
-//                }
-//                if(name.org){
-//                    match = match && name.featureTypes.contains(featureType)
-//                }
-//            }
             List<SuggestedName> suggestedNameList = new ArrayList<>()
             List<SuggestedName> suggestedNamesFiltered= new ArrayList<>()
             if (featureTypeString) {

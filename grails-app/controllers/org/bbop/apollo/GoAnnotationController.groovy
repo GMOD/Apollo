@@ -1,9 +1,10 @@
-package org.bbop.apollo.go
+package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -73,7 +74,7 @@ class GoAnnotationController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
-    GoAnnotation goAnnotation = new GoAnnotation()
+      GoAnnotation goAnnotation = new GoAnnotation()
     Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)

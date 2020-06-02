@@ -11,7 +11,7 @@ Bug Fixes
 - Tabix upload of tracks was not including the index file [2487](https://github.com/GMOD/Apollo/pull/2487).  
 - Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).  
 - Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
-
+- Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).  
 
 
 ## 2.6.0
@@ -23,7 +23,7 @@ Features
 - Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
 - Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
 - Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
-- loadLink can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
+- `loadLink` can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
 - Add alias to user interface and GFF3 export [2277](https://github.com/GMOD/Apollo/pull/2277)
 - Add help menu feedback [2344](https://github.com/GMOD/Apollo/pull/2344)
 - Allows for better performance when a large number of annotations are present [2477](https://github.com/GMOD/Apollo/pull/2477)
@@ -37,7 +37,7 @@ Features
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.8](https://github.com/GMOD/jbrowse/releases/tag/1.16.8-release)
-- Upgrade to [Node 13](https://github.com/GMOD/Apollo/issues/2358)
+- Upgrade to [Node 13](https://github.com/GMOD/Apollo/issues/2358) compatibility.
 - Add python library to the docker image [2409](https://github.com/GMOD/Apollo/issues/2409)
 
 Bug Fixes
