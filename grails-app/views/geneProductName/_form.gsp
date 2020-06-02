@@ -20,18 +20,18 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: geneProductNameInstance, field: 'featureTypes', 'error')} ">
-	<label for="featureTypes">
-		<g:message code="geneProductName.featureTypes.label" default="Feature Types" />
+%{--<div class="fieldcontain ${hasErrors(bean: geneProductNameInstance, field: 'featureTypes', 'error')} ">--}%
+%{--	<label for="featureTypes">--}%
+%{--		<g:message code="geneProductName.featureTypes.label" default="Feature Types" />--}%
 
-	</label>
-	<g:select name="featureTypes" from="${org.bbop.apollo.FeatureType.list()}"
-			  multiple="multiple"
-			  optionKey="id" size="10"
-			  optionValue="display"
-			  value="${geneProductNameInstance?.featureTypes*.id}" class="many-to-many"/>
+%{--	</label>--}%
+%{--	<g:select name="featureTypes" from="${org.bbop.apollo.FeatureType.list()}"--}%
+%{--			  multiple="multiple"--}%
+%{--			  optionKey="id" size="10"--}%
+%{--			  optionValue="display"--}%
+%{--			  value="${geneProductNameInstance?.featureTypes*.id}" class="many-to-many"/>--}%
 
-</div>
+%{--</div>--}%
 
 <div class="fieldcontain ${hasErrors(bean: geneProductNameInstance, field: 'organisms', 'error')} ">
 	<label for="organisms">

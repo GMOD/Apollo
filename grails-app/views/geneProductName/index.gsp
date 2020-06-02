@@ -26,7 +26,7 @@
 					
 						<g:sortableColumn property="name" title="${message(code: 'geneProductName.name.label', default: 'Name')}" />
 
-						<th>Feature Types</th>
+%{--						<th>Feature Types</th>--}%
 						<th>Organisms</th>
 
 						<g:sortableColumn property="metadata" title="${message(code: 'geneProductName.metadata.label', default: 'Metadata')}" />
@@ -39,11 +39,11 @@
 					
 						<td><g:link action="show" id="${geneProductNameInstance.id}">${fieldValue(bean: geneProductNameInstance, field: "name")}</g:link></td>
 
-						<td>
-							<g:each in="${geneProductNameInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">
-								${featureType.type}:${featureType.name}
-							</g:each>
-						</td>
+%{--						<td>--}%
+%{--							<g:each in="${geneProductNameInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">--}%
+%{--								${featureType.type}:${featureType.name}--}%
+%{--							</g:each>--}%
+%{--						</td>--}%
 						<td>
 							<g:each in="${organismFilters.get(geneProductNameInstance)}" var="filter">
 								<g:link controller="organism" id="${filter.organism.id}">${filter.organism.commonName}</g:link>
