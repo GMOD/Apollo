@@ -38,8 +38,11 @@ class GeneProductController {
             JSONObject nameJson = permissionService.handleInput(request, params)
             String query = nameJson.getString("query")
             JSONArray searchArray = new JSONArray()
-            for(GeneProduct geneProduct in GeneProduct.findAllByProductNameIlike(query+"%")){
-                searchArray.add(geneProduct.productName)
+//            for(GeneProduct geneProduct in GeneProduct.findAllByProductNameIlike(query+"%")){
+//                searchArray.add(geneProduct.productName)
+//            }
+            for(GeneProductName geneProduct in GeneProductName.findAllByNameIlike(query+"%")){
+                searchArray.add(geneProduct.name)
             }
             render searchArray as JSON
         } catch (Exception e) {
@@ -115,6 +118,7 @@ class GeneProductController {
         geneProduct.addToOwners(user)
         feature.addToGeneProducts(geneProduct)
         geneProduct.save(flush: true, failOnError: true)
+        GeneProductName.findOrSaveByName(geneProduct.productName)
 
         JSONArray oldFeaturesJsonArray = new JSONArray()
         oldFeaturesJsonArray.add(originalFeatureJsonObject)
