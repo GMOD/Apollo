@@ -20,14 +20,6 @@ node_js:
 jdk:
   - openjdk8
 
-#addons:
-#  postgresql: "9.5"
-#  apt:
-#    packages:
-#    - mysql-server-5.7
-#    - mysql-client-core-5.7
-#    - mysql-client-5.7
-
 services:
   - postgresql
   - mysql
