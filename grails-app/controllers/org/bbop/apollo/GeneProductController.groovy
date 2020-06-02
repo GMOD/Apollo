@@ -191,6 +191,7 @@ class GeneProductController {
         geneProduct.lastUpdated = new Date()
         geneProduct.dateCreated = new Date()
         geneProduct.addToOwners(user)
+        GeneProductName.findOrSaveByName(geneProduct.productName)
         geneProduct.save(flush: true, failOnError: true, insert: false)
 
         JSONArray oldFeaturesJsonArray = new JSONArray()
