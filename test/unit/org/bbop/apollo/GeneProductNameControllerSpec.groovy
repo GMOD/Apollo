@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(GeneProductNameController)
-@Mock(GeneProductName)
+@Mock([GeneProductName,GeneProductNameOrganismFilter])
 class GeneProductNameControllerSpec extends Specification {
 
     def populateValidParams(params) {
