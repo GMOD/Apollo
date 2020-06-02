@@ -1,10 +1,8 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 language: java
 
-node_js:
-  - "13"
 
 env:
   - DB=postgres TEST_SUITE=apollo
@@ -14,7 +12,13 @@ env:
   - DB=h2 TEST_SUITE=python-apollo
 
 python:
-  - 3.6
+  - 3.7
+
+node_js:
+  - "13"
+
+jdk:
+  - openjdk8
 
 addons:
   postgresql: "9.3"
@@ -29,6 +33,8 @@ services:
 - mysql
 
 before_install:
+  - "pyenv global 3.7"
+  - "pip install pip --upgrade"
   - npm install -g jshint
 
 before_script:
