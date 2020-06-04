@@ -67,7 +67,7 @@ script:
       ./grailsw run-app &
       git clone --single-branch --branch 4.2.2 --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      sed -i 's|8888|8080/apollo|' `pwd`/test-data/arrow.yml
+      sed -i -e 's|8888|8080/apollo|' `pwd`/test-data/arrow.yml
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       python3 -m venv .venv
       . .venv/bin/activate
