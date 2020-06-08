@@ -65,7 +65,6 @@ script:
       set -ex
       cp test/config/python-apollo.travis apollo-config.groovy
       ./grailsw run-app &
-#       git clone --single-branch --branch 4.2.2 --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       git clone --single-branch --branch fix-default-apollo-test --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       sed -i -e 's|8080/|8080/apollo|' `pwd`/test-data/local-arrow.yml
