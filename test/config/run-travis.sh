@@ -41,7 +41,9 @@ if [[ $TEST_SUITE == "python-apollo" ]]; then
       . .venv/bin/activate
       pip3 install .
       pip3 install nose
+      echo "Running bootstrap_apollo nodocker"
       ./bootstrap_apollo.sh --nodocker
+      echo "Running nosetests"
       python3 setup.py nosetests
       killall java || true
 fi
