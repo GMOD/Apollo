@@ -69,12 +69,13 @@ script:
       cd python-apollo
       sed -i -e 's|8080/|8080/apollo|' `pwd`/test-data/local-arrow.yml
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-arrow.yml
+      echo `pwd`/test-data/local-arrow.yml
       python3 -m venv .venv
       . .venv/bin/activate
       pip3 install .
       pip3 install nose
       ./bootstrap_apollo.sh --nodocker
-      python3 setup.py nosetests
+      travis_wait python3 setup.py nosetests
       killall java || true
     fi
 
