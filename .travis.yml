@@ -75,7 +75,7 @@ script:
       pip3 install .
       pip3 install nose
       ./bootstrap_apollo.sh --nodocker
-      travis_wait python3 setup.py nosetests
+      python3 setup.py nosetests
       killall java || true
     fi
 
