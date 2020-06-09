@@ -5,7 +5,7 @@ EXIT_STATUS=0
 echo "Running test $TEST_SUITE"
 
 if [[ $TEST_SUITE == "apollo" ]]; then
-  travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace && ./grailsw coveralls
+  ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace && ./grailsw coveralls
 fi
 if [[ $TEST_SUITE == "javascript" ]]; then
   jshint client/apollo/js
