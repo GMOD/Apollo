@@ -86,7 +86,7 @@ class UserController {
 
 
             def users = c.list(max: maxResults, offset: offset) {
-                if (dataObject.userId && (dataObject instanceof Number || dataObject.userId.isLong())) {
+                if (dataObject.userId && (dataObject.userId instanceof Number || dataObject.userId.isLong())) {
                     eq('id', dataObject.userId as Long)
                 }
                 else
