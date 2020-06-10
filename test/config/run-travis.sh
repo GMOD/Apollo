@@ -30,11 +30,9 @@ if [[ $TEST_SUITE == "python-apollo" ]]; then
       set -ex
       cp test/config/python-apollo.travis apollo-config.groovy
       ./grailsw run-app &
-      git clone --single-branch --branch fix-default-apollo-test --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
-#      git clone --single-branch --branch 4.2.2 --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
+      git clone --single-branch --branch master --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      sed -i -e 's|8080/|8080/apollo|' "`pwd`/test-data/local-arrow.yml"
-      ARROW_GLOBAL_CONFIG_PATH="`pwd`/test-data/local-arrow.yml"
+      ARROW_GLOBAL_CONFIG_PATH="`pwd`/test-data/local-apollo2-arrow.yml"
       export ARROW_GLOBAL_CONFIG_PATH
       echo "`pwd`/test-data/local-arrow.yml"
       python3 -m venv .venv
