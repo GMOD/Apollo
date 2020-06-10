@@ -82,12 +82,16 @@ class UserController {
             def showInactiveUsers = dataObject.showInactiveUsers ?: false
             def omitEmptyOrganisms = dataObject.omitEmptyOrganisms != null ? dataObject.omitEmptyOrganisms : false
 
+//            log.debug "data object ${dataObject as JSON} . . . ${dataObject.userId.isInteger()} ${dataObject.userId.isLong() }"
+
+
             def users = c.list(max: maxResults, offset: offset) {
-                if (dataObject.userId && dataObject.userId in Integer) {
-                    eq('id', (Long) dataObject.userId)
+                if (dataObject.userId && (dataObject.userId instanceof Number || dataObject.userId.isLong())) {
+                    eq('id', dataObject.userId as Long)
                 }
-                if (dataObject.userId && dataObject.userId in String) {
-                    eq('username', dataObject.userId)
+                else
+                if (dataObject.userId) {
+                    eq('username', dataObject.userId as String)
                 }
                 if (searchName) {
                     or {
