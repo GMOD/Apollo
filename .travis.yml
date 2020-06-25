@@ -25,7 +25,7 @@ services:
   - mysql
 
 before_install:
-  - "pyenv global 3.7"
+  - "pyenv global 3.7.1"
   - "pip install pip --upgrade"
   - npm install -g jshint
 
