@@ -4,7 +4,9 @@
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
-- Fixed python dependency for travis for BioPython (3.7) and upgraded to Xenial [2493](https://github.com/GMOD/Apollo/pull/2493).
+- Fixed Python dependency for Travis for BioPython (3.7) and upgraded to Xenial [2493](https://github.com/GMOD/Apollo/pull/2493).
+- Updated internal Docker Python script to add to use the [Apollo 4.2.3 library](https://pypi.org/project/apollo/).
+
 
 Bug Fixes
 
@@ -12,6 +14,7 @@ Bug Fixes
 - Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).  
 - Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
 - Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).  
+- Fixed ECO evidence code links [2491](https://github.com/GMOD/Apollo/pull/2491).
 
 
 ## 2.6.0
