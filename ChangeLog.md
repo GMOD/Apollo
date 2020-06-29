@@ -45,7 +45,7 @@ Infrastructure Changes
 
 Bug Fixes
 
-- Open by unqiuename to get only the results of the name we are interested in [2338](https://github.com/GMOD/Apollo/pull/2338)
+- Open by uniquename to get only the results of the name we are interested in [2338](https://github.com/GMOD/Apollo/pull/2338)
 - Fixed ability to add multiple BAMs at once [2352](https://github.com/GMOD/Apollo/pull/2352)
 - Fixed export of non-coding RNA if exon not present [2353](https://github.com/GMOD/Apollo/pull/2353)
 - Removed sequence panel lookup [2388](https://github.com/GMOD/Apollo/pull/2353)
