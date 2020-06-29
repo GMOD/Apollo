@@ -15,6 +15,7 @@ Bug Fixes
 - Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
 - Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).  
 - Fixed ECO evidence code links [2491](https://github.com/GMOD/Apollo/pull/2491).
+- Fixed load-link urls [2500](https://github.com/GMOD/Apollo/pull/2500).
 
 
 ## 2.6.0
