@@ -3,9 +3,6 @@ FROM ubuntu:18.04
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
-# fix for pip install decode error 
-ENV LC_CTYPE en_US.UTF-8
-ENV LANG en_US.UTF-8
 
 # where bin directories are
 ENV CATALINA_HOME /usr/share/tomcat9
@@ -66,9 +63,14 @@ RUN chown -R apollo:apollo /apollo
 # install grails and python libraries
 USER apollo
 
+# fix for pip install decode error 
+ENV LC_CTYPE en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+
 RUN pip3 install setuptools
 RUN pip3 install wheel
-RUN pip3 install nose "apollo==4.2.4"
+RUN pip3 install nose apollo==4.2.4
 
 RUN curl -s get.sdkman.io | bash && \
      /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
