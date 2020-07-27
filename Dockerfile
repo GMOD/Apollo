@@ -13,7 +13,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install \
-	git build-essential libpq-dev wget python3-pip \
+	git locales locales-all build-essential libpq-dev wget python3-pip \
 	lsb-release gnupg2 wget xmlstarlet netcat libpng-dev postgresql-common \
 	zlib1g-dev libexpat1-dev curl ssl-cert zip unzip openjdk-8-jdk-headless
 
@@ -64,7 +64,9 @@ RUN chown -R apollo:apollo /apollo
 USER apollo
 
 # fix for pip install decode error 
+# RUN locale-gen en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
