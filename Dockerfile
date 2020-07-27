@@ -3,6 +3,10 @@ FROM ubuntu:18.04
 MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
 ENV DEBIAN_FRONTEND noninteractive
 
+# fix for pip install decode error 
+ENV LC_CTYPE en_US.UTF-8
+ENV LANG en_US.UTF-8
+
 # where bin directories are
 ENV CATALINA_HOME /usr/share/tomcat9
 # where webapps are deployed
