@@ -75,8 +75,8 @@ class SequenceTranslationHandler {
      * @param translateThroughStop - Whether to continue translation through stop codons
      * @return Translated amino acid sequence
      */
-    public static String translateSequence(String sequence, TranslationTable translationTable,
-                                           boolean includeStop, boolean translateThroughStop) {
+    static String translateSequence(String sequence, TranslationTable translationTable,
+                                    boolean includeStop, boolean translateThroughStop) {
 //        if (sequence.length() % 3 != 0) {
 //            throw new AnnotationException("Sequence to be translated must have length of factor of 3");
 //        }
@@ -86,7 +86,7 @@ class SequenceTranslationHandler {
         for (int i = 0; i + 3 <= upperString.length(); i += 3) {
             String codon = upperString.substring(i, i + 3);
             String aminoAcid = translationTable.translateCodon(codon);
-            if(i==0 && translationTable.isStartCodon(codon)){
+            if (i == 0 && translationTable.isStartCodon(codon)) {
                 aminoAcid = "M"
             }
 
@@ -96,8 +96,7 @@ class SequenceTranslationHandler {
                 }
                 if (!translateThroughStop) {
                     break;
-                }
-                else {
+                } else {
                     // if we encounter this once, keep going, otherwise if an extra time then break
                     if (++stopCodonCount > 1) {
                         break;
@@ -116,9 +115,10 @@ class SequenceTranslationHandler {
      * @return TranslationTable for the NCBI translation table code
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
-    public static TranslationTable getTranslationTableForGeneticCode(String code) throws AnnotationException {
+    public static TranslationTable getTranslationTableForGeneticCode(String code, String rootPath) throws AnnotationException {
+        println "input code ${code} ${rootPath}"
         if (!translationTables.containsKey(code)) {
-            initTranslationTables(code);
+            initTranslationTables(code,rootPath);
         }
         if (code < DEFAULT_TRANSLATION_TABLE || !translationTables.containsKey(code)) {
             throw new AnnotationException("Invalid translation table code");
@@ -131,15 +131,31 @@ class SequenceTranslationHandler {
      * @return Default translation table
      */
     public static TranslationTable getDefaultTranslationTable() {
-        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE)
+        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE,".")
     }
 
-    private static void initTranslationTables(String code) {
+    private static void initTranslationTables(String code, String currentPath) {
+        println "initiing translation table ${code}"
         if (code == DEFAULT_TRANSLATION_TABLE) {
+            println "using default code ${code}"
             translationTables.put(code.toString(), new StandardTranslationTable())
+            println "table filled out ${translationTables}"
         } else {
-            File parentFile = FileUtils.listFiles(new File("."),new NameFileFilter("ncbi_1_translation_table.txt"),TrueFileFilter.INSTANCE).first().parentFile
-            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath+"/ncbi_${code}_translation_table.txt")))
+            try {
+                println "non-default code ${code}"
+//                String currentPath = new File(".").absolutePath
+                println "current path ${currentPath}"
+                def fileList = FileUtils.listFiles(new File(currentPath), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE)
+                println "list file ${fileList}"
+                println "first file list ${fileList.first()}"
+                println "first file list parent ${fileList.first().parentFile}"
+                File parentFile = FileUtils.listFiles(new File(currentPath), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE).first().parentFile
+                println "parent file is here ${parentFile.absolutePath}"
+                translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath + "/ncbi_${code}_translation_table.txt")))
+                println "non-default table filled out ${translationTables}"
+            } catch (e) {
+                println "there is an error ${e}"
+            }
         }
     }
 

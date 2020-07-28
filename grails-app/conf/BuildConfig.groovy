@@ -73,6 +73,8 @@ grails.project.dependency.resolution = {
 //        runtime group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
         compile 'commons-codec:commons-codec:1.2'
         compile 'commons-collections:commons-collections:3.2.1'
+        compile group: 'commons-io', name: 'commons-io', version: '2.7'
+
 
         // HTSJDK
         compile group: 'com.github.samtools', name: 'htsjdk', version: '2.21.2'

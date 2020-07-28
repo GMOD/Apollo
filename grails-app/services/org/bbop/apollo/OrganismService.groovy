@@ -168,13 +168,15 @@ class OrganismService {
 
 
     TranslationTable getTranslationTable(Organism organism) {
+        println "getting translation table"
+        println "has non-default transaltion table ${organism?.nonDefaultTranslationTable}"
         if(organism?.nonDefaultTranslationTable){
-            log.debug "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
-            return SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable)
+            println "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
+            return SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable,configWrapperService.getWebRootDir())
         }
         // just use the default
         else{
-            log.debug "using the default translation table"
+            println "using the default translation table"
             return  configWrapperService.getTranslationTable()
         }
 
