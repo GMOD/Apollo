@@ -152,41 +152,29 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiMethod(description = "Returns a translation table as JSON", path = "/annotationEditor/getTranslationTable", verb = RestApiVerb.POST)
     @RestApiParams(params = [])
     def getTranslationTable() {
-        println "getTranslationTable"
         JSONObject returnObject = permissionService.handleInput(request, params)
-        println "return object ${returnObject as JSON}"
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        println "has organism ${organism}"
         // use the over-wridden one
         TranslationTable translationTable = organismService.getTranslationTable(organism)
-        println "has translation table ${translationTable}"
 
         JSONObject ttable = new JSONObject()
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
-            println "put ${t}"
             ttable.put(t.getKey(), t.getValue())
         }
-        println "output ttable ${ttable as JSON}"
 
         JSONArray startProteins = new JSONArray()
         JSONArray stopProteins = new JSONArray()
 
-        println "A"
         for (String startCodon in translationTable.getStartCodons()) {
             startProteins.add(translationTable.getTranslationTable().get(startCodon))
         }
-        println "A out ${startProteins}"
         for (String stopCodon in translationTable.getStopCodons()) {
             stopProteins.add(translationTable.getTranslationTable().get(stopCodon))
         }
-        println "B out ${stopProteins}"
 
         returnObject.put(REST_TRANSLATION_TABLE, ttable)
-        println "C"
         returnObject.put(REST_START_PROTEINS, startProteins.unique())
-        println "D"
         returnObject.put(REST_STOP_PROTEINS, stopProteins.unique())
-        println "E"
         render returnObject
     }
 

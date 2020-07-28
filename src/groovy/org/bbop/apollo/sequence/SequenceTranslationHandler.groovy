@@ -21,7 +21,7 @@ class SequenceTranslationHandler {
      * @param sequence - String for the nucleotide sequence to be reverse complemented
      * @return Reverse complemented nucleotide sequence
      */
-    public static String reverseComplementSequence(String sequence) {
+    static String reverseComplementSequence(String sequence) {
         StringBuilder buffer = new StringBuilder(sequence);
         buffer.reverse();
         for (int i = 0; i < buffer.length(); ++i) {
@@ -63,7 +63,7 @@ class SequenceTranslationHandler {
      * @param translationTable - TranslationTable that contains the codon translation table
      * @return Translated amino acid sequence
      */
-    public static String translateSequence(String sequence, TranslationTable translationTable) {
+    static String translateSequence(String sequence, TranslationTable translationTable) {
         return translateSequence(sequence, translationTable, false, false);
     }
 
@@ -115,7 +115,7 @@ class SequenceTranslationHandler {
      * @return TranslationTable for the NCBI translation table code
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
-    public static TranslationTable getTranslationTableForGeneticCode(String code, String rootPath) throws AnnotationException {
+    static TranslationTable getTranslationTableForGeneticCode(String code, String rootPath) throws AnnotationException {
         println "input code ${code} ${rootPath}"
         if (!translationTables.containsKey(code)) {
             initTranslationTables(code,rootPath);
@@ -130,31 +130,21 @@ class SequenceTranslationHandler {
      *
      * @return Default translation table
      */
-    public static TranslationTable getDefaultTranslationTable() {
+    static TranslationTable getDefaultTranslationTable() {
         return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE,".")
     }
 
     private static void initTranslationTables(String code, String currentPath) {
         println "initiing translation table ${code}"
         if (code == DEFAULT_TRANSLATION_TABLE) {
-            println "using default code ${code}"
             translationTables.put(code.toString(), new StandardTranslationTable())
-            println "table filled out ${translationTables}"
         } else {
             try {
-                println "non-default code ${code}"
-//                String currentPath = new File(".").absolutePath
-                println "current path ${currentPath}"
-                def fileList = FileUtils.listFiles(new File(currentPath), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE)
-                println "list file ${fileList}"
-                println "first file list ${fileList.first()}"
-                println "first file list parent ${fileList.first().parentFile}"
                 File parentFile = FileUtils.listFiles(new File(currentPath), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE).first().parentFile
-                println "parent file is here ${parentFile.absolutePath}"
                 translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath + "/ncbi_${code}_translation_table.txt")))
-                println "non-default table filled out ${translationTables}"
             } catch (e) {
                 println "there is an error ${e}"
+                throw new RuntimeException(e)
             }
         }
     }
@@ -163,7 +153,7 @@ class SequenceTranslationHandler {
  *
  * @return Set of strings for splice acceptor sites
  */
-    public static Set<String> getSpliceAcceptorSites() {
+    static Set<String> getSpliceAcceptorSites() {
         return spliceAcceptorSites;
     }
 
@@ -171,7 +161,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceAcceptorSite - String for splice acceptor site
  */
-    public static void addSpliceAcceptorSite(String spliceAcceptorSite) {
+    static void addSpliceAcceptorSite(String spliceAcceptorSite) {
         spliceAcceptorSites.add(spliceAcceptorSite);
     }
 
@@ -179,7 +169,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceAcceptorSite - String for splice acceptor site
  */
-    public static void deleteSpliceAcceptorSite(String spliceAcceptorSite) {
+    static void deleteSpliceAcceptorSite(String spliceAcceptorSite) {
         spliceAcceptorSites.remove(spliceAcceptorSite);
     }
 
@@ -187,7 +177,7 @@ class SequenceTranslationHandler {
  *
  * @return Set of string for splice donor sites
  */
-    public static Set<String> getSpliceDonorSites() {
+    static Set<String> getSpliceDonorSites() {
         return spliceDonorSites;
     }
 
@@ -195,7 +185,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceDonorSite - Strings for splice donor site
  */
-    public static void addSpliceDonorSite(String spliceDonorSite) {
+    static void addSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.add(spliceDonorSite);
     }
 
@@ -203,7 +193,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceDonorSite - String for splice donor site
  */
-    public static void deleteSpliceDonorSite(String spliceDonorSite) {
+    static void deleteSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.remove(spliceDonorSite);
     }
 
@@ -225,7 +215,7 @@ class SequenceTranslationHandler {
      * @param file
      * @return
      */
-    public static TranslationTable readTable(File file) {
+    static TranslationTable readTable(File file) {
         TranslationTable ttable = new StandardTranslationTable().cloneTable()
         ttable.name = file.name
 //        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));
