@@ -152,11 +152,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiMethod(description = "Returns a translation table as JSON", path = "/annotationEditor/getTranslationTable", verb = RestApiVerb.POST)
     @RestApiParams(params = [])
     def getTranslationTable() {
-        log.debug "getTranslationTable"
         JSONObject returnObject = permissionService.handleInput(request, params)
-        log.debug "return object ${returnObject as JSON}"
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        log.debug "has organism ${organism}"
         // use the over-wridden one
         TranslationTable translationTable = organismService.getTranslationTable(organism)
 

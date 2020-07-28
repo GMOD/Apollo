@@ -21,7 +21,7 @@ class SequenceTranslationHandler {
      * @param sequence - String for the nucleotide sequence to be reverse complemented
      * @return Reverse complemented nucleotide sequence
      */
-    public static String reverseComplementSequence(String sequence) {
+    static String reverseComplementSequence(String sequence) {
         StringBuilder buffer = new StringBuilder(sequence);
         buffer.reverse();
         for (int i = 0; i < buffer.length(); ++i) {
@@ -63,7 +63,7 @@ class SequenceTranslationHandler {
      * @param translationTable - TranslationTable that contains the codon translation table
      * @return Translated amino acid sequence
      */
-    public static String translateSequence(String sequence, TranslationTable translationTable) {
+    static String translateSequence(String sequence, TranslationTable translationTable) {
         return translateSequence(sequence, translationTable, false, false);
     }
 
@@ -75,8 +75,8 @@ class SequenceTranslationHandler {
      * @param translateThroughStop - Whether to continue translation through stop codons
      * @return Translated amino acid sequence
      */
-    public static String translateSequence(String sequence, TranslationTable translationTable,
-                                           boolean includeStop, boolean translateThroughStop) {
+    static String translateSequence(String sequence, TranslationTable translationTable,
+                                    boolean includeStop, boolean translateThroughStop) {
 //        if (sequence.length() % 3 != 0) {
 //            throw new AnnotationException("Sequence to be translated must have length of factor of 3");
 //        }
@@ -86,7 +86,7 @@ class SequenceTranslationHandler {
         for (int i = 0; i + 3 <= upperString.length(); i += 3) {
             String codon = upperString.substring(i, i + 3);
             String aminoAcid = translationTable.translateCodon(codon);
-            if(i==0 && translationTable.isStartCodon(codon)){
+            if (i == 0 && translationTable.isStartCodon(codon)) {
                 aminoAcid = "M"
             }
 
@@ -96,8 +96,7 @@ class SequenceTranslationHandler {
                 }
                 if (!translateThroughStop) {
                     break;
-                }
-                else {
+                } else {
                     // if we encounter this once, keep going, otherwise if an extra time then break
                     if (++stopCodonCount > 1) {
                         break;
@@ -116,9 +115,10 @@ class SequenceTranslationHandler {
      * @return TranslationTable for the NCBI translation table code
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
-    public static TranslationTable getTranslationTableForGeneticCode(String code) throws AnnotationException {
+    static TranslationTable getTranslationTableForGeneticCode(String code, String rootPath) throws AnnotationException {
+        println "input code ${code} ${rootPath}"
         if (!translationTables.containsKey(code)) {
-            initTranslationTables(code);
+            initTranslationTables(code,rootPath);
         }
         if (code < DEFAULT_TRANSLATION_TABLE || !translationTables.containsKey(code)) {
             throw new AnnotationException("Invalid translation table code");
@@ -130,16 +130,22 @@ class SequenceTranslationHandler {
      *
      * @return Default translation table
      */
-    public static TranslationTable getDefaultTranslationTable() {
-        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE)
+    static TranslationTable getDefaultTranslationTable() {
+        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE,".")
     }
 
-    private static void initTranslationTables(String code) {
+    private static void initTranslationTables(String code, String currentPath) {
+        println "initiing translation table ${code}"
         if (code == DEFAULT_TRANSLATION_TABLE) {
             translationTables.put(code.toString(), new StandardTranslationTable())
         } else {
-            File parentFile = FileUtils.listFiles(new File("."),new NameFileFilter("ncbi_1_translation_table.txt"),TrueFileFilter.INSTANCE).first().parentFile
-            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath+"/ncbi_${code}_translation_table.txt")))
+            try {
+                File parentFile = FileUtils.listFiles(new File(currentPath), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE).first().parentFile
+                translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath + "/ncbi_${code}_translation_table.txt")))
+            } catch (e) {
+                println "there is an error ${e}"
+                throw new RuntimeException(e)
+            }
         }
     }
 
@@ -147,7 +153,7 @@ class SequenceTranslationHandler {
  *
  * @return Set of strings for splice acceptor sites
  */
-    public static Set<String> getSpliceAcceptorSites() {
+    static Set<String> getSpliceAcceptorSites() {
         return spliceAcceptorSites;
     }
 
@@ -155,7 +161,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceAcceptorSite - String for splice acceptor site
  */
-    public static void addSpliceAcceptorSite(String spliceAcceptorSite) {
+    static void addSpliceAcceptorSite(String spliceAcceptorSite) {
         spliceAcceptorSites.add(spliceAcceptorSite);
     }
 
@@ -163,7 +169,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceAcceptorSite - String for splice acceptor site
  */
-    public static void deleteSpliceAcceptorSite(String spliceAcceptorSite) {
+    static void deleteSpliceAcceptorSite(String spliceAcceptorSite) {
         spliceAcceptorSites.remove(spliceAcceptorSite);
     }
 
@@ -171,7 +177,7 @@ class SequenceTranslationHandler {
  *
  * @return Set of string for splice donor sites
  */
-    public static Set<String> getSpliceDonorSites() {
+    static Set<String> getSpliceDonorSites() {
         return spliceDonorSites;
     }
 
@@ -179,7 +185,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceDonorSite - Strings for splice donor site
  */
-    public static void addSpliceDonorSite(String spliceDonorSite) {
+    static void addSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.add(spliceDonorSite);
     }
 
@@ -187,7 +193,7 @@ class SequenceTranslationHandler {
  *
  * @param spliceDonorSite - String for splice donor site
  */
-    public static void deleteSpliceDonorSite(String spliceDonorSite) {
+    static void deleteSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.remove(spliceDonorSite);
     }
 
@@ -209,7 +215,7 @@ class SequenceTranslationHandler {
      * @param file
      * @return
      */
-    public static TranslationTable readTable(File file) {
+    static TranslationTable readTable(File file) {
         TranslationTable ttable = new StandardTranslationTable().cloneTable()
         ttable.name = file.name
 //        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));

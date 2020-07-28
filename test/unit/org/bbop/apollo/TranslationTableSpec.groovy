@@ -60,7 +60,7 @@ class TranslationTableSpec extends Specification {
 
         when: "we read a translation table"
         // be something with STOPS, etc.
-        TranslationTable translationTable = handler.getTranslationTableForGeneticCode("2")
+        TranslationTable translationTable = handler.getTranslationTableForGeneticCode("2","web-app")
 
         then: "we should get the correct results"
         assert translationTable!=null
