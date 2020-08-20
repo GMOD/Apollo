@@ -123,6 +123,7 @@ public class GeneProductPanel extends Composite {
 
     initWidget(ourUiBinder.createAndBindUi(this));
 
+    allEcoCheckBox(null);
 
     selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
       @Override
