@@ -26,6 +26,9 @@
         .goButtons {
             margin-top: 5px;
         }
+        .infoRow {
+        margin-top: 5px;
+        }
 
         .saveButton {
             margin-right: 3px;
@@ -47,6 +50,13 @@
                     </b:ModalHeader>
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">
+                            <b:Row>
+                                <b:Column size="MD_8">
+                                    <gwt:HTML>
+                                        <a href="http://geneontology.org/docs/go-annotations/" target="_blank">GO Annotation Guidance</a>
+                                    </gwt:HTML>
+                                </b:Column>
+                            </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_3">
                                     <b:Label>Aspect</b:Label>
@@ -73,10 +83,10 @@
                                   <b:Label>Evidence</b:Label>
                                   <apollo:BiolinkSuggestBox ui:field="evidenceCodeField"/>
                                   <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
+                                    <gwt:Anchor text="Evidence Code Info" target="_blank" ui:field="helpLink"/>
                                 </b:Column>
                                 <b:Column size="MD_1">
                                     <b:CheckBox text="All ECO Evidence" width="100%" ui:field="allEcoCheckBox"/>
-                                    <gwt:Anchor text="Info" target="_blank" ui:field="helpLink"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

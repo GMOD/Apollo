@@ -7,33 +7,34 @@
     <ui:style>
 
         .container {
-            margin-left: 20px;
-            margin-top: 10px;
+        margin-left: 20px;
+        margin-top: 10px;
         }
 
         .widgetPanel {
-            display: inline-table;
-            margin-right: 10px;
-            margin-bottom: 5px;
+        display: inline-table;
+        margin-right: 10px;
+        margin-bottom: 5px;
         }
 
         .row {
-            margin-left: 5px;
-            margin-right: 5px;
-            margin-top: 5px;
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-top: 5px;
         }
 
         .goButtons {
-            margin-top: 5px;
+        margin-top: 5px;
         }
 
         .saveButton {
-            margin-right: 3px;
+        margin-right: 3px;
         }
 
         .addButton {
-            margin-top: 14px;
-        }</ui:style>
+        margin-top: 14px;
+        }
+    </ui:style>
 
     <gwt:DockLayoutPanel>
         <gwt:center>
@@ -48,6 +49,16 @@
                     </b:ModalHeader>
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">
+                            <b:Row>
+                                <b:Column size="MD_8">
+                                    <b:Popover
+                                            title="Provenance Info"
+                                            content="Provenance describes why annotation details have been set or changed."
+                                    >
+                                        <b:Button text="Provenance Info"/>
+                                    </b:Popover>
+                                </b:Column>
+                            </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_6">
                                     <b:Label>Field</b:Label>
@@ -57,10 +68,10 @@
                                     <b:Label>Evidence</b:Label>
                                     <apollo:BiolinkSuggestBox ui:field="evidenceCodeField"/>
                                     <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
+                                    <gwt:Anchor text="Evidence Code Info" target="_blank" ui:field="helpLink"/>
                                 </b:Column>
                                 <b:Column size="MD_1">
                                     <b:CheckBox text="All ECO Evidence" width="100%" ui:field="allEcoCheckBox"/>
-                                    <gwt:Anchor text="Info" target="_blank" ui:field="helpLink"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
