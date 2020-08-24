@@ -1162,7 +1162,7 @@ class OrganismController {
       sequenceService.loadRefSeqs(organism)
 
       preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
-      Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
+      Boolean returnAllOrganisms = organismJson.returnAllOrganisms!=null ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
 
       render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
