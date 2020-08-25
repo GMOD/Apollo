@@ -25,7 +25,6 @@ jbrowse
 sample-*
 
 gwt-unitCache
-gwt-sdk
 
 data
 apollo_data
