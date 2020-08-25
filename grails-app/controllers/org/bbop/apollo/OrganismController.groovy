@@ -52,6 +52,7 @@ class OrganismController {
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "id", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
     , @RestApiParam(name = "organism", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
+      , @RestApiParam(name = "returnAllOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Return all organisms (true / false) (default true)")
   ])
   @Transactional
   def deleteOrganism() {
@@ -101,7 +102,8 @@ class OrganismController {
         assert directoryToRemove.deleteDir()
       }
 
-      findAllOrganisms()
+      Boolean returnAllOrganisms = organismJson.returnAllOrganisms!=null ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
+      render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
     }
     catch (Exception e) {
