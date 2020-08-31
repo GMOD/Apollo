@@ -164,4 +164,9 @@ class ConfigWrapperService {
       return grailsApplication.config.gff3.source
     }
 
+
+    boolean getCalculateNonCanonicalSpliceSites(){
+       return grailsApplication.config.apollo.calculate_non_canonical_splice_sites
+    }
+
 }

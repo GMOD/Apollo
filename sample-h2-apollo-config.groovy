@@ -65,6 +65,7 @@ environments {
 //    gff3.source = "MyOrg" // also for GPAD export
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
+//    calculate_non_canonical_splice_sites = false
 //    store_orig_id = false
 //    count_annotations = false
 //    fa_to_twobit_exe = "/usr/local/bin/blat" // get form https://genome.ucsc.edu/goldenPath/help/blatSpec.html
