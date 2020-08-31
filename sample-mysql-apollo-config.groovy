@@ -66,6 +66,7 @@ environments {
 //    common_data_directory = "/opt/temporary/apollo"
 //    store_orig_id = false
 //    count_annotations = false
+//    calculate_non_canonical_splice_sites = false
 //    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from // https://genome.ucsc.edu/goldenPath/help/blatSpec.html
 //    sequence_search_tools {
 //        blat_nuc {

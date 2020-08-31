@@ -105,7 +105,8 @@ apollo {
     feature_has_dbxrefs = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_DBXREFS",true)
     feature_has_attributes = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_ATTRS",true)
     feature_has_pubmed_ids = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_PUBMED",true)
-    feature_has_go_ids = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_GO",true)
+    feature_has_go_ids =checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_GO",true)
+    calculate_non_canonical_splice_sites = checkBooleanEnvironment("WEBAPOLLO_CALCULATE_NON_CANONICAL_SPLICE_SITES",true)
     feature_has_comments = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_COMMENTS",true)
     feature_has_status = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_STATUS",true)
     translation_table = "/config/translation_tables/ncbi_" + (System.getenv("WEBAPOLLO_TRANSLATION_TABLE") ?: "1") + "_translation_table.txt"

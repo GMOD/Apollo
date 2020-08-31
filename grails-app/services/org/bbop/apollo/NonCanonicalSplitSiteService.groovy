@@ -10,7 +10,7 @@ import org.grails.plugins.metrics.groovy.Timed
 class NonCanonicalSplitSiteService {
 
     def featureRelationshipService
-    def exonService
+    def configWrapperService
     def transcriptService
     def featureService
     def sequenceService
@@ -142,15 +142,17 @@ class NonCanonicalSplitSiteService {
                     }
                 }
             }
-            if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
-                def loc=fivePrimeSpliceSitePosition+transcript.fmin
-                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
-                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, loc));
-            }
-            if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
-                def loc=threePrimeSpliceSitePosition+transcript.fmin
-                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
-                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, loc));
+            if(configWrapperService.getCalculateNonCanonicalSpliceSites()){
+                if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
+                    def loc=fivePrimeSpliceSitePosition+transcript.fmin
+                    log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
+                    addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, loc));
+                }
+                if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
+                    def loc=threePrimeSpliceSitePosition+transcript.fmin
+                    log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
+                    addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, loc));
+                }
             }
         }
 
@@ -190,7 +192,7 @@ class NonCanonicalSplitSiteService {
      *
      * @param nonCanonicalThreePrimeSpliceSite - Non canonical 3' splice site to be added
      */
-    public void addNonCanonicalThreePrimeSpliceSite(Transcript transcript,NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
+    void addNonCanonicalThreePrimeSpliceSite(Transcript transcript,NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
 
         // add non canonical 3' splice site
         FeatureRelationship fr = new FeatureRelationship(
