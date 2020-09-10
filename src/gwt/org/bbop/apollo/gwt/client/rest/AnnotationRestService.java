@@ -72,6 +72,7 @@ public class AnnotationRestService extends RestService {
   public static void createTranscriptWithExon(RequestCallback requestCallback, AnnotationInfo annotationInfo) {
     JSONObject jsonObject = new JSONObject();
     JSONArray featuresArray = new JSONArray();
+    jsonObject.put(FeatureStringEnum.SEQUENCE.getValue(),new JSONString(annotationInfo.getSequence()));
     jsonObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
     JSONObject featureObject = new JSONObject();
     featuresArray.set(featuresArray.size(), featureObject);
