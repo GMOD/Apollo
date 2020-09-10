@@ -1,4 +1,13 @@
 
+
+## 2.6.2
+
+Features
+
+- Add option to suppress calculation of non-canonical splice site [2509](https://github.com/GMOD/Apollo/issues/2509).
+
+
+
 ## 2.6.1
 
 Infrastructure Changes

@@ -216,6 +216,7 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
     store_orig_id = true // sets the orig_id to the original evidence id when first created
+    calculate_non_canonical_splice_sites = true
 
     // used for uploading
 //    common_data_directory = "/opt/apollo"
