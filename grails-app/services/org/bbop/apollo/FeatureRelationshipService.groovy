@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 
 @Transactional(readOnly = true)
