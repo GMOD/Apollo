@@ -1,6 +1,43 @@
 # Data generation pipeline
 
-## Automated Configuration and upload
+Using the methods below you can generate and update a `trackList.json` and then make any further manual required. 
+
+## Canvas vs HTML in Apollo
+
+Most of the [JBrowse documentation for configuring tracks](https://jbrowse.org/docs/reference_sequence.html) applies here.  However, there are a few important points about Canvas vs HTML tracks.
+
+It should be noted that if you need both benefits of each track type, you are free to duplicate that track and use an alternate styling or track type.
+
+BigWig tracks are only shown as Canvas.
+
+#### [HTML Tracks](https://jbrowse.org/docs/html_features.html)
+
+Pros:  Create evidence by dragging and clicking on annotation or evidence does show the alignment.  Can use CSS styling.
+Cons:  Renders slower.
+
+Note that in most cases regular HTML rendering will be preferable.  Exceptions would be dense BAM alignments and dense Variant tracks where you are attempting to display the density at a higher resolution.
+
+<u>HTML Track mapping with type=<?> </u>:
+- Annotation / GFF3: `FeatureTrack`,`NeatHTMLFeatures/View/Track/NeatFeature`, `JBrowse/View/Track/HTMLFeatures`, `WebApollo/View/Track/DraggableNeatHTMLFeatures`
+- Alignment: `JBrowse/View/Track/Alignments`,`WebApollo/View/DraggableAlignments`
+- Variant: `JBrowse/View/Track/HTMLVariants`,`WebApollo/View/Track/WebApolloHTMLVariants`
+
+
+
+#### [Canvas Tracks](https://jbrowse.org/docs/canvas_features.html)
+
+Pros:  Renders faster, non-CSS style options. 
+Cons:  Can not drag to create evidence, clicking on annotation or evidence does not show alignment. 
+
+Note that in most cases regular HTML rendering will be preferable.  Exceptions would be dense BAM alignments and dense Variant tracks where you are attempting to display the density at a higher resolution.
+
+<u>Canvas Track mapping with type=<?> </u>:
+- Annotation / GFF3: `NeatCanvasFeatures/View/Track/NeatFeature`, `JBrowse/View/Track/CanvasFeatures`, `WebApollo/View/Track/WebApolloNeatCanvasFeatures`
+- Alignment: `JBrowse/View/Track/Alignments2`,`WebApollo/View/Track/WebApolloAlignments2`
+- Variant: `JBrowse/View/Track/CanvasVariants`,`WebApollo/View/Track/WebApolloCanvasVariants`
+
+
+## Apollo Automated Configuration and upload
 
 Admin users may upload FASTA files to create new genomes and upload most track types in a similar manner if a default configuration is desirable.   
 
@@ -11,7 +48,7 @@ Additionally admin users may also add most tracks in a similar fashion:
 ![](images/AddTrackSmall.png)
 
 
-## Manual Configuration
+## JBrowse Configuration
 
 The manual data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and
 flatfile-to-json.pl, and these scripts are automatically copied to a local bin/ directory when you run the setup scripts
