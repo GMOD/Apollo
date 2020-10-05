@@ -49,6 +49,7 @@ class RequestHandlingService {
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             Terminator.class.name,
+            ShineDalgarnoSequence.class.name,
             TransposableElement.class.name
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
@@ -2600,7 +2601,7 @@ class RequestHandlingService {
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
             } else if (originalType in FeatureService.SINGLETON_FEATURE_TYPES && type in FeatureService.RNA_FEATURE_TYPES) {
-                log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)

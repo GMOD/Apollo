@@ -11,7 +11,8 @@ function JSONUtils() {
 
 JSONUtils.verbose_conversion = false;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
-JSONUtils.regulatorTypes = [ "TERMINATOR" ];
+JSONUtils.regulatorTypes = [ "TERMINATOR" ,"SHINE_DALGARNO_SEQUENCE"];
+
 
 
 JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
