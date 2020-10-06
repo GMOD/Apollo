@@ -1057,8 +1057,11 @@ define([
                 var parentFeature;
                 var variantSelectionRecords = [];
 
+                console.log('creating annotation for ',selection_records)
+
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
+                    console.log('type',type)
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
@@ -1110,6 +1113,7 @@ define([
                         }
                     }
                 }
+                console.log('parent features',parentFeatures)
 
                 if(variantSelectionRecords.length > 0) {
                     target_track.createVariant(variantSelectionRecords);
@@ -1126,6 +1130,7 @@ define([
                     else {
                         featureToAdd = new SimpleFeature({data: {strand: strand}});
                     }
+                    console.log('processing feature',featureToAdd)
                     if (!featureToAdd.get('name')) {
                         // TODO: We can't guarantee that the featureToAdd has an id, this may end up undefined.
                         featureToAdd.set('name', featureToAdd.get('id'));
@@ -1175,9 +1180,10 @@ define([
                     recognizedBioType.push('repeat_region')
                     recognizedBioType.push('transposable_element')
                     recognizedBioType.push('terminator')
-                    recognizedBioType.push('shine_dalgarno_sequence')
+                    // recognizedBioType.push('shine_dalgarno_sequence')
                     recognizedBioType.push('Shine_Dalgarno_sequence')
-                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence','shine_dalgarno_sequence'];
+                    // var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence','shine_dalgarno_sequence'];
+                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -1195,9 +1201,11 @@ define([
                     }
 
                     var afeat ;
+                    console.log('getting into aadding mRNA features');
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                        console.log('adding feature',featureToAdd,afeat)
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
