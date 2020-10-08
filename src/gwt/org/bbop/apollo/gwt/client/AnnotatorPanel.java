@@ -514,9 +514,12 @@ public class AnnotatorPanel extends Composite {
                 statusField.setVisible(true);
             }
         });
-
-
     }
+
+    AnnotationInfo getCurrentGene(){
+        return geneDetailPanel.getInternalAnnotationInfo();
+    }
+
     void selectTranscriptPanel() {
         AnnotationInfo selectedObject = singleSelectionModel.getSelectedObject();
         updateAnnotationInfo(selectedObject);
