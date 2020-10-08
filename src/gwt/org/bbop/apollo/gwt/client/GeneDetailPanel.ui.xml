@@ -31,6 +31,7 @@
         .selectBox {
             display: inline;
         }
+
         .action-buttons {
             margin-right: 10px;
             display: inline;
@@ -49,6 +50,8 @@
                 <b:Button type="PRIMARY" icon="INFO_CIRCLE" title="ID" iconSize="LARGE"
                           text="ID"
                           ui:field="annotationIdButton" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button ui:field="syncNameButton" icon="REFRESH" enabled="false" text="Sync name with transcript"
+                          addStyleNames="{style.action-buttons}"/>
                 <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
                           text="Delete" pull="RIGHT"
                           ui:field="deleteAnnotation" enabled="false"

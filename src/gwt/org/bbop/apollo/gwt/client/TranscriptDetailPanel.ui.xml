@@ -47,6 +47,8 @@
                 <b:Button type="PRIMARY" icon="INFO_CIRCLE" title="ID" iconSize="LARGE"
                           text="ID"
                           ui:field="annotationIdButton" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button ui:field="syncNameButton" icon="REFRESH" enabled="true" text="Sync name with gene"
+                          addStyleNames="{style.action-buttons}"/>
                 <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
                           text="Delete" pull="RIGHT"
                           ui:field="deleteAnnotation" enabled="true"
