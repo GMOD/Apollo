@@ -45,6 +45,8 @@ public class GeneDetailPanel extends Composite {
     @UiField(provided = true)
     SuggestBox nameField;
     @UiField
+    Button syncNameButton;
+    @UiField
     TextBox symbolField;
     @UiField
     TextBox descriptionField;
@@ -101,6 +103,36 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+    @UiHandler("syncNameButton")
+    void handleSyncName(ClickEvent e) {
+        String inputName = internalAnnotationInfo.getName();
+        Set<AnnotationInfo> childAnnotations = internalAnnotationInfo.getChildAnnotations();
+        assert childAnnotations.size()==1 ;
+        AnnotationInfo firstChild = childAnnotations.iterator().next();
+        firstChild.setName(inputName);
+        updateData(internalAnnotationInfo);
+
+        setEditable(false);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                setEditable(true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating gene: " + exception);
+                setEditable(true);
+            }
+        };
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(firstChild);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+
+        RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
+
+    }
+
     @UiHandler("synonymsField")
     void handleSynonymsChange(ChangeEvent e) {
         final AnnotationInfo updateAnnotationInfo = this.internalAnnotationInfo;
@@ -143,32 +175,43 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
-    private void enableFields(boolean enabled) {
-        nameField.setEnabled(enabled);
-        symbolField.setEnabled(enabled);
-        descriptionField.setEnabled(enabled);
-        synonymsField.setEnabled(enabled);
-        deleteAnnotation.setEnabled(enabled);
+    public void setEditable(boolean editable) {
+        nameField.setEnabled(editable);
+        symbolField.setEnabled(editable);
+        descriptionField.setEnabled(editable);
+        synonymsField.setEnabled(editable);
+        deleteAnnotation.setEnabled(editable);
+
+        if(!editable || this.internalAnnotationInfo==null){
+            syncNameButton.setEnabled(false);
+        }
+        else{
+            Set<AnnotationInfo> childAnnotations = internalAnnotationInfo.getChildAnnotations();
+            if(childAnnotations.size()==1){
+                AnnotationInfo firstChild = childAnnotations.iterator().next();
+                syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(firstChild.getName()));
+            }
+            else{
+                syncNameButton.setEnabled(false);
+            }
+        }
     }
 
 
     private void updateGene() {
-        final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-        enableFields(false);
-
+        setEditable(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                enableFields(true);
+                setEditable(true);
                 MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
-//                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
                 Bootbox.alert("Error updating gene: " + exception);
-                enableFields(true);
+                setEditable(true);
             }
         };
 //        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
@@ -334,12 +377,4 @@ public class GeneDetailPanel extends Composite {
         return internalAnnotationInfo;
     }
 
-    public void setEditable(boolean editable) {
-        nameField.setEnabled(editable);
-        symbolField.setEnabled(editable);
-        descriptionField.setEnabled(editable);
-        synonymsField.setEnabled(editable);
-        deleteAnnotation.setEnabled(editable);
-
-    }
 }
