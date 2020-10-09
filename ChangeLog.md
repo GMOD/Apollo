@@ -5,6 +5,7 @@
 Features
 
 - Add option to suppress calculation of non-canonical splice site [2509](https://github.com/GMOD/Apollo/issues/2509).
+- Added the ability to sync the gene and transcript name with the click of a button [2519](https://github.com/GMOD/Apollo/issues/2519).
 
 Bug Fixes
 
