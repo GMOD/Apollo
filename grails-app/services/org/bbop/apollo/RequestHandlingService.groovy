@@ -49,7 +49,6 @@ class RequestHandlingService {
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             Terminator.class.name,
-            ShineDalgarnoSequence.class.name,
             TransposableElement.class.name
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
