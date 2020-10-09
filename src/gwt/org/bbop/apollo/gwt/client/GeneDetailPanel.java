@@ -175,6 +175,18 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+    private void checkSyncButton(){
+        Set<AnnotationInfo> childAnnotations = internalAnnotationInfo.getChildAnnotations();
+        if(childAnnotations.size()==1){
+            AnnotationInfo firstChild = childAnnotations.iterator().next();
+            syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(firstChild.getName()));
+        }
+        else{
+            syncNameButton.setEnabled(false);
+        }
+
+    }
+
     public void setEditable(boolean editable) {
         nameField.setEnabled(editable);
         symbolField.setEnabled(editable);
@@ -186,14 +198,7 @@ public class GeneDetailPanel extends Composite {
             syncNameButton.setEnabled(false);
         }
         else{
-            Set<AnnotationInfo> childAnnotations = internalAnnotationInfo.getChildAnnotations();
-            if(childAnnotations.size()==1){
-                AnnotationInfo firstChild = childAnnotations.iterator().next();
-                syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(firstChild.getName()));
-            }
-            else{
-                syncNameButton.setEnabled(false);
-            }
+            checkSyncButton();
         }
     }
 
@@ -239,6 +244,7 @@ public class GeneDetailPanel extends Composite {
         userField.setText(internalAnnotationInfo.getOwner());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
+        checkSyncButton();
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = internalAnnotationInfo.getMin().toString();

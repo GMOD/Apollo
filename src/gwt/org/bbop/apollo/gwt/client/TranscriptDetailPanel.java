@@ -245,6 +245,7 @@ public class TranscriptDetailPanel extends Composite {
         sequenceField.setText(internalAnnotationInfo.getSequence());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
+        checkSyncButton();
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = Integer.toString(internalAnnotationInfo.getMin());
@@ -326,6 +327,17 @@ public class TranscriptDetailPanel extends Composite {
         return internalAnnotationInfo;
     }
 
+    private void checkSyncButton(){
+        AnnotationInfo geneAnnotation = MainPanel.annotatorPanel.getCurrentGene();
+        Set<AnnotationInfo> childAnnotations = geneAnnotation.getChildAnnotations();
+        if(childAnnotations.size()==1){
+            syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(geneAnnotation.getName()));
+        }
+        else{
+            syncNameButton.setEnabled(false);
+        }
+    }
+
 
     public void setEditable(boolean editable) {
         this.editable = editable;
@@ -337,14 +349,7 @@ public class TranscriptDetailPanel extends Composite {
             syncNameButton.setEnabled(false);
         }
         else{
-            AnnotationInfo geneAnnotation = MainPanel.annotatorPanel.getCurrentGene();
-            Set<AnnotationInfo> childAnnotations = geneAnnotation.getChildAnnotations();
-            if(childAnnotations.size()==1){
-                syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(geneAnnotation.getName()));
-            }
-            else{
-                syncNameButton.setEnabled(false);
-            }
+            checkSyncButton();
         }
     }
 }
