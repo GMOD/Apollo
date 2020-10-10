@@ -1188,20 +1188,10 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
-            println "input exon ${exon}"
             Feature feature = Feature.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
-            println "feature type is ${feature.ontologyId}  . . ${feature.cvTerm}"
             Transcript transcript = exonService.getTranscript(exon)
-            println "input transcript ${transcript}"
-
-            println "actual parents ${exon.childFeatureRelationships.size()} and children ${exon.parentFeatureRelationships.size()}"
-            for(def fr in exon.childFeatureRelationships){
-                println "parent ${fr.parentFeature} -> ${fr.parentFeature.ontologyId} -> ${fr.parentFeature.cvTerm}"
-                println "child ${fr.childFeature} -> ${fr.childFeature.ontologyId} -> ${fr.childFeature.cvTerm}"
-            }
 
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
-
 
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
             FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
