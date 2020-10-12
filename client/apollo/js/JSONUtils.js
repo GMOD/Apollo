@@ -9,9 +9,9 @@ define([ 'dojo/_base/declare',
 function JSONUtils() {
 }
 
-JSONUtils.verbose_conversion = true;
+JSONUtils.verbose_conversion = false;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
-JSONUtils.regulatorTypes = [ "TERMINATOR" ,"SHINE_DALGARNO_SEQUENCE"];
+JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
 
 
@@ -542,14 +542,12 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     foundExons = true;
                 }
                 if (converted_subtype)  {
-                    console.log('this type',afeature.type,subtype,converted_subtype);
                     if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
                     if(afeature.type !== converted_subtype){
-                        console.log('types are not the same? so adding sugfeature? ',afeature.type,converted_subtype)
                         afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype , official) );
                     }
                     else{
-                        console.info('ignoring subfeature for exon')
+                        if(diagnose) console.log('ignoring subfeature for exon',subfeat,subtype,converted_subtype)
                     }
                 }
                 else {
@@ -558,7 +556,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         }
         if (cds) {
             afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS",official));
-            console.log('if a cds and type',afeature.type,'should we add an exon')
+            if(diagnose) console.log('if a cds and type',afeature.type,' should we should add an exon if not an exon')
             if (!foundExons && afeature.type.name !== 'exon') {
                 for (var i = 0; i < cdsFeatures.length; ++i) {
                     afeature.children.push(JSONUtils.createApolloFeature(cdsFeatures[i], "exon",official));
