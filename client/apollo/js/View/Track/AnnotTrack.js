@@ -690,8 +690,9 @@ define([
                     new Tooltip({
                         connectId: featDiv,
                         label: label,
-                        position: ["after","before","below","above"],
-                        showDelay: 0
+                        // position: ["after","before","below","above"],
+                        position: ["below","above"],
+                        showDelay:2000
                     });
                 }
 
