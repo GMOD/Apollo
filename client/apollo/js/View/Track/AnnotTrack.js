@@ -839,7 +839,20 @@ define([
                                 var subfeat = ui.originalElement[0].subfeature;
                                 var fmin = subfeat.get('start') + leftDeltaBases;
                                 var fmax = subfeat.get('end') + rightDeltaBases;
-                                var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
+                                var subfeatType = subfeat.get("type");
+                                var operation ;
+                                switch(subfeatType){
+                                    case 'exon':
+                                        operation = 'set_exon_boundaries';
+                                        break;
+                                    case 'Shine_Dalgarno_sequence':
+                                        operation = 'set_shine_dalgarno_boundaries';
+                                        break;
+                                    default:
+                                        operation = 'set_boundaries'
+                                }
+
+                                // var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
                                 var postData = {
                                     "track": track.getUniqueTrackName(),
                                     "features": [
