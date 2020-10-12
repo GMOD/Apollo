@@ -867,7 +867,7 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 
 
 .jbrowse .terminator {
-    position: absolute;
+    /*position: absolute;*/
     height: 16px;
     width: 16px;
     top: -4px;
@@ -883,22 +883,20 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 }
 
 .jbrowse .terminator-render {
-    position: absolute;
+    /*position: absolute;*/
     height: 10px;
-    z-index: 90;
+    /*z-index: 90;*/
     background-color: black;
 }
 
 
-.jbrowse .minus-terminator {
+.jbrowse .minus-terminator,
+.jbrowse .plus-terminator
+{
     height: 10px; !important;
     background-color: transparent;
 }
 
-.jbrowse .plus-terminator {
-    height: 10px; !important;
-    background-color: transparent;
-}
 
 .jbrowse .transposable_element,
 .jbrowse .plus-transposable_element,

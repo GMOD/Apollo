@@ -11,6 +11,7 @@ Bug Fixes
 
 - BLAT search should send annotation creation results to the proper reference sequence [2514](https://github.com/GMOD/Apollo/issues/2514).
 - Properly handle Shine_Dalgarno sequences when added as part of gene model [2515](https://github.com/GMOD/Apollo/issues/2515).
+- Now able to resize terminators by dragging  [2521](https://github.com/GMOD/Apollo/issues/2521).
 
 Infrastructure Changes
 
