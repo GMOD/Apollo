@@ -14,6 +14,7 @@ JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", 
 JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
 
+
 JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
 JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene";
 JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene";
@@ -541,8 +542,13 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     foundExons = true;
                 }
                 if (converted_subtype)  {
-                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype , official) );
                     if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
+                    if(afeature.type !== converted_subtype){
+                        afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype , official) );
+                    }
+                    else{
+                        if(diagnose) console.log('ignoring subfeature for exon',subfeat,subtype,converted_subtype)
+                    }
                 }
                 else {
                     if (diagnose)  { console.log("    edited out subfeature, type: " + subtype); }
@@ -550,7 +556,8 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         }
         if (cds) {
             afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS",official));
-            if (!foundExons) {
+            if(diagnose) console.log('if a cds and type',afeature.type,' should we should add an exon if not an exon')
+            if (!foundExons && afeature.type.name !== 'exon') {
                 for (var i = 0; i < cdsFeatures.length; ++i) {
                     afeature.children.push(JSONUtils.createApolloFeature(cdsFeatures[i], "exon",official));
                 }

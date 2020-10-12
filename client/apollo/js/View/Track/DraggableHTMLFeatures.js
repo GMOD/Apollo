@@ -1409,6 +1409,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "terminator", false);
             })
         }));
+        // Removing, as it is only added as part of a gene model for right now
+        // createAnnotationMenu.addChild(new dijitMenuItem( {
+        //     label: "Shine_Dalgarno_Sequence",
+        //     onClick: dojo.hitch(this, function() {
+        //         atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "Shine_Dalgarno_sequence", false);
+        //     })
+        // }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "transposable element",
             onClick: dojo.hitch(this, function() {

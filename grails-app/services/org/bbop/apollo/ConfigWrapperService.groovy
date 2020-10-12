@@ -15,7 +15,12 @@ class ConfigWrapperService {
     def servletContext
 
     String getWebRootDir(){
-        return servletContext.getRealPath("/")
+        if(servletContext){
+            return servletContext.getRealPath("/")
+        }
+        else{
+            return "./"
+        }
     }
 
     Boolean useCDS() {

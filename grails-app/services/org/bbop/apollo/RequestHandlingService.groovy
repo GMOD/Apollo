@@ -1188,9 +1188,10 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
+            Feature feature = Feature.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
             Transcript transcript = exonService.getTranscript(exon)
-            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
+            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
             FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
@@ -1246,6 +1247,94 @@ class RequestHandlingService {
 
         return returnObject
     }
+
+    /**
+     * TODO: test in interface
+     * @param inputObject
+     * @return
+     */
+    @Timed
+    JSONObject setShineDalgarnoBoundaries(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject locationCommand = features.getJSONObject(i);
+            if (!locationCommand.has(FeatureStringEnum.LOCATION.value)) {
+                continue;
+            }
+            JSONObject jsonLocation = locationCommand.getJSONObject(FeatureStringEnum.LOCATION.value);
+            int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
+            int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
+            if (fmin < 0 || fmax < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+            ShineDalgarnoSequence shineDalgarnoSequence = ShineDalgarnoSequence.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
+            Feature feature = Feature.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
+//            Transcript transcript = exonService.getTranscript(shineDalgarnoSequence)
+            MRNA transcript = (MRNA ) featureRelationshipService.getParentForFeature(shineDalgarnoSequence,MRNA.ontologyId)
+
+            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
+
+            FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+            FeatureLocation featureLocation = FeatureLocation.findByFeature(shineDalgarnoSequence)
+            if (transcriptFeatureLocation.fmin == featureLocation.fmin) {
+                transcriptFeatureLocation.fmin = fmin
+            }
+            if (transcriptFeatureLocation.fmax == featureLocation.fmax) {
+                transcriptFeatureLocation.fmax = fmax
+            }
+
+            featureLocation.fmin = fmin
+            featureLocation.fmax = fmax
+//            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            transcriptService.updateGeneBoundaries(transcript)
+            featureService.addOwnersByString(inputObject.username, transcript, shineDalgarnoSequence)
+
+            shineDalgarnoSequence.save()
+
+//            featureService.calculateCDS(transcript)
+//            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+
+            transcript.save()
+//            def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
+//            if (transcriptsToUpdate.size() > 0) {
+//                JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
+//                transcriptsToUpdate.each {
+//                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+//                }
+//                if (sequence) {
+//                    AnnotationEvent annotationEvent = new AnnotationEvent(
+//                        features: updateFeatureContainer,
+//                        sequence: sequence,
+//                        operation: AnnotationEvent.Operation.UPDATE
+//                    )
+//                    fireAnnotationEvent(annotationEvent)
+//                }
+//            }
+
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldTranscriptJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
+
+        }
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+            features: returnObject
+            , sequence: sequence
+            , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+
+        return returnObject
+    }
+
+
 
     @Timed
     JSONObject setBoundaries(JSONObject inputObject) {
@@ -2589,7 +2678,7 @@ class RequestHandlingService {
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
             } else if (originalType in FeatureService.SINGLETON_FEATURE_TYPES && type in FeatureService.RNA_FEATURE_TYPES) {
-                log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
