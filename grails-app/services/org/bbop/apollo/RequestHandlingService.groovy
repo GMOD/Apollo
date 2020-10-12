@@ -1275,7 +1275,7 @@ class RequestHandlingService {
             ShineDalgarnoSequence shineDalgarnoSequence = ShineDalgarnoSequence.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
             Feature feature = Feature.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
 //            Transcript transcript = exonService.getTranscript(shineDalgarnoSequence)
-            MRNA transcript = (MRNA ) featureRelationshipService.getParentForFeature(shineDalgarnoSequence,[MRNA.ontologyId])
+            MRNA transcript = (MRNA ) featureRelationshipService.getParentForFeature(shineDalgarnoSequence,MRNA.ontologyId)
 
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
