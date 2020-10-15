@@ -81,8 +81,9 @@ class VcfController {
             log.error(e.stackTrace)
         }
 
-        trackService.cacheRequest(featuresArray.toString(), organismString, trackName, sequence, fmin, fmax, type, null)
-        render featuresArray as JSON
+        String featureArrayString = featuresArray.toString()
+        trackService.cacheRequest(featuresArrayString, organismString, trackName, sequence, fmin, fmax, type, null)
+        render JSON.parse(featuresArrayString) as JSON
     }
 
 }
