@@ -81,8 +81,13 @@ class VcfController {
             log.error(e.stackTrace)
         }
 
+        // returning from the cache is more consistent.
         trackService.cacheRequest(featuresArray.toString(), organismString, trackName, sequence, fmin, fmax, type, null)
-        render featuresArray as JSON
-    }
+        String responseString = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, type, null)
+        if (responseString) {
+            render JSON.parse(responseString) as JSON
+            return
+        }
+        render new JSONObject() as JSON    }
 
 }
