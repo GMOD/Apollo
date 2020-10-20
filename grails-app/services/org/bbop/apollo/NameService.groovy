@@ -67,21 +67,11 @@ class NameService {
 
 
     boolean isUniqueGene(Organism organism,String name){
-        Integer numberResults = Gene.findAllByName(name).findAll(){
-            it.featureLocation.sequence.organism == organism
-        }.size()
-        return 0 == numberResults
+        return 0 == Gene.executeQuery("select count(g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o = ${organism.id} and g.name = '${name}' ").first() as Integer
     }
 
     boolean isUnique(Organism organism,String name){
-//        if(Feature.countByName(name)==0) {
-//            return true
-//        }
-//        List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name = :name ",[org:organism,name:name]))
-        Integer numberResults = Feature.findAllByName(name).findAll(){
-            it.featureLocation.sequence.organism == organism
-        }.size()
-        return 0 == numberResults
+        return 0 ==  Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name = :name ",[org:organism,name:name]).first() as Integer
     }
 
     String makeUniqueTranscriptName(Organism organism,String principalName){
