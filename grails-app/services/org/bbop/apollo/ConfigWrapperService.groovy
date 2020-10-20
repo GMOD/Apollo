@@ -15,7 +15,7 @@ class ConfigWrapperService {
     def servletContext
 
     String getWebRootDir(){
-        if(servletContext){
+        if(servletContext!=null){
             return servletContext.getRealPath("/")
         }
         else{
