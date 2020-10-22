@@ -13,8 +13,10 @@ have sample settings for various database engines.
 
 The server will minimally need to have Java 8 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
 [ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An
-external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
-also provided.
+external database such as PostgreSQL (9 or 10 preferred) is generally used for production, but instructions for MySQL 
+or the H2 Java database (which may also be run embedded) are also provided.
+
+To build the system natively JDK8 is required (typically OpenJDK8).  To run the war, Java 8 or greater should be fine. 
 
 **Important note**:  The default memory for Tomcat and Jetty is insufficient to run Apollo (and most other web apps).   
 You should [increase the memory according to these instructions](Troubleshooting.md#tomcat-memory).
