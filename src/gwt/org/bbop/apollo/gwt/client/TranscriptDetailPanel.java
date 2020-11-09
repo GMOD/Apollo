@@ -329,6 +329,10 @@ public class TranscriptDetailPanel extends Composite {
 
     private void checkSyncButton(){
         AnnotationInfo geneAnnotation = MainPanel.annotatorPanel.getCurrentGene();
+        if(geneAnnotation==null){
+            GWT.log("Please select gene to synchronize name");
+            return ;
+        }
         Set<AnnotationInfo> childAnnotations = geneAnnotation.getChildAnnotations();
         if(childAnnotations.size()==1){
             syncNameButton.setEnabled(!this.internalAnnotationInfo.getName().equals(geneAnnotation.getName()));

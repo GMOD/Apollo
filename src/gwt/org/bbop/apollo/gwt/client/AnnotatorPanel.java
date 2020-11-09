@@ -79,7 +79,7 @@ public class AnnotatorPanel extends Composite {
     String selectedChildUniqueName ;
 
     private static int selectedSubTabIndex = 0;
-    private static int pageSize = 25;
+    private static int pageSize = 50;
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
@@ -1241,5 +1241,15 @@ public class AnnotatorPanel extends Composite {
 
     public void setSelectedChildUniqueName(String selectedChildUniqueName) {
         this.selectedChildUniqueName = selectedChildUniqueName;
+    }
+
+    public void setSelectedGene(String parentName) {
+        List<AnnotationInfo> annotationInfoList = dataGrid.getVisibleItems();
+        for(AnnotationInfo annotationInfo : annotationInfoList){
+            if(annotationInfo.getUniqueName().equals(parentName)){
+                geneDetailPanel.updateData(annotationInfo);
+                return ;
+            }
+        }
     }
 }
