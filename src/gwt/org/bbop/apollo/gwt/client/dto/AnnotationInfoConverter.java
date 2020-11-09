@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
@@ -18,18 +19,19 @@ public class AnnotationInfoConverter {
         List<AnnotationInfo> annotationInfoList = new ArrayList<>();
 
         for(int i = 0 ; i < array.size() ;i++){
-            annotationInfoList.add(convertFromJsonArray(array.get(i).isObject()));
+            annotationInfoList.add(convertFromJsonObject(array.get(i).isObject()));
         }
 
         return annotationInfoList ;
     }
 
-    public static AnnotationInfo convertFromJsonArray(JSONObject object) {
-        return convertFromJsonArray(object, true);
+    public static AnnotationInfo convertFromJsonObject(JSONObject object) {
+        return convertFromJsonObject(object, true);
     }
 
-    private static AnnotationInfo convertFromJsonArray(JSONObject object, boolean processChildren) {
+    public static AnnotationInfo convertFromJsonObject(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
+        GWT.log(object.toString());
         annotationInfo.setName(object.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
         annotationInfo.setType(object.get(FeatureStringEnum.TYPE.getValue()).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
         if (object.get(FeatureStringEnum.SYMBOL.getValue()) != null) {
@@ -99,7 +101,7 @@ public class AnnotationInfoConverter {
         if (processChildren && object.get(FeatureStringEnum.CHILDREN.getValue()) != null) {
             JSONArray jsonArray = object.get(FeatureStringEnum.CHILDREN.getValue()).isArray();
             for (int i = 0; i < jsonArray.size(); i++) {
-                AnnotationInfo childAnnotation = convertFromJsonArray(jsonArray.get(i).isObject(), true);
+                AnnotationInfo childAnnotation = convertFromJsonObject(jsonArray.get(i).isObject(), true);
                 annotationInfo.addChildAnnotation(childAnnotation);
             }
         }
