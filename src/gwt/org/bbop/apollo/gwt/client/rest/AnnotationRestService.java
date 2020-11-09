@@ -152,13 +152,7 @@ public class AnnotationRestService extends RestService {
     String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?searchUniqueName=true&annotationName="+uniqueName;
     long requestIndex = AnnotatorPanel.getNextRequestIndex();
     url += "&request="+requestIndex;
-//    url += "&statusString=''";
-//    url += "&offset=" + 0 + "&max=" + 50;
-//    url += "&type=";
-//    url += "&user=";
     url += "&statusString=" ;
-//    url += "&clientToken=" + Annotator.getClientToken();
-//    url += "&showOnlyGoAnnotations=false" ;
     sendRequest(requestCallback, url);
 
   }
