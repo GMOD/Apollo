@@ -1100,6 +1100,7 @@ public class MainPanel extends Composite {
             if(parentName.endsWith("-clone")){
                 parentName = parentName.substring(0,parentName.length()-6);
             }
+            annotatorPanel.setSelectedGene(parentName);
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.uniqueNameCheckBox.setValue(true);

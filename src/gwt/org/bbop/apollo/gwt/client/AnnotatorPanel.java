@@ -40,6 +40,7 @@ import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -75,11 +76,11 @@ public class AnnotatorPanel extends Composite {
     private Column<AnnotationInfo, Number> lengthColumn;
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
-    private long requestIndex = 0;
+    private static long requestIndex = 0;
     String selectedChildUniqueName ;
 
     private static int selectedSubTabIndex = 0;
-    private static int pageSize = 25;
+    private static int pageSize = 50;
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
@@ -1241,5 +1242,43 @@ public class AnnotatorPanel extends Composite {
 
     public void setSelectedChildUniqueName(String selectedChildUniqueName) {
         this.selectedChildUniqueName = selectedChildUniqueName;
+    }
+
+    public void setSelectedGene(String parentName) {
+        List<AnnotationInfo> annotationInfoList = dataGrid.getVisibleItems();
+        // 1. let's look locally and see if its already loaded
+        for(AnnotationInfo annotationInfo : annotationInfoList){
+            if(annotationInfo.getUniqueName().equals(parentName)){
+                geneDetailPanel.updateData(annotationInfo);
+                return ;
+            }
+        }
+        // 2. not found within the default page, so we'll check the server
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnValue = null;
+                try {
+                    returnValue = JSONParser.parseStrict(response.getText()).isObject();
+                    JSONArray jsonArray = returnValue.get(FeatureStringEnum.FEATURES.getValue()).isArray();
+                    if(jsonArray.size()==1){
+                        AnnotationInfo annotationInfo = AnnotationInfoConverter.convertFromJsonObject(jsonArray.get(0).isObject(),true);
+                        geneDetailPanel.updateData(annotationInfo);
+                    }
+                } catch (Exception e) {
+                    Bootbox.alert(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        AnnotationRestService.findAnnotationByUniqueName(requestCallback,parentName);
+    }
+
+    public static long getNextRequestIndex(){
+        return requestIndex++ ;
     }
 }

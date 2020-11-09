@@ -1,16 +1,18 @@
 package org.bbop.apollo.gwt.client.rest;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.*;
+import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.AnnotatorPanel;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.Set;
 
@@ -18,6 +20,7 @@ import java.util.Set;
  * Created by ndunn on 1/28/15.
  */
 public class AnnotationRestService extends RestService {
+
 
     public static JSONObject convertAnnotationInfoToJSONObject(AnnotationInfo annotationInfo) {
         JSONObject jsonObject = new JSONObject();
@@ -142,4 +145,15 @@ public class AnnotationRestService extends RestService {
         sendRequest(requestCallback, "annotationEditor/deleteVariantEffectsForSequences", "data=" + jsonObject.toString());
         return jsonObject;
     }
+
+
+  public static void findAnnotationByUniqueName(RequestCallback requestCallback,String uniqueName){
+
+    String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?searchUniqueName=true&annotationName="+uniqueName;
+    long requestIndex = AnnotatorPanel.getNextRequestIndex();
+    url += "&request="+requestIndex;
+    url += "&statusString=" ;
+    sendRequest(requestCallback, url);
+
+  }
 }
