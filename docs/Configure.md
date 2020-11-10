@@ -321,6 +321,19 @@ the following "higher level" types (from the Sequence Ontology):
 * sequence:repeat_region
 * sequence:transposable_element
 
+### Modify CORS
+
+We are using the [grails-cors plugin](https://github.com/davidtinker/grails-cors).   To configure it specifically or turn it off override the options:
+
+```
+cors.url.pattern = '*'
+cors.enable.logging = true
+cors.enabled = true
+cors.headers = ['Access-Control-Allow-Origin': '*']
+```
+
+
+
 ### Set the default biotype for dragging up evidence
 
 By default dragged up evidence is treated as `mRNA`. However, you can specify the default biotype within `trackList.json` in order to specify default types for tracks.

@@ -196,6 +196,14 @@ grails.gorm.failOnError = true
 grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
+// start CORS
+cors.url.pattern = '*'
+cors.enable.logging = true
+cors.enabled = true
+cors.headers = ['Access-Control-Allow-Origin': '*']
+// end CORS
+
+
 // default apollo settings
 apollo {
     default_minimum_intron_size = 1

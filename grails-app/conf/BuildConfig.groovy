@@ -144,6 +144,8 @@ grails.project.dependency.resolution = {
         runtime ":database-migration:1.4.1"
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
+        runtime "org.grails.plugins:cors:1.1.8"
+
 
         // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
         runtime ':twitter-bootstrap:3.3.5'
