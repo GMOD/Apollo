@@ -96,7 +96,8 @@
         <li>JVM version: ${System.getProperty('java.version')}</li>
         <li>Servlet Container Version: ${application.getServerInfo()}</li>
         <li>JBrowse config: ${grailsApplication.config.jbrowse.git.branch ? grailsApplication.config.jbrowse.git.branch : grailsApplication.config.jbrowse.git.tag}</li>
-        <li>JBrowse url: ${grailsApplication.config.jbrowse.git.url}</li>
+        <li>JBrowse url: <a href="${grailsApplication.config.jbrowse.git.url}">${grailsApplication.config.jbrowse.git.url}</a></li>
+        <li><a href="../WebServices">Web Services</a></li>
     </ul>
 
     <h3>JBrowse Plugins</h3>
