@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
@@ -20,6 +21,7 @@ import org.restapidoc.pojo.RestApiVerb
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
+@RestApi(name = "Gene Product", description = "Methods for managing gene product annotaitons")
 @Transactional(readOnly = true)
 class GeneProductController {
 
