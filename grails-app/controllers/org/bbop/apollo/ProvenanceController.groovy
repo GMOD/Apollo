@@ -6,6 +6,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
@@ -14,6 +15,7 @@ import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
+@RestApi(name = "Provenance Annotation", description = "Methods for managing provenance annotations")
 @Transactional(readOnly = true)
 class ProvenanceController {
 
