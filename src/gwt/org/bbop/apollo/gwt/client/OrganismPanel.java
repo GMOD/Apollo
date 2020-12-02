@@ -39,6 +39,7 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -303,10 +304,21 @@ public class OrganismPanel extends Composite {
             return ;
         }
         for (OrganismInfo organismInfo : organismInfoList) {
-            if (organismInfo.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredOrganismInfoList.add(organismInfo);
+          String searchText = text.toLowerCase(Locale.ROOT);
+              if(organismInfo.getGenus()!=null && organismInfo.getSpecies()!=null){
+                if (organismInfo.getGenus().toLowerCase().contains(searchText)
+                  || organismInfo.getSpecies().toLowerCase(Locale.ROOT).contains(searchText)
+                  || organismInfo.getName().toLowerCase(Locale.ROOT).contains(searchText)
+                ) {
+                  filteredOrganismInfoList.add(organismInfo);
+                }
+              }
+              else{
+                if (organismInfo.getName().toLowerCase().contains(searchText)) {
+                  filteredOrganismInfoList.add(organismInfo);
+                }
+              }
             }
-        }
     }
 
     public void loadOrganismInfo() {
