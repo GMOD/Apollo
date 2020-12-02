@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.OrganismComparator;
 import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
@@ -38,6 +39,7 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -181,10 +183,14 @@ public class OrganismPanel extends Composite {
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo organism) {
+                String display = organism.getName();
                 if (organism.getObsolete()) {
-                    return "(obs) " + organism.getName();
+                    display = "(obs) " + display;
                 }
-                return organism.getName();
+                if(organism.getGenus()!=null && organism.getSpecies()!=null){
+                  display = organism.getGenus() + " " + organism.getSpecies() +  " ("+display  +")";
+                }
+                return display ;
             }
         };
         Column<OrganismInfo, Number> annotationsNameColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
@@ -262,12 +268,12 @@ public class OrganismPanel extends Composite {
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(organismInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
-            @Override
-            public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        sortHandler.setComparator(organismNameColumn, new OrganismComparator());
+//            @Override
+//            public int compare(OrganismInfo o1, OrganismInfo o2) {
+//                return o1.getName().compareTo(o2.getName());
+//            }
+//        });
         sortHandler.setComparator(annotationsNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
@@ -298,10 +304,21 @@ public class OrganismPanel extends Composite {
             return ;
         }
         for (OrganismInfo organismInfo : organismInfoList) {
-            if (organismInfo.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredOrganismInfoList.add(organismInfo);
+          String searchText = text.toLowerCase(Locale.ROOT);
+              if(organismInfo.getGenus()!=null && organismInfo.getSpecies()!=null){
+                if (organismInfo.getGenus().toLowerCase().contains(searchText)
+                  || organismInfo.getSpecies().toLowerCase(Locale.ROOT).contains(searchText)
+                  || organismInfo.getName().toLowerCase(Locale.ROOT).contains(searchText)
+                ) {
+                  filteredOrganismInfoList.add(organismInfo);
+                }
+              }
+              else{
+                if (organismInfo.getName().toLowerCase().contains(searchText)) {
+                  filteredOrganismInfoList.add(organismInfo);
+                }
+              }
             }
-        }
     }
 
     public void loadOrganismInfo() {
@@ -313,11 +330,8 @@ public class OrganismPanel extends Composite {
             setNoSelection();
             return;
         }
-
         setTextEnabled(organismInfo.isEditable());
-
-        GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
-        Boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
+        boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
 
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(isEditable);

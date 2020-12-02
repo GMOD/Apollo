@@ -3,12 +3,15 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.OptionElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -24,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.rest.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
+import org.bbop.apollo.gwt.shared.OrganismComparator;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
@@ -34,9 +38,7 @@ import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -657,6 +659,16 @@ public class MainPanel extends Composite {
         }
     }
 
+    private String capitalize(String input){
+      return input.substring(0,1).toUpperCase(Locale.ROOT) + input.substring(1).toLowerCase(Locale.ROOT);
+    }
+
+    private String createSpace(int length){
+      StringBuffer buffer = new StringBuffer();
+      for(int i = 0 ; i < length ; i++) { buffer.append("&nbsp;");}
+      return buffer.toString();
+    }
+
     public void setAppState(AppStateInfo appStateInfo) {
         trackPanel.clear();
 
@@ -673,6 +685,8 @@ public class MainPanel extends Composite {
             organismInfoList = appStateInfo.getOrganismList();
         }
 
+        Collections.sort(organismInfoList, new OrganismComparator() );
+
         commonDataDirectory = appStateInfo.getCommonDataDirectory();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
@@ -681,8 +695,20 @@ public class MainPanel extends Composite {
 
         organismListBox.clear();
         for (OrganismInfo organismInfo : organismInfoList) {
-            organismListBox.addItem(organismInfo.getName(), organismInfo.getId());
-            if (currentOrganism.getId().equals(organismInfo.getId())) {
+//           Element listElement = organismListBox.getElement();
+          String display = organismInfo.getName();
+            if(organismInfo.getGenus()!=null && organismInfo.getSpecies()!=null) {
+//              display = "<i>"+capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies()+ "</i> (" + display + ")";
+              display = capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies()+ " (" + display + ")";
+            }
+
+            // allows an html option
+//          OptionElement optionElement = Document.get().createOptionElement();
+//          optionElement.setInnerSafeHtml(SafeHtmlUtils.fromTrustedString(display));
+//          optionElement.setValue(organismInfo.getId());
+            organismListBox.addItem(display, organismInfo.getId());
+//          listElement.appendChild(optionElement);
+          if (currentOrganism.getId().equals(organismInfo.getId())) {
                 organismListBox.setSelectedIndex(organismListBox.getItemCount() - 1);
 
                 // fixes #2319

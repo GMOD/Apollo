@@ -100,7 +100,7 @@
                 </gwt:FormPanel>
                 <b:Row addStyleNames="{style.searchRow}">
                     <b:Column size="MD_4">
-                        <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
+                        <b:TextBox placeholder="Search common name" ui:field="nameSearchBox"/>
                     </b:Column>
                     <b:Column size="MD_4">
                         <b:ButtonGroup dataToggle="BUTTONS">
