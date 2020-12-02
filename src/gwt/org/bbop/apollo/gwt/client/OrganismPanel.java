@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.OrganismComparator;
 import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
@@ -181,10 +182,14 @@ public class OrganismPanel extends Composite {
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo organism) {
+                String display = organism.getName();
                 if (organism.getObsolete()) {
-                    return "(obs) " + organism.getName();
+                    display = "(obs) " + display;
                 }
-                return organism.getName();
+                if(organism.getGenus()!=null && organism.getSpecies()!=null){
+                  display = display + " ("+organism.getGenus() + " " + organism.getSpecies() +")";
+                }
+                return display ;
             }
         };
         Column<OrganismInfo, Number> annotationsNameColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
@@ -262,12 +267,12 @@ public class OrganismPanel extends Composite {
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(organismInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
-            @Override
-            public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        sortHandler.setComparator(organismNameColumn, new OrganismComparator());
+//            @Override
+//            public int compare(OrganismInfo o1, OrganismInfo o2) {
+//                return o1.getName().compareTo(o2.getName());
+//            }
+//        });
         sortHandler.setComparator(annotationsNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
