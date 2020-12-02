@@ -188,7 +188,7 @@ public class OrganismPanel extends Composite {
                     display = "(obs) " + display;
                 }
                 if(organism.getGenus()!=null && organism.getSpecies()!=null){
-                  display = display + " ("+organism.getGenus() + " " + organism.getSpecies() +")";
+                  display = organism.getGenus() + " " + organism.getSpecies() +  " ("+display  +")";
                 }
                 return display ;
             }
