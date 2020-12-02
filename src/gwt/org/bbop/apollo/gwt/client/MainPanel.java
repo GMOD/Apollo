@@ -694,30 +694,20 @@ public class MainPanel extends Composite {
         currentEndBp = appStateInfo.getCurrentEndBp();
 
         organismListBox.clear();
-//        String previousGenus = null ;
-//        String previousSpecies = null ;
-//        String previousName = null ;
         for (OrganismInfo organismInfo : organismInfoList) {
-           Element listElement = organismListBox.getElement();
+//           Element listElement = organismListBox.getElement();
           String display = organismInfo.getName();
             if(organismInfo.getGenus()!=null && organismInfo.getSpecies()!=null) {
-//              String genusDisplay = organismInfo.getGenus().equalsIgnoreCase(previousGenus) ? "• " +createSpace(previousGenus.length()-2) : organismInfo.getGenus();
-//              String speciesDisplay = organismInfo.getSpecies().equalsIgnoreCase(previousSpecies) ? " — " + createSpace(previousSpecies.length()-3) : organismInfo.getSpecies();
-              display = "<i>"+capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies()+ "</i> (" + display + ")";
+//              display = "<i>"+capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies()+ "</i> (" + display + ")";
+              display = capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies()+ " (" + display + ")";
             }
-//            else{
-//              display = capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies() + " ("+display+")";
-//            }
 
-//            previousGenus = organismInfo.getGenus();
-//            previousSpecies = organismInfo.getSpecies();
-
-          OptionElement optionElement = Document.get().createOptionElement();
-          optionElement.setInnerSafeHtml(SafeHtmlUtils.fromTrustedString(display));
-          optionElement.setValue(organismInfo.getId());
-
-//            organismListBox.addItem(display, organismInfo.getId());
-          listElement.appendChild(optionElement);
+            // allows an html option
+//          OptionElement optionElement = Document.get().createOptionElement();
+//          optionElement.setInnerSafeHtml(SafeHtmlUtils.fromTrustedString(display));
+//          optionElement.setValue(organismInfo.getId());
+            organismListBox.addItem(display, organismInfo.getId());
+//          listElement.appendChild(optionElement);
           if (currentOrganism.getId().equals(organismInfo.getId())) {
                 organismListBox.setSelectedIndex(organismListBox.getItemCount() - 1);
 
