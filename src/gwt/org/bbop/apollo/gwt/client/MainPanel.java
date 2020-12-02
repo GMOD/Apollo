@@ -36,6 +36,7 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -657,6 +658,10 @@ public class MainPanel extends Composite {
         }
     }
 
+    private String capitalize(String input){
+      return input.substring(0,1).toUpperCase(Locale.ROOT) + input.substring(1).toLowerCase(Locale.ROOT);
+    }
+
     public void setAppState(AppStateInfo appStateInfo) {
         trackPanel.clear();
 
@@ -681,7 +686,12 @@ public class MainPanel extends Composite {
 
         organismListBox.clear();
         for (OrganismInfo organismInfo : organismInfoList) {
-            organismListBox.addItem(organismInfo.getName(), organismInfo.getId());
+            String display = organismInfo.getName();
+            if(organismInfo.getGenus()!=null && organismInfo.getSpecies()!=null){
+              display = capitalize(organismInfo.getGenus()) + " " + organismInfo.getSpecies() + " ("+display+")";
+            }
+
+            organismListBox.addItem(display, organismInfo.getId());
             if (currentOrganism.getId().equals(organismInfo.getId())) {
                 organismListBox.setSelectedIndex(organismListBox.getItemCount() - 1);
 
