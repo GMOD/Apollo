@@ -330,11 +330,8 @@ public class OrganismPanel extends Composite {
             setNoSelection();
             return;
         }
-
         setTextEnabled(organismInfo.isEditable());
-
-        GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
-        Boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
+        boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
 
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(isEditable);
