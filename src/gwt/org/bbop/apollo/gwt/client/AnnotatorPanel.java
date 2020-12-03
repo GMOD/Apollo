@@ -155,6 +155,8 @@ public class AnnotatorPanel extends Composite {
   static DockLayoutPanel annotatorDetailPanel;
   @UiField
   static Hyperlink closeDetailsButton;
+  @UiField
+  static Hyperlink annotationLinkButton;
 
 
   // manage UI-state
@@ -523,7 +525,8 @@ public class AnnotatorPanel extends Composite {
     }
 
   private static void closeAnnotatorDetailsPanels() {
-      closeDetailsButton.setVisible(false);
+    closeDetailsButton.setVisible(false);
+    annotationLinkButton.setVisible(false);
     annotationDescription.setHTML("No annotation selected");
     splitPanel.setWidgetSize(annotatorDetailPanel,20);
     splitPanel.animate(200);
@@ -531,6 +534,7 @@ public class AnnotatorPanel extends Composite {
 
   private static void openAnnotatorDetailsPanel() {
     closeDetailsButton.setVisible(true);
+    annotationLinkButton.setVisible(true);
     splitPanel.setWidgetSize(annotatorDetailPanel,460);
     splitPanel.animate(200);
   }
@@ -1028,6 +1032,13 @@ public class AnnotatorPanel extends Composite {
     public void updateStatus(ChangeEvent changeEvent){
         reload();
     }
+
+  @UiHandler(value = {"annotationLinkButton"})
+  public void showAnnotationLink(ClickEvent clickEvent){
+    String url = MainPanel.getInstance().generateApolloUrl(selectedAnnotationInfo.getUniqueName());
+    String link = "<a href='"+url+"'>"+url+"</a>";
+    new LinkDialog("List to this annotation",link,true);
+  }
 
   @UiHandler(value = {"closeDetailsButton"})
   public void closeDetails(ClickEvent clickEvent){

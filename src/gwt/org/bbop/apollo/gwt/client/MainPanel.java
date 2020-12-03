@@ -950,12 +950,21 @@ public class MainPanel extends Composite {
     }
 
     public String generateApolloUrl() {
+        return generateApolloUrl(null);
+    }
+
+    public String generateApolloUrl(String uuid) {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
-        if (currentStartBp != null) {
+        if(uuid==null){
+          if (currentStartBp != null) {
             url += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
-        } else {
+          } else {
             url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+          }
+        }
+        else{
+          url += "?uuid="+uuid;
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";

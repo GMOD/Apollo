@@ -187,8 +187,11 @@
                 <gwt:north size="20">
                   <b:Container fluid="true" width="100%">
                     <b:Row>
-                      <b:Column size="MD_10">
+                      <b:Column size="MD_6">
                       <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="true" styleName="{style.annotationDescription}"/>
+                      </b:Column>
+                      <b:Column size="MD_4">
+                        <gwt:Hyperlink visible="false" ui:field="annotationLinkButton" addStyleNames="{style.closeButton}" text="Link to annotation" title="Link to the annotation"/>
                       </b:Column>
                       <b:Column size="MD_1">
                         <gwt:Hyperlink visible="false" ui:field="closeDetailsButton" addStyleNames="{style.closeButton}" text="Close(x)" title="Close panel"/>
