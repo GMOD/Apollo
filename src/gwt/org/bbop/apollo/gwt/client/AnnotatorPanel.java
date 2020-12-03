@@ -151,7 +151,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static HTML annotationDescription;
   @UiField
-  static SplitLayoutPanel annotatorDetailPanel;
+  static DockLayoutPanel annotatorDetailPanel;
 
 
   // manage UI-state

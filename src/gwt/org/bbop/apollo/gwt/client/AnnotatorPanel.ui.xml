@@ -100,7 +100,7 @@
             border-bottom: solid 2px gray;
         }
     </ui:style>
-    <gwt:DockLayoutPanel ui:field="splitPanel">
+    <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="140">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row>
@@ -167,7 +167,7 @@
             </gwt:DockLayoutPanel>
         </gwt:center>
         <gwt:south size="450">
-            <gwt:SplitLayoutPanel ui:field="annotatorDetailPanel">
+            <gwt:DockLayoutPanel ui:field="annotatorDetailPanel">
                 <gwt:north size="20">
                     <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="true" styleName="{style.annotationDescription}"/>
                 </gwt:north>
@@ -226,7 +226,7 @@
                         </gwt:tab>
                     </gwt:TabLayoutPanel>
                 </gwt:center>
-            </gwt:SplitLayoutPanel>
+            </gwt:DockLayoutPanel>
         </gwt:south>
-    </gwt:DockLayoutPanel>
+    </gwt:SplitLayoutPanel>
 </ui:UiBinder>
