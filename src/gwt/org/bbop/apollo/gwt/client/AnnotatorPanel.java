@@ -121,7 +121,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ListBox userField;
     @UiField
-    DockLayoutPanel splitPanel;
+    static DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
     @UiField
@@ -150,9 +150,11 @@ public class AnnotatorPanel extends Composite {
     ListBox statusField;
     @UiField
     static HTML annotationDescription;
+  @UiField
+  static DockLayoutPanel annotatorDetailPanel;
 
 
-    // manage UI-state
+  // manage UI-state
     private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
@@ -521,7 +523,19 @@ public class AnnotatorPanel extends Composite {
         return geneDetailPanel.getInternalAnnotationInfo();
     }
 
-    void selectTranscriptPanel() {
+  private static void closeAnnotatorDetailsPanels() {
+    annotationDescription.setHTML("No annotation selected");
+    splitPanel.setWidgetSize(annotatorDetailPanel,20);
+    splitPanel.animate(200);
+  }
+
+  private static void openAnnotatorDetailsPanel() {
+    splitPanel.setWidgetSize(annotatorDetailPanel,460);
+    splitPanel.animate(200);
+  }
+
+
+  void selectTranscriptPanel() {
         AnnotationInfo selectedObject = singleSelectionModel.getSelectedObject();
         updateAnnotationInfo(selectedObject);
         tabPanel.selectTab(0);
@@ -635,11 +649,11 @@ public class AnnotatorPanel extends Composite {
         }
 
         if (annotationInfo == null) {
-            annotationDescription.setHTML("nothing selected");
+            annotationDescription.setHTML("Nothing selected");
             return;
         }
         String type = annotationInfo.getType();
-        hideDetailPanels();
+//        hideDetailPanels();
         switch (type) {
             case "gene":
             case "pseudogene":
@@ -784,12 +798,12 @@ public class AnnotatorPanel extends Composite {
 
     private static void setAnnotationDescription(AnnotationInfo annotationInfo) {
         if(annotationInfo!=null){
-            annotationDescription.setVisible(true);
             annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;<b>"+annotationInfo.getType()  + "</b>:  " + annotationInfo.getName() +"");
+          openAnnotatorDetailsPanel();
         }
         else{
-            annotationDescription.setVisible(false);
-            annotationDescription.setHTML("");
+            annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;No annotation selected");
+          closeAnnotatorDetailsPanels();
         }
     }
 
@@ -988,7 +1002,7 @@ public class AnnotatorPanel extends Composite {
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             setAnnotationDescription(null);
-            hideDetailPanels();
+//            hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         }
