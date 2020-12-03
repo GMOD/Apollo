@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -152,14 +153,12 @@ public class AnnotatorPanel extends Composite {
     static HTML annotationDescription;
   @UiField
   static DockLayoutPanel annotatorDetailPanel;
+  @UiField
+  static Hyperlink closeDetailsButton;
 
 
   // manage UI-state
-    private Boolean showDetails = true;
-
     static AnnotationInfo selectedAnnotationInfo;
-
-
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
@@ -524,12 +523,14 @@ public class AnnotatorPanel extends Composite {
     }
 
   private static void closeAnnotatorDetailsPanels() {
+      closeDetailsButton.setVisible(false);
     annotationDescription.setHTML("No annotation selected");
     splitPanel.setWidgetSize(annotatorDetailPanel,20);
     splitPanel.animate(200);
   }
 
   private static void openAnnotatorDetailsPanel() {
+    closeDetailsButton.setVisible(true);
     splitPanel.setWidgetSize(annotatorDetailPanel,460);
     splitPanel.animate(200);
   }
@@ -954,7 +955,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
-                tabPanel.setVisible(showDetails && selectedAnnotationInfo != null);
+                tabPanel.setVisible(selectedAnnotationInfo != null);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
@@ -1028,7 +1029,12 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"pageSizeSelector"})
+  @UiHandler(value = {"closeDetailsButton"})
+  public void closeDetails(ClickEvent clickEvent){
+    closeAnnotatorDetailsPanels();
+  }
+
+  @UiHandler(value = {"pageSizeSelector"})
     public void changePageSize(ChangeEvent changeEvent) {
         pageSize = Integer.parseInt(pageSizeSelector.getSelectedValue());
         dataGrid.setPageSize(pageSize);
@@ -1071,7 +1077,7 @@ public class AnnotatorPanel extends Composite {
 
 
     private void handleDetails() {
-        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject() != null);
+        tabPanel.setVisible(singleSelectionModel.getSelectedObject() != null);
     }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {

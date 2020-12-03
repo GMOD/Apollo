@@ -89,6 +89,14 @@
             margin-bottom: 5px !important;
         }
 
+        .closeButton{
+          display: inline;
+          /*margin-left: 20px;*/
+          /*padding-bottom: 15px;*/
+          /*margin-top: 5px !important;*/
+          /*margin-bottom: 5px !important;*/
+        }
+
         .pageSizeSelector {
             display: inline;
             width: 40px;
@@ -96,8 +104,16 @@
         }
 
         .annotationDescription {
-            border-top: solid 2px gray;
-            border-bottom: solid 2px gray;
+            /*border-top: solid 2px gray;*/
+            /*border-bottom: solid 2px gray;*/
+            display: inline;
+          /*width: 80%;*/
+          /*padding-left: 10px;*/
+          /*padding-right: 10px;*/
+          /*margin-left: 10px;*/
+          /*margin-right: 10px;*/
+          /*margin: 10px;*/
+          margin-top: 5px;
         }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
@@ -169,7 +185,16 @@
         <gwt:south size="450">
             <gwt:DockLayoutPanel ui:field="annotatorDetailPanel">
                 <gwt:north size="20">
-                    <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="true" styleName="{style.annotationDescription}"/>
+                  <b:Container fluid="true" width="100%">
+                    <b:Row>
+                      <b:Column size="MD_10">
+                      <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="true" styleName="{style.annotationDescription}"/>
+                      </b:Column>
+                      <b:Column size="MD_1">
+                        <gwt:Hyperlink visible="false" ui:field="closeDetailsButton" addStyleNames="{style.closeButton}" text="Close(x)" title="Close panel"/>
+                      </b:Column>
+                    </b:Row>
+                  </b:Container>
                 </gwt:north>
                 <gwt:center>
                     <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
