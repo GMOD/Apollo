@@ -526,10 +526,12 @@ public class AnnotatorPanel extends Composite {
   private static void closeAnnotatorDetailsPanels() {
     annotationDescription.setHTML("No annotation selected");
     splitPanel.setWidgetSize(annotatorDetailPanel,20);
+    splitPanel.animate(200);
   }
 
   private static void openAnnotatorDetailsPanel() {
     splitPanel.setWidgetSize(annotatorDetailPanel,460);
+    splitPanel.animate(200);
   }
 
 
@@ -651,7 +653,7 @@ public class AnnotatorPanel extends Composite {
             return;
         }
         String type = annotationInfo.getType();
-        hideDetailPanels();
+//        hideDetailPanels();
         switch (type) {
             case "gene":
             case "pseudogene":
@@ -1000,7 +1002,7 @@ public class AnnotatorPanel extends Composite {
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             setAnnotationDescription(null);
-            hideDetailPanels();
+//            hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         }
