@@ -27,6 +27,7 @@ Infrastructure Changes
 - Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
 - Fixed Python dependency for Travis for BioPython (3.7) and upgraded to Xenial [2493](https://github.com/GMOD/Apollo/pull/2493).
 - Updated internal Docker Python script to add to use the [Apollo 4.2.3 library](https://pypi.org/project/apollo/).
+- Shows and hide annotation detail panels on demand so list is not obscured [2538](https://github.com/GMOD/Apollo/pull/2538)
 
 
 Bug Fixes
