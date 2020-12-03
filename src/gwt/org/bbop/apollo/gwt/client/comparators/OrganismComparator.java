@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.shared;
+package org.bbop.apollo.gwt.client.comparators;
 
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 
