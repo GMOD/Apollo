@@ -68,7 +68,7 @@ public class AttributePanel extends Composite {
     @UiField
     ListBox cannedValueSelectorBox;
 
-    private AnnotationInfo internalAnnotationInfo = null;
+    private AnnotationInfo annotationInfo = null;
     private AttributeInfo internalAttributeInfo = null;
     private String oldTag, oldValue;
     private String tag, value;
@@ -219,15 +219,17 @@ public class AttributePanel extends Composite {
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
     }
 
-    public void updateData(AnnotationInfo annotationInfo) {
-        if(!annotationInfo.equals(this.internalAnnotationInfo)){
-            this.internalAnnotationInfo = annotationInfo;
-            loadData();
-        }
+  public void updateData(AnnotationInfo selectedAnnotationInfo) {
+    if((selectedAnnotationInfo==null && this.annotationInfo!=null) ||
+      (selectedAnnotationInfo!=null && this.annotationInfo==null) ||
+      selectedAnnotationInfo!=null && !selectedAnnotationInfo.equals(this.annotationInfo)){
+      this.annotationInfo = selectedAnnotationInfo;
+      loadData();
     }
+  }
 
-    public void updateData() {
-        updateData(null);
+  public void updateData() {
+    updateData(null);
     }
 
     public void selectAttributeData(AttributeInfo v) {
@@ -286,7 +288,7 @@ public class AttributePanel extends Composite {
 
 
     private AnnotationInfo getInternalAnnotation(){
-        return this.internalAnnotationInfo;
+        return this.annotationInfo;
     }
 
     public void updateAttribute() {
@@ -309,7 +311,7 @@ public class AttributePanel extends Composite {
                     redrawTable();
                 }
             };
-            AttributeRestService.updateAttribute(requestCallBack, this.internalAnnotationInfo, new AttributeInfo(this.oldTag, this.oldValue), newAttributeInfo);
+            AttributeRestService.updateAttribute(requestCallBack, this.annotationInfo, new AttributeInfo(this.oldTag, this.oldValue), newAttributeInfo);
             ;
         } else {
             resetTags();
@@ -319,7 +321,7 @@ public class AttributePanel extends Composite {
     private void resetTags() {
         this.tag = this.oldTag;
         this.value = this.oldValue;
-        updateData(this.internalAnnotationInfo);
+        updateData(this.annotationInfo);
         redrawTable();
     }
 
@@ -356,7 +358,7 @@ public class AttributePanel extends Composite {
 
     @UiHandler("addAttributeButton")
     public void addAttributeButton(ClickEvent ce) {
-        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        final AnnotationInfo internalAnnotationInfo = this.annotationInfo;
         if (validateTags()) {
             final AttributeInfo newAttributeInfo = new AttributeInfo(this.tag.toLowerCase(), this.value);
             this.tagInputBox.clear();
@@ -380,13 +382,13 @@ public class AttributePanel extends Composite {
                     redrawTable();
                 }
             };
-            AttributeRestService.addAttribute(requestCallBack, this.internalAnnotationInfo, newAttributeInfo);
+            AttributeRestService.addAttribute(requestCallBack, this.annotationInfo, newAttributeInfo);
         }
     }
 
     @UiHandler("deleteAttributeButton")
     public void deleteAttribute(ClickEvent ce) {
-        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        final AnnotationInfo internalAnnotationInfo = this.annotationInfo;
 
         if (internalAttributeInfo != null) {
             RequestCallback requestCallBack = new RequestCallback() {
@@ -405,7 +407,7 @@ public class AttributePanel extends Composite {
                     redrawTable();
                 }
             };
-            AttributeRestService.deleteAttribute(requestCallBack, this.internalAnnotationInfo, this.internalAttributeInfo);
+            AttributeRestService.deleteAttribute(requestCallBack, this.annotationInfo, this.internalAttributeInfo);
             ;
         }
     }
@@ -438,8 +440,8 @@ public class AttributePanel extends Composite {
                 Bootbox.alert("A problem with request: " + request.toString() + " " + exception.getMessage());
             }
         };
-        if (this.internalAnnotationInfo != null) {
-            AttributeRestService.getAttributes(requestCallback, this.internalAnnotationInfo,MainPanel.getInstance().getCurrentOrganism());
+        if (this.annotationInfo != null) {
+            AttributeRestService.getAttributes(requestCallback, this.annotationInfo,MainPanel.getInstance().getCurrentOrganism());
         }
     }
 

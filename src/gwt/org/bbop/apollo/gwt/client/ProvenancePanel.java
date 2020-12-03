@@ -589,7 +589,9 @@ public class ProvenancePanel extends Composite {
   }
 
   public void updateData(AnnotationInfo selectedAnnotationInfo) {
-    if(!selectedAnnotationInfo.equals(this.annotationInfo)){
+    if((selectedAnnotationInfo==null && this.annotationInfo!=null) ||
+      (selectedAnnotationInfo!=null && this.annotationInfo==null) ||
+      selectedAnnotationInfo!=null && !selectedAnnotationInfo.equals(this.annotationInfo)){
       this.annotationInfo = selectedAnnotationInfo;
       loadData();
     }

@@ -150,9 +150,11 @@ public class AnnotatorPanel extends Composite {
     ListBox statusField;
     @UiField
     static HTML annotationDescription;
+  @UiField
+  SplitLayoutPanel annotatorDetailPanel;
 
 
-    // manage UI-state
+  // manage UI-state
     private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
@@ -521,7 +523,17 @@ public class AnnotatorPanel extends Composite {
         return geneDetailPanel.getInternalAnnotationInfo();
     }
 
-    void selectTranscriptPanel() {
+  private void closeAnnotatorDetailsPanels() {
+    annotationDescription.setHTML("No annotation selected");
+    splitPanel.setWidgetSize(annotatorDetailPanel,20);
+  }
+
+  private void openAnnotatorDetailsPanel() {
+    splitPanel.setWidgetSize(annotatorDetailPanel,450);
+  }
+
+
+  void selectTranscriptPanel() {
         AnnotationInfo selectedObject = singleSelectionModel.getSelectedObject();
         updateAnnotationInfo(selectedObject);
         tabPanel.selectTab(0);
@@ -619,6 +631,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void hideDetailPanels() {
+      GWT.log("hide detail panel");
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
@@ -635,7 +648,7 @@ public class AnnotatorPanel extends Composite {
         }
 
         if (annotationInfo == null) {
-            annotationDescription.setHTML("nothing selected");
+            annotationDescription.setHTML("Nothing selected");
             return;
         }
         String type = annotationInfo.getType();
