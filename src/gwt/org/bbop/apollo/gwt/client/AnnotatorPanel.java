@@ -1037,7 +1037,7 @@ public class AnnotatorPanel extends Composite {
   public void showAnnotationLink(ClickEvent clickEvent){
     String url = MainPanel.getInstance().generateApolloUrl(selectedAnnotationInfo.getUniqueName());
     String link = "<a href='"+url+"'>"+url+"</a>";
-    new LinkDialog("List to this annotation",link,true);
+    new LinkDialog("Link to '"+selectedAnnotationInfo.getName()+"'",link,true);
   }
 
   @UiHandler(value = {"closeDetailsButton"})
