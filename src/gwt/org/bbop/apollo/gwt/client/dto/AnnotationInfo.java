@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
