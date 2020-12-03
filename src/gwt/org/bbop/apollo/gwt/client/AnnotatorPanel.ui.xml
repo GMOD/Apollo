@@ -169,7 +169,7 @@
         <gwt:south size="450">
             <gwt:SplitLayoutPanel ui:field="annotatorDetailPanel">
                 <gwt:north size="20">
-                    <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="false" styleName="{style.annotationDescription}"/>
+                    <gwt:HTML text="placeholder" ui:field="annotationDescription" visible="true" styleName="{style.annotationDescription}"/>
                 </gwt:north>
                 <gwt:center>
                     <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">

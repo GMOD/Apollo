@@ -121,7 +121,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ListBox userField;
     @UiField
-    DockLayoutPanel splitPanel;
+    static DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
     @UiField
@@ -151,7 +151,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static HTML annotationDescription;
   @UiField
-  SplitLayoutPanel annotatorDetailPanel;
+  static SplitLayoutPanel annotatorDetailPanel;
 
 
   // manage UI-state
@@ -523,13 +523,13 @@ public class AnnotatorPanel extends Composite {
         return geneDetailPanel.getInternalAnnotationInfo();
     }
 
-  private void closeAnnotatorDetailsPanels() {
+  private static void closeAnnotatorDetailsPanels() {
     annotationDescription.setHTML("No annotation selected");
     splitPanel.setWidgetSize(annotatorDetailPanel,20);
   }
 
-  private void openAnnotatorDetailsPanel() {
-    splitPanel.setWidgetSize(annotatorDetailPanel,450);
+  private static void openAnnotatorDetailsPanel() {
+    splitPanel.setWidgetSize(annotatorDetailPanel,460);
   }
 
 
@@ -631,7 +631,6 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void hideDetailPanels() {
-      GWT.log("hide detail panel");
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
@@ -797,12 +796,12 @@ public class AnnotatorPanel extends Composite {
 
     private static void setAnnotationDescription(AnnotationInfo annotationInfo) {
         if(annotationInfo!=null){
-            annotationDescription.setVisible(true);
             annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;<b>"+annotationInfo.getType()  + "</b>:  " + annotationInfo.getName() +"");
+          openAnnotatorDetailsPanel();
         }
         else{
-            annotationDescription.setVisible(false);
-            annotationDescription.setHTML("");
+            annotationDescription.setHTML("&nbsp;&nbsp;&nbsp;&nbsp;No annotation selected");
+          closeAnnotatorDetailsPanels();
         }
     }
 
