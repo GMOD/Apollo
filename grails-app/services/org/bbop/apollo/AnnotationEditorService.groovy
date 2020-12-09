@@ -14,7 +14,6 @@ class AnnotationEditorService {
     // remove leading string
     outputString = outputString.indexOf("\"") == 0 ? outputString.substring(1) : outputString
     outputString = outputString.lastIndexOf("\"") == outputString.length() - 1 ? outputString.substring(0, outputString.length() - 1) : outputString
-//        outputString = outputString.replaceAll("/\\\\/","")
     outputString = outputString.replaceAll("\\\\\"", "\"")
     outputString = outputString.replaceAll("\\\\\"", "'")
     return outputString
@@ -23,7 +22,7 @@ class AnnotationEditorService {
   JsonBuilder recentAnnotations(Integer days, String statusFilter = null) {
     Date today = new Date()
     Date fromDate = today - days
-    List updatedGenes = []
+    List updatedGenes
     if (statusFilter == null) {
       updatedGenes = Gene.findAllByLastUpdatedGreaterThan(fromDate)
     }
@@ -31,9 +30,7 @@ class AnnotationEditorService {
     if (statusFilter.toLowerCase() == "none") {
       updatedGenes = Gene.findAllByLastUpdatedGreaterThanAndStatusIsNull(fromDate)
     } else {
-      println "input status filter ${statusFilter}"
       List<String> statusFilterStringList = statusFilter.split("\\|")
-      println "input status filter set ${statusFilterStringList}"
       List<Status> statusList = []
       for(def statusString in statusFilterStringList){
         Status status = Status.findByValue(statusString)
