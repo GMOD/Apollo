@@ -8,6 +8,7 @@ Features
 - Added the ability to sync the gene and transcript name with the click of a button [2519](https://github.com/GMOD/Apollo/issues/2519).
 - Added organism and species to menus [2537](https://github.com/GMOD/Apollo/pull/2537).
 - Added UUID lookup and link [2539](https://github.com/GMOD/Apollo/pull/2539/).
+- Added status filter for recent annotations [2543](https://github.com/GMOD/Apollo/pull/2543/).
 
 Bug Fixes
 

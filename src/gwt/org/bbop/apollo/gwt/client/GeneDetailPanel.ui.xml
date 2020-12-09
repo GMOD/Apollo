@@ -25,7 +25,7 @@
         .bolder {
             font-size: larger;
             font-weight: bolder;
-            width: 100px;
+            width: 50px;
         }
 
         .selectBox {
