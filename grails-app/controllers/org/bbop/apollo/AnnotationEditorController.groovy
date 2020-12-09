@@ -1222,10 +1222,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @RestApiMethod(description = "Get genes created or updated in the past, Returns JSON hash gene_name:organism", path = "/annotationEditor/getRecentAnnotations", verb = RestApiVerb.POST)
     @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "days", type = "Integer", paramType = RestApiParamType.QUERY, description = "Number of past days to retrieve annotations from.")
-
+        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+        , @RestApiParam(name = "days", type = "Integer", paramType = RestApiParamType.QUERY, description = "(Required) Number of past days to retrieve annotations from.")
+        , @RestApiParam(name = "status", type = "String", paramType = RestApiParamType.QUERY, description = "(optional: default allow all) Pipe-separated list of filters (e.g., 'Finished|Published').  Use 'None' if you want annotations without a status. ")
     ])
 
     def getRecentAnnotations() {
@@ -1236,7 +1236,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         if (inputObject.get('days') instanceof Integer) {
-            JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.get('days'))
+            String filterString = inputObject.containsKey(FeatureStringEnum.STATUS.value) ? inputObject.getString(FeatureStringEnum.STATUS.value) : null
+            JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.getInt('days'),filterString)
             render updatedGenes
         } else {
             def error = [error: inputObject.get('days') + ' Param days must be an Integer']

@@ -359,11 +359,11 @@ public class GeneDetailPanel extends Composite {
                             statusListBox.setSelectedIndex(i + 1);
                         }
                     }
-                    statusLabelField.setVisible(true);
-                    statusListBox.setVisible(true);
+                  statusLabelField.setText("Status");
+                  statusListBox.setEnabled(true);
                 } else {
-                    statusLabelField.setVisible(false);
-                    statusListBox.setVisible(false);
+                  statusLabelField.setText("No status created");
+                  statusListBox.setEnabled(false);
                 }
             }
 
