@@ -186,6 +186,110 @@
     <div id="message"></div>
 
     <!-- Footer -->
-
+    <footer class="usa-footer usa-footer--big">
+        <div class="usa-footer__primary-section">
+            <div class="grid-container">
+                <div class="grid-row grid-gap flex-align-center">
+                    <div class="tablet:grid-col-8">
+                        <nav class="usa-footer__nav" aria-labelledby="footer-links-header">
+                            <h2 id="footer-links-header" class="usa-sr-only">Footer</h2>
+                            <ul class="display-flex flex-wrap">
+                                <li class="nal-footer__primary-link">
+                                    <a href="https://www.nal.usda.gov/main/">Home</a>
+                                </li>
+                                <li class="nal-footer__primary-link">
+                                    <a href="https://www.nal.usda.gov/nal/sitemap">Site Map</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <nav class="tablet:grid-col-4" aria-labelledby="social-links-header">
+                        <h2 id="social-links-header" class="usa-sr-only">Social Links</h2>
+                        <ul class="grid-row grid-gap-1 usa-list usa-list--unstyled">
+                            <li class="grid-col-auto">
+                                <a class="usa-social-link usa-social-link--facebook" href="javascript:void(0);">
+                                    <span>Facebook</span>
+                                </a>
+                            </li>
+                            <li class="grid-col-auto">
+                                <a class="usa-social-link usa-social-link--twitter" href="javascript:void(0);">
+                                    <span>Twitter</span>
+                                </a>
+                            </li>
+                            <li class="grid-col-auto">
+                                <a class="usa-social-link usa-social-link--youtube" href="javascript:void(0);">
+                                    <span>YouTube</span>
+                                </a>
+                            </li>
+                            <li class="grid-col-auto">
+                                <a class="usa-social-link usa-social-link--rss" href="javascript:void(0);">
+                                    <span>RSS</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div class="usa-footer__secondary-section">
+            <div class="grid-container">
+                <div class="grid-row grid-gap">
+                    <div class="tablet:grid-col-8">
+                        <nav class="usa-footer__nav" aria-labelledby="government-links-header">
+                            <h2 id="government-links-header" class="usa-sr-only">Government Links</h2>
+                            <ul>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov/policies-and-links">Policies and Links</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov/plain-writing">Plain Writing</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.dm.usda.gov/foia/">FOIA</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov/accessibility-statement">Accessibility Statement</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov/privacy-policy">Privacy Policy</a></li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov/non-discrimination-statement">Non-Discrimination Statement</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.ascr.usda.gov/civil-rights-statements">Anti-Harassment Policy</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.ars.usda.gov/docs/quality-of-information/">Information Quality</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.ars.usda.gov">Agricultural Research Service</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usda.gov">USDA.gov</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.usa.gov">USA.gov</a>
+                                </li>
+                                <li class="usa-footer__secondary-link">
+                                    <a href="https://www.whitehouse.gov">WhiteHouse.gov</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="tablet:grid-col-4">
+                        <div class="usa-sign-up">
+                            <h3 class="usa-sign-up__heading">Sign up for ARS News updates</h3>
+                            <form class="usa-form" action="https://public.govdelivery.com/accounts/USDAARS/subscriber/qualify?qsp=CODE_RED">
+                                <input name="utf8" type="hidden" value="✓">
+                                <input type="hidden" name="authenticity_token" value="tV2OquJR5xnmtrmmZS3UWsIp7QddNiZcKotw2AMMUx2u9nfu4b3aL1Fb4L6RnJCoF5VYhXZ85qUPjpOyJiUlhg==">
+                                <label class="usa-label" for="email" id="">Your email address</label>
+                                <input class="usa-input" id="email" name="email" type="email">
+                                <button class="usa-button" type="submit">Sign up</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
