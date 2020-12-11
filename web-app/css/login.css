@@ -1,12 +1,12 @@
-@CHARSET "UTF-8";
+@charset "UTF-8";
 
 .user_login {
 	/* width:30%; */
-	margin:5px;
+	margin: 5px;
 }
 
 .fieldname {
-	margin-right:5px;
+	margin-right: 5px;
 	font-size: 1.3em;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .button_login {
-	text-align:center;
-	margin-top:10px;
+	text-align: center;
+	margin-top: 10px;
 	width: 100%;
 }
