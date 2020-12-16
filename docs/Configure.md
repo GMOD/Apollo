@@ -617,6 +617,36 @@ You should use ```tracklist=1``` to force showing the native tracklist (or use t
 
 Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
+### Linking to annotations
+
+You can find a link to your current location by clicking the "chain link" icon in the upper, left-hand corner of the Annotator Panel.  
+
+It will provide a popup that gives you a public URL to view while not logged in and a one to use while logged in. 
+
+####Public URL
+
+<apollo server url>/<organism>/jbrowse/index.html?loc=<location>&tracks=<tracks>
+
+- `location` = <sequence name>:<fmin>..<fmax>
+- `organism` is the organism id or common name if unique.
+- `tracks` are url-encoded tracks separated by a comma
+
+Example:  
+http://demo.genomearchitect.org/Apollo2/3836/jbrowse/index.html?loc=Group1.31:287765..336436&tracks=Official%20Gene%20Set%20v3.2,GeneID
+
+####Logged in URL
+
+<apollo server url>/<organism>/annotator/loadLink?loc=<location>&organism=<organism>&tracks=<tracks>
+
+- `location` = <sequence name>:<fmin>..<fmax>  it can also be the annotated feature name as well
+- `uuid` = The uniquename of the feature.  It replaces the feature and does not require an organism argument.   It is used inplace of the `loc` option.
+- `organism` is the organism id or common name if unique.
+- `tracks` are url-encoded tracks separated by a comma
+
+Examples:
+- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?loc=Group1.31:287765..336436&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
+- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?loc=GB51936-RA&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
+- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?uuid=355617c7-f8c1-4105-bb11-755cee1855df&tracks=Official%20Gene%20Set%20v3.2,GeneID
 
 ### Setting default track list behavior
 
