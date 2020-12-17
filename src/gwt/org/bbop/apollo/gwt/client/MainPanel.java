@@ -964,7 +964,7 @@ public class MainPanel extends Composite {
           }
         }
         else{
-          url += "?uuid="+uuid;
+          url += "?loc="+uuid;
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";

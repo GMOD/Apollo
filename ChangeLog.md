@@ -10,7 +10,7 @@ Features
 - Added UUID lookup and link [2539](https://github.com/GMOD/Apollo/pull/2539/).
 - Added status filter for recent annotations [2543](https://github.com/GMOD/Apollo/pull/2543/).
 - Add feature name `loc` to loadLink [2544](https://github.com/GMOD/Apollo/issues/2544).
-- `loc` loadLink now supports UUID and ID popup provides link [2544](https://github.com/GMOD/Apollo/issues/2544).
+- `loc` loadLink now supports UUID and ID popup provides link [2549](https://github.com/GMOD/Apollo/issues/2549).
 
 Bug Fixes
 
