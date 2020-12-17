@@ -85,7 +85,14 @@ class AnnotatorController {
                 organism = featureLocation.sequence.organism
             }
 
-            if (!allowedOrganisms.contains(organism)) {
+          if (Feature.countByUniqueName(params.loc)>0) {
+            Feature feature = Feature.findByUniqueName(params.loc)
+            FeatureLocation featureLocation = feature.featureLocation
+            params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin + ".." + featureLocation.fmax
+            organism = featureLocation.sequence.organism
+          }
+
+          if (!allowedOrganisms.contains(organism)) {
                 log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
                 params.loc = null
                 organism = allowedOrganisms.first()
@@ -94,10 +101,12 @@ class AnnotatorController {
             log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             String location = params.loc
-            // assume that the lookup is a symbol lookup value and not a location
+
+          // assume that the lookup is a symbol lookup value and not a location
             if (location) {
                 int colonIndex = location.indexOf(':')
                 int ellipseIndex = location.indexOf('..')
+
                 if(colonIndex > 0 && colonIndex < ellipseIndex){
                     String[] splitString = location.split(':')
                     log.debug "splitString : ${splitString}"
@@ -126,6 +135,9 @@ class AnnotatorController {
                   int fmin = featureLocation.fmin
                   int fmax = featureLocation.fmax
                   preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax, clientToken)
+                }
+              else{
+                  log.error("Failed to process load process loadLink string")
                 }
             }
         }
