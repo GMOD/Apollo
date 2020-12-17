@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class RepeatRegionDetailPanel extends Composite {
     private AnnotationInfo internalAnnotationInfo;
-   
+
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, RepeatRegionDetailPanel> {
     }
 
@@ -74,7 +74,7 @@ public class RepeatRegionDetailPanel extends Composite {
 
     @UiHandler("annotationIdButton")
     void getAnnotationInfo(ClickEvent clickEvent) {
-        Bootbox.alert(internalAnnotationInfo.getUniqueName());
+      new LinkDialog("UniqueName: "+internalAnnotationInfo.getUniqueName(),"Link to: "+MainPanel.getInstance().generateApolloLink(internalAnnotationInfo.getUniqueName()),true);
     }
 
     @UiHandler("gotoAnnotation")
@@ -184,7 +184,7 @@ public class RepeatRegionDetailPanel extends Composite {
         internalAnnotationInfo.setName(updatedName);
         updateEntity();
     }
-    
+
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
         String updatedDescription = descriptionField.getText();
@@ -204,7 +204,7 @@ public class RepeatRegionDetailPanel extends Composite {
         descriptionField.setEnabled(enabled);
         synonymsField.setEnabled(enabled);
     }
-    
+
     private void updateEntity() {
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         enableFields(false);
@@ -227,7 +227,7 @@ public class RepeatRegionDetailPanel extends Composite {
         data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
         RestService.sendRequest(requestCallback, "annotator/updateFeature/", data);
     }
-    
+
     public void updateData(AnnotationInfo annotationInfo) {
         GWT.log("Updating entity");
         this.internalAnnotationInfo = annotationInfo;

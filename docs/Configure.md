@@ -638,8 +638,7 @@ http://demo.genomearchitect.org/Apollo2/3836/jbrowse/index.html?loc=Group1.31:28
 
 <apollo server url>/<organism>/annotator/loadLink?loc=<location>&organism=<organism>&tracks=<tracks>
 
-- `location` = <sequence name>:<fmin>..<fmax>  it can also be the annotated feature name as well
-- `uuid` = The uniquename of the feature.  It replaces the feature and does not require an organism argument.   It is used inplace of the `loc` option.
+- `location` = <sequence name>:<fmin>..<fmax>  it can also be the annotated feature `name` if an organims is provided or the `uniqueName` (see the ID in the annotation detail window), which is typically a UUID and does not require an organism.
 - `organism` is the organism id or common name if unique.
 - `tracks` are url-encoded tracks separated by a comma
 

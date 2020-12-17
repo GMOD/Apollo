@@ -267,7 +267,7 @@ public class GeneDetailPanel extends Composite {
 
     @UiHandler("annotationIdButton")
     void getAnnotationInfo(ClickEvent clickEvent) {
-        Bootbox.alert(internalAnnotationInfo.getUniqueName());
+        new LinkDialog("UniqueName: "+internalAnnotationInfo.getUniqueName(),"Link to: "+MainPanel.getInstance().generateApolloLink(internalAnnotationInfo.getUniqueName()),true);
     }
 
     @UiHandler("gotoAnnotation")

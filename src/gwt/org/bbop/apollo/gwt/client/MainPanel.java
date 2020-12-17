@@ -953,6 +953,11 @@ public class MainPanel extends Composite {
         return generateApolloUrl(null);
     }
 
+  public String generateApolloLink(String uuid) {
+    String url = generateApolloUrl(uuid);
+    return "<a href='"+url+"'>"+url+"</a>";
+  }
+
     public String generateApolloUrl(String uuid) {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
@@ -964,7 +969,7 @@ public class MainPanel extends Composite {
           }
         }
         else{
-          url += "?uuid="+uuid;
+          url += "?loc="+uuid;
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";
