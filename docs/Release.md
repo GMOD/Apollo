@@ -6,6 +6,7 @@
 - Confirm ChangeLog.md.
 - Commit and push.
 - In GH Create / Tag a Release reflecting ChangeLog.md with summary.
+- Git push develop to master
 
 - Update servers / images:
     - Update demo, download new release and build.
@@ -16,3 +17,9 @@ Zenodo:
   - Update README.md to reflect zenodo.
   - Generate and update link on master to reflect zenodo link if appropriate.
   - Do announcement on gmod-ajax, apollo, and other lists.
+
+
+## Post-release
+
+- In develop bump application.properties version to X.Y.Z+1-SNAPSHOT
+
