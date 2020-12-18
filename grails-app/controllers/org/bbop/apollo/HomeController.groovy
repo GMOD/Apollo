@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.mgt.SecurityManager
+import org.apache.shiro.session.mgt.DefaultSessionManager
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.PerformanceMetric
 import org.codehaus.groovy.grails.web.json.JSONObject
