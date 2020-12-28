@@ -51,10 +51,28 @@
         </table>
     </div>
 
-    <div class="row col-md-10">
-        <h3>Java Info</h3>
-        <table class="table">
-            <g:each in="${javaMapInstance.sort{it.key}}" var="data">
+  <div class="row col-md-10">
+    <h3>Config Info</h3>
+    <table class="table">
+      <g:each in="${grailsApplication.config.toProperties()}" var="config">
+        <g:if test="${!config.key.toLowerCase().contains("password")}">
+          <tr>
+            <td>
+              ${config.key}
+            </td>
+            <td>
+              ${config.value}
+            </td>
+          </tr>
+        </g:if>
+      </g:each>
+    </table>
+  </div>
+
+  <div class="row col-md-10">
+    <h3>Java Info</h3>
+    <table class="table">
+      <g:each in="${javaMapInstance.sort{it.key}}" var="data">
                 <g:if test="${!data.key.toLowerCase().contains("password")}">
                     <tr>
                         <td>
