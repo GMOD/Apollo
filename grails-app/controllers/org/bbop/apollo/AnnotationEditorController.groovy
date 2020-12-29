@@ -754,7 +754,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray attributes = new JSONArray()
             feature.featureProperties.each {
-                if (it.ontologyId != Comment.ontologyId) {
+                if (it.ontologyId != Comment.ontologyId && it.tag != null ) {
                     JSONObject attributeObject = new JSONObject()
                     attributeObject.put(FeatureStringEnum.TAG.value, it.tag)
                     attributeObject.put(FeatureStringEnum.VALUE.value, it.value)
