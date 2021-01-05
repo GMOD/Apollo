@@ -13,7 +13,9 @@
     "jquery": "^1.7.2",
     "jqueryui": "^1.8.24"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.17.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GMOD/Apollo.git"

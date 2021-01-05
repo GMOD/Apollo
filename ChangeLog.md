@@ -1,4 +1,16 @@
 
+## 2.6.3
+
+Features
+
+- Fix empty attribute list in annotation panel [2552](https://github.com/GMOD/Apollo/issues/2552).
+
+
+Infrastructure Changes
+
+- Removed travis in favor of GitHub Actions [2546](https://github.com/GMOD/Apollo/issues/2546).
+
+
 
 ## 2.6.2
 
