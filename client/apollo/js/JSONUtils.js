@@ -377,6 +377,8 @@ function copyOfficialData(fromFeature,toFeature){
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype ,is_official)   {
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
+
+    
     if (diagnose)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type + " " + specified_subtype);
         console.log(jfeature,JSON.stringify(jfeature));
