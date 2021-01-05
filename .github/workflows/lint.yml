@@ -21,5 +21,8 @@ jobs:
       - name: Install Node.js dependencies
         run: npm install -g jshint
 
+      - name: Check linter version
+        run: jshint -v
+
       - name: Run linters
         run: jshint client/apollo/js
