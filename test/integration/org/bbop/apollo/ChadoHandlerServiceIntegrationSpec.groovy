@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
 
 class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -19,7 +20,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         Standard annotations signifies no modifications/attributes added to the annotations
          */
         if (! configWrapperService.isPostgresChadoDataSource()) {
-            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
+//            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
             return
         }
 
@@ -86,7 +87,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
                 features.add(it)
             }
         }
-        log.debug "${features}"
+//        println "${features}"
         chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
 
@@ -100,7 +101,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
     void "test CHADO export for annotations with additional information"() {
 
         if (! configWrapperService.isPostgresChadoDataSource()) {
-            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
+//            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
             return
         }
 
@@ -221,7 +222,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
     void "test CHADO export and re-export"() {
 
         if (! configWrapperService.isPostgresChadoDataSource()) {
-            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
             return
         }
 

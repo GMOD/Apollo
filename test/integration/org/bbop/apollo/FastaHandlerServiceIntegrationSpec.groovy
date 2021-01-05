@@ -5,7 +5,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 class FastaHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
 
-    def requestHandlingService 
+    def requestHandlingService
     def fastaHandlerService
 
     void "write a fasta of a simple gene model"() {
@@ -22,19 +22,17 @@ class FastaHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.count == 5
         assert CDS.count == 1
 
-        
+
 
 
         when: "we write the feature to test"
         File tempFile = File.createTempFile("output", ".gff3")
         tempFile.deleteOnExit()
-        log.debug "${tempFile.absolutePath}"
         fastaHandlerService.writeFeatures(Gene.findAll(), FeatureStringEnum.TYPE_PEPTIDE.value, ["name"] as Set, tempFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
         String tempFileText = tempFile.text
 
         then: "we should get a valid fasta file"
         assert tempFileText.length() > 0
-        log.debug "${tempFileText}"
         def residues=""
         def lines = tempFile.readLines().each { line->
             if(line.indexOf(">")!=0) {

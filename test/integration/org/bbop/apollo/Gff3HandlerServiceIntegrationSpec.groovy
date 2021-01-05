@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 
 class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
-   
+
     def gff3HandlerService
     def requestHandlingService
 
@@ -22,11 +22,10 @@ class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString))
         requestHandlingService.addFeature(JSON.parse(pseudogene))
         requestHandlingService.addFeature(JSON.parse(repeat_region))
-        
+
 
         then: "We should have at least one new gene"
 
-        log.debug "${Gene.findAll()}"
         assert Gene.count == 2
         assert MRNA.count == 1
         assert RepeatRegion.count == 1
@@ -39,13 +38,11 @@ class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we write the feature to test"
         File tempFile = File.createTempFile("output", ".gff3")
         tempFile.deleteOnExit()
-        log.debug "${tempFile.absolutePath}"
         def featuresToWrite = Gene.list(sort: "class") + SequenceAlterationArtifact.findAll() + RepeatRegion.findAll()
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
 
         then: "we should get a valid gff3 file"
-        log.debug "${tempFileText}"
         def lines = tempFile.readLines()
         assert lines[0] == "##gff-version 3"
         assert lines[2].split("\t")[2] == Gene.cvTerm
