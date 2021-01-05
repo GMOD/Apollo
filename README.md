@@ -1,5 +1,6 @@
 # Apollo
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3555454.svg)](https://doi.org/10.5281/zenodo.3555454)
+![Lint](https://github.com/GMOD/Apollo/workflows/Lint/badge.svg)
 ![Java CI with Gradle](https://github.com/GMOD/Apollo/workflows/Java%20CI%20with%20Gradle/badge.svg)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
