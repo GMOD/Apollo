@@ -1,0 +1,11 @@
+name: Analyze code statically
+"on": pull_request
+jobs:
+  jshint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Analyze code statically using JSHint
+        uses: moneyforward/jshint-action@v0
+      - name: Run jshint
+        run: jshint client/apollo/js
