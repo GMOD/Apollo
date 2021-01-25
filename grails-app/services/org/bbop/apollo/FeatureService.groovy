@@ -624,15 +624,19 @@ class FeatureService {
     CDS cds = transcriptService.getCDS(transcript);
     log.info "calculateCDS"
     if (cds == null) {
+      log.debug "CDS is null, so setting longest ORF"
       setLongestORF(transcript, readThroughStopCodon);
       return;
     }
+    log.debug "CDS found $cds, checking for manual start and end"
     boolean manuallySetStart = cdsService.isManuallySetTranslationStart(cds);
     boolean manuallySetEnd = cdsService.isManuallySetTranslationEnd(cds);
+    log.debug "CDS found $cds, manual start $manuallySetStart end $manuallySetEnd"
     if (manuallySetStart && manuallySetEnd) {
       return;
     }
     if (!manuallySetStart && !manuallySetEnd) {
+      log.debug "neither start or end is set manually so calculating ORF"
       setLongestORF(transcript, readThroughStopCodon);
     } else if (manuallySetStart) {
       setTranslationStart(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true, readThroughStopCodon);
@@ -1182,9 +1186,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
   @Timed
   @Transactional
   void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
+    log.debug "Setting longest orf with $transcript and read through stop codon $readThroughStopCodon"
     Organism organism = transcript.featureLocation.sequence.organism
+    log.debug "organism found ${organism}"
     TranslationTable translationTable = organismService.getTranslationTable(organism)
+    log.debug "translation table found ${translationTable.startCodons} , $translationTable.stopCodons"
     String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
+    log.debug "mrna residues found ${mrna}"
     if (!mrna) {
       return;
     }
@@ -1197,6 +1205,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     boolean partialStop = false;
 
     if (mrna.length() > 3) {
+      log.debug "finding start index"
       for (String startCodon : translationTable.getStartCodons()) {
         // find the first start codon
         startIndex = mrna.indexOf(startCodon)
@@ -1210,6 +1219,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
           startIndex = mrna.indexOf(startCodon, startIndex + 1)
         }
       }
+      log.debug "best start index $bestStartIndex"
 
       // Just in case the 5' end is missing, check to see if a longer
       // translation can be obtained without looking for a start codon
@@ -1224,10 +1234,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         startIndex++
       }
+      log.debug "best start index modified if initial start index <3 $bestStartIndex"
     }
+    log.debug "longest peptide:  '$longestPeptide'"
 
     // check for partial stop
-    if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
+    if (longestPeptide && !longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
       partialStop = true
       bestStopIndex = -1
     } else {
