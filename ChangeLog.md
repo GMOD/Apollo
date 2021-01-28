@@ -4,6 +4,8 @@
 Features
 
 - Fix empty attribute list in annotation panel [2552](https://github.com/GMOD/Apollo/issues/2552).
+- Added ability to use posts to sequence methods [2555](https://github.com/GMOD/Apollo/pull/2558).
+- Added system info web service [2557](https://github.com/GMOD/Apollo/pull/2557).
 
 
 Infrastructure Changes
