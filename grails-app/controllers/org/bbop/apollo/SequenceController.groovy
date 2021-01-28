@@ -248,7 +248,7 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
@@ -259,7 +259,19 @@ class SequenceController {
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
+        // handle post data
+        def inputJSON = request.JSON as JSONObject
+        organismString = organismString ?: inputJSON.organismString
+        sequenceName = sequenceName ?: inputJSON.sequenceName
+        fmin = fmin ?: inputJSON.fmin
+        fmax = fmax ?: inputJSON.fmax
+
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
         Map paramMap = new TreeMap<>()
 
         if (!ignoreCache) {
@@ -280,7 +292,7 @@ class SequenceController {
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
@@ -292,7 +304,20 @@ class SequenceController {
     @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 
+        // handle post here
+        def inputJSON = request.JSON as JSONObject
+        organismString = organismString ?: inputJSON.organismString
+        sequenceName = sequenceName ?: inputJSON.sequenceName
+        featureName = featureName ?: inputJSON.featureName
+        type = type ?: inputJSON.type
+        type = type ?:FeatureStringEnum.TYPE_GENOMIC.value
+
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
         Map paramMap = new TreeMap<>()
         paramMap.put("name", featureName)
 
