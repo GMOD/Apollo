@@ -259,14 +259,19 @@ class SequenceController {
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
-      // handle post data
-      def inputJSON = request.JSON as JSONObject
-      organismString = organismString ?: inputJSON.organismString
-      sequenceName = sequenceName ?: inputJSON.sequenceName
-      fmin = fmin ?: inputJSON.fmin
-      fmax = fmax ?: inputJSON.fmax
+        // handle post data
+        def inputJSON = request.JSON as JSONObject
+        organismString = organismString ?: inputJSON.organismString
+        sequenceName = sequenceName ?: inputJSON.sequenceName
+        fmin = fmin ?: inputJSON.fmin
+        fmax = fmax ?: inputJSON.fmax
 
-      Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
         Map paramMap = new TreeMap<>()
 
         if (!ignoreCache) {
@@ -308,6 +313,11 @@ class SequenceController {
         type = type ?:FeatureStringEnum.TYPE_GENOMIC.value
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
         Map paramMap = new TreeMap<>()
         paramMap.put("name", featureName)
 
