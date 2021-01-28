@@ -737,8 +737,8 @@ class AnnotatorController {
     render jsonObject as JSON
   }
 
+  // used in the view
     def about() {
-        println "about . . . . "
     }
 /**
  * This is a very specific method for the GWT interface.
