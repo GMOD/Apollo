@@ -724,9 +724,18 @@ class AnnotatorController {
 /**
  * This is a public passthrough to version
  */
-    def version() {
-        println "version "
-    }
+  @RestApiMethod(description = "Get system info", path = "/system", verb = RestApiVerb.GET)
+  @RestApiParams(params = [])
+  def system() {
+    def jsonObject = new JSONObject()
+    jsonObject.apollo_version = grails.util.Metadata.current['app.version']
+    jsonObject.grails_version = GroovySystem.getVersion()
+    jsonObject.jvm_version = System.getProperty("java.version")
+    jsonObject.serverInfo = servletContext.getServerInfo()
+    jsonObject.jbrowse_branch = grailsApplication.config?.jbrowse?.git
+    jsonObject.jbrowse_url = grailsApplication.config?.jbrowse?.git?.url
+    render jsonObject as JSON
+  }
 
     def about() {
         println "about . . . . "
