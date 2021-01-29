@@ -7,6 +7,8 @@ Features
 - Added ability to use posts to sequence methods [2555](https://github.com/GMOD/Apollo/pull/2558).
 - Added system info web service [2557](https://github.com/GMOD/Apollo/pull/2557).
 
+Bug Fixes:
+- Bad coordinate value in genomic element details screen in annotator panel [2559](https://github.com/GMOD/Apollo/issues/2559).
 
 Infrastructure Changes
 

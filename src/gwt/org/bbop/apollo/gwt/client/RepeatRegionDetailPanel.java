@@ -241,7 +241,7 @@ public class RepeatRegionDetailPanel extends Composite {
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
 
         if (internalAnnotationInfo.getMin() != null) {
-            String locationText = internalAnnotationInfo.getMin().toString();
+            String locationText = Integer.toString(internalAnnotationInfo.getMin()+1);
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();
             locationText += " strand(";
