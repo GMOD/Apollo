@@ -9,6 +9,7 @@ Features
 
 Bug Fixes:
 - Bad coordinate value in genomic element details screen in annotator panel [2559](https://github.com/GMOD/Apollo/issues/2559).
+- Web services indicated user had no organism permissions when checking the login [2554](https://github.com/GMOD/Apollo/issues/2554).
 
 Infrastructure Changes
 
