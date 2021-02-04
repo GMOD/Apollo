@@ -10,6 +10,7 @@ Features
 Bug Fixes:
 - Bad coordinate value in genomic element details screen in annotator panel [2559](https://github.com/GMOD/Apollo/issues/2559).
 - Web services indicated user had no organism permissions when checking the login [2554](https://github.com/GMOD/Apollo/issues/2554).
+- Vcf reads as ISO-8859-1 instead of UTF-8 from reader mangling some symbols. [2498](https://github.com/GMOD/Apollo/issues/2498).
 
 Infrastructure Changes
 
