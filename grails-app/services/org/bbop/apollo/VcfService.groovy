@@ -148,7 +148,16 @@ class VcfService {
         for(String attributeKey : variantAttributes.keySet()) {
             JSONObject attributeObject = new JSONObject()
             JSONArray valuesArray = new JSONArray()
+          if(attributeKey.equals("allele_symbols")){
+            // VCF file is read as ISO-8559-1 . .  need to convert it to UTF-8 so that symbols translate properly
+            String alleleSymbol  = variantAttributes.get(attributeKey).toString()
+            byte[] utf8 = new String(alleleSymbol.getBytes( "ISO-8859-1")).getBytes("UTF-8");
+            String convertedKey = new String(utf8,"UTF-8")
+            valuesArray.add(convertedKey)
+          }
+          else{
             valuesArray.add(variantAttributes.get(attributeKey))
+          }
             attributeObject.put(FeatureStringEnum.VALUES.value, valuesArray)
 
             // metadata for attributes
