@@ -1507,7 +1507,8 @@ class OrganismController {
         //if (permissionService.isAdmin()) {
         if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
           organismList = showObsolete ? Organism.all : Organism.findAllByObsolete(false)
-        } else {
+        } else
+          if(permissionService.hasPermissions(requestObject,PermissionEnum.READ)) {
           organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
         }
       }
