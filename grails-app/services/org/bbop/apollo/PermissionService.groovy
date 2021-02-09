@@ -361,6 +361,8 @@ class PermissionService {
      */
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
+
+        validateSessionForJsonObject(inputObject)
         String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
