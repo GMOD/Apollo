@@ -4,10 +4,13 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class SecurityFilters {
 
     def permissionService
+
+   public static final List<String> WEB_ACTION_LIST = ['index','show','create','edit','update','delete']
 
     def filters = {
 
@@ -79,7 +82,15 @@ class SecurityFilters {
 //                                    paramString = paramString.substring(indexOfLoc)
 //                                }
                                 targetUri = targetUri + paramString
-                                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+
+                              // respond to JSON this way
+                              if(request.JSON?.size()>0){
+                                response.status = 401
+                                render new JSONObject("error":"Failed to authenticate")
+                                return false
+                              }
+                              else
+                              if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
                                     redirect(uri: "${request.contextPath}/auth/login?targetUri=${targetUri}")
                                 }
                                 else {

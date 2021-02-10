@@ -22,9 +22,6 @@ class PermissionService {
 
     def preferenceService
     def configWrapperService
-    def grailsApplication
-
-
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
