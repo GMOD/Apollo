@@ -240,7 +240,7 @@ class CannedCommentController {
                 comment.save(flush: true)
 
                 log.info "Success updating canned comment: ${comment.id}"
-                render new JSONObject() as JSON
+                render comment as JSON
             } else {
                 def error = [error: 'not authorized to edit canned comment']
                 log.error(error.error)
