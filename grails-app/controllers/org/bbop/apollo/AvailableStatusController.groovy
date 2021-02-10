@@ -238,7 +238,7 @@ class AvailableStatusController {
                 status.save(flush: true)
 
                 log.info "Success updating status: ${status.id}"
-                render new JSONObject() as JSON
+                render status as JSON
             } else {
                 def error = [error: 'not authorized to edit status']
                 log.error(error.error)
@@ -314,7 +314,7 @@ class AvailableStatusController {
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
-                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the status")
+                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to show the status")
                     render jsonObject as JSON
                     return
                 }

@@ -24,10 +24,13 @@ class CannedCommentController {
     def permissionService
 
     def beforeInterceptor = {
+      // if a non-JSON method
+      if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            forward action: "notAuthorized", controller: "annotator"
-            return
+          forward action: "notAuthorized", controller: "annotator"
+          return
         }
+      }
     }
 
     def index(Integer max) {
