@@ -5,6 +5,7 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.http.HttpStatus
 
 class SecurityFilters {
 
@@ -85,7 +86,7 @@ class SecurityFilters {
 
                               // respond to JSON this way
                               if(request.JSON?.size()>0){
-                                response.status = 401
+                                response.status = HttpStatus.UNAUTHORIZED.value()
                                 render new JSONObject("error":"Failed to authenticate")
                                 return false
                               }

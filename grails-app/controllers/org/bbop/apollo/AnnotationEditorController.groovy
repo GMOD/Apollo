@@ -108,7 +108,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render returnObject
         } else {
             def errorMessage = [message: "You must first login before editing"]
-            response.status = 401
+            response.status = HttpStatus.UNAUTHORIZED.value()
             render errorMessage as JSON
         }
     }
