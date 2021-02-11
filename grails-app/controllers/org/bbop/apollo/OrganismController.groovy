@@ -1461,7 +1461,8 @@ class OrganismController {
     log.debug "updating organism metadata ${params}"
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
-      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+//      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+        if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN)) {
 //        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
         render status: HttpStatus.UNAUTHORIZED
         return
