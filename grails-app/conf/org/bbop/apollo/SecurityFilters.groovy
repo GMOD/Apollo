@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
-import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
@@ -11,6 +10,7 @@ class SecurityFilters {
 
     def permissionService
 
+    // NOTE: this is used for multiple security filters
    public static final List<String> WEB_ACTION_LIST = ['index','show','create','edit','update','delete']
 
     def filters = {
