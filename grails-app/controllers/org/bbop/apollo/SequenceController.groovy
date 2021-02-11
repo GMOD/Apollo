@@ -277,7 +277,6 @@ class SequenceController {
         Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
 
         // if the organism is not public AND we do not have read permissions for this organism
-        println "organism is public: $organism.publicMode"
         if(
         !organism.publicMode
          && !(permissionService.hasGlobalPermissions(inputJSON, GlobalPermissionEnum.USER) && permissionService.userHasOrganismPermission(organism,PermissionEnum.READ))
