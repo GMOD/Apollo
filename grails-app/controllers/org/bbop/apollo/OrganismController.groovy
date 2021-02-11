@@ -1313,9 +1313,9 @@ class OrganismController {
   def updateOrganismInfo() {
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
-      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+      if (!permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
 //        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
-        render status: HttpStatus.UNAUTHORIZED
+        render status: UNAUTHORIZED
         return
       }
       Organism organism = Organism.findById(organismJson.id)
