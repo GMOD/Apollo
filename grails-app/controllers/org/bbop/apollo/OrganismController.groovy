@@ -1515,6 +1515,7 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+      , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
   ])
   def findAllOrganisms() {
@@ -1559,6 +1560,10 @@ class OrganismController {
         }
       }
 
+      if(showPublicOnly){
+        organismList = organismList.findAll{ o -> o.publicMode }
+      }
+
       if (!organismList) {
         def error = [error: 'Not authorized for any organisms']
         render error as JSON
@@ -1567,6 +1572,7 @@ class OrganismController {
 
       UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(requestObject), true, [max: 1, sort: "lastUpdated", order: "desc"])
       Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
 
       JSONArray jsonArray = new JSONArray()
       for (Organism organism in organismList) {

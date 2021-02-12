@@ -780,4 +780,7 @@ class PermissionService {
     }
 
 
+    Boolean checkLoginGlobalAndLocalPermissions(JSONObject jsonObject, GlobalPermissionEnum globalPermissionEnum, PermissionEnum permissionEnum2) {
+        return hasGlobalPermissions(jsonObject,globalPermissionEnum) && hasPermissions(jsonObject,permissionEnum2)
+    }
 }
