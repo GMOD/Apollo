@@ -25,10 +25,13 @@ class CannedKeyController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
-            forward action: "notAuthorized", controller: "annotator"
-            return
+      // if a non-JSON method
+      if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+          forward action: "notAuthorized", controller: "annotator"
+          return
         }
+      }
     }
 
     def index(Integer max) {
@@ -238,7 +241,7 @@ class CannedKeyController {
                 key.save(flush: true)
 
                 log.info "Success updating canned key: ${key.id}"
-                render new JSONObject() as JSON
+                render key as JSON
             } else {
                 def error = [error: 'not authorized to edit canned key']
                 log.error(error.error)

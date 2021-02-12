@@ -458,9 +458,9 @@ class UserController {
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             // allow delete a user if the current user is global admin or the current user is the creator of the user
             if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
-                //render status: HttpStatus.UNAUTHORIZED
                 def error = [error: 'not authorized to delete the user']
                 log.error(error.error)
+                response.status = HttpStatus.UNAUTHORIZED.value()
                 render error as JSON
                 return
             }
@@ -521,6 +521,7 @@ class UserController {
             if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
                 //render status: HttpStatus.UNAUTHORIZED
                 def error = [error: 'not authorized to activate the user']
+                response.status = HttpStatus.UNAUTHORIZED.value()
                 log.error(error.error)
                 render error as JSON
                 return
@@ -573,9 +574,9 @@ class UserController {
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             // allow delete a user if the current user is global admin or the current user is the creator of the user
             if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
-                //render status: HttpStatus.UNAUTHORIZED
                 def error = [error: 'not authorized to delete the user']
                 log.error(error.error)
+                response.status = HttpStatus.UNAUTHORIZED.value()
                 render error as JSON
                 return
             }
@@ -638,9 +639,9 @@ class UserController {
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             // allow update a user if the current user is global admin or the current user is the creator of the user
             if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
-                //render status: HttpStatus.UNAUTHORIZED
                 def error = [error: 'not authorized to update the user']
                 log.error(error.error)
+                response.status = HttpStatus.UNAUTHORIZED.value()V
                 render error as JSON
                 return
             }
@@ -690,7 +691,11 @@ class UserController {
     ])
     def getOrganismPermissionsForUser() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        // to support webservice using either userId or username
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.USER)) {
+          render status: HttpStatus.UNAUTHORIZED
+          return
+        }
+      // to support webservice using either userId or username
         User user = dataObject.userId ? User.findById(dataObject.userId as Long) : User.findByUsername(dataObject.username)
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)
 
@@ -793,6 +798,7 @@ class UserController {
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)
+            response.status = HttpStatus.UNAUTHORIZED.value()
             render error as JSON
             return
         }

@@ -545,7 +545,7 @@ class RequestHandlingService {
         log.debug "getComments"
         JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+        permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
         JSONArray commentsArray = new JSONArray()
         for (int i = 0; i < featuresArray.size(); i++) {
