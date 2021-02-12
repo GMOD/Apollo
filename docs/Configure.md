@@ -96,6 +96,21 @@ grails {
 }
 ```
 
+### Suppress add merged comments
+
+By default, when you merge two isoforms, it will automatically create a comment indicating the name and unique ID from the 
+consumed isoform that was used as a comment.
+
+
+```
+grails {
+  apollo.add_merged_comment = false
+  apollo {
+    add_merged_comment = false
+  }
+}
+```
+
 
 
 ### JBrowse Plugins and Configuration

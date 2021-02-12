@@ -101,6 +101,7 @@ apollo {
     overlapper_class = System.getenv("WEBAPOLLO_OVERLAPPER_CLASS") ?: "org.bbop.apollo.sequence.OrfOverlapper"
     use_cds_for_new_transcripts = checkBooleanEnvironment("WEBAPOLLO_CDS_FOR_NEW_TRANSCRIPTS",false)
     count_annotations = checkBooleanEnvironment("WEBAPOLLO_COUNT_ANNOTATIONS",true)
+    add_merged_commented = checkBooleanEnvironment("WEBAPOLLO_ADD_MERGED_COMMENT",true)
     phone.phoneHome = checkBooleanEnvironment("WEBAPOLLO_PHONE_HOME",true)
     feature_has_dbxrefs = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_DBXREFS",true)
     feature_has_attributes = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_ATTRS",true)

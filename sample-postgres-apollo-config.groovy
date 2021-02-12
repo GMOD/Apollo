@@ -110,6 +110,7 @@ environments {
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
 //    calculate_non_canonical_splice_sites = false
+//    add_merged_comment = true
 //    count_annotations = false
 //    store_orig_id = false
 //    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from // https://genome.ucsc.edu/goldenPath/help/blatSpec.html
