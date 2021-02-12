@@ -79,7 +79,10 @@ class GeneProductController {
     @Transactional
     def index() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.READ)
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.READ)){
+            render status : UNAUTHORIZED
+            return
+        }
         Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
         if (feature) {
             JSONObject annotations = geneProductService.getAnnotations(feature)
@@ -115,7 +118,10 @@ class GeneProductController {
     @Transactional
     def save() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+            render status : UNAUTHORIZED
+            return
+        }
         User user = permissionService.getCurrentUser(dataObject)
         GeneProduct geneProduct = new GeneProduct()
         Feature feature = Feature.findByUniqueName(dataObject.feature)
@@ -174,7 +180,10 @@ class GeneProductController {
     @Transactional
     def update() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+            render status : UNAUTHORIZED
+            return
+        }
         User user = permissionService.getCurrentUser(dataObject)
         Feature feature = Feature.findByUniqueName(dataObject.feature)
 
@@ -225,7 +234,10 @@ class GeneProductController {
     @Transactional
     def delete() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+            render status : UNAUTHORIZED
+            return
+        }
         User user = permissionService.getCurrentUser(dataObject)
 
         Feature feature = Feature.findByUniqueName(dataObject.feature)

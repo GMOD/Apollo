@@ -805,6 +805,8 @@ class AnnotatorController {
 
     def notAuthorized() {
         log.error "not authorized"
+        response.status = HttpStatus.UNAUTHORIZED.value()
+        render new JSONObject(["error":"Not authorized"])
     }
 
 /**

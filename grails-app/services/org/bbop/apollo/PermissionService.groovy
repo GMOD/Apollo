@@ -22,9 +22,6 @@ class PermissionService {
 
     def preferenceService
     def configWrapperService
-    def grailsApplication
-
-
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
@@ -361,6 +358,8 @@ class PermissionService {
      */
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
+
+        validateSessionForJsonObject(inputObject)
         String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
@@ -577,18 +576,24 @@ class PermissionService {
             return false
         }
         */
-        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
-        jsonObject = validateSessionForJsonObject(jsonObject)
-        Organism organism = getOrganismFromInput(jsonObject)
+        try {
+            String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+            // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
+            jsonObject = validateSessionForJsonObject(jsonObject)
+            Organism organism = getOrganismFromInput(jsonObject)
 
-        organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
-        // don't set the preferences if it is coming off a script
-        if (clientToken != FeatureStringEnum.IGNORE.value) {
-            preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
+            organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+            // don't set the preferences if it is coming off a script
+            if (clientToken != FeatureStringEnum.IGNORE.value) {
+                preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
+            }
+
+            validateSessionForJsonObject(jsonObject)
+            return checkPermissions(jsonObject, organism, permissionEnum)
+        } catch (e) {
+            log.warn(e)
+            return false
         }
-
-        return checkPermissions(jsonObject, organism, permissionEnum)
 
     }
 
@@ -781,4 +786,7 @@ class PermissionService {
     }
 
 
+    Boolean checkLoginGlobalAndLocalPermissions(JSONObject jsonObject, GlobalPermissionEnum globalPermissionEnum, PermissionEnum permissionEnum2) {
+        return hasGlobalPermissions(jsonObject,globalPermissionEnum) && hasPermissions(jsonObject,permissionEnum2)
+    }
 }

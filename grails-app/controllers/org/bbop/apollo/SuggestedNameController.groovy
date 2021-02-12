@@ -24,10 +24,13 @@ class SuggestedNameController {
     def permissionService
 
     def beforeInterceptor = {
+      // if a non-JSON method
+      if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            forward action: "notAuthorized", controller: "annotator"
-            return
+          forward action: "notAuthorized", controller: "annotator"
+          return
         }
+      }
     }
 
     def index(Integer max) {
@@ -238,7 +241,7 @@ class SuggestedNameController {
                 name.save(flush: true)
 
                 log.info "Success updating suggested name: ${name.id}"
-                render new JSONObject() as JSON
+                render name as JSON
             } else {
                 def error = [error: 'not authorized to edit suggested name']
                 log.error(error.error)
