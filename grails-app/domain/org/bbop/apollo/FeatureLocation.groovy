@@ -35,12 +35,7 @@ class FeatureLocation {
     static belongsTo = [Feature]
 
 
-    static hasMany = [
-            featureLocationPublications: Publication
-    ]
-
-
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         FeatureLocation castOther = (FeatureLocation) other;
@@ -48,7 +43,7 @@ class FeatureLocation {
         return ((this.getFeature() == castOther.getFeature()) || (this.getFeature() != null && castOther.getFeature() != null && this.getFeature().equals(castOther.getFeature()))) && (this.getLocgroup() == castOther.getLocgroup()) && (this.getRank() == castOther.getRank());
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
         result = 37 * result + (getFeature() == null ? 0 : this.getFeature().hashCode());
@@ -63,10 +58,10 @@ class FeatureLocation {
      * We use this as an artificial accessor in case the property has not been calculatd
      * @return
      */
-    public Integer calculateLength(){
+    Integer calculateLength(){
         return fmax-fmin
     }
-    public FeatureLocation generateClone() {
+    FeatureLocation generateClone() {
         FeatureLocation cloned = new FeatureLocation();
         cloned.sequence = this.sequence;
         cloned.feature = this.feature;
@@ -79,7 +74,6 @@ class FeatureLocation {
         cloned.residueInfo = this.residueInfo;
         cloned.locgroup = this.locgroup;
         cloned.rank = this.rank;
-        cloned.featureLocationPublications = this.featureLocationPublications;
         return cloned;
     }
 
