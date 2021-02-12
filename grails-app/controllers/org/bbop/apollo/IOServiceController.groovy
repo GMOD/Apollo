@@ -289,14 +289,19 @@ class IOServiceController extends AbstractApolloController {
             , path = "/IOService/download", verb = RestApiVerb.POST
     )
     @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uuid", type = "string", paramType = RestApiParamType.QUERY, description = "UUID that holds the key to the stored download.")
+//            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+//            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            @RestApiParam(name = "uuid", type = "string", paramType = RestApiParamType.QUERY, description = "UUID that holds the key to the stored download.")
             , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
     ]
     )
     @Timed
     def download() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+//        if (!permissionService.hasPermissions(dataObject, PermissionEnum.EXPORT)) {
+//            render status: HttpStatus.UNAUTHORIZED
+//            return
+//        }
         String uuid = params.uuid
         DownloadFile downloadFile = fileMap.remove(uuid)
         def file
