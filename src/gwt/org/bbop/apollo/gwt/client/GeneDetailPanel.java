@@ -77,6 +77,8 @@ public class GeneDetailPanel extends Composite {
     InlineCheckBox partialMin;
     @UiField
     InlineCheckBox partialMax;
+    @UiField
+    InlineCheckBox obsoleteButton;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -103,6 +105,12 @@ public class GeneDetailPanel extends Composite {
     void handleSymbolChange(ChangeEvent e) {
         String updatedName = symbolField.getText();
         internalAnnotationInfo.setSymbol(updatedName);
+        updateGene();
+    }
+
+    @UiHandler("obsoleteButton")
+    void handleObsoleteChange(ChangeEvent e) {
+//        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
         updateGene();
     }
 
