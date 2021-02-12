@@ -216,6 +216,7 @@ class AnnotatorController {
             , @RestApiParam(name = "synonyms", type = "string", paramType = RestApiParamType.QUERY, description = "Updated synonyms pipe (|) separated")
             , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
             , @RestApiParam(name = "status", type = "string", paramType = RestApiParamType.QUERY, description = "Updated status")
+            , @RestApiParam(name = "obsolete", type = "boolean", paramType = RestApiParamType.QUERY, description = "Updated if obsolete")
     ]
     )
     @Transactional
@@ -235,6 +236,9 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
+        if(data.containsKey("obsolete")) {
+            feature.isObsolete = data.getBoolean("obsolete")
+        }
 
         def oldSynonymNames = feature.featureSynonyms ? feature.featureSynonyms.synonym.name.sort() : []
         def newSynonymNames = data.synonyms ? data.synonyms.split("\\|").sort() : []
