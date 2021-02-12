@@ -22,7 +22,6 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -74,6 +73,10 @@ public class GeneDetailPanel extends Composite {
     Button gotoAnnotation;
     @UiField
     Button annotationIdButton;
+    @UiField
+    InlineCheckBox partialMin;
+    @UiField
+    InlineCheckBox partialMax;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -175,6 +178,15 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+
+    @UiHandler({"partialMin", "partialMax"})
+    void handlePartial(ChangeEvent e){
+        internalAnnotationInfo.setPartialMin(partialMin.getValue());
+        internalAnnotationInfo.setPartialMax(partialMax.getValue());
+        updateGene();
+    }
+
+
     private void checkSyncButton(){
         Set<AnnotationInfo> childAnnotations = internalAnnotationInfo.getChildAnnotations();
         if(childAnnotations.size()==1){
@@ -193,6 +205,8 @@ public class GeneDetailPanel extends Composite {
         descriptionField.setEnabled(editable);
         synonymsField.setEnabled(editable);
         deleteAnnotation.setEnabled(editable);
+        partialMin.setEnabled(editable);
+        partialMax.setEnabled(editable);
 
         if(!editable || this.internalAnnotationInfo==null){
             syncNameButton.setEnabled(false);
@@ -236,6 +250,8 @@ public class GeneDetailPanel extends Composite {
         suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
         suggestedNameOracle.setFeatureType("sequence:" + annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
+        partialMin.setValue(internalAnnotationInfo.getPartialMin());
+        partialMax.setValue(internalAnnotationInfo.getPartialMax());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         typeField.setText(internalAnnotationInfo.getType());
         synonymsField.setText(internalAnnotationInfo.getSynonyms());

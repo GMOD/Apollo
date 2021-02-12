@@ -2362,12 +2362,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
     jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
     jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
-    if (gsolFeatureLocation.isIsFminPartial()) {
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
-    }
-    if (gsolFeatureLocation.isIsFmaxPartial()) {
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
-    }
+    jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, gsolFeatureLocation.isIsFminPartial());
+    jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, gsolFeatureLocation.isIsFmaxPartial());
     jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
     return jsonFeatureLocation;
   }

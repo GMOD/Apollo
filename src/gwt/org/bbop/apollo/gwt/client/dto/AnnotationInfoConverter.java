@@ -79,6 +79,8 @@ public class AnnotationInfoConverter {
 
         annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
         annotationInfo.setMax((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
+        annotationInfo.setPartialMin(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.IS_FMIN_PARTIAL.getValue()).isBoolean().booleanValue());
+        annotationInfo.setPartialMax(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.IS_FMAX_PARTIAL.getValue()).isBoolean().booleanValue());
         annotationInfo.setStrand((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.STRAND.getValue()).isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get(FeatureStringEnum.UNIQUENAME.getValue()).isString().stringValue());
         annotationInfo.setSequence(object.get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue());
