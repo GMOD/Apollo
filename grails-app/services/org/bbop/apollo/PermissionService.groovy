@@ -359,7 +359,8 @@ class PermissionService {
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
 
-        validateSessionForJsonObject(inputObject)
+        // NOTE: if coming through web-socket, we will not have a session
+//        validateSessionForJsonObject(inputObject)
         String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
