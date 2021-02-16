@@ -40,7 +40,7 @@ public class GeneDetailPanel extends Composite {
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, GeneDetailPanel> {
     }
 
-    private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
+    private static final AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
     @UiField(provided = true)
     SuggestBox nameField;
     @UiField

@@ -2356,21 +2356,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
   @Timed
   JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
-    JSONObject jsonFeatureLocation = new JSONObject();
+    JSONObject jsonFeatureLocation = new JSONObject()
     if (gsolFeatureLocation.id) {
-      jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id);
+      jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id)
     }
-    jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
-    jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
-    if(gsolFeatureLocation.isFminPartial()){
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, gsolFeatureLocation.isIsFminPartial());
+    jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin())
+    jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax())
+    if(gsolFeatureLocation.getIsFminPartial()){
+      jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, gsolFeatureLocation.getIsFminPartial())
     }
 
-    if(gsolFeatureLocation.isFmaxPartial()){
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, gsolFeatureLocation.isIsFmaxPartial());
+    if(gsolFeatureLocation.getIsFmaxPartial()){
+      jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, gsolFeatureLocation.getIsFmaxPartial())
     }
-    jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
-    return jsonFeatureLocation;
+    jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand())
+    return jsonFeatureLocation
   }
 
   @Transactional
