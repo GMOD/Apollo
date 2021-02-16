@@ -365,7 +365,8 @@ class AnnotatorController {
                 data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value) != isFminPartial
         ){
             featureOperation = FeatureOperation.SET_PARTIAL_FMIN
-            featureLocation.isFminPartial = data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+//            featureLocation.isFminPartial = data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+            featureService.setPartialFmin(feature,data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value).booleanValue(),feature.featureLocation.fmin)
         }
         else
         if(data.containsKey(FeatureStringEnum.IS_FMAX_PARTIAL.value)
@@ -373,7 +374,7 @@ class AnnotatorController {
                 data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value) != isFmaxPartial
         ){
             featureOperation = FeatureOperation.SET_PARTIAL_FMAX
-            featureLocation.isFmaxPartial = data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value)
+            featureService.setPartialFmax(feature,data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value).booleanValue(),feature.featureLocation.fmax)
         }
         else{
             throw new AnnotationException("Partials have not changed, so not doing anything")

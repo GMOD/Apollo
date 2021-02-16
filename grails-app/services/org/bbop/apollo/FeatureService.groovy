@@ -6,6 +6,7 @@ import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
@@ -3585,4 +3586,38 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     return false
   }
+
+  @Transactional
+  def setPartialFmin(Feature feature,boolean fminPartial,int fmin){
+    FeatureLocation featureLocation = feature.featureLocation
+    if(fmin==featureLocation.fmin){
+      featureLocation.isFminPartial = fminPartial
+      featureLocation.save()
+    }
+
+    List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+    if(childFeatures){
+      for(childFeature in childFeatures){
+        setPartialFmin(childFeature,fminPartial,fmin)
+      }
+    }
+  }
+
+  @Transactional
+  def setPartialFmax(Feature feature,boolean fmaxPartial,int fmax){
+    FeatureLocation featureLocation = feature.featureLocation
+    if(fmax==featureLocation.fmax){
+      featureLocation.isFmaxPartial = fmaxPartial
+      featureLocation.save()
+    }
+
+    List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+    if(childFeatures){
+      for(childFeature in childFeatures){
+        setPartialFmax(childFeature,fmaxPartial,fmax)
+      }
+    }
+
+  }
+
 }
