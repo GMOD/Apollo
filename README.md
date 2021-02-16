@@ -37,6 +37,8 @@ Apollo may be launched from [Docker](docs/Docker.md) as well.
 
 The [guide for developers](docs/Apollo2Build.md) shows how to get started with Apollo. 
 
+## Web Services
+
 [Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
 
 
