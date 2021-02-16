@@ -236,6 +236,7 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
+        feature.isObsolete = data.obsolete
         if(data.containsKey("obsolete")) {
             feature.isObsolete = data.getBoolean("obsolete")
         }
@@ -324,6 +325,76 @@ class AnnotatorController {
         if (nameChange) {
             requestHandlingService.fireAnnotationEvent(annotationEvent)
         }
+
+        render updateFeatureContainer
+    }
+
+/**
+ * updates shallow properties of gene / feature
+ * @return
+ */
+    @RestApiMethod(description = "Update partial fmin / famx", path = "/annotator/updatePartials", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
+            , @RestApiParam(name = "data", type = "string", paramType = RestApiParamType.QUERY, description = "Annotation Info object")
+    ]
+    )
+    @Transactional
+    def updatePartials() {
+        log.debug "update partials  ${params.data}"
+        JSONObject data = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        Feature feature = Feature.findByUniqueName(data.uniquename)
+        FeatureLocation featureLocation = feature.featureLocation
+
+        boolean isFminPartial = feature.featureLocation.isFminPartial
+        boolean isFmaxPartial = feature.featureLocation.isFmaxPartial
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        FeatureOperation featureOperation
+        if(data.containsKey(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+            &&
+                data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value) != isFminPartial
+        ){
+            featureOperation = FeatureOperation.SET_PARTIAL_FMIN
+//            featureLocation.isFminPartial = data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+            featureService.setPartialFmin(feature,data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value).booleanValue(),feature.featureLocation.fmin)
+        }
+        else
+        if(data.containsKey(FeatureStringEnum.IS_FMAX_PARTIAL.value)
+                &&
+                data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value) != isFmaxPartial
+        ){
+            featureOperation = FeatureOperation.SET_PARTIAL_FMAX
+            featureService.setPartialFmax(feature,data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value).booleanValue(),feature.featureLocation.fmax)
+        }
+        else{
+            throw new AnnotationException("Partials have not changed, so not doing anything")
+        }
+        featureLocation.save(flush: true, failOnError: true,insert:false)
+
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
+        // its either a gene or
+
+        User user = permissionService.getCurrentUser(data)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        featureEventService.addNewFeatureEvent(featureOperation,
+                feature.name,
+                feature.uniqueName,
+                data,
+                oldFeaturesJsonArray,
+                newFeaturesJsonArray,
+                user)
 
         render updateFeatureContainer
     }
@@ -991,6 +1062,7 @@ class AnnotatorController {
         if (!compareNullToBlank(feature.symbol,data.symbol)) return FeatureOperation.SET_SYMBOL
         if (!compareNullToBlank(feature.description,data.description)) return FeatureOperation.SET_DESCRIPTION
         if (!compareNullToBlank(feature.status,data.status)) return FeatureOperation.SET_STATUS
+        if(feature.isObsolete != data.obsolete ) return FeatureOperation.SET_OBSOLETE
 
         log.warn("Updated generic feature")
         null

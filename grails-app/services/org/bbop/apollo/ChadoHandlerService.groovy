@@ -456,9 +456,9 @@ class ChadoHandlerService {
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado featureloc for feature fmin: ${feature.fmin} fmax: ${feature.fmax}: ${endTime - startTime} ms"
         exportStatisticsMap['featureloc_count'] += 1
-        feature.featureLocation.featureLocationPublications.each { featureLocationPublication ->
-            createChadoFeaturelocPub(chadoFeatureLoc, featureLocationPublication)
-        }
+//        feature.featureLocation.featureLocationPublications.each { featureLocationPublication ->
+//            createChadoFeaturelocPub(chadoFeatureLoc, featureLocationPublication)
+//        }
         return chadoFeatureLoc
     }
 

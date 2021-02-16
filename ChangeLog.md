@@ -7,6 +7,7 @@ Features
 - Added ability to use posts to sequence methods [2555](https://github.com/GMOD/Apollo/pull/2558).
 - Added system info web service [2557](https://github.com/GMOD/Apollo/pull/2557).
 - Add "merged from" comment to merged in transcript and gene [2567](https://github.com/GMOD/Apollo/issues/2567).
+- Added support for "obsolete", and partials in the interface for GFF3s [2573](https://github.com/GMOD/Apollo/pull/2573).
 
 Bug Fixes:
 

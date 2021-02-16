@@ -43,6 +43,9 @@ public class AnnotationRestService extends RestService {
         }
         jsonObject.put(FeatureStringEnum.FMIN.getValue(), annotationInfo.getMin() != null ? new JSONNumber(annotationInfo.getMin()) : null);
         jsonObject.put(FeatureStringEnum.FMAX.getValue(), annotationInfo.getMax() != null ? new JSONNumber(annotationInfo.getMax()) : null);
+        jsonObject.put(FeatureStringEnum.IS_FMIN_PARTIAL.getValue(),  JSONBoolean.getInstance(annotationInfo.getPartialMin()) );
+        jsonObject.put(FeatureStringEnum.IS_FMAX_PARTIAL.getValue(), JSONBoolean.getInstance(annotationInfo.getPartialMax()) );
+        jsonObject.put(FeatureStringEnum.OBSOLETE.getValue(), JSONBoolean.getInstance(annotationInfo.getObsolete()) );
         jsonObject.put(FeatureStringEnum.STRAND.getValue(), annotationInfo.getStrand() != null ? new JSONNumber(annotationInfo.getStrand()) : null);
 
         return jsonObject;
@@ -62,6 +65,8 @@ public class AnnotationRestService extends RestService {
       JSONObject locationObject = new JSONObject();
       locationObject.put(FeatureStringEnum.FMIN.getValue(), annotationInfo.getMin() != null ? new JSONNumber(annotationInfo.getMin()) : null);
       locationObject.put(FeatureStringEnum.FMAX.getValue(), annotationInfo.getMax() != null ? new JSONNumber(annotationInfo.getMax()) : null);
+      locationObject.put(FeatureStringEnum.IS_FMIN_PARTIAL.getValue(),  JSONBoolean.getInstance(annotationInfo.getPartialMin()) );
+      locationObject.put(FeatureStringEnum.IS_FMAX_PARTIAL.getValue(), JSONBoolean.getInstance(annotationInfo.getPartialMax()) );
       locationObject.put(FeatureStringEnum.STRAND.getValue(), annotationInfo.getStrand() != null ? new JSONNumber(annotationInfo.getStrand()) : null);
       return locationObject;
   }

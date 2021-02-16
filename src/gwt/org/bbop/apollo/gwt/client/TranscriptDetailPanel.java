@@ -19,10 +19,7 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.InputGroupAddon;
-import org.gwtbootstrap3.client.ui.ListBox;
-import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -72,6 +69,12 @@ public class TranscriptDetailPanel extends Composite {
     Button gotoAnnotation;
     @UiField
     Button annotationIdButton;
+    @UiField
+    InlineCheckBox partialMin;
+    @UiField
+    InlineCheckBox partialMax;
+    @UiField
+    InlineCheckBox obsoleteButton;
 
     private Boolean editable = false;
 
@@ -79,6 +82,11 @@ public class TranscriptDetailPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
+    @UiHandler("obsoleteButton")
+    void handleObsoleteChange(ChangeEvent e) {
+        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
+        updateTranscript();
+    }
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
@@ -156,6 +164,36 @@ public class TranscriptDetailPanel extends Composite {
 
     }
 
+    @UiHandler({"partialMin", "partialMax"})
+    void handlePartial(ChangeEvent e){
+        internalAnnotationInfo.setPartialMin(partialMin.getValue());
+        internalAnnotationInfo.setPartialMax(partialMax.getValue());
+        updatePartials();
+    }
+
+    private void updatePartials() {
+        setEditable(false);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                setEditable(true);
+                MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating gene: " + exception);
+                setEditable(true);
+            }
+        };
+//        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+
+        RestService.sendRequest(requestCallback, "annotator/updatePartials/", data);
+
+    }
 
     @UiHandler("annotationIdButton")
     void getAnnotationInfo(ClickEvent clickEvent) {
@@ -242,6 +280,9 @@ public class TranscriptDetailPanel extends Composite {
         synonymsField.setText(internalAnnotationInfo.getSynonyms());
         userField.setText(internalAnnotationInfo.getOwner());
         typeField.setText(internalAnnotationInfo.getType());
+        partialMin.setValue(internalAnnotationInfo.getPartialMin());
+        partialMax.setValue(internalAnnotationInfo.getPartialMax());
+        obsoleteButton.setValue(internalAnnotationInfo.getObsolete());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
@@ -349,6 +390,8 @@ public class TranscriptDetailPanel extends Composite {
         descriptionField.setEnabled(this.editable);
         synonymsField.setEnabled(this.editable);
         deleteAnnotation.setEnabled(this.editable);
+        partialMin.setEnabled(editable);
+        partialMax.setEnabled(editable);
         if(!editable || this.internalAnnotationInfo==null || MainPanel.annotatorPanel.getCurrentGene() == null){
             syncNameButton.setEnabled(false);
         }

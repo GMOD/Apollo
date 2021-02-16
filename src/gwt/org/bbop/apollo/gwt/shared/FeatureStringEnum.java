@@ -64,6 +64,7 @@ public enum FeatureStringEnum {
         CONFIRM,
         FMIN,
         FMAX,
+        OBSOLETE,
         IS_FMIN_PARTIAL,
         IS_FMAX_PARTIAL,
         STRAND,

@@ -6,6 +6,7 @@ import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
@@ -1966,6 +1967,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     if (gsolFeature.symbol) {
       jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
     }
+    if (gsolFeature.isObsolete) {
+      jsonFeature.put(FeatureStringEnum.OBSOLETE.value, gsolFeature.isObsolete);
+    }
     if (gsolFeature.description) {
       jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
     }
@@ -2356,20 +2360,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
   @Timed
   JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
-    JSONObject jsonFeatureLocation = new JSONObject();
+    JSONObject jsonFeatureLocation = new JSONObject()
     if (gsolFeatureLocation.id) {
-      jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id);
+      jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id)
     }
-    jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
-    jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
-    if (gsolFeatureLocation.isIsFminPartial()) {
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
+    jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin())
+    jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax())
+    if(gsolFeatureLocation.getIsFminPartial()){
+      jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, gsolFeatureLocation.getIsFminPartial())
     }
-    if (gsolFeatureLocation.isIsFmaxPartial()) {
-      jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
+
+    if(gsolFeatureLocation.getIsFmaxPartial()){
+      jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, gsolFeatureLocation.getIsFmaxPartial())
     }
-    jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
-    return jsonFeatureLocation;
+    jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand())
+    return jsonFeatureLocation
   }
 
   @Transactional
@@ -3584,4 +3589,38 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     return false
   }
+
+  @Transactional
+  def setPartialFmin(Feature feature,boolean fminPartial,int fmin){
+    FeatureLocation featureLocation = feature.featureLocation
+    if(fmin==featureLocation.fmin){
+      featureLocation.isFminPartial = fminPartial
+      featureLocation.save()
+    }
+
+    List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+    if(childFeatures){
+      for(childFeature in childFeatures){
+        setPartialFmin(childFeature,fminPartial,fmin)
+      }
+    }
+  }
+
+  @Transactional
+  def setPartialFmax(Feature feature,boolean fmaxPartial,int fmax){
+    FeatureLocation featureLocation = feature.featureLocation
+    if(fmax==featureLocation.fmax){
+      featureLocation.isFmaxPartial = fmaxPartial
+      featureLocation.save()
+    }
+
+    List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+    if(childFeatures){
+      for(childFeature in childFeatures){
+        setPartialFmax(childFeature,fmaxPartial,fmax)
+      }
+    }
+
+  }
+
 }
