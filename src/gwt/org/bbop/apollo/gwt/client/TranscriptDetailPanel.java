@@ -84,7 +84,7 @@ public class TranscriptDetailPanel extends Composite {
 
     @UiHandler("obsoleteButton")
     void handleObsoleteChange(ChangeEvent e) {
-//        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
+        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
         updateTranscript();
     }
 
@@ -282,6 +282,7 @@ public class TranscriptDetailPanel extends Composite {
         typeField.setText(internalAnnotationInfo.getType());
         partialMin.setValue(internalAnnotationInfo.getPartialMin());
         partialMax.setValue(internalAnnotationInfo.getPartialMax());
+        obsoleteButton.setValue(internalAnnotationInfo.getObsolete());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));

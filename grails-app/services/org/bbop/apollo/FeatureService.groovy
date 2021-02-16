@@ -1967,6 +1967,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     if (gsolFeature.symbol) {
       jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
     }
+    if (gsolFeature.isObsolete) {
+      jsonFeature.put(FeatureStringEnum.OBSOLETE.value, gsolFeature.isObsolete);
+    }
     if (gsolFeature.description) {
       jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
     }

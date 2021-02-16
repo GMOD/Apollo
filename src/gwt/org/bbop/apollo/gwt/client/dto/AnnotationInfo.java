@@ -17,6 +17,7 @@ public class AnnotationInfo {
     private Integer max;
     private Boolean partialMin = false;
     private Boolean partialMax = false;
+    private Boolean obsolete = false;
     private Set<AnnotationInfo> childAnnotations = new HashSet<>(); // children
     private List<GoAnnotation> goAnnotations = new ArrayList<>(); // go annotations
     private String symbol;
@@ -320,4 +321,14 @@ public class AnnotationInfo {
     public void setPartialMax(Boolean partialMax) {
         this.partialMax = partialMax;
     }
+
+
+    public Boolean getObsolete() {
+        return obsolete;
+    }
+
+    public void setObsolete(Boolean obsolete) {
+        this.obsolete = obsolete;
+    }
+
 }

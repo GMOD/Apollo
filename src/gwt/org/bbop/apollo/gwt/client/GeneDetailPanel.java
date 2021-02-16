@@ -110,7 +110,7 @@ public class GeneDetailPanel extends Composite {
 
     @UiHandler("obsoleteButton")
     void handleObsoleteChange(ChangeEvent e) {
-//        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
+        internalAnnotationInfo.setObsolete(obsoleteButton.getValue());
         updateGene();
     }
 
@@ -283,6 +283,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         partialMin.setValue(internalAnnotationInfo.getPartialMin());
         partialMax.setValue(internalAnnotationInfo.getPartialMax());
+        obsoleteButton.setValue(internalAnnotationInfo.getObsolete());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         typeField.setText(internalAnnotationInfo.getType());
         synonymsField.setText(internalAnnotationInfo.getSynonyms());

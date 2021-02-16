@@ -52,6 +52,7 @@ class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.DATE_LAST_MODIFIED.value);
         writeObject.attributesToExport.add(FeatureStringEnum.IS_FMIN_PARTIAL.value);
         writeObject.attributesToExport.add(FeatureStringEnum.IS_FMAX_PARTIAL.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.OBSOLETE.value);
 
         if (!writeObject.file.canWrite()) {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
@@ -356,6 +357,9 @@ class Gff3HandlerService {
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.IS_FMIN_PARTIAL.value) &&  feature.featureLocation.isFminPartial) {
                 attributes.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, feature.featureLocation.isFminPartial.toString())
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.OBSOLETE.value) &&  feature.isObsolete) {
+                attributes.put(FeatureStringEnum.OBSOLETE.value, feature.isObsolete.toString())
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.IS_FMAX_PARTIAL.value) &&  feature.featureLocation.isFmaxPartial) {
                 attributes.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, feature.featureLocation.isFmaxPartial.toString())

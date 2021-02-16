@@ -236,6 +236,7 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
+        feature.isObsolete = data.obsolete
         if(data.containsKey("obsolete")) {
             feature.isObsolete = data.getBoolean("obsolete")
         }
@@ -354,10 +355,6 @@ class AnnotatorController {
         boolean isFminPartial = feature.featureLocation.isFminPartial
         boolean isFmaxPartial = feature.featureLocation.isFmaxPartial
 
-        println "input fmin  ${isFminPartial} "
-        println "input fmax  ${isFmaxPartial} "
-        println "data: ${data.toString(2) }"
-
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
         FeatureOperation featureOperation
         if(data.containsKey(FeatureStringEnum.IS_FMIN_PARTIAL.value)
@@ -379,16 +376,11 @@ class AnnotatorController {
         else{
             throw new AnnotationException("Partials have not changed, so not doing anything")
         }
-        println "feature location id: ${featureLocation.id}"
-
         featureLocation.save(flush: true, failOnError: true,insert:false)
-
-        println "saved the feature locaiton: ${featureLocation as  JSON}"
 
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         // its either a gene or
 
-        Sequence sequence = feature?.featureLocation?.sequence
         User user = permissionService.getCurrentUser(data)
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
@@ -403,13 +395,6 @@ class AnnotatorController {
                 oldFeaturesJsonArray,
                 newFeaturesJsonArray,
                 user)
-
-//        AnnotationEvent annotationEvent = new AnnotationEvent(
-//                features: updateFeatureContainer
-//                , sequence: sequence
-//                , operation: AnnotationEvent.Operation.UPDATE
-//                , sequenceAlterationEvent: false
-//        )
 
         render updateFeatureContainer
     }
@@ -1077,6 +1062,7 @@ class AnnotatorController {
         if (!compareNullToBlank(feature.symbol,data.symbol)) return FeatureOperation.SET_SYMBOL
         if (!compareNullToBlank(feature.description,data.description)) return FeatureOperation.SET_DESCRIPTION
         if (!compareNullToBlank(feature.status,data.status)) return FeatureOperation.SET_STATUS
+        if(feature.isObsolete != data.obsolete ) return FeatureOperation.SET_OBSOLETE
 
         log.warn("Updated generic feature")
         null

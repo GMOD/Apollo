@@ -45,6 +45,7 @@ public class AnnotationRestService extends RestService {
         jsonObject.put(FeatureStringEnum.FMAX.getValue(), annotationInfo.getMax() != null ? new JSONNumber(annotationInfo.getMax()) : null);
         jsonObject.put(FeatureStringEnum.IS_FMIN_PARTIAL.getValue(),  JSONBoolean.getInstance(annotationInfo.getPartialMin()) );
         jsonObject.put(FeatureStringEnum.IS_FMAX_PARTIAL.getValue(), JSONBoolean.getInstance(annotationInfo.getPartialMax()) );
+        jsonObject.put(FeatureStringEnum.OBSOLETE.getValue(), JSONBoolean.getInstance(annotationInfo.getObsolete()) );
         jsonObject.put(FeatureStringEnum.STRAND.getValue(), annotationInfo.getStrand() != null ? new JSONNumber(annotationInfo.getStrand()) : null);
 
         return jsonObject;
