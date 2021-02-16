@@ -39,11 +39,9 @@ jobs:
         run: |
           pwd
           cd python-apollo
-#         installing the python-apollo package again might be overkill, but we are testing for Apollo, not python-apollo
           pip install -U pip setuptools nose apollo
           echo "Testing arrow command"
           arrow
-#          python setup.py install
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
