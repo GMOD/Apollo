@@ -1,0 +1,88 @@
+name: Python-Apollo
+
+on: ["push", "pull_request"]
+
+jobs:
+  test-python-apollo:
+    name: test-python-apollo
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8.7]
+    steps:
+      - name: Checkout Apollo
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Run Apollo
+        run: |
+          cp test/config/python-apollo.travis apollo-config.groovy
+          date
+          ./grailsw run-app &
+          echo "Sleeping here while Apollo builds"
+          sleep 240
+          echo "Done sleeping, I hope it is working"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout Pypi
+        uses: actions/checkout@v2
+        with:
+          repository: galaxy-genome-annotation/python-apollo
+          path: python-apollo
+          ref: master
+      - name: Python install
+        run: |
+          pwd
+          cd python-apollo
+          pip install -U pip setuptools nose apollo
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Bootstrap
+        run: |
+          pwd
+          echo "Testing if awake"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
+          cd python-apollo
+          pwd
+          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          echo "Testing arrow command"
+          arrow users get_users
+          echo $ARROW_GLOBAL_CONFIG_PATH
+          ls $ARROW_GLOBAL_CONFIG_PATH
+          cat $ARROW_GLOBAL_CONFIG_PATH
+          ./bootstrap_apollo.sh --nodocker
+      - name: Run tests
+        run: |
+          pwd
+          cd python-apollo
+          pwd
+          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          python setup.py nosetests
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+
