@@ -19,8 +19,13 @@ jobs:
         with:
           java-version: 1.8
       - name: Run Apollo
-        run: ./grailsw run-app &
-      - name: Setup pytyhon
+        run: |
+          ./grailsw run-app &
+          echo "Sleeping here while Apollo builds"
+          sleep 240
+          echo "Done sleeping, I hope it is working"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
+      - name: Setup python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
