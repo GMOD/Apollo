@@ -39,8 +39,11 @@ jobs:
         run: |
           pwd
           cd python-apollo
-          pip install -U pip setuptools nose
-          python setup.py install
+#         installing the python-apollo package again might be overkill, but we are testing for Apollo, not python-apollo
+          pip install -U pip setuptools nose apollo
+          echo "Testing arrow command"
+          arrow
+#          python setup.py install
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -55,6 +58,8 @@ jobs:
           cd python-apollo
           pwd
           export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          arrow
+          arrow users get_users
           echo $ARROW_GLOBAL_CONFIG_PATH
           ls $ARROW_GLOBAL_CONFIG_PATH
           cat $ARROW_GLOBAL_CONFIG_PATH
