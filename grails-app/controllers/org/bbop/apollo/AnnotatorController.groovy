@@ -328,6 +328,91 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
+/**
+ * updates shallow properties of gene / feature
+ * @return
+ */
+    @RestApiMethod(description = "Update partial fmin / famx", path = "/annotator/updatePartials", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
+            , @RestApiParam(name = "data", type = "string", paramType = RestApiParamType.QUERY, description = "Annotation Info object")
+    ]
+    )
+    @Transactional
+    def updatePartials() {
+        log.debug "update partials  ${params.data}"
+        JSONObject data = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        Feature feature = Feature.findByUniqueName(data.uniquename)
+        FeatureLocation featureLocation = feature.featureLocation
+
+        boolean isFminPartial = feature.featureLocation.isFminPartial
+        boolean isFmaxPartial = feature.featureLocation.isFmaxPartial
+
+        println "input fmin  ${isFminPartial} "
+        println "input fmax  ${isFmaxPartial} "
+        println "data: ${data.toString(2) }"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        FeatureOperation featureOperation
+        if(data.containsKey(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+            &&
+                data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value) != isFminPartial
+        ){
+            featureOperation = FeatureOperation.SET_PARTIAL_FMIN
+            featureLocation.isFminPartial = data.getBoolean(FeatureStringEnum.IS_FMIN_PARTIAL.value)
+        }
+        else
+        if(data.containsKey(FeatureStringEnum.IS_FMAX_PARTIAL.value)
+                &&
+                data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value) != isFmaxPartial
+        ){
+            featureOperation = FeatureOperation.SET_PARTIAL_FMAX
+            featureLocation.isFmaxPartial = data.getBoolean(FeatureStringEnum.IS_FMAX_PARTIAL.value)
+        }
+        else{
+            throw new AnnotationException("Partials have not changed, so not doing anything")
+        }
+        println "feature location id: ${featureLocation.id}"
+
+        featureLocation.save(flush: true, failOnError: true,insert:false)
+
+        println "saved the feature locaiton: ${featureLocation as  JSON}"
+
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
+        // its either a gene or
+
+        Sequence sequence = feature?.featureLocation?.sequence
+        User user = permissionService.getCurrentUser(data)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        featureEventService.addNewFeatureEvent(featureOperation,
+                feature.name,
+                feature.uniqueName,
+                data,
+                oldFeaturesJsonArray,
+                newFeaturesJsonArray,
+                user)
+
+//        AnnotationEvent annotationEvent = new AnnotationEvent(
+//                features: updateFeatureContainer
+//                , sequence: sequence
+//                , operation: AnnotationEvent.Operation.UPDATE
+//                , sequenceAlterationEvent: false
+//        )
+
+        render updateFeatureContainer
+    }
+
 
     @RestApiMethod(description = "Update exon boundaries", path = "/annotator/setExonBoundaries", verb = RestApiVerb.POST)
     @RestApiParams(params = [

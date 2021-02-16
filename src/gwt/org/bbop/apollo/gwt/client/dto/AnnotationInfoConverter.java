@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
@@ -31,7 +30,6 @@ public class AnnotationInfoConverter {
 
     public static AnnotationInfo convertFromJsonObject(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
-        GWT.log(object.toString());
         annotationInfo.setName(object.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
         annotationInfo.setType(object.get(FeatureStringEnum.TYPE.getValue()).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
         if (object.get(FeatureStringEnum.SYMBOL.getValue()) != null) {
@@ -69,20 +67,13 @@ public class AnnotationInfoConverter {
             annotationInfo.setCommentList(CommentInfoConverter.convertToCommentFromArray(object.get(FeatureStringEnum.COMMENTS.getValue()).isArray()));
         }
 
-
-//        List<GoAnnotation> goAnnotationList = new ArrayList<>();
-//        goAnnotationList.add(generateGoAnnotation());
-//        goAnnotationList.add(generateGoAnnotation());
-//        goAnnotationList.add(generateGoAnnotation());
-//
-//        annotationInfo.setGoAnnotations(goAnnotationList);
-
         annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
         annotationInfo.setMax((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
-        if(object.containsKey(FeatureStringEnum.IS_FMIN_PARTIAL.getValue())){
+
+        if(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().containsKey(FeatureStringEnum.IS_FMIN_PARTIAL.getValue())){
             annotationInfo.setPartialMin(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.IS_FMIN_PARTIAL.getValue()).isBoolean().booleanValue());
         }
-        if(object.containsKey(FeatureStringEnum.IS_FMAX_PARTIAL.getValue())) {
+        if(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().containsKey(FeatureStringEnum.IS_FMAX_PARTIAL.getValue())) {
             annotationInfo.setPartialMax(object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.IS_FMAX_PARTIAL.getValue()).isBoolean().booleanValue());
         }
         annotationInfo.setStrand((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.STRAND.getValue()).isNumber().doubleValue());

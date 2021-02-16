@@ -191,7 +191,7 @@ public class GeneDetailPanel extends Composite {
     void handlePartial(ChangeEvent e){
         internalAnnotationInfo.setPartialMin(partialMin.getValue());
         internalAnnotationInfo.setPartialMax(partialMax.getValue());
-        updateGene();
+        updatePartials();
     }
 
 
@@ -224,6 +224,29 @@ public class GeneDetailPanel extends Composite {
         }
     }
 
+    private void updatePartials() {
+        setEditable(false);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                setEditable(true);
+                MainPanel.annotatorPanel.setSelectedChildUniqueName(null);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating gene: " + exception);
+                setEditable(true);
+            }
+        };
+//        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        JSONObject data = AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+
+        RestService.sendRequest(requestCallback, "annotator/updatePartials/", data);
+
+    }
 
     private void updateGene() {
         setEditable(false);

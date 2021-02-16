@@ -15,8 +15,8 @@ public class AnnotationInfo {
     private String type;
     private Integer min;
     private Integer max;
-    private Boolean partialMin;
-    private Boolean partialMax;
+    private Boolean partialMin = false;
+    private Boolean partialMax = false;
     private Set<AnnotationInfo> childAnnotations = new HashSet<>(); // children
     private List<GoAnnotation> goAnnotations = new ArrayList<>(); // go annotations
     private String symbol;
