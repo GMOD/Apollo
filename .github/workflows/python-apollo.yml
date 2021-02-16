@@ -34,32 +34,36 @@ jobs:
           cd python-apollo
           pip install -U pip setuptools nose
           python setup.py install
-##      - uses: actions/cache@v2
-##        with:
-##          path: ~/.cache/pip
-##          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-##          restore-keys: |
-##            ${{ runner.os }}-pip-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Sleep until Apollo is built
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '60s'
       - name: Bootstrap
         run: |
           export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
           cd python-apollo
           ./bootstrap_apollo.sh --nodocker
-#      - uses: actions/cache@v2
-#        with:
-#          path: |
-#            ~/.gradle/caches
-#            ~/.gradle/wrapper
-#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-#          restore-keys: |
-#            ${{ runner.os }}-gradle-
-#      - name: Cache local Maven repository
-#        uses: actions/cache@v2
-#        with:
-#          path: ~/.m2/repository
-#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: |
-#            ${{ runner.os }}-maven-
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Run tests
         run: |
           export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
