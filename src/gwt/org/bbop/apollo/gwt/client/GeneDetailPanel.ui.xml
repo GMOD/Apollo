@@ -40,7 +40,6 @@
         .location-button{
             background-color: #eee;
             width: 280px;
-
         }
 
         .partial-button{
