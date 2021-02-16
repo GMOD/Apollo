@@ -37,6 +37,7 @@ jobs:
           ref: master
       - name: Python install
         run: |
+          pwd
           cd python-apollo
           pip install -U pip setuptools nose
           python setup.py install
@@ -46,15 +47,26 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Sleep until Apollo is built
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '60s'
       - name: Bootstrap
         run: |
-          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          pwd
+          echo "Testing if awake"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
           cd python-apollo
+          pwd
+          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          echo $ARROW_GLOBAL_CONFIG_PATH
+          ls $ARROW_GLOBAL_CONFIG_PATH
+          cat $ARROW_GLOBAL_CONFIG_PATH
           ./bootstrap_apollo.sh --nodocker
+      - name: Run tests
+        run: |
+          pwd
+          cd python-apollo
+          pwd
+          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
+          python setup.py nosetests
+
       - uses: actions/cache@v2
         with:
           path: |
@@ -70,11 +82,5 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Run tests
-        run: |
-          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
-          cd python-apollo
-          python setup.py nosetests
-
 
 
