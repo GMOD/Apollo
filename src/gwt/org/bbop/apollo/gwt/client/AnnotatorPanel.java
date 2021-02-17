@@ -133,7 +133,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static ProvenancePanel provenancePanel;
     @UiField
-    CheckBox goOnlyCheckBox;
+    Button goOnlyCheckBox;
     @UiField
     static DbXrefPanel dbXrefPanel;
     @UiField
@@ -156,9 +156,13 @@ public class AnnotatorPanel extends Composite {
   static Hyperlink closeDetailsButton;
   @UiField
   static Hyperlink annotationLinkButton;
+    @UiField
+    Button geneProductOnlyCheckBox;
+    @UiField
+    Button provenanceOnlyCheckBox;
 
 
-  // manage UI-state
+    // manage UI-state
     static AnnotationInfo selectedAnnotationInfo;
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
@@ -250,7 +254,9 @@ public class AnnotatorPanel extends Composite {
                 url += "&user=" + userField.getSelectedValue();
                 url += "&statusString=" + statusField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
-                url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
+                url += "&showOnlyGoAnnotations=" + !goOnlyCheckBox.isActive();
+                url += "&showOnlyGeneProductAnnotations=" + !geneProductOnlyCheckBox.isActive();
+                url += "&showOnlyProvenanceAnnotations=" + !provenanceOnlyCheckBox.isActive();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
                 if (queryViewInRangeOnly) {
                     url += "&range=" + MainPanel.getRange();
@@ -1016,17 +1022,6 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
-    private Boolean isSearchDirty() {
-        if (typeList.getSelectedIndex() > 0) return true;
-        if (userField.getSelectedIndex() > 0) return true;
-        if (goOnlyCheckBox.getValue()) return true;
-        if (uniqueNameCheckBox.getValue()) return true;
-        if (nameSearchBox.getText().trim().length() > 0) return true;
-        if (sequenceList.getValue().trim().length() > 0) return true;
-
-        return false;
-    }
-
     @UiHandler(value = {"statusField"})
     public void updateStatus(ChangeEvent changeEvent){
         reload();
@@ -1050,7 +1045,12 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox"})
+    @UiHandler(value = {"goOnlyCheckBox","geneProductOnlyCheckBox","provenanceOnlyCheckBox"})
+    public void handleToggle(ClickEvent clickEvent){
+        reload();
+    }
+
+    @UiHandler(value = {"typeList", "userField",  "uniqueNameCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -1068,7 +1068,9 @@ public class AnnotatorPanel extends Composite {
         userField.setSelectedIndex(0);
         typeList.setSelectedIndex(0);
         uniqueNameCheckBox.setValue(false);
-        goOnlyCheckBox.setValue(false);
+        goOnlyCheckBox.setActive(false);
+        geneProductOnlyCheckBox.setActive(false);
+        provenanceOnlyCheckBox.setActive(false);
         queryViewInRangeOnly = true;
         reload();
     }
@@ -1080,7 +1082,9 @@ public class AnnotatorPanel extends Composite {
         userField.setSelectedIndex(0);
         typeList.setSelectedIndex(0);
         uniqueNameCheckBox.setValue(false);
-        goOnlyCheckBox.setValue(false);
+        goOnlyCheckBox.setActive(false);
+        geneProductOnlyCheckBox.setActive(false);
+        provenanceOnlyCheckBox.setActive(false);
         reload();
     }
 
