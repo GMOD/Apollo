@@ -146,9 +146,9 @@
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ButtonGroup addStyleNames="{style.toggle-buttons}">
-                            <b:Button ui:field="goOnlyCheckBox" dataToggle="BUTTON" addStyleNames="{style.idCheckBox}" text="GO" title="Genes with Gene Ontology Annotations"/>
-                            <b:Button ui:field="geneProductOnlyCheckBox" dataToggle="BUTTON" text="GP" title="Genes with Gene Products" />
-                            <b:Button ui:field="provenanceOnlyCheckBox" dataToggle="BUTTON" text="Prov" title="Genes with Provenance"/>
+                            <b:Button ui:field="goOnlyCheckBox" active="false" dataToggle="BUTTON" addStyleNames="{style.idCheckBox}" text="GO" title="Genes with Gene Ontology Annotations"/>
+                            <b:Button ui:field="geneProductOnlyCheckBox" active="false" dataToggle="BUTTON" text="GP" title="Genes with Gene Products" />
+                            <b:Button ui:field="provenanceOnlyCheckBox" active="false" dataToggle="BUTTON" text="Prov" title="Genes with Provenance"/>
                         </b:ButtonGroup>
                     </b:Column>
                 </b:Row>

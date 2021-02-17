@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -245,7 +246,6 @@ public class AnnotatorPanel extends Composite {
                 final int length = range.getLength();
                 String sequenceName = sequenceList.getText().trim();
 
-
                 String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName;
                 url += "&request=" + requestIndex;
                 url += "&offset=" + start + "&max=" + length;
@@ -254,9 +254,9 @@ public class AnnotatorPanel extends Composite {
                 url += "&user=" + userField.getSelectedValue();
                 url += "&statusString=" + statusField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
-                url += "&showOnlyGoAnnotations=" + !goOnlyCheckBox.isActive();
-                url += "&showOnlyGeneProductAnnotations=" + !geneProductOnlyCheckBox.isActive();
-                url += "&showOnlyProvenanceAnnotations=" + !provenanceOnlyCheckBox.isActive();
+                url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.isActive();
+                url += "&showOnlyGeneProductAnnotations=" + geneProductOnlyCheckBox.isActive();
+                url += "&showOnlyProvenanceAnnotations=" + provenanceOnlyCheckBox.isActive();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
                 if (queryViewInRangeOnly) {
                     url += "&range=" + MainPanel.getRange();
