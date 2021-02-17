@@ -1047,7 +1047,12 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler(value = {"goOnlyCheckBox","geneProductOnlyCheckBox","provenanceOnlyCheckBox"})
     public void handleToggle(ClickEvent clickEvent){
-        reload();
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                reload();
+            }
+        });
     }
 
     @UiHandler(value = {"typeList", "userField",  "uniqueNameCheckBox"})
