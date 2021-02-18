@@ -483,7 +483,6 @@ class PermissionService {
             try {
                 Subject subject = SecurityUtils.getSubject()
                 subject.getSession(true)
-//                session = subject.getSession(true)
 
                 subject.login(authToken)
                 if (!subject.authenticated) {
@@ -583,13 +582,14 @@ class PermissionService {
             jsonObject = validateSessionForJsonObject(jsonObject)
             Organism organism = getOrganismFromInput(jsonObject)
 
-            organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+            if(clientToken!=FeatureStringEnum.IGNORE.value){
+                organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+            }
             // don't set the preferences if it is coming off a script
             if (clientToken != FeatureStringEnum.IGNORE.value) {
                 preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
             }
 
-            validateSessionForJsonObject(jsonObject)
             return checkPermissions(jsonObject, organism, permissionEnum)
         } catch (e) {
             log.warn(e)

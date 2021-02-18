@@ -1518,6 +1518,7 @@ class OrganismController {
       , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
   ])
+  @Transactional
   def findAllOrganisms() {
     try {
       JSONObject requestObject = permissionService.handleInput(request, params)
