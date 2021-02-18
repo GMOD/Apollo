@@ -120,6 +120,14 @@
             margin-top: 10px;
             display: inline;
         }
+        .filter{
+            margin-right: 10px;
+            margin-top: 10px;
+            /*padding: 5px;*/
+            /*border: solid black 1px;*/
+            /*border-radius: 5px;*/
+            /*display: inline;*/
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="140">
@@ -145,6 +153,7 @@
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_3">
+                        <b:Icon type="FILTER" addStyleNames="{style.filter}"/>
                         <b:ButtonGroup addStyleNames="{style.toggle-buttons}">
                             <b:Button ui:field="goOnlyCheckBox" active="false" dataToggle="BUTTON" addStyleNames="{style.idCheckBox}" text="GO" title="Genes with Gene Ontology Annotations"/>
                             <b:Button ui:field="geneProductOnlyCheckBox" active="false" dataToggle="BUTTON" text="GP" title="Genes with Gene Products" />
