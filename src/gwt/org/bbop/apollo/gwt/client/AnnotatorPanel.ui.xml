@@ -89,12 +89,12 @@
             margin-bottom: 5px !important;
         }
 
-        .closeButton{
-          display: inline;
-          /*margin-left: 20px;*/
-          /*padding-bottom: 15px;*/
-          /*margin-top: 5px !important;*/
-          /*margin-bottom: 5px !important;*/
+        .closeButton {
+            display: inline;
+            /*margin-left: 20px;*/
+            /*padding-bottom: 15px;*/
+            /*margin-top: 5px !important;*/
+            /*margin-bottom: 5px !important;*/
         }
 
         .pageSizeSelector {
@@ -107,13 +107,26 @@
             /*border-top: solid 2px gray;*/
             /*border-bottom: solid 2px gray;*/
             display: inline;
-          /*width: 80%;*/
-          /*padding-left: 10px;*/
-          /*padding-right: 10px;*/
-          /*margin-left: 10px;*/
-          /*margin-right: 10px;*/
-          /*margin: 10px;*/
-          margin-top: 5px;
+            /*width: 80%;*/
+            /*padding-left: 10px;*/
+            /*padding-right: 10px;*/
+            /*margin-left: 10px;*/
+            /*margin-right: 10px;*/
+            /*margin: 10px;*/
+            margin-top: 5px;
+        }
+
+        .toggle-buttons {
+            margin-top: 10px;
+            display: inline;
+        }
+        .filter{
+            margin-right: 10px;
+            margin-top: 10px;
+            /*padding: 5px;*/
+            /*border: solid black 1px;*/
+            /*border-radius: 5px;*/
+            /*display: inline;*/
         }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
@@ -134,13 +147,18 @@
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <b:CheckBox ui:field="uniqueNameCheckBox" addStyleNames="{style.idCheckBox}" text="Search ID"/>
+                        <b:CheckBox ui:field="uniqueNameCheckBox" addStyleNames="{style.idCheckBox}" text="ID"/>
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_2">
-                        <b:CheckBox ui:field="goOnlyCheckBox" addStyleNames="{style.idCheckBox}" text="GO Only"/>
+                    <b:Column size="MD_3">
+                        <b:Icon type="FILTER" addStyleNames="{style.filter}"/>
+                        <b:ButtonGroup addStyleNames="{style.toggle-buttons}">
+                            <b:Button ui:field="goOnlyCheckBox" active="false" dataToggle="BUTTON" addStyleNames="{style.idCheckBox}" text="GO" title="Genes with Gene Ontology Annotations"/>
+                            <b:Button ui:field="geneProductOnlyCheckBox" active="false" dataToggle="BUTTON" text="GP" title="Genes with Gene Products" />
+                            <b:Button ui:field="provenanceOnlyCheckBox" active="false" dataToggle="BUTTON" text="Prov" title="Genes with Provenance"/>
+                        </b:ButtonGroup>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowPadding}">
