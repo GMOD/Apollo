@@ -1515,7 +1515,7 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-      , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
   ])
   @Transactional
