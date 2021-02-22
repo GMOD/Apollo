@@ -25,7 +25,6 @@ class JbrowseController {
     def preferenceService
     def jbrowseService
     def servletContext
-    def configWrapperService
     def trackService
 
     def chooseOrganismForJbrowse() {
@@ -62,7 +61,6 @@ class JbrowseController {
 
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
-//            Organism organism = preferenceService.getOrganismForToken(clientToken)
             Organism organism = preferenceService.getOrganismForTokenInDB(clientToken)
             if(organism){
                 // we need to generate a client_token and do a redirection
@@ -393,7 +391,7 @@ class JbrowseController {
 
      * @param tracksArray
      */
-    def pruneTracks(JSONArray tracksArray){
+    private JSONArray pruneTracks(JSONArray tracksArray){
         JSONArray returnArray = new JSONArray()
 
         for(track in tracksArray){
@@ -523,14 +521,18 @@ class JbrowseController {
         response.outputStream.close()
     }
 
-    private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz") || fileName.endsWith("csv")) {
-            return true;
-        }
-        if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
-            String[] names = fileName.split("\\/");
-            String requestName = names[names.length - 1];
-            return requestName.startsWith("lf-");
+    private boolean isCacheableFile(String fileName) {
+        try {
+            if (fileName.endsWith(".txt") || fileName.endsWith("txtz") || fileName.endsWith("csv")) {
+                return true;
+            }
+            if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
+                String[] names = fileName.split("\\/");
+                String requestName = names[names.length - 1];
+                return requestName.startsWith("lf-");
+            }
+        } catch (e) {
+            log.warn "Problem trying to cache file ${fileName}: ${e}"
         }
 
         return false;
@@ -592,13 +594,13 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
 
-        String eTag = createHashFromFile(file);
-        String dateString = formatLastModifiedDate(file);
 
-//        if (isCacheableFile(fileName)) {
+        if (isCacheableFile(fileName)) {
+            String eTag = createHashFromFile(file);
+            String dateString = formatLastModifiedDate(file);
             response.setHeader("ETag", eTag);
             response.setHeader("Last-Modified", dateString);
-//        }
+        }
         
         response.setContentType(mimeType);
         // Set content size

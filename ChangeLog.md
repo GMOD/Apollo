@@ -8,6 +8,7 @@ Features
 - Added system info web service [2557](https://github.com/GMOD/Apollo/pull/2557).
 - Add "merged from" comment to merged in transcript and gene [2567](https://github.com/GMOD/Apollo/issues/2567).
 - Added support for "obsolete", and partials in the interface for GFF3s [2573](https://github.com/GMOD/Apollo/pull/2573).
+- Allow overlap filter to be configurable [2582](https://github.com/GMOD/Apollo/issues/2582).
 
 Bug Fixes:
 
