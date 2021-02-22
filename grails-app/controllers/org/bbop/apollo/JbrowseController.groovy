@@ -25,7 +25,6 @@ class JbrowseController {
     def preferenceService
     def jbrowseService
     def servletContext
-    def configWrapperService
     def trackService
 
     def chooseOrganismForJbrowse() {
@@ -62,7 +61,6 @@ class JbrowseController {
 
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
-//            Organism organism = preferenceService.getOrganismForToken(clientToken)
             Organism organism = preferenceService.getOrganismForTokenInDB(clientToken)
             if(organism){
                 // we need to generate a client_token and do a redirection
