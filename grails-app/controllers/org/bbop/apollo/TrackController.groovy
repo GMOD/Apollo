@@ -22,7 +22,7 @@ class TrackController {
     def trackService
     def svgService
 
-  final double DEFAULT_OVERLAP_FILTER = 20.0
+  final double DEFAULT_OVERLAP_FILTER = 50.0
 
   def beforeInterceptor = {
         if (params.action == "featuresByName"
