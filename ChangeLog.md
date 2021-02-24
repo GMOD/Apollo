@@ -17,6 +17,7 @@ Bug Fixes:
 - Vcf reads as ISO-8859-1 instead of UTF-8 from reader mangling some symbols. [2498](https://github.com/GMOD/Apollo/issues/2498).
 - Added security fixes for web services. [2564](https://github.com/GMOD/Apollo/pull/2564).
 - In some cases web services tries to create a preference which results in incorrect results [2580](https://github.com/GMOD/Apollo/issues/2580).
+- For the track service, the overlap filter is too restrictive when converting NCList to JSON [2586](https://github.com/GMOD/Apollo/issues/2586).
 
 Infrastructure Changes
 

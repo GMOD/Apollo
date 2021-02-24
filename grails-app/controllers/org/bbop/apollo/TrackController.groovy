@@ -236,7 +236,10 @@ class TrackController {
         try {
             JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
           // there should be 2 nclists, one for 20 and one for 40
-          renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fmin,fmax)
+            Long filterValue = overlapFilter * (fmax - fmin)
+            Long fminAdjusted = fmin - filterValue < 0 ? fmin : fmin - filterValue
+            Long fmaxAdjusted = fmax + filterValue
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fminAdjusted,fmaxAdjusted)
         } catch (FileNotFoundException fnfe) {
             log.warn(fnfe.message)
             response.status = 404
