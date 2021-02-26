@@ -137,14 +137,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (!inputObject.track && inputObject.sequence) {
             inputObject.track = inputObject.sequence  // support some legacy
         }
-        inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+        if(permissionService.hasPermissions(inputObject, PermissionEnum.READ)){
+            JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
+            historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
+            render historyContainer as JSON
+        }
+        else{
+            render status: HttpStatus.UNAUTHORIZED
+        }
 
-        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
-        historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
-
-        render historyContainer as JSON
     }
 
 
