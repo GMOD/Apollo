@@ -18,6 +18,7 @@ Bug Fixes:
 - Added security fixes for web services. [2564](https://github.com/GMOD/Apollo/pull/2564), [2587](https://github.com/GMOD/Apollo/pull/2587).
 - In some cases web services tries to create a preference which results in incorrect results [2580](https://github.com/GMOD/Apollo/issues/2580).
 - For the track service, the overlap filter is too restrictive when converting NCList to JSON [2586](https://github.com/GMOD/Apollo/issues/2586).
+- History track names for Gene Produce and Provenance were being cast as GO [2590](https://github.com/GMOD/Apollo/issues/2586).
 
 Infrastructure Changes
 
