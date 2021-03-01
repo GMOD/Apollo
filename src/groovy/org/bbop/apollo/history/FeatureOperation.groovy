@@ -60,6 +60,14 @@ enum FeatureOperation {
   UPDATE_GO_ANNOTATION(false),
   ADD_GO_ANNOTATION(false),
 
+  REMOVE_GENE_PRODUCT(false),
+  UPDATE_GENE_PRODUCT(false),
+  ADD_GENE_PRODUCT(false),
+
+  REMOVE_PROVENANCE(false),
+  UPDATE_PROVENANCE(false),
+  ADD_PROVENANCE(false),
+
   private isStructural = true;
 
   private FeatureOperation() {}

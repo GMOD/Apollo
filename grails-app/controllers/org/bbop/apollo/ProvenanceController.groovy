@@ -102,7 +102,7 @@ class ProvenanceController {
     JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
     newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_GO_ANNOTATION,
+    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_PROVENANCE,
       feature.name,
       feature.uniqueName,
       dataObject,
@@ -160,7 +160,7 @@ class ProvenanceController {
     JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
     newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-    featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_GO_ANNOTATION,
+    featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_PROVENANCE,
       feature.name,
       feature.uniqueName,
       dataObject,
@@ -202,7 +202,7 @@ class ProvenanceController {
     JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
     newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-    featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_GO_ANNOTATION,
+    featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_PROVENANCE,
       feature.name,
       feature.uniqueName,
       dataObject,

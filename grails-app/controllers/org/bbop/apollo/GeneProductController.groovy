@@ -149,7 +149,7 @@ class GeneProductController {
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
         newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_GO_ANNOTATION,
+        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_GENE_PRODUCT,
             feature.name,
             feature.uniqueName,
             dataObject,
@@ -211,7 +211,7 @@ class GeneProductController {
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
         newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_GO_ANNOTATION,
+        featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_GENE_PRODUCT,
             feature.name,
             feature.uniqueName,
             dataObject,
@@ -253,7 +253,7 @@ class GeneProductController {
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
         newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_GO_ANNOTATION,
+        featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_GENE_PRODUCT,
             feature.name,
             feature.uniqueName,
             dataObject,
