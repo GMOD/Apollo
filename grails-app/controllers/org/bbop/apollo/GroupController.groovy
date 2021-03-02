@@ -32,6 +32,12 @@ class GroupController {
     )
     def getOrganismPermissionsForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
+        || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         UserGroup group = UserGroup.findById(dataObject.groupId)
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
@@ -213,7 +219,11 @@ class GroupController {
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
 
-        def currentUser = permissionService.getCurrentUser(dataObject)
+      if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+        render status: HttpStatus.UNAUTHORIZED
+        return
+      }
+      def currentUser = permissionService.getCurrentUser(dataObject)
 
         List<UserGroup> groupList
         if(dataObject.id){
@@ -305,7 +315,10 @@ class GroupController {
     @Transactional
     def updateOrganismPermission() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (
+            !permissionService.hasGlobalPermissions(dataObject,GlobalPermissionEnum.INSTRUCTOR)
+            || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -395,6 +408,13 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
 
         def currentUser = permissionService.getCurrentUser(dataObject)
+        // allow global admin, group creator, and group admin to update the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
+                || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
 
         if(dataObject.memberships) {
 
@@ -471,6 +491,7 @@ class GroupController {
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)
+            response.status = HttpStatus.UNAUTHORIZED.value()
             render error as JSON
             return
         }
@@ -509,6 +530,7 @@ class GroupController {
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)
+            response.status = HttpStatus.UNAUTHORIZED.value()
             render error as JSON
             return
         }

@@ -1,7 +1,7 @@
 # Apollo
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3555454.svg)](https://doi.org/10.5281/zenodo.3555454)
-[![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)](https://travis-ci.org/GMOD/Apollo?branch=master)
-[![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
+![Lint](https://github.com/GMOD/Apollo/workflows/Lint/badge.svg)
+![Java CI with Gradle](https://github.com/GMOD/Apollo/workflows/Java%20CI%20with%20Gradle/badge.svg)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
@@ -36,6 +36,8 @@ Specific information for [setting up AWS instances](docs/Aws_setup.md) is provid
 Apollo may be launched from [Docker](docs/Docker.md) as well.  
 
 The [guide for developers](docs/Apollo2Build.md) shows how to get started with Apollo. 
+
+## Web Services
 
 [Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
 

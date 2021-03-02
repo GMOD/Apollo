@@ -31,6 +31,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.count_annotations
     }
 
+    Boolean getAddMergedComment(){
+        return grailsApplication.config.apollo.add_merged_comment
+    }
+
     String getTranscriptOverlapper() {
         return grailsApplication.config.apollo.transcript_overlapper
     }

@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-import groovyjarjarcommonscli.Option
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 import groovyx.net.http.RESTClient

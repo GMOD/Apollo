@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import groovy.json.JsonBuilder
 import org.apache.shiro.SecurityUtils
-import org.bbop.apollo.Feature
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -108,7 +107,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render returnObject
         } else {
             def errorMessage = [message: "You must first login before editing"]
-            response.status = 401
+            response.status = HttpStatus.UNAUTHORIZED.value()
             render errorMessage as JSON
         }
     }
@@ -138,14 +137,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (!inputObject.track && inputObject.sequence) {
             inputObject.track = inputObject.sequence  // support some legacy
         }
-        inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+        if(permissionService.hasPermissions(inputObject, PermissionEnum.READ)){
+            JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
+            historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
+            render historyContainer as JSON
+        }
+        else{
+            render status: HttpStatus.UNAUTHORIZED
+        }
 
-        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
-        historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
-
-        render historyContainer as JSON
     }
 
 
@@ -754,7 +755,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray attributes = new JSONArray()
             feature.featureProperties.each {
-                if (it.ontologyId != Comment.ontologyId) {
+                if (it.ontologyId != Comment.ontologyId && it.tag != null ) {
                     JSONObject attributeObject = new JSONObject()
                     attributeObject.put(FeatureStringEnum.TAG.value, it.tag)
                     attributeObject.put(FeatureStringEnum.VALUE.value, it.value)

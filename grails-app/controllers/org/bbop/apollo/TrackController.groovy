@@ -22,7 +22,7 @@ class TrackController {
     def trackService
     def svgService
 
-  final double OVERLAP_FILTER = 10.0
+  final double DEFAULT_OVERLAP_FILTER = 50.0
 
   def beforeInterceptor = {
         if (params.action == "featuresByName"
@@ -196,6 +196,7 @@ class TrackController {
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
             , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'.")
             , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+            , @RestApiParam(name = "overlapFilter", type = "double", paramType = RestApiParamType.QUERY, description = "(default 20).  The widget of overlapping genes to display.  1 would be only features directly overlapping.  Double_max would be any gene that overlaps, even if it overlaps the entire chromosome.")
     ])
     @Transactional
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
@@ -206,6 +207,7 @@ class TrackController {
         String flatten = params.flatten != null ? params.flatten : 'gene'
         flatten = flatten == 'false' ? '' : flatten
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        double overlapFilter = params.overlapFilter != null ? Double.valueOf(params.overlapFilter) : DEFAULT_OVERLAP_FILTER
         Map paramMap = new TreeMap<>()
         paramMap.put("type", type)
         if (nameSet) {
@@ -234,7 +236,10 @@ class TrackController {
         try {
             JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
           // there should be 2 nclists, one for 20 and one for 40
-          renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fmin,fmax)
+            Long filterValue = overlapFilter * (fmax - fmin)
+            Long fminAdjusted = fmin - filterValue < 0 ? fmin : fmin - filterValue
+            Long fmaxAdjusted = fmax + filterValue
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fminAdjusted,fmaxAdjusted)
         } catch (FileNotFoundException fnfe) {
             log.warn(fnfe.message)
             response.status = 404
@@ -267,7 +272,7 @@ class TrackController {
 
         renderedArray = renderedArray.unique{  it.name } as JSONArray
         renderedArray = renderedArray.findAll{  it ->
-          return (it.fmax - it.fmin) < (OVERLAP_FILTER*(fmax - fmin))
+          return (it.fmax - it.fmin) < (overlapFilter*(fmax - fmin))
         } as JSONArray
 
       if (type == "json") {

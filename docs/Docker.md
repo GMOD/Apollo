@@ -59,7 +59,7 @@ or [set appropriate environment variables](https://docs.docker.com/engine/refere
 
 The image is available on [docker hub](https://hub.docker.com/r/gmod/apollo) and [quay.io](https://quay.io/repository/gmod/apollo?tab=builds).
 
-On docker hub you always pull from `gmod/apollo:<version>` and from quay.io you pull from `quay.io/apollo:<version>`
+On docker hub you always pull from `gmod/apollo:release-<version>` and from quay.io you pull from `quay.io/apollo:<version>` where version is something like 2.6.2.
 
 #### Versions
 

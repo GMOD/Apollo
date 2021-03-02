@@ -179,9 +179,12 @@ log4j.main = {
     //debug 'grails.app.controllers.org.bbop.apollo'
     //debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'
     //debug 'grails.app.services.org.bbop.apollo.FeatureService'
-    info 'grails.app.controllers.org.bbop.apollo.GroupController'
-    info 'grails.app.controllers.org.bbop.apollo.UserController'
-    //info 'grails.app.services'
+//  debug 'grails.app.services.org.bbop.apollo.SecurityFilters'
+//  debug 'grails.app.controllers'
+//  info 'grails.app.controllers.org.bbop.apollo.GroupController'
+//    info 'grails.app.controllers.org.bbop.apollo.UserController'
+//  debug 'grails.app.controllers.org.bbop.apollo.AvailableStatusController'
+  //info 'grails.app.services'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
     //debug 'grails.app.controllers'
@@ -212,6 +215,7 @@ apollo {
     track_name_comparator = "/config/track_name_comparator.js"
     use_cds_for_new_transcripts = false
     count_annotations = true
+    add_merged_comment = true
     transcript_overlapper = "CDS"
     feature_has_dbxrefs = true
     feature_has_attributes = true

@@ -22,9 +22,6 @@ class PermissionService {
 
     def preferenceService
     def configWrapperService
-    def grailsApplication
-
-
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
@@ -155,6 +152,16 @@ class PermissionService {
         return permissionEnums
     }
 
+    Set<PermissionEnum> getPermissionsFromString(Set<PermissionEnum> permissionEnums,String permissionsString){
+        JSONArray jsonArray = JSON.parse(permissionsString) as JSONArray
+        for (int i = 0; i < jsonArray.size(); i++) {
+            String permission = jsonArray.getString(i)
+            PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
+            permissionEnums.add(permissionEnum)
+        }
+        return permissionEnums
+    }
+
 
     List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
@@ -164,12 +171,7 @@ class PermissionService {
 
         List<UserOrganismPermission> userPermissionList = UserOrganismPermission.findAllByOrganismAndUser(organism, user)
         for (UserOrganismPermission userPermission in userPermissionList) {
-            JSONArray jsonArray = JSON.parse(userPermission.permissions) as JSONArray
-            for (int i = 0; i < jsonArray.size(); i++) {
-                String permission = jsonArray.getString(i)
-                PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
-                permissions.add(permissionEnum)
-            }
+            getPermissionsFromString(permissions,userPermission.permissions)
         }
         if (user != null) {
             for (UserGroup group in user.userGroups) {
@@ -184,10 +186,49 @@ class PermissionService {
 
     }
 
+    List<PermissionEnum> getAllPermissionsForUser(User user) {
+        Set<PermissionEnum> permissions = new HashSet<>()
+        if (isUserGlobalAdmin(user)) {
+            permissions.addAll(PermissionEnum.ADMINISTRATE as List)
+        }
+
+        List<UserOrganismPermission> userPermissionList = UserOrganismPermission.findAllByUser(user)
+        for (UserOrganismPermission userPermission in userPermissionList) {
+            getPermissionsFromString(permissions,userPermission.permissions)
+        }
+        if (user != null) {
+            for (UserGroup group in user.userGroups) {
+//                permissions = mergeOrganismPermissions(permissions, getOrganismPermissionsForUserGroup(organism, group))
+                permissions = mergeOrganismPermissions(permissions, getPermissionsForUserGroup(group))
+            }
+        } else {
+            permissions.add(PermissionEnum.NONE)
+        }
+
+        return permissions as List
+
+    }
+
+
     List<PermissionEnum> getOrganismPermissionsForUserGroup(Organism organism, UserGroup userGroup) {
         Set<PermissionEnum> permissions = new HashSet<>()
 
         List<GroupOrganismPermission> groupPermissionList = GroupOrganismPermission.findAllByOrganismAndGroup(organism, userGroup)
+        for (GroupOrganismPermission groupPermission in groupPermissionList) {
+            JSONArray jsonArray = JSON.parse(groupPermission.permissions) as JSONArray
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String permission = jsonArray.getString(i)
+                PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
+                permissions.add(permissionEnum)
+            }
+        }
+        return permissions as List
+    }
+
+    List<PermissionEnum> getPermissionsForUserGroup(UserGroup userGroup) {
+        Set<PermissionEnum> permissions = new HashSet<>()
+
+        List<GroupOrganismPermission> groupPermissionList = GroupOrganismPermission.findAllByGroup(userGroup)
         for (GroupOrganismPermission groupPermission in groupPermissionList) {
             JSONArray jsonArray = JSON.parse(groupPermission.permissions) as JSONArray
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -361,6 +402,9 @@ class PermissionService {
      */
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
+
+        // NOTE: if coming through web-socket, we will not have a session
+//        validateSessionForJsonObject(inputObject)
         String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
@@ -397,7 +441,7 @@ class PermissionService {
             log.debug "required permission ${requiredPermissionEnum}"
             log.debug "highest value display ${highestValue.display}"
             log.debug "permission display ${requiredPermissionEnum.display}"
-            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+            throw new AnnotationException("A You have insufficient permissions ${highestValue.display} < ${requiredPermissionEnum.display} to perform this operation for this organism.")
         }
         return sequence
     }
@@ -447,7 +491,6 @@ class PermissionService {
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
 
-
         User user = User.findByUsername(username)
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
@@ -483,7 +526,6 @@ class PermissionService {
             try {
                 Subject subject = SecurityUtils.getSubject()
                 subject.getSession(true)
-//                session = subject.getSession(true)
 
                 subject.login(authToken)
                 if (!subject.authenticated) {
@@ -577,18 +619,35 @@ class PermissionService {
             return false
         }
         */
-        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
-        jsonObject = validateSessionForJsonObject(jsonObject)
-        Organism organism = getOrganismFromInput(jsonObject)
+        try {
+            String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+            // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
+            jsonObject = validateSessionForJsonObject(jsonObject)
+            Organism organism = getOrganismFromInput(jsonObject)
 
-        organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
-        // don't set the preferences if it is coming off a script
-        if (clientToken != FeatureStringEnum.IGNORE.value) {
-            preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
+            if(clientToken!=FeatureStringEnum.IGNORE.value){
+                organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+            }
+            // don't set the preferences if it is coming off a script
+            if (clientToken != FeatureStringEnum.IGNORE.value) {
+                preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
+            }
+            if(organism){
+                return checkPermissions(jsonObject, organism, permissionEnum)
+            }
+            else{
+                // make sure we have permissionsEnum for at least one organism
+                String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
+                User user = User.findByUsername(username)
+                List<PermissionEnum> permissionEnums = getAllPermissionsForUser(user)
+                PermissionEnum highestValue = findHighestEnum(permissionEnums)
+                return highestValue.rank >= permissionEnum.rank
+            }
+
+        } catch (e) {
+            log.warn(e)
+            return false
         }
-
-        return checkPermissions(jsonObject, organism, permissionEnum)
 
     }
 
@@ -781,4 +840,7 @@ class PermissionService {
     }
 
 
+    Boolean checkLoginGlobalAndLocalPermissions(JSONObject jsonObject, GlobalPermissionEnum globalPermissionEnum, PermissionEnum permissionEnum2) {
+        return hasGlobalPermissions(jsonObject,globalPermissionEnum) && hasPermissions(jsonObject,permissionEnum2)
+    }
 }

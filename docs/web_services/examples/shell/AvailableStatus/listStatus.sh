@@ -3,10 +3,6 @@
 url=$1
 username=$2
 password=$3
-organism=$4
-trackName=$5
-uniqueName=$6
-status=$7
 
 usage() {
     echo "Sample script for listing statuses via web services"
@@ -20,5 +16,5 @@ if [[ ! -n "$url" || ! -n "$username" || ! -n "$password"  ]]; then
     exit
 fi
 
-echo curl -i -H 'Content-type: application/json' -X POST ${url}/availableStatus/showStatus -d "{'username': '${username}', 'password': '${password}'}"
-curl -i -H 'Content-type: application/json' -X POST ${url}/availableStatus/showStatus -d "{'username': '${username}', 'password': '${password}'}"
+echo curl -H 'Content-type: application/json' -X POST ${url}/availableStatus/showStatus -d "{'username': '${username}', 'password': '${password}'}"
+curl -H 'Content-type: application/json' -X POST ${url}/availableStatus/showStatus -d "{'username': '${username}', 'password': '${password}'}"

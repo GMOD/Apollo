@@ -582,23 +582,21 @@ class TrackService {
 
         List<String> typeList = new ArrayList<>()
         types.each { typeList.add(it) }
+        boolean isGene = false
+      // loosely match gene
+        if(typeList.size()==1 && typeList.get(0)==FeatureStringEnum.GENE.value.toLowerCase()) {
+          isGene = true
+        }
         JSONArray rootArray = new JSONArray()
         // here we just clone it
         for (def obj in jsonArray) {
             if (obj instanceof JSONObject) {
-                if (typeList.contains(obj.type)) {
+                if (typeList.contains(obj.type) || (isGene && obj.type.indexOf("_gene")>0)) {
                     for (JSONObject child in getGeneChildren(obj, typeList)) {
                         rootArray.add(child)
                     }
-//                rootArray.add(obj)
                 }
             }
-//            else if (obj instanceof JSONArray) {
-//                rootArray.addAll(flattenArray(obj,types))
-////                for (JSONObject child in obj) {
-////                    rootArray.add(child)
-////                }
-//            }
         }
 
         return rootArray

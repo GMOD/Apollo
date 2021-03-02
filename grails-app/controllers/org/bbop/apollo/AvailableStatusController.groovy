@@ -25,10 +25,13 @@ class AvailableStatusController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
-            forward action: "notAuthorized", controller: "annotator"
-            return
+      // if a non-JSON method
+      if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+          forward action: "notAuthorized", controller: "annotator"
+          return
         }
+      }
     }
 
     def index(Integer max) {
@@ -190,12 +193,12 @@ class AvailableStatusController {
 
                 render status as JSON
             } else {
-                def error = [error: 'not authorized to add AvailableStatus']
+                def error = new JSONObject([error: 'not authorized to add AvailableStatus'])
                 render error as JSON
                 log.error(error.error)
             }
         } catch (e) {
-            def error = [error: 'problem saving AvailableStatus: ' + e]
+            def error = new JSONObject([error: 'problem saving AvailableStatus: ' + e])
             render error as JSON
             e.printStackTrace()
             log.error(error.error)
@@ -235,7 +238,7 @@ class AvailableStatusController {
                 status.save(flush: true)
 
                 log.info "Success updating status: ${status.id}"
-                render new JSONObject() as JSON
+                render status as JSON
             } else {
                 def error = [error: 'not authorized to edit status']
                 log.error(error.error)
@@ -311,7 +314,7 @@ class AvailableStatusController {
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
-                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the status")
+                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to show the status")
                     render jsonObject as JSON
                     return
                 }

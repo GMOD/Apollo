@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
 import org.bbop.apollo.go.GoAnnotation
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -17,6 +18,7 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
 @RestApi(name = "GO Annotation", description = "Methods for managing go annotations")
 @Transactional(readOnly = true)
@@ -37,7 +39,10 @@ class GoAnnotationController {
   )
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
-    permissionService.checkPermissions(dataObject, PermissionEnum.READ)
+    if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.READ)){
+      render status : UNAUTHORIZED
+      return
+    }
     Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
     if (feature) {
       JSONObject annotations = goAnnotationService.getAnnotations(feature)
@@ -74,7 +79,10 @@ class GoAnnotationController {
   @Transactional
   def save() {
     JSONObject dataObject = permissionService.handleInput(request, params)
-    permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+      render status : UNAUTHORIZED
+      return
+    }
     User user = permissionService.getCurrentUser(dataObject)
       GoAnnotation goAnnotation = new GoAnnotation()
     Feature feature = Feature.findByUniqueName(dataObject.feature)
@@ -136,7 +144,10 @@ class GoAnnotationController {
   @Transactional
   def update() {
     JSONObject dataObject = permissionService.handleInput(request, params)
-    permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+      render status : UNAUTHORIZED
+      return
+    }
     User user = permissionService.getCurrentUser(dataObject)
     Feature feature = Feature.findByUniqueName(dataObject.feature)
 
@@ -187,7 +198,10 @@ class GoAnnotationController {
   @Transactional
   def delete() {
     JSONObject dataObject = permissionService.handleInput(request, params)
-    permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+      render status : UNAUTHORIZED
+      return
+    }
     User user = permissionService.getCurrentUser(dataObject)
 
     Feature feature = Feature.findByUniqueName(dataObject.feature)

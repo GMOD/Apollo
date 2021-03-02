@@ -20,6 +20,7 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
+import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest
 
@@ -28,6 +29,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Path
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
 @RestApi(name = "Organism Services", description = "Methods for managing organisms")
 @Transactional(readOnly = true)
@@ -87,6 +89,7 @@ class OrganismController {
       if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.checkPermissions(organismJson, organism, PermissionEnum.ADMINISTRATE)) {
         def error = [error: 'not authorized to delete organism']
         log.error(error.error)
+        response.status = HttpStatus.UNAUTHORIZED.value()
         render error as JSON
         return
       }
@@ -109,6 +112,7 @@ class OrganismController {
     catch (Exception e) {
       def error = [error: 'problem deleting organism: ' + e]
       log.error(error.error)
+      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       render error as JSON
     }
   }
@@ -175,9 +179,11 @@ class OrganismController {
       } else {
         log.error "username not authorized to delete organism"
         responseObject.put("error", "username not authorized to delete organism.")
+        response.status = HttpStatus.UNAUTHORIZED.value()
       }
     } catch (Exception e) {
       log.error(e.message)
+      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       responseObject.put("error", e.message)
     }
 
@@ -201,9 +207,12 @@ class OrganismController {
       return
     }
     try {
-      if (!permissionService.hasPermissions(organismJson, PermissionEnum.ADMINISTRATE)) {
+      if ( !permissionService.hasGlobalPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+        || !permissionService.hasPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+      ) {
         def error = [error: 'not authorized to delete all features from organism']
         log.error(error.error)
+        response.status = HttpStatus.UNAUTHORIZED.value()
         render error as JSON
         return
       }
@@ -231,6 +240,7 @@ class OrganismController {
     catch (e) {
       def error = [error: 'problem removing organism features for organism: ' + e]
       render error as JSON
+      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       e.printStackTrace()
       log.error(error.error)
     }
@@ -429,10 +439,12 @@ class OrganismController {
       } else {
         log.error "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms"
         returnObject.put("error", "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms.")
+        response.status = HttpStatus.UNAUTHORIZED.value()
       }
     }
     catch (e) {
       log.error e.printStackTrace()
+      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       returnObject.put("error", e.message)
     }
 
@@ -467,8 +479,16 @@ class OrganismController {
     }
 
     try {
+
       permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
       Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
+      if(!permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.INSTRUCTOR)){
+        response.status = HttpStatus.UNAUTHORIZED.value()
+        def error = [error: 'not authorized to delete canned key']
+        log.error(error.error)
+        render error as JSON
+        return
+      }
       // find in the extended track list and remove
       File extendedDirectory = trackService.getExtendedDataDirectory(organism)
       if (!extendedDirectory.exists()) {
@@ -587,9 +607,14 @@ class OrganismController {
     }
 
     try {
-      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
-//            log.debug "user ${requestObject.get(FeatureStringEnum.USERNAME.value)} is admin"
-      Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
+      if (!permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
+        def error = [error: 'not authorized to edit canned value']
+        log.error(error.error)
+        response.status = HttpStatus.UNAUTHORIZED.value()
+        render error as JSON
+        return
+      }
+      Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.getString(FeatureStringEnum.ORGANISM.value))
 
       if (organism) {
         log.info "Adding track to organism: ${organism.commonName}"
@@ -992,7 +1017,12 @@ class OrganismController {
     }
 
     try {
-      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
+//      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
+      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+//        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+        render status: HttpStatus.UNAUTHORIZED
+        return
+      }
       log.debug "user ${requestObject.get(FeatureStringEnum.USERNAME.value)} is admin"
       Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
 
@@ -1283,7 +1313,11 @@ class OrganismController {
   def updateOrganismInfo() {
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
-      permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+      if (!permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+//        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+        render status: UNAUTHORIZED
+        return
+      }
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
       Boolean noReloadSequencesIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String) : false
@@ -1362,58 +1396,58 @@ class OrganismController {
     }
   }
 
-  @RestApiMethod(description = "Set official gene set track name", path = "/organism/setOfficialGeneSetTrack", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "(required) unique id of organism to change")
-    , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "(required) Official track name, if empty string or not specified the official track will be removed")
-    , @RestApiParam(name = "trackCommand", type = "string", paramType = RestApiParamType.QUERY, description = "(required) ADD, REMOVE, CLEAR")
-  ])
-  @Transactional
-  def updateOfficialGeneSetTrack() {
-    log.debug "updating organism official track name ${params}"
-    try {
-      JSONObject organismJson = permissionService.handleInput(request, params)
-      permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
-      Organism organism = Organism.findById(organismJson.id as Long)
-      if (organism) {
-        String startTrackName = organism.officialGeneSetTrack
-        log.debug "Updating organism official track name ${organismJson as JSON}"
-        if (organismJson.trackCommand == "CLEAR" || organismJson.trackLabel == null || organismJson.trackLabel.trim().size() == 0) {
-          startTrackName = null
-        } else if (organismJson.trackCommand == "ADD") {
-          if (startTrackName == null) {
-            startTrackName = organismJson.trackLabel.trim()
-          } else {
-            Set<String> trackStringSet = (startTrackName.split(",") as Set<String>)
-            trackStringSet.add(organismJson.trackLabel.trim() as String)
-            startTrackName = trackStringSet.join(",")
-          }
-        } else if (organismJson.trackCommand == "REMOVE") {
-          if (startTrackName == null) {
-            startTrackName = null
-          } else {
-            startTrackName = startTrackName.split(",").findAll { it != organismJson.trackLabel.trim() }.join(",")
-            if (startTrackName.trim().size() == 0) startTrackName = null
-          }
-        } else {
-          log.error("Not sure what is going on when updating the official track name ${organismJson as JSON}, results in ${startTrackName}")
-        }
-        organism.officialGeneSetTrack = startTrackName
-        organism.save(flush: true, insert: false, failOnError: true)
-      } else {
-        throw new Exception('Organism not found')
-      }
-//      render new JSONObject() as JSON
-      render organism as JSON
-    }
-    catch (e) {
-      def error = [error: 'problem saving organism: ' + e]
-      render error as JSON
-      log.error(error.error)
-    }
-  }
+//  @RestApiMethod(description = "Set official gene set track name", path = "/organism/setOfficialGeneSetTrack", verb = RestApiVerb.POST)
+//  @RestApiParams(params = [
+//    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+//    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+//    , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "(required) unique id of organism to change")
+//    , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "(required) Official track name, if empty string or not specified the official track will be removed")
+//    , @RestApiParam(name = "trackCommand", type = "string", paramType = RestApiParamType.QUERY, description = "(required) ADD, REMOVE, CLEAR")
+//  ])
+//  @Transactional
+//  def updateOfficialGeneSetTrack() {
+//    log.debug "updating organism official track name ${params}"
+//    try {
+//      JSONObject organismJson = permissionService.handleInput(request, params)
+//      permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+//      Organism organism = Organism.findById(organismJson.id as Long)
+//      if (organism) {
+//        String startTrackName = organism.officialGeneSetTrack
+//        log.debug "Updating organism official track name ${organismJson as JSON}"
+//        if (organismJson.trackCommand == "CLEAR" || organismJson.trackLabel == null || organismJson.trackLabel.trim().size() == 0) {
+//          startTrackName = null
+//        } else if (organismJson.trackCommand == "ADD") {
+//          if (startTrackName == null) {
+//            startTrackName = organismJson.trackLabel.trim()
+//          } else {
+//            Set<String> trackStringSet = (startTrackName.split(",") as Set<String>)
+//            trackStringSet.add(organismJson.trackLabel.trim() as String)
+//            startTrackName = trackStringSet.join(",")
+//          }
+//        } else if (organismJson.trackCommand == "REMOVE") {
+//          if (startTrackName == null) {
+//            startTrackName = null
+//          } else {
+//            startTrackName = startTrackName.split(",").findAll { it != organismJson.trackLabel.trim() }.join(",")
+//            if (startTrackName.trim().size() == 0) startTrackName = null
+//          }
+//        } else {
+//          log.error("Not sure what is going on when updating the official track name ${organismJson as JSON}, results in ${startTrackName}")
+//        }
+//        organism.officialGeneSetTrack = startTrackName
+//        organism.save(flush: true, insert: false, failOnError: true)
+//      } else {
+//        throw new Exception('Organism not found')
+//      }
+////      render new JSONObject() as JSON
+//      render organism as JSON
+//    }
+//    catch (e) {
+//      def error = [error: 'problem saving organism: ' + e]
+//      render error as JSON
+//      log.error(error.error)
+//    }
+//  }
 
   @RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
   @RestApiParams(params = [
@@ -1427,7 +1461,12 @@ class OrganismController {
     log.debug "updating organism metadata ${params}"
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
-      permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+//      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
+        if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN)) {
+//        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+        render status: HttpStatus.UNAUTHORIZED
+        return
+      }
       Organism organism = Organism.findById(organismJson.id)
       if (organism) {
         log.debug "Updating organism metadata ${organismJson as JSON}"
@@ -1476,8 +1515,10 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
   ])
+  @Transactional
   def findAllOrganisms() {
     try {
       JSONObject requestObject = permissionService.handleInput(request, params)
@@ -1505,11 +1546,23 @@ class OrganismController {
       } else {
         log.debug "finding all info"
         //if (permissionService.isAdmin()) {
-        if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
-          organismList = showObsolete ? Organism.all : Organism.findAllByObsolete(false)
-        } else {
-          organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
+        try {
+          if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
+            organismList = showObsolete ? Organism.all : Organism.findAllByObsolete(false)
+          }
+          else
+          if(permissionService.hasPermissions(requestObject,PermissionEnum.READ)) {
+            organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
+          }
+        } catch (e) {
+          log.error(e)
+          render status: UNAUTHORIZED
+          return
         }
+      }
+
+      if(showPublicOnly){
+        organismList = organismList.findAll{ o -> o.publicMode }
       }
 
       if (!organismList) {
@@ -1520,6 +1573,7 @@ class OrganismController {
 
       UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(requestObject), true, [max: 1, sort: "lastUpdated", order: "desc"])
       Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
 
       JSONArray jsonArray = new JSONArray()
       for (Organism organism in organismList) {

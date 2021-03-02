@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.report.SequenceSummary
@@ -21,6 +22,7 @@ import org.restapidoc.pojo.RestApiVerb
 import javax.servlet.http.HttpServletResponse
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
 @RestApi(name = "Sequence Services", description = "Methods for retrieving sequence data")
 @Transactional(readOnly = true)
@@ -248,7 +250,7 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
@@ -259,7 +261,30 @@ class SequenceController {
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
+        // handle post data
+        def inputJSON = request.JSON as JSONObject
+        organismString = organismString ?: inputJSON.organismString
+        sequenceName = sequenceName ?: inputJSON.sequenceName
+        fmin = fmin ?: inputJSON.fmin
+        fmax = fmax ?: inputJSON.fmax
+
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
+        Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
+
+        // if the organism is not public AND we do not have read permissions for this organism
+        if(
+        !organism.publicMode
+         && !(permissionService.hasGlobalPermissions(inputJSON, GlobalPermissionEnum.USER) && permissionService.userHasOrganismPermission(organism,PermissionEnum.READ))
+        ) {
+            render status: UNAUTHORIZED
+            return
+        }
+
         Map paramMap = new TreeMap<>()
 
         if (!ignoreCache) {
@@ -270,7 +295,6 @@ class SequenceController {
             }
         }
 
-        Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
 
         Strand strand = params.strand ? Strand.getStrandForValue(params.strand as Integer) : Strand.POSITIVE
@@ -280,7 +304,7 @@ class SequenceController {
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
@@ -292,10 +316,31 @@ class SequenceController {
     @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 
+        // handle post here
+        def inputJSON = request.JSON as JSONObject
+        organismString = organismString ?: inputJSON.organismString
+        sequenceName = sequenceName ?: inputJSON.sequenceName
+        featureName = featureName ?: inputJSON.featureName
+        type = type ?: inputJSON.type
+        type = type ?:FeatureStringEnum.TYPE_GENOMIC.value
+
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        // if ignoreCache is true here, we should set it to true
+        if(inputJSON.ignoreCache){
+          ignoreCache = true
+        }
+
         Map paramMap = new TreeMap<>()
         paramMap.put("name", featureName)
 
+        Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
+
+        // if the organism is not public AND we do not have read permissions for this organism
+        if( !(permissionService.hasGlobalPermissions(inputJSON, GlobalPermissionEnum.USER) && permissionService.userHasOrganismPermission(organism,PermissionEnum.READ))
+        ) {
+            render status: UNAUTHORIZED
+            return
+        }
 
         if (!ignoreCache) {
             String responseString = sequenceService.checkCache(organismString, sequenceName, featureName, type, paramMap)
@@ -306,6 +351,7 @@ class SequenceController {
         }
 
         Feature feature = Feature.findByUniqueName(featureName)
+        println "feature name: $featureName"
         if (!feature) {
             def features = Feature.findAllByName(featureName)
 
@@ -320,9 +366,13 @@ class SequenceController {
             }
         }
 
+        println "found a feature: $feature"
+
         if (feature) {
             String sequenceString = sequenceService.getSequenceForFeature(feature, type)
+            println "A: ${sequenceString?.trim()} .. $type"
             if(sequenceString?.trim()){
+                println "B"
                 render sequenceString
                 sequenceService.cacheRequest(sequenceString, organismString, sequenceName, featureName, type, paramMap)
                 return
@@ -335,21 +385,37 @@ class SequenceController {
     @RestApiParams(params = [
             @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
+            , @RestApiParam(name = "username", type = "string", paramType = RestApiParamType.QUERY, description = "username (optional)")
+            , @RestApiParam(name = "password", type = "string", paramType = RestApiParamType.QUERY, description = "password (required)")
     ])
     @Transactional
     def clearSequenceCache(String organismName, String sequenceName) {
-        if (!checkPermission(organismName)) return
-        int removed = SequenceCache.countByOrganismNameAndSequenceName(organismName, sequenceName)
-        SequenceCache.deleteAll(SequenceCache.findAllByOrganismNameAndSequenceName(organismName, sequenceName))
-        render new JSONObject(removed: removed) as JSON
+        JSONObject organismJson = permissionService.handleInput(request, params)
+        // if global admin
+        Organism organism = Organism.findByCommonName(organismName) ?: Organism.findById(organismName as Long)
+        if (permissionService.hasGlobalPermissions(organismJson,GlobalPermissionEnum.ADMIN) || checkPermission(organismName)){
+            int removed = SequenceCache.countByOrganismNameAndSequenceName(organismName, sequenceName)
+            SequenceCache.deleteAll(SequenceCache.findAllByOrganismNameAndSequenceName(organismName, sequenceName))
+            render new JSONObject(removed: removed) as JSON
+        }
+        else{
+            render status: UNAUTHORIZED
+        }
     }
 
     @RestApiMethod(description = "Remove sequence cache for an organism", path = "/sequence/cache/clear/<organism name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
+            , @RestApiParam(name = "username", type = "string", paramType = RestApiParamType.QUERY, description = "username (optional)")
+            , @RestApiParam(name = "password", type = "string", paramType = RestApiParamType.QUERY, description = "password (required)")
     ])
     @Transactional
     def clearOrganismCache(String organismName) {
+        JSONObject organismJson = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(organismJson,GlobalPermissionEnum.ADMIN) && !checkPermission(organismName)){
+            render status: UNAUTHORIZED
+            return
+        }
         if (organismName.toLowerCase().equals("all") && permissionService.isAdmin()) {
             log.info "Deleting cache for all organisms"
             JSONArray jsonArray = new JSONArray()

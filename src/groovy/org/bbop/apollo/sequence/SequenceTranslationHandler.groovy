@@ -116,7 +116,6 @@ class SequenceTranslationHandler {
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
     static TranslationTable getTranslationTableForGeneticCode(String code, String rootPath) throws AnnotationException {
-        println "input code ${code} ${rootPath}"
         if (!translationTables.containsKey(code)) {
             initTranslationTables(code,rootPath);
         }

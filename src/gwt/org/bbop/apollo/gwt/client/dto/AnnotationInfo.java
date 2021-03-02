@@ -15,6 +15,9 @@ public class AnnotationInfo {
     private String type;
     private Integer min;
     private Integer max;
+    private Boolean partialMin = false;
+    private Boolean partialMax = false;
+    private Boolean obsolete = false;
     private Set<AnnotationInfo> childAnnotations = new HashSet<>(); // children
     private List<GoAnnotation> goAnnotations = new ArrayList<>(); // go annotations
     private String symbol;
@@ -302,4 +305,30 @@ public class AnnotationInfo {
     public int hashCode() {
         return Objects.hash(uniqueName, name, type, min, max, childAnnotations, goAnnotations, symbol, description, strand, noteList, dbXrefList, sequence, phase, owner, dateLastModified, dateCreated, referenceAllele, alternateAlleles, variantProperties, commentList, attributeList, status, synonyms);
     }
+
+    public Boolean getPartialMin() {
+        return partialMin;
+    }
+
+    public void setPartialMin(Boolean partialMin) {
+        this.partialMin = partialMin;
+    }
+
+    public Boolean getPartialMax() {
+        return partialMax;
+    }
+
+    public void setPartialMax(Boolean partialMax) {
+        this.partialMax = partialMax;
+    }
+
+
+    public Boolean getObsolete() {
+        return obsolete;
+    }
+
+    public void setObsolete(Boolean obsolete) {
+        this.obsolete = obsolete;
+    }
+
 }

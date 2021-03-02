@@ -5,6 +5,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -250,7 +251,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
         then: "we should get a transcript back" // we currently get nothing
-//        log.debug returnObject as JSON
         assert returnObject.getString('operation') == "ADD"
         assert returnObject.getBoolean('sequenceAlterationEvent') == false
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -288,7 +288,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see an exon added"
         assert returnedAfterExonObject != null
-        log.debug Feature.count
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
@@ -356,7 +355,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see that we flipped the strand"
         assert returnedAfterExonObject != null
-        log.debug Feature.count
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
@@ -383,7 +381,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
         then: "we should have no splice sites"
-        log.debug Feature.count
         assert Feature.count == 5
         assert returnFeaturesArray.size() == 1
         assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
@@ -473,7 +470,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see that we flipped the strand"
         assert returnedAfterExonObject != null
-        log.debug Feature.count
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
@@ -528,7 +524,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         then: "we should have no splice sites"
-        log.debug Feature.count
         assert Feature.count == 4 + 2 + 2 + 1
         assert returnFeaturesArray.size() == 1
         assert mRNAObject00001.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
@@ -3540,6 +3535,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert comment == "this is a test pseudogene"
     }
 
+    @Ignore
     void "a round-trip of GFF3 export and import"() {
         given: "a fully annotated feature"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1303382},\"name\":\"GB40864-RA\",\"children\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1296818,\"strand\":1,\"fmax\":1296928},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297013,\"strand\":1,\"fmax\":1297225},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297301,\"strand\":1,\"fmax\":1297490},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297612,\"strand\":1,\"fmax\":1297756},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1298681,\"strand\":1,\"fmax\":1298778},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1302749,\"strand\":1,\"fmax\":1302914},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1303302,\"strand\":1,\"fmax\":1303382},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1303382},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
@@ -3783,6 +3779,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert mrna.featureProperties.size() == 4
     }
 
+    @Ignore
     void "a round-trip with all feature types"() {
         given: "a set of features"
         String addTranscript1String = " { ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":524298,\"fmax\":525125},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":526023,\"fmax\":526249},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":532689,\"fmax\":532805},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":536610,\"fmax\":536847},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":539048,\"fmax\":539200},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":553190,\"fmax\":553407},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":556835,\"fmax\":556997},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":557487,\"fmax\":557685},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":558584,\"fmax\":558694},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":561618,\"fmax\":561953},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":566512,\"fmax\":566761},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":568097,\"fmax\":568401},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":572026,\"fmax\":572691},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":524303,\"fmax\":572204},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40818-RA\",\"location\":{\"strand\":1,\"fmin\":524298,\"fmax\":572691},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"

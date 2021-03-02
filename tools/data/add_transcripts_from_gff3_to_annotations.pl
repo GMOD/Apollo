@@ -1,5 +1,12 @@
 #!/usr/bin/perl
 
+####
+# NOTE: This library is no longer supported.
+# Please see https://pypi.org/project/apollo/ for more details.
+# usage: arrow annotations load_gff3 MyOrganism1 sample.gff3
+####
+
+
 use strict;
 use warnings;
 

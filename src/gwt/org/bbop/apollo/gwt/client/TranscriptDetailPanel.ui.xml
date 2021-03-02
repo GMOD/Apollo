@@ -33,6 +33,17 @@
         .topPanel {
             margin-bottom: 5px;
         }
+        .location-button{
+            background-color: #eee;
+            width: 280px;
+        }
+
+        .partial-button{
+            display: inline ;
+            margin-left: 5px;
+            padding-left: 0;
+            padding-right: 0;
+        }
 
         .inputGroup1 {
             width: 400px;
@@ -49,6 +60,7 @@
                           ui:field="annotationIdButton" enabled="true" addStyleNames="{style.action-buttons}"/>
                 <b:Button ui:field="syncNameButton" icon="REFRESH" enabled="true" text="Sync name with gene"
                           addStyleNames="{style.action-buttons}"/>
+                <b:InlineCheckBox ui:field="obsoleteButton">Obsolete</b:InlineCheckBox>
                 <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
                           text="Delete" pull="RIGHT"
                           ui:field="deleteAnnotation" enabled="true"
@@ -101,7 +113,10 @@
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
-                    <b:TextBox enabled="false" ui:field="locationField"/>
+                    <b:TextBox stylePrimaryName="{style.location-button}" enabled="false" ui:field="locationField"/>
+                    <b:InputGroupAddon>Partial:</b:InputGroupAddon>
+                    <b:InlineCheckBox ui:field="partialMin" addStyleNames="{style.partial-button}">3'</b:InlineCheckBox>
+                    <b:InlineCheckBox ui:field="partialMax" addStyleNames="{style.partial-button}">5'</b:InlineCheckBox>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
