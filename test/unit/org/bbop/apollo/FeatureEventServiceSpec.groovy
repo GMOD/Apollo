@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.bbop.apollo.history.FeatureOperation
+import groovy.json.JsonBuilder
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
@@ -1198,4 +1199,15 @@ class FeatureEventServiceSpec extends Specification {
 
     }
 
+    void "test generateAttributions"{
+        given:
+            FeatureEvent  featureEvent = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, editor: "name_of_user", name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: true).save(failOnError: true)
+            Map expected_attribution  = ["name_of_user": ["ADD_FEATURE"]]
+            JsonBuilder toJson = new JsonBuilder()
+            toJson(expected_attribution)
+        when:
+            JsonBuilder attributions = service.generateAttributions()
+        then:
+            assert toJson == attributions
+    }
 }
