@@ -901,7 +901,7 @@ class FeatureEventService {
      * @return json of all edits by user
      */
     JSONObject generateAttributions(int max = 1000) {
-        List<FeatureEvent> featureEvents = FeatureEvent.list([max:max])
+        List<FeatureEvent> featureEvents = FeatureEvent.listOrderByLastUpdated([order: 'desc', max:max])
         log.debug("Generating attrubtions: "+ featureEvents.size())
         Map attributions = [:]
         featureEvents.each {
