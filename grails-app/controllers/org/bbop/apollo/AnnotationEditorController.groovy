@@ -1246,6 +1246,24 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description = "Gets edits made by the annotator, Returns JSON hash user:[edit_type]", path = "/annotationEditor/getAttributions", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+
+    def getAttributions() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        JsonBuilder attributions =  featureEventService.generateAttributions()
+        render attributions
+    }
+
+
+
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
