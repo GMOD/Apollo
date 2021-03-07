@@ -900,11 +900,12 @@ class FeatureEventService {
      * @param None
      * @return json of all edits by user
      */
-    JsonBuilder generateAttributions() {
-        List<FeatureEvent> featureEvents = FeatureEvent.findAll()
+    JSONObject generateAttributions(int max = 1000) {
+        List<FeatureEvent> featureEvents = FeatureEvent.list([max:max])
+        log.debug("Generating attrubtions: "+ featureEvents.size())
         Map attributions = [:]
         featureEvents.each {
-            println(it.operation)
+            log.debug("Generating operation: "+ it.operation)
             if(attributions.containsKey(it.getEditor()?.username)){
                 List operations = attributions.get(it.getEditor()?.username)
                 operations.add(it.operation)
@@ -916,8 +917,6 @@ class FeatureEventService {
             }
         }
 
-        JsonBuilder toJson = new JsonBuilder()
-        toJson(attributions)
-        return toJson
+        return new JSONObject(attributions)
     }
 }

@@ -1250,15 +1250,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "max", type = "integer", paramType = RestApiParamType.QUERY,description ="(optional) Max number of attributions to return (default 1000)")
     ])
-
     def getAttributions() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        JsonBuilder attributions =  featureEventService.generateAttributions()
+        JSONObject attributions =  featureEventService.generateAttributions( (params.max ?: 1000) as Integer)
         render attributions
     }
 

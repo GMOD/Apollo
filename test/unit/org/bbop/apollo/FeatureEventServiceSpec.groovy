@@ -13,7 +13,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(FeatureEventService)
-@Mock([FeatureEvent])
+@Mock([FeatureEvent,User])
 class FeatureEventServiceSpec extends Specification {
 
     Date today = new Date()
@@ -1199,15 +1199,19 @@ class FeatureEventServiceSpec extends Specification {
 
     }
 
-    void "test generateAttributions"{
+void "test generateAttributions"(){
         given:
-            FeatureEvent  featureEvent = new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, editor: "name_of_user", name: "Gene123", uniqueName: classUniqueName, dateCreated: today - 7, current: true).save(failOnError: true)
-            Map expected_attribution  = ["name_of_user": ["ADD_FEATURE"]]
-            JsonBuilder toJson = new JsonBuilder()
-            toJson(expected_attribution)
+        User editor = new User(username:"someRandomUser",passwordHash: "supersecret",firstName: "User",lastName: "Editor").save()
+        new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, editor: editor, name: "Gene123", uniqueName: "someUniqueName", dateCreated: today - 7, current: true).save(failOnError: true,flush: true)
+
         when:
-            JsonBuilder attributions = service.generateAttributions()
+        def attributions = service.generateAttributions()
+
         then:
-            assert toJson == attributions
+        assert attributions.containsKey("someRandomUser")
+        def attributionArray = attributions.get("someRandomUser")
+        assert attributionArray.size()==1
+        def attributionsObject = attributionArray[0]
+        assert attributionsObject == FeatureOperation.ADD_FEATURE
     }
 }
