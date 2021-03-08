@@ -77,7 +77,7 @@ grails.project.dependency.resolution = {
 
 
         // HTSJDK
-        compile group: 'com.github.samtools', name: 'htsjdk', version: '2.21.2'
+        compile group: 'com.github.samtools', name: 'htsjdk', version: '2.23.0'
 
         // svg generation
         compile group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.9'
