@@ -903,15 +903,15 @@ class FeatureEventService {
     JSONObject generateAttributions(int max = 1000) {
         List<FeatureEvent> featureEvents = FeatureEvent.listOrderByLastUpdated([order: 'desc', max:max])
         log.debug("Generating attrubtions: "+ featureEvents.size())
-        Map attributions = [:]
+        Map attributions = new TreeMap<String,List<FeatureOperation>>()
         featureEvents.each {
             log.debug("Generating operation: "+ it.operation)
             if(attributions.containsKey(it.getEditor()?.username)){
-                List operations = attributions.get(it.getEditor()?.username)
+                List<FeatureOperation> operations = attributions.get(it.getEditor()?.username) as List<FeatureOperation>
                 operations.add(it.operation)
                 attributions.put(it.getEditor()?.username, operations)
             }else {
-                List operations = []
+                List<FeatureOperation> operations = []
                 operations.add(it.operation)
                 attributions.put(it.getEditor()?.username, operations)
             }

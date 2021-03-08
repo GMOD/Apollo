@@ -1258,7 +1258,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        JSONObject attributions =  featureEventService.generateAttributions( (params.max ?: 1000) as Integer)
+        int max = inputObject.max ?: 1000
+        JSONObject attributions =  featureEventService.generateAttributions( max )
         render attributions
     }
 
