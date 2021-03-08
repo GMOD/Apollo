@@ -1,4 +1,12 @@
 
+
+## 2.6.4 
+
+Features
+
+- Added getAttributions method [2591](https://github.com/GMOD/Apollo/pull/2591) via @mbc32.
+
+
 ## 2.6.3
 
 Features
