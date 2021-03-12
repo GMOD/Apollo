@@ -1,4 +1,12 @@
 
+
+## 2.6.4
+
+
+Infrastructure Changes
+
+- Upgrade to [JBrowse 1.16.11](https://github.com/GMOD/jbrowse/releases/tag/1.16.11-release)
+
 ## 2.6.3
 
 Features
