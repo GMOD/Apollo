@@ -419,7 +419,7 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.10-release"
+        branch = "1.16.11-release"
 //		branch = "dev"
 //        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
         alwaysPull = true
