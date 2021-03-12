@@ -7,6 +7,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import groovy.json.JsonBuilder
 import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.DateFormat
@@ -892,5 +893,30 @@ class FeatureEventService {
             historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
         }
         return historyContainer
+    }
+
+    /**
+     * Create Annotator (user) attributions by getting all Feature Events
+     * @param None
+     * @return json of all edits by user
+     */
+    JSONObject generateAttributions(int max = 1000) {
+        List<FeatureEvent> featureEvents = FeatureEvent.listOrderByLastUpdated([order: 'desc', max:max])
+        log.debug("Generating attrubtions: "+ featureEvents.size())
+        def attributions = new HashMap<String,List<FeatureOperation>>()
+        featureEvents.each {
+            log.debug("Generating operation: "+ it.operation)
+            if(attributions.containsKey(it.getEditor()?.username)){
+                List<FeatureOperation> operations = attributions.get(it.getEditor()?.username) as List<FeatureOperation>
+                operations.add(it.operation)
+                attributions.put(it.getEditor()?.username, operations)
+            }else {
+                List<FeatureOperation> operations = []
+                operations.add(it.operation)
+                attributions.put(it.getEditor()?.username, operations)
+            }
+        }
+
+        return new JSONObject(attributions)
     }
 }

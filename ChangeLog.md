@@ -1,11 +1,15 @@
 
 
-## 2.6.4
+## 2.6.4 
 
+Features
+
+- Added getAttributions method [2591](https://github.com/GMOD/Apollo/pull/2591) via @mbc32.
 
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.11](https://github.com/GMOD/jbrowse/releases/tag/1.16.11-release)
+
 
 ## 2.6.3
 
