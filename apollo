@@ -146,6 +146,7 @@ function check_configs(){
     grails_executable=$(which grails)
     gradle_executable=$(which gradle)
     git_executable=$(which git)
+
     if ! [[ -x "$grails_executable" ]] ; then
         if [[ -f 'grailsw' ]]; then
             echo "Grails not found using grailsw";
@@ -155,6 +156,17 @@ function check_configs(){
            echo "You must install 'grails' to install Apollo."
            exit 1 ;
         fi
+    else
+      echo $grails_executable
+       GRAILS_VERSION=`$grails_executable  --version | grep Grails | cut -f2 -d: | xargs echo `;
+       echo "Grails version: ${GRAILS_VERSION}"
+       if [[ "$GRAILS_VERSION" != "2.5.5" ]];then
+           echo "Grails version ${GRAILS_VERSION} not supported.  Only grails 2.5.5 supported so using local ./grailsw instead"
+           : "${JAVA_HOME?:Need to set JAVA_HOME}"
+            grails_executable="./grailsw"
+       else
+           echo "Using system grails `$grails_executable  -v | cut -f4 -d' '`";
+       fi
     fi
 
     if ! [[ -x "$gradle_executable" ]] ; then
@@ -177,6 +189,7 @@ function check_configs(){
 
     check_node
     check_java
+    check_grails
 }
 
 function copy_configs(){

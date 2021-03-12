@@ -6,6 +6,10 @@ Features
 
 - Added getAttributions method [2591](https://github.com/GMOD/Apollo/pull/2591) via @mbc32.
 
+Bug Fix
+
+- Provide better detection for Grails version and a better frix for [2020](https://github.com/GMOD/Apollo/issues/2020).
+
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.11](https://github.com/GMOD/jbrowse/releases/tag/1.16.11-release)
