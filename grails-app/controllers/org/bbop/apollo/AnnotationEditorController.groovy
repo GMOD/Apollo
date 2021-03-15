@@ -1282,6 +1282,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
+                case "ping":
+                    sendAnnotationEvent("pong")
+                    return "pong"
+                    break
                 case "logout":
                     SecurityUtils.subject.logout()
                     break
