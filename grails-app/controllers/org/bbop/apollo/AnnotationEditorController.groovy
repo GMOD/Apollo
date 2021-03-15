@@ -1273,6 +1273,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         inputString = annotationEditorService.cleanJSONString(inputString)
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
+        println "input string: ${inputString}"
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 

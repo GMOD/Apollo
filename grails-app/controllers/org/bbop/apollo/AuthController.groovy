@@ -3,6 +3,7 @@ package org.bbop.apollo
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.web.util.RedirectView
 import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
 
@@ -33,24 +34,24 @@ class AuthController {
         println "targetUri: ${targetUri}"
         
         // Handle requests saved by Shiro filters.
-        SavedRequest savedRequest = WebUtils.getSavedRequest(request)
-        println "saved request: ${savedRequest}"
-        if (savedRequest) {
-            println "query: ${savedRequest.queryString} vs ${targetUri}"
-            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
-                targetUri = savedRequest.queryString.substring("targetUri=".size())
-                println "target URI / saved request: ${targetUri}"
-            }
-            else{
-                println "ELSE target URI / saved request: ${targetUri}"
-                targetUri = savedRequest.requestURI - request.contextPath
-                if (savedRequest.queryString) {
-                    println "B"
-                    targetUri = targetUri + '?' + savedRequest.queryString
-                }
-                println "ELSE final target URi target URI / saved request: ${targetUri}"
-            }
-        }
+//        SavedRequest savedRequest = WebUtils.getSavedRequest(request)
+//        println "saved request: ${savedRequest}"
+//        if (savedRequest) {
+//            println "query: ${savedRequest.queryString} vs ${targetUri}"
+//            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
+//                targetUri = savedRequest.queryString.substring("targetUri=".size())
+//                println "target URI / saved request: ${targetUri}"
+//            }
+//            else{
+//                println "ELSE target URI / saved request: ${targetUri}"
+//                targetUri = savedRequest.requestURI - request.contextPath
+//                if (savedRequest.queryString) {
+//                    println "B"
+//                    targetUri = targetUri + '?' + savedRequest.queryString
+//                }
+//                println "ELSE final target URi target URI / saved request: ${targetUri}"
+//            }
+//        }
         
         try{
             // Perform the actual login. An AuthenticationException
@@ -65,12 +66,13 @@ class AuthController {
 //                    redirect(uri: "${request.contextPath}${targetUri}")
 //                }
 //                else {
-                    redirect(url: targetUri)
+//                    redirect(url: targetUri)
 //                }
+                return new org.springframework.web.servlet.view.RedirectView(targetUri)
 //                response.setStatus(301);
 //                response.setHeader("Location", "http://location:8080/apollo" + request.forwardURI)
 //                response.flushBuffer()
-                return true; // return false, otherwise request is handled from controller
+//                return true; // return false, otherwise request is handled from controller
             }
         }
         catch (AuthenticationException ex){
