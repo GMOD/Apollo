@@ -8,7 +8,7 @@ Features
 
 Bug Fix
 
-- Provide better detection for Grails version and a better frix for [2020](https://github.com/GMOD/Apollo/issues/2020).
+- Provide better detection and fallback for detecting proper Grails version [2020](https://github.com/GMOD/Apollo/issues/2020).
 
 Infrastructure Changes
 
