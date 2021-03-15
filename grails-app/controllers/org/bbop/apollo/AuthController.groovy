@@ -30,18 +30,25 @@ class AuthController {
         // If a controller redirected to this page, redirect back
         // to it. Otherwise redirect to the root URI.
         def targetUri = params.targetUri ?: "/"
+        println "targetUri: ${targetUri}"
         
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
+        println "saved request: ${savedRequest}"
         if (savedRequest) {
+            println "query: ${savedRequest.queryString} vs ${targetUri}"
             if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
                 targetUri = savedRequest.queryString.substring("targetUri=".size())
+                println "target URI / saved request: ${targetUri}"
             }
             else{
+                println "ELSE target URI / saved request: ${targetUri}"
                 targetUri = savedRequest.requestURI - request.contextPath
                 if (savedRequest.queryString) {
+                    println "B"
                     targetUri = targetUri + '?' + savedRequest.queryString
                 }
+                println "ELSE final target URi target URI / saved request: ${targetUri}"
             }
         }
         
@@ -51,15 +58,19 @@ class AuthController {
             // password is incorrect.
             permissionService.authenticateWithToken(authToken,request)
 //            SecurityUtils.subject.login(authToken)
+            println "authenticated has a target URI: ${targetUri}"
             if(targetUri) {
-                if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
-                    redirect(uri: "${request.contextPath}${targetUri}")
-                }
-                else {
-                    redirect(uri: targetUri)
-                }
-
-                return
+                println "calling Target uri: ${targetUri}"
+//                if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
+//                    redirect(uri: "${request.contextPath}${targetUri}")
+//                }
+//                else {
+                    redirect(url: targetUri)
+//                }
+//                response.setStatus(301);
+//                response.setHeader("Location", "http://location:8080/apollo" + request.forwardURI)
+//                response.flushBuffer()
+                return true; // return false, otherwise request is handled from controller
             }
         }
         catch (AuthenticationException ex){
