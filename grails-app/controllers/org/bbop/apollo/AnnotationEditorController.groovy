@@ -1283,7 +1283,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         def p = task {
             switch (operationName) {
                 case "ping":
-                    sendAnnotationEvent("pong")
+                    sendAnnotationEvent("pong1")
+//                    def exception = new RuntimeException("boom")
+//                    sendError(exception,"pong2")
+                    broadcastMessage("pong3")
                     return "pong"
                     break
                 case "logout":
@@ -1338,6 +1341,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return sendError(ae, principal.name)
         }
 
+    }
+
+    protected def broadcastMessage(String message){
+        println "broadcasting message: ${message}"
+        brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
+        println "broadcast message: ${message}"
     }
 
 // TODO: handle errors without broadcasting
