@@ -1270,6 +1270,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
+        log.debug("Web socket connected: ${inputString}")
         inputString = annotationEditorService.cleanJSONString(inputString)
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
@@ -1280,6 +1281,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
+                case "ping":
+                    return "pong"
+                    break
+                // test case
+                case "broadcast":
+                    broadcastMessage("pong",principal?.name)
+                    break
                 case "logout":
                     SecurityUtils.subject.logout()
                     break
@@ -1332,6 +1340,26 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return sendError(ae, principal.name)
         }
 
+    }
+
+    /**
+     * Note: this is a test websocket method
+     * @param message
+     * @param username
+     * @return
+     */
+    protected def broadcastMessage(String message,String username){
+        println "bradcasting message: ${message}"
+        brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
+        println "broadcast message: ${message}"
+        if(username){
+            println "send error to user"
+            sendError(new RuntimeException("whoops"),username)
+            println "sent error to user"
+        }
+        println "sending annotation vent"
+        sendAnnotationEvent("annotation event of some kind")
+        println "sent annotation event"
     }
 
 // TODO: handle errors without broadcasting
