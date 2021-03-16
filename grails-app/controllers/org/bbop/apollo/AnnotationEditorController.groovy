@@ -1270,11 +1270,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        println "LISTENENING"
+        log.debug("Web socket connected: ${inputString}")
         inputString = annotationEditorService.cleanJSONString(inputString)
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
-        println "input string: ${inputString}"
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
@@ -1283,11 +1282,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         def p = task {
             switch (operationName) {
                 case "ping":
-                    sendAnnotationEvent("pong1")
-//                    def exception = new RuntimeException("boom")
-//                    sendError(exception,"pong2")
-                    broadcastMessage("pong3")
                     return "pong"
+                    break
+                // test case
+                case "broadcast":
+                    broadcastMessage("pong",principal?.name)
                     break
                 case "logout":
                     SecurityUtils.subject.logout()
@@ -1343,16 +1342,24 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
-    protected def broadcastMessage(String message){
+    /**
+     * Note: this is a test websocket method
+     * @param message
+     * @param username
+     * @return
+     */
+    protected def broadcastMessage(String message,String username){
         println "bradcasting message: ${message}"
         brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
         println "broadcast message: ${message}"
-        println "send error to user"
-        sendError(new RuntimeException("whoops"),"ndunn@me.com")
-        println "sent error to user"
-        println "sednding annotation vent"
+        if(username){
+            println "send error to user"
+            sendError(new RuntimeException("whoops"),username)
+            println "sent error to user"
+        }
+        println "sending annotation vent"
         sendAnnotationEvent("annotation event of some kind")
-        println "sent annotaiton event"
+        println "sent annotation event"
     }
 
 // TODO: handle errors without broadcasting
