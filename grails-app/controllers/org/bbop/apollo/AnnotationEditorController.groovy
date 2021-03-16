@@ -1344,6 +1344,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     protected def broadcastMessage(String message){
+        println "broadcast example topic: ${message}"
+        brokerMessagingTemplate.convertAndSend("/topic/example", message)
         println "broadcasting message: ${message}"
         brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
         println "broadcast message: ${message}"
