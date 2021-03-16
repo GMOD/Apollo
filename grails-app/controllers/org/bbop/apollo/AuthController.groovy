@@ -3,7 +3,6 @@ package org.bbop.apollo
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.web.util.RedirectView
 import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
 
@@ -31,8 +30,7 @@ class AuthController {
         // If a controller redirected to this page, redirect back
         // to it. Otherwise redirect to the root URI.
         def targetUri = params.targetUri ?: "/"
-        println "targetUri: ${targetUri}"
-        
+
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
@@ -57,7 +55,7 @@ class AuthController {
                     redirect(uri: "${request.contextPath}${targetUri}")
                 }
                 else {
-                    redirect(url: targetUri)
+                    redirect(uri: targetUri)
                 }
                 return
             }
