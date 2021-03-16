@@ -1344,11 +1344,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     protected def broadcastMessage(String message){
-        println "broadcast example topic: ${message}"
-        brokerMessagingTemplate.convertAndSend("/topic/example", message)
-        println "broadcasting message: ${message}"
+        println "bradcasting message: ${message}"
         brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
         println "broadcast message: ${message}"
+        println "send error to user"
+        sendError(new RuntimeException("whoops"),"ndunn@me.com")
+        println "sent error to user"
+        println "sednding annotation vent"
+        sendAnnotationEvent("annotation event of some kind")
+        println "sent annotaiton event"
     }
 
 // TODO: handle errors without broadcasting
