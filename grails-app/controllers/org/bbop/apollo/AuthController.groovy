@@ -3,8 +3,9 @@ package org.bbop.apollo
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
+
+import javax.servlet.http.Cookie
 
 class AuthController {
 
@@ -32,31 +33,42 @@ class AuthController {
         def targetUri = params.targetUri ?: "/"
 
         // Handle requests saved by Shiro filters.
-        SavedRequest savedRequest = WebUtils.getSavedRequest(request)
-        if (savedRequest) {
-            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
-                targetUri = savedRequest.queryString.substring("targetUri=".size())
-            }
-            else{
-                targetUri = savedRequest.requestURI - request.contextPath
-                if (savedRequest.queryString) {
-                    targetUri = targetUri + '?' + savedRequest.queryString
-                }
-            }
-        }
+//        SavedRequest savedRequest = WebUtils.getSavedRequest(request)
+//        if (savedRequest) {
+//            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
+//                targetUri = savedRequest.queryString.substring("targetUri=".size())
+//            }
+//            else{
+//                targetUri = savedRequest.requestURI - request.contextPath
+//                if (savedRequest.queryString) {
+//                    targetUri = targetUri + '?' + savedRequest.queryString
+//                }
+//            }
+//        }
         
         try{
+            println "session ID ${request.getSession(false).getId()}"
             // Perform the actual login. An AuthenticationException
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
             permissionService.authenticateWithToken(authToken,request)
             if(targetUri) {
-                if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
-                    redirect(uri: "${request.contextPath}${targetUri}")
-                }
-                else {
-                    redirect(uri: targetUri)
-                }
+                  String sessionId = request.getSession(false).getId()
+                Cookie cookie = new Cookie("JSESSIONID",sessionId)
+                cookie.maxAge = 0
+                cookie.setHttpOnly(true)
+                cookie.setDomain(targetUri)
+                cookie.setPath("/apollo/")
+                response.addCookie(cookie)
+                response.setStatus(302)
+//                response.setHeader("Location",targetUri)
+                response.sendRedirect(targetUri)
+//                if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
+//                    redirect(uri: "${request.contextPath}${targetUri}")
+//                }
+//                else {
+//                    redirect(uri: targetUri)
+//                }
                 return
             }
         }

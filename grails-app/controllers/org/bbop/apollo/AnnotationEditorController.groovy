@@ -1286,7 +1286,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     break
                 // test case
                 case "broadcast":
-                    broadcastMessage("pong",principal?.name)
+                    broadcastMessage("broadcast",principal?.name)
                     break
                 case "logout":
                     SecurityUtils.subject.logout()
@@ -1354,7 +1354,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         println "broadcast message: ${message}"
         if(username){
             println "send error to user"
-            sendError(new RuntimeException("whoops"),username)
+            sendError(new RuntimeException("broadcast error message to user"),username)
             println "sent error to user"
         }
         println "sending annotation vent"
