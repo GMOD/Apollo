@@ -9,6 +9,7 @@ Features
 Bug Fix
 
 - Provide better detection and fallback for detecting proper Grails version [2020](https://github.com/GMOD/Apollo/issues/2020).
+- Bad WithOrFrom functional annotation evidence can hide display [2595](https://github.com/GMOD/Apollo/issues/2595).
 
 Infrastructure Changes
 
