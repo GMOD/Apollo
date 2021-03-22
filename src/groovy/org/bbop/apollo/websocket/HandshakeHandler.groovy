@@ -1,6 +1,8 @@
 package org.bbop.apollo.websocket
 
 
+import org.bbop.apollo.websocket.AuthenticatingHandshakeHandler
+
 import java.security.Principal
 
 import org.springframework.http.HttpStatus
@@ -22,8 +24,13 @@ public class HandshakeHandler implements HandshakeHandler {
         DefaultHandshakeHandler defaultHandshakeHandler = new DefaultHandshakeHandler()
         Principal user = defaultHandshakeHandler.determineUser(request, wsHandler, attributes)
         if (user == null) {
-            response.setStatusCode(HttpStatus.FORBIDDEN)
-            return false
+            AuthenticatingHandshakeHandler handshakeHandler = new AuthenticatingHandshakeHandler()
+            Principal newUser = handshakeHandler.determineUser(request, wsHandler, attributes)
+            if (newUser == null) {
+                response.setStatusCode(HttpStatus.FORBIDDEN)
+                return false
+            }
+            return handshakeHandler.doHandshake(request, response, wsHandler, attributes)
         }
         return defaultHandshakeHandler.doHandshake(request, response, wsHandler, attributes)
     }
