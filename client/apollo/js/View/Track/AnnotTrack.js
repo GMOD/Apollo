@@ -5458,6 +5458,27 @@ define([
                 this.executeUpdateOperation(postData);
             },
 
+            getParentHistory: function () {
+                var selected = this.selectionManager.getSelection();
+                console.log('get select');
+                // console.log(JSON.stringify(selected));
+                console.log(selected);
+                console.log('parent');
+                console.log(selected[0].feature.data.parent_id);
+                if(selected[0].feature.data.parent_id){
+                   // selected[0].feature = { uniquename : selected[0].feature.data.parent_id }
+                    selected[0].feature.data.uniquename = selected[0].feature.data.parent_id
+                    selected[0].feature.afeature.uniquename = selected[0].feature.data.parent_id
+                    selected[0].feature._uniqueID = selected[0].feature.data.parent_id
+                    // selected[0].feature.afeature.uniquename = selected[0].feature.data.parent_id
+                    // selected[0].feature.uniquename = selected[0].feature.data.parent_id
+                    console.log('replaced feature with parent')
+                }
+                console.log('final feature ',selected)
+                this.selectionManager.clearSelection();
+                this.getHistoryForSelectedFeatures(selected);
+            },
+
             getHistory: function () {
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
@@ -5682,8 +5703,13 @@ define([
                     var features = '"features": [';
                     for (var i in selected) {
                         var record = selected[i];
+                        console.log('record feature id',record.feature.id());
+                        console.log('record feature',record.feature);
+                        // console.log('parent feature',record.feature.parent());
                         var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+                        console.log('top level feature',annot)
                         var uniqueName = annot.id();
+                        console.log('actual id',uniqueName)
                         // just checking to ensure that all features in selection are
                         // from this track
                         if (record.track === track) {
@@ -7048,6 +7074,13 @@ define([
                         }
                     }));
                     contextMenuItems["history"] = index++;
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Show Gene History",
+                        onClick: function (event) {
+                            thisB.getParentHistory();
+                        }
+                    }));
+                    contextMenuItems["parent_history"] = index++;
                 }
 
                 annot_context_menu.onOpen = function (event) {
