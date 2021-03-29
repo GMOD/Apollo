@@ -5,7 +5,6 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
-import org.bbop.apollo.websocket.HandshakeHandler
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -26,8 +25,8 @@ class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
             .withSockJS()
     }
 
-    public HandshakeHandler handshakeHandler() {
-        return new HandshakeHandler();
+    ApolloHandshakeHandler handshakeHandler() {
+        return new ApolloHandshakeHandler();
     }
 
 }
