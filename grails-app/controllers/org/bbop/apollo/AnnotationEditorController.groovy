@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import groovy.json.JsonBuilder
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -1281,6 +1282,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
+                case "admin":
+                    println "admin"
+                    boolean admin = permissionService.isAdmin()
+                    println "admin return ${admin}"
+                    return admin
+                    break
+                case "currentUser":
+                    println "currentUser"
+                    println "getting security manager"
+                    SecurityManager securityManager = SecurityUtils.getSecurityManager()
+                    println "security manager ${securityManager}"
+                    Session session = SecurityUtils.subject.getSession(true)
+                    println "session ${session}"
+                    Principal principal1 = SecurityUtils.subject.principal
+                    println "prinical ${principal1}"
+                    User user = permissionService.currentUser
+                    println "user ${user}"
+                    return user?.username
+                    break
                 case "ping":
                     return "pong"
                     break
