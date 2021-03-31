@@ -193,6 +193,7 @@ class TrackController {
             , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
             , @RestApiParam(name = "name", type = "string / string[]", paramType = RestApiParamType.QUERY, description = "If top-level feature 'name' matches, then annotate with 'selected'=true.  Multiple names can be passed in.")
             , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
+            , @RestApiParam(name = "unique", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false) Whether or not to pull a unique name for each.")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
             , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'.")
             , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
@@ -204,6 +205,7 @@ class TrackController {
 
         Set<String> nameSet = getNames(params.name ? params.name : "")
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
+        Boolean unique = params.unique != null ? params.unique : false
         String flatten = params.flatten != null ? params.flatten : 'gene'
         flatten = flatten == 'false' ? '' : flatten
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -270,7 +272,9 @@ class TrackController {
             renderedArray = returnArray
         }
 
-        renderedArray = renderedArray.unique{  it.name } as JSONArray
+        if(unique){
+            renderedArray = renderedArray.unique{  it.name } as JSONArray
+        }
         renderedArray = renderedArray.findAll{  it ->
           return (it.fmax - it.fmin) < (overlapFilter*(fmax - fmin))
         } as JSONArray
