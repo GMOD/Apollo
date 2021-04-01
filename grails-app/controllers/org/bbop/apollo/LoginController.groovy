@@ -25,8 +25,9 @@ class LoginController extends AbstractApolloController {
     def index() {}
 
 
-    def handleOperation(String track, String operation) {
+    def handleOperation(String operation) {
         JSONObject postObject = findPost()
+        println "hanldling operation ${operation}"
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
         }
@@ -197,29 +198,31 @@ class LoginController extends AbstractApolloController {
 
 
     def logout(){
-        log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        log.debug "logging out with params: ${params}"
+        println "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
+        println "logging out with params: ${params}"
         // have to retrive the username first
-        String username = SecurityUtils.subject.principal
-        log.debug "sending logout"
+        String username = SecurityUtils.subject.principal ?: params.username
+        println "sending logout for username ${username}"
         sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-        log.debug "sent logout"
+        println "sent logout"
         sleep(1000)
-        log.debug "doing local logout"
+        println "doing local logout"
         SecurityUtils.subject.logout()
         sleep(1000)
-        log.debug "logged out"
+        println "logged out"
         if(params.targetUri){
+            println "redirecting"
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
         else{
+            println "just doing JSON output"
             render new JSONObject() as JSON
         }
     }
 
     def sendLogout(String username,String clientToken) {
         User user = User.findByUsername(username)
-        log.debug "sending logout for ${user} via ${username} with ${clientToken}"
+        println "sending logout for ${user} via ${username} with ${clientToken}"
         JSONObject jsonObject = new JSONObject()
         if(!user){
             log.error("Already logged out or user not found: ${username}")
@@ -228,7 +231,7 @@ class LoginController extends AbstractApolloController {
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
         jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
         jsonObject.put(REST_OPERATION,"logout")
-        log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
+        println "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
         try {
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + username, jsonObject.toString()
         } catch (e) {

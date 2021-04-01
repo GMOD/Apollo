@@ -189,7 +189,6 @@ function check_configs(){
 
     check_node
     check_java
-    check_grails
 }
 
 function copy_configs(){
