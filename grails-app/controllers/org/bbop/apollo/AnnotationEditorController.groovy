@@ -1274,6 +1274,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         inputString = annotationEditorService.cleanJSONString(inputString)
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
+        println "has a prinicpal name ${principal}"
+        User user = permissionService.getCurrentUser(rootElement)
+        println "getting USER ${user}"
+
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
@@ -1281,6 +1285,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
+                case "currentUser":
+                    user = permissionService.getCurrentUser(rootElement)
+                    return user as JSON
+            // test case
                 case "ping":
                     return "pong"
                     break
