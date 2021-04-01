@@ -85,9 +85,9 @@ class LoginController extends AbstractApolloController {
             jsonObj = request.JSON
             if(!jsonObj){
                 jsonObj = JSON.parse(params.data)
-                log.debug "jsonObj ${jsonObj}"
+                println "jsonObj ${jsonObj}"
             }
-            log.debug "login -> the jsonObj ${jsonObj}"
+            println "login -> the jsonObj ${jsonObj}"
             String username = jsonObj.username
             String password = jsonObj.password
             Boolean rememberMe = jsonObj.rememberMe
@@ -98,8 +98,8 @@ class LoginController extends AbstractApolloController {
             if (rememberMe) {
                 authToken.rememberMe = true
             }
-            log.debug "rememberMe: ${rememberMe}"
-            log.debug "authToken : ${authToken.rememberMe}"
+            println "rememberMe: ${rememberMe}"
+            println "authToken : ${authToken.rememberMe}"
 
             // If a controller redirected to this page, redirect back
             // to it. Otherwise redirect to the root URI.
@@ -124,9 +124,9 @@ class LoginController extends AbstractApolloController {
                 throw new IncorrectCredentialsException("Bad credentaisl for user ${username}")
             }
 //            subject.login(authToken)
-            log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
-            log.debug "SESSION ${session}"
-            log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
+            println "IS AUTHENTICATED: " + subject.isAuthenticated()
+            println "SESSION ${session}"
+            println "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
 
             session.setAttribute("username", username);
             session.setAttribute("permissions", new HashMap<String, Integer>());
