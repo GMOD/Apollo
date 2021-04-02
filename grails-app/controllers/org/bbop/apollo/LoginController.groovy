@@ -25,7 +25,7 @@ class LoginController extends AbstractApolloController {
     def index() {}
 
 
-    def handleOperation(String track, String operation) {
+    def handleOperation(String operation) {
         JSONObject postObject = findPost()
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
@@ -200,7 +200,7 @@ class LoginController extends AbstractApolloController {
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
         log.debug "logging out with params: ${params}"
         // have to retrive the username first
-        String username = SecurityUtils.subject.principal
+        String username = SecurityUtils.subject.principal ?: params.username
         log.debug "sending logout"
         sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         log.debug "sent logout"

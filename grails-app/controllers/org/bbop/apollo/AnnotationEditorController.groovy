@@ -1287,23 +1287,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     boolean admin = permissionService.isAdmin()
                     println "admin return ${admin}"
                     return admin
-                    break
                 case "currentUser":
-                    println "currentUser"
-                    println "getting security manager"
-                    SecurityManager securityManager = SecurityUtils.getSecurityManager()
-                    println "security manager ${securityManager}"
-                    Session session = SecurityUtils.subject.getSession(true)
-                    println "session ${session}"
-                    Principal principal1 = SecurityUtils.subject.principal
-                    println "prinical ${principal1}"
-                    User user = permissionService.currentUser
-                    println "user ${user}"
-                    return user?.username
-                    break
+                    User user = permissionService.getCurrentUser(rootElement)
+                    return user as JSON
                 case "ping":
                     return "pong"
-                    break
                 // test case
                 case "broadcast":
                     broadcastMessage("pong",principal?.name)
