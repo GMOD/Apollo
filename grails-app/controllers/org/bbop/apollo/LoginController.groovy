@@ -27,7 +27,6 @@ class LoginController extends AbstractApolloController {
 
     def handleOperation(String operation) {
         JSONObject postObject = findPost()
-        println "hanldling operation ${operation}"
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
         }
@@ -85,9 +84,9 @@ class LoginController extends AbstractApolloController {
             jsonObj = request.JSON
             if(!jsonObj){
                 jsonObj = JSON.parse(params.data)
-                println "jsonObj ${jsonObj}"
+                log.debug "jsonObj ${jsonObj}"
             }
-            println "login -> the jsonObj ${jsonObj}"
+            log.debug "login -> the jsonObj ${jsonObj}"
             String username = jsonObj.username
             String password = jsonObj.password
             Boolean rememberMe = jsonObj.rememberMe
@@ -98,8 +97,8 @@ class LoginController extends AbstractApolloController {
             if (rememberMe) {
                 authToken.rememberMe = true
             }
-            println "rememberMe: ${rememberMe}"
-            println "authToken : ${authToken.rememberMe}"
+            log.debug "rememberMe: ${rememberMe}"
+            log.debug "authToken : ${authToken.rememberMe}"
 
             // If a controller redirected to this page, redirect back
             // to it. Otherwise redirect to the root URI.
@@ -124,9 +123,9 @@ class LoginController extends AbstractApolloController {
                 throw new IncorrectCredentialsException("Bad credentaisl for user ${username}")
             }
 //            subject.login(authToken)
-            println "IS AUTHENTICATED: " + subject.isAuthenticated()
-            println "SESSION ${session}"
-            println "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
+            log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
+            log.debug "SESSION ${session}"
+            log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
 
             session.setAttribute("username", username);
             session.setAttribute("permissions", new HashMap<String, Integer>());
@@ -198,24 +197,22 @@ class LoginController extends AbstractApolloController {
 
 
     def logout(){
-        println "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        println "logging out with params: ${params}"
+        log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
+        log.debug "logging out with params: ${params}"
         // have to retrive the username first
         String username = SecurityUtils.subject.principal ?: params.username
-        println "sending logout for username ${username}"
+        log.debug "sending logout for username ${username}"
         sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-        println "sent logout"
+        log.debug "sent logout"
         sleep(1000)
-        println "doing local logout"
+        log.debug "doing local logout"
         SecurityUtils.subject.logout()
         sleep(1000)
-        println "logged out"
+        log.debug "logged out"
         if(params.targetUri){
-            println "redirecting"
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
         else{
-            println "just doing JSON output"
             render new JSONObject() as JSON
         }
     }
@@ -231,7 +228,7 @@ class LoginController extends AbstractApolloController {
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
         jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
         jsonObject.put(REST_OPERATION,"logout")
-        println "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
+        log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
         try {
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + username, jsonObject.toString()
         } catch (e) {

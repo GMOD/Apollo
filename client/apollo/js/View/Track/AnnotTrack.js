@@ -458,15 +458,8 @@ define([
                         console.log(JSON.stringify(changeData));
                     }
 
-                    alert('operation '+JSON.stringify(changeData))
-                    alert('track username: '+track.username)
-                    alert('track client token: '+track.getClientToken())
-
                     if (changeData.operation == "logout" && changeData.username == track.username) {
-                        console.log('track.getClientToken()',track.getClientToken())
-                        console.log('change data',changeData.clientToken)
                         if(track.getClientToken()!=changeData.clientToken){
-                            alert('track tokens do not agree so logging out')
                             track.logout();
                         }
                         else{
