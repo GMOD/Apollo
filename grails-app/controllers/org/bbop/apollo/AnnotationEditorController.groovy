@@ -1275,12 +1275,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
+
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
+                case "currentUser":
+                    User user = permissionService.getCurrentUser(rootElement)
+                    return user as JSON
+            // test case for websocket
                 case "ping":
                     return "pong"
                     break

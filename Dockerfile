@@ -1,6 +1,6 @@
 # Apollo2.X
 FROM ubuntu:18.04
-MAINTAINER Nathan Dunn <nathandunn@lbl.gov>
+MAINTAINER Nathan Dunn GH @nathandunn
 ENV DEBIAN_FRONTEND noninteractive
 
 
