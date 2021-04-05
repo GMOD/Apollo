@@ -219,7 +219,7 @@ class LoginController extends AbstractApolloController {
 
     def sendLogout(String username,String clientToken) {
         User user = User.findByUsername(username)
-        println "sending logout for ${user} via ${username} with ${clientToken}"
+        log.debug "sending logout for ${user} via ${username} with ${clientToken}"
         JSONObject jsonObject = new JSONObject()
         if(!user){
             log.error("Already logged out or user not found: ${username}")
