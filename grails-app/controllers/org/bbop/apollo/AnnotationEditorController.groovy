@@ -1282,11 +1282,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
-                case "admin":
-                    println "admin"
-                    boolean admin = permissionService.isAdmin()
-                    println "admin return ${admin}"
-                    return admin
                 case "currentUser":
                     User user = permissionService.getCurrentUser(rootElement)
                     return user as JSON

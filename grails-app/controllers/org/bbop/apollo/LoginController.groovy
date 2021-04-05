@@ -201,7 +201,7 @@ class LoginController extends AbstractApolloController {
         log.debug "logging out with params: ${params}"
         // have to retrive the username first
         String username = SecurityUtils.subject.principal ?: params.username
-        log.debug "sending logout"
+        log.debug "sending logout for username ${username}"
         sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         log.debug "sent logout"
         sleep(1000)
