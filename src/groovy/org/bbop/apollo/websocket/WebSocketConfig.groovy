@@ -10,11 +10,13 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 @EnableWebSocketMessageBroker
 class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
+    private final def apolloHandshakeHandler = new ApolloHandshakeHandler()
+
     @Override
     void registerStompEndpoints(StompEndpointRegistry ser) {
         ser.addEndpoint("/stomp")
             .setAllowedOrigins("*")
-            .setHandshakeHandler(new ApolloHandshakeHandler())
+            .setHandshakeHandler(apolloHandshakeHandler)
             .withSockJS()
     }
 
