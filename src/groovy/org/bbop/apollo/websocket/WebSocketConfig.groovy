@@ -11,22 +11,11 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
-    void configureMessageBroker(MessageBrokerRegistry mbr) {
-        mbr.enableSimpleBroker "/queue", "/topic"
-        mbr.setApplicationDestinationPrefixes "/app"
-        mbr.setUserDestinationPrefix "/user/"
-    }
-
-    @Override
     void registerStompEndpoints(StompEndpointRegistry ser) {
         ser.addEndpoint("/stomp")
             .setAllowedOrigins("*")
-            .setHandshakeHandler(handshakeHandler())
+            .setHandshakeHandler(new ApolloHandshakeHandler())
             .withSockJS()
-    }
-
-    ApolloHandshakeHandler handshakeHandler() {
-        return new ApolloHandshakeHandler();
     }
 
 }

@@ -13,16 +13,18 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler
 
 class ApolloHandshakeHandler implements HandshakeHandler {
 
+    DefaultHandshakeHandler defaultHandshakeHandler = new DefaultHandshakeHandler()
+    AuthenticatingHandshakeHandler handshakeHandler = new AuthenticatingHandshakeHandler()
+
     final boolean doHandshake(
         ServerHttpRequest request,
         ServerHttpResponse response,
         WebSocketHandler wsHandler,
         Map<String, Object> attributes
     ) throws HandshakeFailureException {
-        DefaultHandshakeHandler defaultHandshakeHandler = new DefaultHandshakeHandler()
+
         Principal user = defaultHandshakeHandler.determineUser(request, wsHandler, attributes)
         if (user == null) {
-            AuthenticatingHandshakeHandler handshakeHandler = new AuthenticatingHandshakeHandler()
             Principal newUser = handshakeHandler.determineUser(request, wsHandler, attributes)
             if (newUser == null) {
                 response.setStatusCode(HttpStatus.FORBIDDEN)
