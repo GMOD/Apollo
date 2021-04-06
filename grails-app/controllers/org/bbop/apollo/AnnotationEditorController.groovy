@@ -1277,27 +1277,40 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
+        log.debug "prinicial name ${principal?.name}"
 
         String operationName = underscoreToCamelCase(operation)
         log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
                 case "admin":
-                    println "admin"
                     boolean admin = permissionService.isAdmin()
-                    println "admin return ${admin}"
                     return admin
                 case "currentUser":
                     User user = permissionService.getCurrentUser(rootElement)
                     return user as JSON
+            // test case
                 case "ping":
                     return "pong"
-                // test case
+            // test case
                 case "broadcast":
                     broadcastMessage("pong",principal?.name)
                     break
+            // test case
                 case "logout":
-                    SecurityUtils.subject.logout()
+                    try {
+                        SecurityUtils.subject.logout()
+                    } catch (e) {
+                        log.warn "No thread, so sending through websocket instead ${e}"
+                    }
+//                    finally {
+//                        if(principal?.name){
+//                            JSONObject jsonObject = new JSONObject()
+//                            jsonObject.put(FeatureStringEnum.USERNAME.value,principal.name)
+//                            jsonObject.put(REST_OPERATION,"logout")
+//                            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal.name, jsonObject.toString()
+//                        }
+//                    }
                     break
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
                     break
