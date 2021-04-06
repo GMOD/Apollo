@@ -6,6 +6,7 @@ Features
 
 - Added getAttributions method [2591](https://github.com/GMOD/Apollo/pull/2591) via @mbc32.
 - Make getting track features by location optional to pull unique code [2600](https://github.com/GMOD/Apollo/pull/2600).
+- Added additional websocket authentication support [2598](https://github.com/GMOD/Apollo/pull/2598).
 
 Bug Fix
 
