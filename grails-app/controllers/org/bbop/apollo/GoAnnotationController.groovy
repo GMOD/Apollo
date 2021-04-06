@@ -59,7 +59,7 @@ class GoAnnotationController {
 //        "evidenceCode":"ECO:0000335",
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
-//        "references":["refprefix:44444444"]}
+//        "reference":"refprefix:44444444"
   @RestApiMethod(description = "Save New Go Annotations for feature", path = "/goAnnotation/save", verb = RestApiVerb.POST)
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -73,7 +73,7 @@ class GoAnnotationController {
     , @RestApiParam(name = "evidenceCodeLAbel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "negate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Negate evidence (default false)")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312]]\"]}")
+    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
   ]
   )
   @Transactional
@@ -138,7 +138,7 @@ class GoAnnotationController {
     , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "negate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Negate evidence (default false)")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312]]\"]}")
+    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
   ]
   )
   @Transactional
