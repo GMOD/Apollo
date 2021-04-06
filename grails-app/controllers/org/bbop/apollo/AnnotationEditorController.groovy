@@ -1300,14 +1300,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     } catch (e) {
                         log.warn "No thread, so sending through websocket instead ${e}"
                     }
-//                    finally {
-//                        if(principal?.name){
-//                            JSONObject jsonObject = new JSONObject()
-//                            jsonObject.put(FeatureStringEnum.USERNAME.value,principal.name)
-//                            jsonObject.put(REST_OPERATION,"logout")
-//                            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal.name, jsonObject.toString()
-//                        }
-//                    }
+                    finally {
+                        if(principal?.name){
+                            JSONObject jsonObject = new JSONObject()
+                            jsonObject.put(FeatureStringEnum.USERNAME.value,principal.name)
+                            jsonObject.put(REST_OPERATION,"logout")
+                            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal.name, jsonObject.toString()
+                        }
+                    }
                     break
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
                     break
