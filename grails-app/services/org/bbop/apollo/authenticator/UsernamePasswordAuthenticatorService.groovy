@@ -36,25 +36,6 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
 
     }
 
-    def getUser(UsernamePasswordToken authToken) {
-        if(authToken==null){
-            return null
-        }
-        try {
-            Subject subject = SecurityUtils.getSubject();
-            subject.login(authToken)
-            if (!subject.authenticated) {
-                log.error "Failed to authenticate user ${authToken.username}"
-                return null
-            }
-            return subject.getPrincipal()
-        } catch (Exception ae) {
-            log.error("Problem authenticating: " + ae.fillInStackTrace())
-            return null
-        }
-    }
-
-
     @Override
     Boolean requiresToken() {
         return true

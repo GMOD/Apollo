@@ -2,7 +2,9 @@ package org.bbop.apollo.websocket
 
 
 import grails.util.Holders
+import org.apache.shiro.SecurityUtils
 
+import javax.security.auth.Subject
 import java.security.Principal
 
 import org.apache.shiro.authc.UsernamePasswordToken
@@ -12,7 +14,7 @@ import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.HandshakeHandler
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler
 
-public class AuthenticatingHandshakeHandler extends DefaultHandshakeHandler {
+class AuthenticatingHandshakeHandler extends DefaultHandshakeHandler {
     def usernamePasswordAuthenticatorService = Holders.grailsApplication.mainContext.getBean('usernamePasswordAuthenticatorService')
 
     @Override
@@ -31,11 +33,10 @@ public class AuthenticatingHandshakeHandler extends DefaultHandshakeHandler {
             return null
         }
         UsernamePasswordToken authToken = new UsernamePasswordToken(username, password)
-        def newUser = usernamePasswordAuthenticatorService.getUser(authToken)
-        if (!newUser) {
-            return null
+        if(usernamePasswordAuthenticatorService.authenticate(authToken,null)){
+            return request.getPrincipal()
         }
-        return new StompPrincipal(newUser)
+        return null
     }
 
 }
