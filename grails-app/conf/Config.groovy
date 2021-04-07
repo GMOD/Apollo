@@ -405,6 +405,7 @@ apollo {
 
 grails.plugin.databasemigration.updateOnStart = true
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
+grails.plugin.springwebsocket.useCustomConfig = true
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {
