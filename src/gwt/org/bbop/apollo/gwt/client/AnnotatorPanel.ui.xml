@@ -64,6 +64,7 @@
             margin-bottom: 0px;
             padding-bottom: 0px;
             border-top: gray 2px solid;
+            display: table;
         }
 
         .dataGrid td {
@@ -146,7 +147,7 @@
                         <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_1">
                         <b:CheckBox ui:field="uniqueNameCheckBox" addStyleNames="{style.idCheckBox}" text="ID"/>
                     </b:Column>
                     <b:Column size="MD_3">
