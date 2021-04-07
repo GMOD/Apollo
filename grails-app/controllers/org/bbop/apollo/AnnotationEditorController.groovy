@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import groovy.json.JsonBuilder
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -1275,8 +1276,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
-
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
+        log.debug "prinicial name ${principal?.name}"
 
         String operationName = underscoreToCamelCase(operation)
         log.debug "operationName: ${operationName}"
@@ -1285,16 +1286,28 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 case "currentUser":
                     User user = permissionService.getCurrentUser(rootElement)
                     return user as JSON
-            // test case for websocket
+            // test case
                 case "ping":
                     return "pong"
-                    break
-                // test case
+            // test case
                 case "broadcast":
                     broadcastMessage("pong",principal?.name)
                     break
+            // test case
                 case "logout":
-                    SecurityUtils.subject.logout()
+                    try {
+                        SecurityUtils.subject.logout()
+                    } catch (e) {
+                        log.warn "No thread, so sending through websocket instead ${e}"
+                    }
+                    finally {
+                        if(principal?.name){
+                            JSONObject jsonObject = new JSONObject()
+                            jsonObject.put(FeatureStringEnum.USERNAME.value,principal.name)
+                            jsonObject.put(REST_OPERATION,"logout")
+                            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal.name, jsonObject.toString()
+                        }
+                    }
                     break
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
                     break
