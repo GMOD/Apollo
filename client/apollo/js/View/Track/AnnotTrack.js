@@ -7677,6 +7677,27 @@ define([
                 menuItem.set("disabled", false);
             },
 
+            updateSetLongestOrfMenuItem: function () {
+                var menuItem = this.getMenuItem("set_optimal_orf");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length > 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.isProteinCoding(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                menuItem.set("disabled", false);
+            },
+
             updateSetReadthroughStopCodonMenuItem: function () {
                 var menuItem = this.getMenuItem("set_readthrough_stop_codon");
                 var selected = this.selectionManager.getSelection();
