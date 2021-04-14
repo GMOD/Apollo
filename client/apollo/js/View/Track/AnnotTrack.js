@@ -2130,7 +2130,13 @@ define([
                 this.setLongestORFForSelectedFeatures(selected);
             },
 
-            setLongestORFForSelectedFeatures: function (selection) {
+            setOptimalORF: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                this.setLongestORFForSelectedFeatures(selected,false);
+            },
+
+            setLongestORFForSelectedFeatures: function (selection,allowPartials = true) {
                 var track = this;
                 var features = '"features": [';
                 for (var i in selection) {
@@ -6955,6 +6961,15 @@ define([
                         }
                     }));
                     contextMenuItems["set_longest_orf"] = index++;
+
+
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Set Optimal ORF",
+                        onClick: function (event) {
+                            thisB.setOptimalORF();
+                        }
+                    }));
+                    contextMenuItems["set_optimal_orf"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Remove CDS",
