@@ -1125,9 +1125,13 @@ class RequestHandlingService {
     JSONObject setLongestOrf(JSONObject inputObject) {
 
         boolean allowPartials = true
+        println "input object ${inputObject as JSON}"
         if(inputObject.containsKey("allow_partials")){
+            println "trying to set? "
             allowPartials = inputObject.getBoolean("allow_partials")
+            println "set ${allowPartials} -> ${inputObject.getBoolean("allow_partials")} "
         }
+        println "allow partials ${allowPartials} "
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 

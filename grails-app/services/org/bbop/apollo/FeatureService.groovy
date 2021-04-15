@@ -1209,6 +1209,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
             log.debug "best start index $bestStartIndex"
+            println "allowing partials ${allowPartials}"
 
             // Just in case the 5' end is missing, check to see if a longer
             // translation can be obtained without looking for a start codon

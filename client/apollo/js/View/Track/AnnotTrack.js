@@ -2148,17 +2148,16 @@ define([
                     if (atrack === track) {
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
-
                         if (i > 0) {
                             features += ',';
                         }
-                        features += ` { "uniquename": "${uniqueName}", "allow_partials":${allowPartials} } `;
+                        features += ` { "uniquename": "${uniqueName}" } `;
                     }
                 }
                 features += ']';
                 var operation = "set_longest_orf";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = `{ "track": "${trackName}",  ${features} , "operation": "${operation}" , "allow_partials": ${allowPartials} }`;
                 track.executeUpdateOperation(postData);
             },
 
