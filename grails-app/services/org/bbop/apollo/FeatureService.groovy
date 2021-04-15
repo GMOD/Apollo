@@ -1167,8 +1167,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
  *
  * @param transcript - Transcript to set the longest ORF to
- * @param translationTable - Translation table that defines the codon translation
- * @param allowPartialExtension - Where partial ORFs should be used for possible extension
+ * @param readThroughStopCodon - Read through stop codon set
+ * @param allowPartials - Where partial ORFs should be used for possible extension
  *
  */
 
