@@ -2146,8 +2146,6 @@ define([
                     // just checking to ensure that all features in selection are from
                     // this track
                     if (atrack === track) {
-                        var trackdiv = track.div;
-                        var trackName = track.getUniqueTrackName();
                         if (i > 0) {
                             features += ',';
                         }
