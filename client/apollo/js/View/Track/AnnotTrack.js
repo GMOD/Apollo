@@ -2130,7 +2130,13 @@ define([
                 this.setLongestORFForSelectedFeatures(selected);
             },
 
-            setLongestORFForSelectedFeatures: function (selection) {
+            setOptimalORF: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                this.setLongestORFForSelectedFeatures(selected,false);
+            },
+
+            setLongestORFForSelectedFeatures: function (selection,allowPartials = true) {
                 var track = this;
                 var features = '"features": [';
                 for (var i in selection) {
@@ -2140,19 +2146,16 @@ define([
                     // just checking to ensure that all features in selection are from
                     // this track
                     if (atrack === track) {
-                        var trackdiv = track.div;
-                        var trackName = track.getUniqueTrackName();
-
                         if (i > 0) {
                             features += ',';
                         }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features += ` { "uniquename": "${uniqueName}" } `;
                     }
                 }
                 features += ']';
                 var operation = "set_longest_orf";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = `{ "track": "${trackName}",  ${features} , "operation": "${operation}" , "allow_partials": ${allowPartials} }`;
                 track.executeUpdateOperation(postData);
             },
 
@@ -6956,6 +6959,15 @@ define([
                     }));
                     contextMenuItems["set_longest_orf"] = index++;
 
+
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Set Optimal ORF",
+                        onClick: function (event) {
+                            thisB.setOptimalORF();
+                        }
+                    }));
+                    contextMenuItems["set_optimal_orf"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Remove CDS",
                         onClick: function (event) {
@@ -7271,6 +7283,7 @@ define([
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
+                this.updateSetOptimalOrfMenuItem();
                 this.updateRemoveCDSMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
@@ -7643,6 +7656,27 @@ define([
 
             updateSetLongestOrfMenuItem: function () {
                 var menuItem = this.getMenuItem("set_longest_orf");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length > 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.isProteinCoding(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                menuItem.set("disabled", false);
+            },
+
+            updateSetOptimalOrfMenuItem: function () {
+                var menuItem = this.getMenuItem("set_optimal_orf");
                 var selected = this.selectionManager.getSelection();
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);

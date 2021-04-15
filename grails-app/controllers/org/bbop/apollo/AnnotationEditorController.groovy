@@ -429,6 +429,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sequence name")
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
             , @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234'}")
+            , @RestApiParam(name = "allow_partials", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Default true.  Allow partials when setting longest ORF.")
     ])
     def setLongestOrf() {
         log.debug "setLongestORF ${params}"
