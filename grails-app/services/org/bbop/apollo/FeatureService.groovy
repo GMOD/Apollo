@@ -646,18 +646,6 @@ class FeatureService {
         }
     }
 
-/**
- * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
- * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
- * ORF calculation extensions are allowed from the configuration associated with this editor.
- *
- * @param transcript - Transcript to set the longest ORF to
- */
-    @Transactional
-    void setLongestORF(Transcript transcript) {
-        log.debug "setLongestORF(transcript) ${transcript}"
-        setLongestORF(transcript, false, true)
-    }
 
 /**
  * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
@@ -1186,7 +1174,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Timed
     @Transactional
-    void setLongestORF(Transcript transcript, boolean readThroughStopCodon, boolean allowPartials) {
+    void setLongestORF(Transcript transcript, boolean readThroughStopCodon = false, boolean allowPartials = true ) {
         log.debug "Setting longest orf with $transcript and read through stop codon $readThroughStopCodon"
         Organism organism = transcript.featureLocation.sequence.organism
         log.debug "organism found ${organism}"
