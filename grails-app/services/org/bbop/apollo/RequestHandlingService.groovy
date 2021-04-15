@@ -1123,13 +1123,18 @@ class RequestHandlingService {
 
     @Timed
     JSONObject setLongestOrf(JSONObject inputObject) {
+
+        boolean allowPartials = true
+        if(inputObject.containsKey("allow_partials")){
+            allowPartials = inputObject.getBoolean("allow_partials")
+        }
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
-        featureService.setLongestORF(transcript, false)
+        featureService.setLongestORF(transcript, false,allowPartials)
 
         featureService.addOwnersByString(inputObject.username, transcript)
         transcript.save(flush: true, insert: false)

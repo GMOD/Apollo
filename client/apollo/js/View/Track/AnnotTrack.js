@@ -2152,7 +2152,7 @@ define([
                         if (i > 0) {
                             features += ',';
                         }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features += ` { "uniquename": "${uniqueName}", "allow_partials":${allowPartials} } `;
                     }
                 }
                 features += ']';
