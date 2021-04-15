@@ -7677,7 +7677,7 @@ define([
                 menuItem.set("disabled", false);
             },
 
-            updateSetLongestOrfMenuItem: function () {
+            updateSetOptimalOrfMenuItem: function () {
                 var menuItem = this.getMenuItem("set_optimal_orf");
                 var selected = this.selectionManager.getSelection();
                 if (selected.length > 1) {
