@@ -365,7 +365,7 @@ class OrganismController {
               File rawDirectory = new File(directory.absolutePath + "/seq")
               assert rawDirectory.mkdir()
               assert rawDirectory.setWritable(true)
-              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
+              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa" )
               sequenceDataFile.transferTo(archiveFile)
               organism.directory = directory.absolutePath
 
@@ -380,10 +380,10 @@ class OrganismController {
                 oldFile.renameTo(newFile)
               }
 
-              log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
 
 
               if (searchDatabaseDataFile != null && searchDatabaseDataFile.size > 0) {
+                log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
                 File searchDirectory = new File(directory.absolutePath + "/search")
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
@@ -1599,6 +1599,8 @@ class OrganismController {
           id                        : organism.id,
           commonName                : organism.commonName,
           blatdb                    : organism.blatdb,
+          genomeFasta               : organism.genomeFasta,
+          genomeFastaIndex          : organism.genomeFastaIndex,
           directory                 : organism.directory,
           annotationCount           : annotationCount,
           sequences                 : sequenceCount,
