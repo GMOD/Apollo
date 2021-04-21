@@ -19,8 +19,8 @@ public enum SequenceTypeEnum {
     FASTA_TAR_GZ("fasta.tar.gz","tar.gz"),
     FNA_TAR_GZ("fna.tar.gz","tar.gz");
 
-    private String suffix ;
-    private String compression;
+    private final String suffix ;
+    private final String compression;
 
     SequenceTypeEnum(String suffix){
         this(suffix,null);
@@ -37,6 +37,10 @@ public enum SequenceTypeEnum {
 
     public String getCompression() {
         return compression;
+    }
+
+    public String getCorrectedSuffix(){
+        return FA.suffix + (compression!=null ?  "." + compression : "") ;
     }
 
     public static SequenceTypeEnum getSequenceTypeForFile(String fileName){

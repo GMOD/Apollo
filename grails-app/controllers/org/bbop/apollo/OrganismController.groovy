@@ -365,11 +365,11 @@ class OrganismController {
               File rawDirectory = new File(directory.absolutePath + "/seq")
               assert rawDirectory.mkdir()
               assert rawDirectory.setWritable(true)
-              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa" )
+              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.correctedSuffix)
               sequenceDataFile.transferTo(archiveFile)
               organism.directory = directory.absolutePath
 
-              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + ".fa"
+              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + "." + SequenceTypeEnum.FA.suffix
               // decompress if need be
               if (sequenceTypeEnum.compression != null) {
                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
