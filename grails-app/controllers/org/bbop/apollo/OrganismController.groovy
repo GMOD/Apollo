@@ -1565,11 +1565,12 @@ class OrganismController {
         organismList = organismList.findAll{ o -> o.publicMode }
       }
 
-      if (!organismList) {
-        def error = [error: 'Not authorized for any organisms']
-        render error as JSON
-        return
-      }
+      // should just return an empty array
+//      if (!organismList) {
+//        def error = [error: 'Not authorized for any organisms']
+//        render error as JSON
+//        return
+//      }
 
       UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(requestObject), true, [max: 1, sort: "lastUpdated", order: "desc"])
       Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
