@@ -1979,9 +1979,7 @@ class RequestHandlingService {
             JSONObject jsonExon = features.getJSONObject(i)
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
             checkOwnersDelete(exon, inputObject)
-
             exonService.deleteExon(transcript, exon);
-            featureService.addOwnersByString(inputObject.username, exon)
         }
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
