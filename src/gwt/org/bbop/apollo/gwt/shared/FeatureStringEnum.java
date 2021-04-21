@@ -114,7 +114,7 @@ public enum FeatureStringEnum {
         SYNONYMS,
         STRUCTURAL_EDIT,
         HIGHLIGHTED_REGION("highlighted region"),
-        UNIQUENAME,
+        UNIQUENAME("uniquename"),
         // TODO: move these to a SequenceTypeEnum
         TYPE_PEPTIDE("peptide"),
         TYPE_CDS("cds"),

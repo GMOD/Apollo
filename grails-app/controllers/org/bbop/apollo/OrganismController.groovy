@@ -365,11 +365,11 @@ class OrganismController {
               File rawDirectory = new File(directory.absolutePath + "/seq")
               assert rawDirectory.mkdir()
               assert rawDirectory.setWritable(true)
-              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
+              File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.correctedSuffix)
               sequenceDataFile.transferTo(archiveFile)
               organism.directory = directory.absolutePath
 
-              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + ".fa"
+              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + "." + SequenceTypeEnum.FA.suffix
               // decompress if need be
               if (sequenceTypeEnum.compression != null) {
                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
@@ -380,10 +380,10 @@ class OrganismController {
                 oldFile.renameTo(newFile)
               }
 
-              log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
 
 
               if (searchDatabaseDataFile != null && searchDatabaseDataFile.size > 0) {
+                log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
                 File searchDirectory = new File(directory.absolutePath + "/search")
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
@@ -1565,11 +1565,12 @@ class OrganismController {
         organismList = organismList.findAll{ o -> o.publicMode }
       }
 
-      if (!organismList) {
-        def error = [error: 'Not authorized for any organisms']
-        render error as JSON
-        return
-      }
+      // should just return an empty array
+//      if (!organismList) {
+//        def error = [error: 'Not authorized for any organisms']
+//        render error as JSON
+//        return
+//      }
 
       UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(requestObject), true, [max: 1, sort: "lastUpdated", order: "desc"])
       Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
@@ -1598,6 +1599,8 @@ class OrganismController {
           id                        : organism.id,
           commonName                : organism.commonName,
           blatdb                    : organism.blatdb,
+          genomeFasta               : organism.genomeFasta,
+          genomeFastaIndex          : organism.genomeFastaIndex,
           directory                 : organism.directory,
           annotationCount           : annotationCount,
           sequences                 : sequenceCount,

@@ -846,23 +846,66 @@ class AnnotatorController {
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
+    @RestApiMethod(description = "Update common path and return system info", path = "/updateCommonPath", verb = RestApiVerb.POST)
+    @RestApiParams(params =[
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "directory", type = "string",  paramType = RestApiParamType.QUERY, description = "Relative or absolute common path directory")
+    ])
     @Transactional
-    String updateCommonPath(String directory) {
-        log.debug "Updating the common path for ${directory}"
+    String updateCommonPath() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
         JSONObject returnObject = new JSONObject()
+        String directory = dataObject.directory
 
         try {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
             String returnString = trackService.updateCommonDataDirectory(directory) as String
-            log.info "Returning common data directory ${returnString}"
             if (returnString) {
                 returnObject.error = returnString
             }
+            render getSystemInfo()
+            return
         } catch (e) {
             returnObject.error = e.getMessage()
         }
         render returnObject as JSON
     }
 
+    @RestApiMethod(description = "Get system info", path = "/getSystemInfo", verb = RestApiVerb.POST)
+    @Transactional(readOnly  = true )
+    String getSystemInfo() {
+        log.debug "Getting the common data path"
+        JSONObject returnObject = new JSONObject()
+
+        try {
+            String returnString = trackService.getCommonDataDirectory()
+            log.debug "Returning common data directory ${returnString}"
+            if (returnString) {
+                returnObject.error = returnString
+            }
+            File file = new File(returnString)
+            returnObject.put("relativePath",returnString)
+            returnObject.put("absolutePath",file.absolutePath)
+            returnObject.put("absolute",file.absolute)
+            returnObject.put("exists",file.exists())
+            returnObject.put("writable",file.canWrite())
+            returnObject.put("readable",file.canRead())
+            returnObject.put("directory",file.isDirectory())
+            returnObject.put("executable",file.canExecute())
+            returnObject.put("freeSpace",file.getFreeSpace())
+            returnObject.put("totalSpace",file.getTotalSpace())
+            returnObject.put("usableSpace",file.getUsableSpace())
+            returnObject.put("root",new File("").absolutePath)
+            returnObject.put("realPath",servletContext.getRealPath("/"))
+        } catch (e) {
+            returnObject.error = e.getMessage()
+        }
+        render returnObject as JSON
+    }
 /**
  */
     @Transactional
