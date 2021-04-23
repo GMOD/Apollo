@@ -10,7 +10,7 @@
 
 - Update servers / images:
     - Update demo, download new release and build.
-    - Confirm docker images are updated automatically on [quay.io](https://quay.io/repository/gmod/apollo?tab=builds) and [docker hub](https://hub.docker.com/r/gmod/apollo/tags).  With docker hub, will need to pull and tag and push stable and release number.
+    - Confirm docker images are updated automatically on [docker hub](https://hub.docker.com/r/gmod/apollo/tags).  With docker hub, will need to pull and tag and push stable and release number.
     - (1) Update AWS empty images and data image, (2)  create newer versions of the images from the running instances, (3) test, (4) distribute to N. Virginia and N. California.
     
 Zenodo:     
