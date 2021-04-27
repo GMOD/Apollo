@@ -1,0 +1,70 @@
+name: React-Apollo
+
+on: ["push", "pull_request"]
+
+jobs:
+  test-react-apollo:
+    name: test-react-apollo
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8.7]
+        node-version: [12.x]
+        ##        node-version: [10.x, 12.x, 14.x]
+    steps:
+      - name: Checkout Apollo
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Run Apollo
+        run: |
+          cp test/config/python-apollo.travis apollo-config.groovy
+          date
+          ./grailsw run-app &
+          echo "Sleeping here while Apollo builds"
+          sleep 240
+          echo "Done sleeping, I hope it is working"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install deps
+        run: yarn install
+      - name: Clean data directory
+        run: |
+          rm -rf `pwd`/temp-apollo-test-data
+          cp -r `pwd`/test-data `pwd`/temp-apollo-test-data
+      - name: Test Server up
+        run: |
+          sleep 60
+          ps -ef | grep java
+          netstat -tan | grep LISTEN
+          curl http://localhost:8080/apollo/annotator/system || true
+          sleep 60
+          curl http://localhost:8080/annotator/system
+          curl -s 'http://localhost:8080/WebServices' > /dev/null
+      - name: Test
+        run: |
+          export APOLLO_URL="http://localhost:8080/apollo"
+          yarn test:nowatch
+          - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+
