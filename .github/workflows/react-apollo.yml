@@ -21,7 +21,6 @@ jobs:
           java-version: 1.8
       - name: Run Apollo
         run: |
-          cp test/config/python-apollo.travis apollo-config.groovy
           date
           ./grailsw run-app &
           echo "Sleeping here while Apollo builds"
@@ -46,12 +45,12 @@ jobs:
           curl http://localhost:8080/apollo/annotator/system || true
           sleep 60
           curl http://localhost:8080/annotator/system
-          curl -s 'http://localhost:8080/WebServices' > /dev/null
+          curl -s 'http://localhost:8080/apollo/WebServices' > /dev/null
       - name: Test
         run: |
           export APOLLO_URL="http://localhost:8080/apollo"
           yarn test:nowatch
-          - uses: actions/cache@v2
+      - uses: actions/cache@v2
         with:
           path: |
             ~/.gradle/caches
