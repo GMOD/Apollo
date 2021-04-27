@@ -392,13 +392,6 @@ apollo {
     // comment out if you don't want this to be reported
     google_analytics = ["UA-62921593-1"]
 
-    phone {
-        phoneHome = true
-        url = "https://s3.amazonaws.com/"
-        bucketPrefix = "apollo-usage-"
-        fileName = "ping.json"
-    }
-
     native_track_selector_default_on = false
 }
 
