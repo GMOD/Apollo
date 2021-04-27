@@ -31,12 +31,19 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install deps
-        run: yarn install
-      - name: Clean data directory
+      - name: Checkout apoll-gmod-js
+        uses: actions/checkout@v2
+        with:
+          repository: gmod/apollo-gmod-js
+          path: apollo-gmod-js
+          ref: master
+      - name: Install deps and clean environment
         run: |
+          pwd
+          cd apollo-gmod-js
           rm -rf `pwd`/temp-apollo-test-data
           cp -r `pwd`/test-data `pwd`/temp-apollo-test-data
+          yarn install
       - name: Test Server up
         run: |
           sleep 60
