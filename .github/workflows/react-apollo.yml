@@ -55,6 +55,7 @@ jobs:
           curl -s 'http://localhost:8080/apollo/WebServices' > /dev/null
       - name: Test
         run: |
+          cd apollo-gmod-js
           export APOLLO_URL="http://localhost:8080/apollo"
           yarn test:nowatch
       - uses: actions/cache@v2
