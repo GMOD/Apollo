@@ -19,6 +19,7 @@ Bug Fix
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.11](https://github.com/GMOD/jbrowse/releases/tag/1.16.11-release)
+- Removed server phone home
 
 
 ## 2.6.3
