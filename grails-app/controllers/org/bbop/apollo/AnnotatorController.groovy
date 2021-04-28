@@ -429,7 +429,9 @@ class AnnotatorController {
         jsonObject.put("operation", "set_exon_boundaries")
         jsonObject.put(FeatureStringEnum.USERNAME.value, data.username)
 
-        return requestHandlingService.setExonBoundaries(jsonObject)
+        requestHandlingService.setExonBoundaries(jsonObject)
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
+        render updateFeatureContainer
     }
 
 
