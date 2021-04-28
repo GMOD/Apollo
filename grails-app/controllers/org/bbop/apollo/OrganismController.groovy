@@ -323,7 +323,10 @@ class OrganismController {
         organism.addMetaData("creator", userId)
         File directory = trackService.getExtendedDataDirectory(organism)
 
-        if (directory.mkdirs() && directory.setWritable(true)) {
+        boolean madeDirectory = directory.mkdirs()
+        boolean writeable = directory.setWritable(true)
+
+        if (madeDirectory && writeable) {
 
           if (organismDataFile) {
             log.debug "Successfully created directory ${directory.absolutePath}"
