@@ -1,7 +1,6 @@
 
 
 apollo{
-// other stuff
     admin{
         username = "admin@local.host"
         password = "password"

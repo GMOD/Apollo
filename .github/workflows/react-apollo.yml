@@ -22,6 +22,7 @@ jobs:
       - name: Run Apollo
         run: |
           date
+          cp test/config/react-apollo-config.groovy apollo-config.groovy
           ./grailsw run-app &
           echo "Sleeping here while Apollo builds"
           sleep 240
