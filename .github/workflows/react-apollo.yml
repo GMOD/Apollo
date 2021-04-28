@@ -1,0 +1,78 @@
+name: React-Apollo
+
+on: ["push", "pull_request"]
+
+jobs:
+  test-react-apollo:
+    name: test-react-apollo
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8.7]
+        node-version: [12.x]
+        ##        node-version: [10.x, 12.x, 14.x]
+    steps:
+      - name: Checkout Apollo
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Run Apollo
+        run: |
+          date
+          cp test/config/react-apollo-test.config.groovy apollo-config.groovy
+          ./grailsw run-app &
+          echo "Sleeping here while Apollo builds"
+          sleep 240
+          echo "Done sleeping, I hope it is working"
+          curl -i 'http://localhost:8080/apollo/annotator/system'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Checkout apoll-gmod-js
+        uses: actions/checkout@v2
+        with:
+          repository: gmod/apollo-gmod-js
+          path: apollo-gmod-js
+          ref: master
+      - name: Install deps and clean environment
+        run: |
+          pwd
+          cd apollo-gmod-js
+          rm -rf `pwd`/temp-apollo-test-data
+          cp -r `pwd`/test-data `pwd`/temp-apollo-test-data
+          yarn install
+      - name: Test Server up
+        run: |
+          sleep 60
+          ps -ef | grep java
+          netstat -tan | grep LISTEN
+          curl http://localhost:8080/apollo/annotator/system || true
+          sleep 60
+          curl http://localhost:8080/annotator/system
+          curl -s 'http://localhost:8080/apollo/WebServices' > /dev/null
+      - name: Test
+        run: |
+          cd apollo-gmod-js
+          export APOLLO_URL="http://localhost:8080/apollo"
+          yarn test:nowatch
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+
