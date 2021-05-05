@@ -61,13 +61,13 @@ class ProvenanceController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-          , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to query on")
+    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "Feature uniqueName to query on")
     , @RestApiParam(name = "field", type = "string", paramType = RestApiParamType.QUERY, description = "Field type to annotate ")
     , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
     , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-      , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
-          , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
+    , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
+    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
   ]
   )
   @Transactional
@@ -125,7 +125,7 @@ class ProvenanceController {
     , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
     , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
     , @RestApiParam(name = "notes", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of notes  {[\"A simple note\"]}")
-    , @RestApiParam(name = "references", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of reference CURIE strings, e.g., {[\"PMID:12312\"]}")
+    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
   ]
   )
   @Transactional

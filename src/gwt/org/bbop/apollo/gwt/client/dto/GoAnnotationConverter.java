@@ -52,7 +52,13 @@ public class GoAnnotationConverter {
       String withOrFromString = object.get("withOrFrom").isString().stringValue();
       JSONArray withOrFromArray = JSONParser.parseLenient(withOrFromString).isArray();
       for (int i = 0; i < withOrFromArray.size(); i++) {
-        WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
+        WithOrFrom withOrFrom ;
+        if(withOrFromArray.get(i).isString()!=null){
+          withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
+        }
+        else{
+          withOrFrom = new WithOrFrom("Value is an error, please edit or delete: "+withOrFromArray.get(i));
+        }
         withOrFromList.add(withOrFrom);
       }
     }

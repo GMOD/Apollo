@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
@@ -414,7 +413,14 @@ class UserController {
 
             log.info "Added user ${user.username} with role ${role.name}"
 
-            render new JSONObject() as JSON
+            JSONObject jsonObject = user.properties
+            log.debug "json object ${jsonObject as JSON}"
+            jsonObject.email = user.username
+            jsonObject.username = user.username
+            jsonObject.id = user.id
+            jsonObject.userId = user.id
+            log.debug "rendering json object "
+            render jsonObject as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()
@@ -588,11 +594,18 @@ class UserController {
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
-            user.delete(flush: true)
 
             log.info "Removed user ${user.username}"
 
-            render new JSONObject() as JSON
+            JSONObject jsonObject = user.properties
+            log.debug "json object ${jsonObject as JSON}"
+            jsonObject.email = user.username
+            jsonObject.username = user.username
+            jsonObject.id = user.id
+            jsonObject.userId = user.id
+            log.debug "rendering json object "
+            render jsonObject as JSON
+            user.delete(flush: true)
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()

@@ -14,7 +14,6 @@ class BootStrap {
     def userService
     def roleService
     def trackService
-    def phoneHomeService
 
 
     def init = { servletContext ->
@@ -49,10 +48,7 @@ class BootStrap {
 
         trackService.checkCommonDataDirectory()
 
-        phoneHomeService.pingServerAsync(org.bbop.apollo.PhoneHomeEnum.START.value)
-
     }
     def destroy = {
-        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.STOP.value)
     }
 }

@@ -30,7 +30,7 @@ class AuthController {
         // If a controller redirected to this page, redirect back
         // to it. Otherwise redirect to the root URI.
         def targetUri = params.targetUri ?: "/"
-        
+
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
@@ -50,7 +50,6 @@ class AuthController {
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
             permissionService.authenticateWithToken(authToken,request)
-//            SecurityUtils.subject.login(authToken)
             if(targetUri) {
                 if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
                     redirect(uri: "${request.contextPath}${targetUri}")
@@ -58,7 +57,6 @@ class AuthController {
                 else {
                     redirect(uri: targetUri)
                 }
-
                 return
             }
         }

@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.bbop.apollo.history.FeatureOperation
+import groovy.json.JsonBuilder
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
@@ -12,7 +13,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(FeatureEventService)
-@Mock([FeatureEvent])
+@Mock([FeatureEvent,User])
 class FeatureEventServiceSpec extends Specification {
 
     Date today = new Date()
@@ -1198,4 +1199,19 @@ class FeatureEventServiceSpec extends Specification {
 
     }
 
+void "test generateAttributions"(){
+        given:
+        User editor = new User(username:"someRandomUser",passwordHash: "supersecret",firstName: "User",lastName: "Editor").save()
+        new FeatureEvent(operation: FeatureOperation.ADD_FEATURE, editor: editor, name: "Gene123", uniqueName: "someUniqueName", dateCreated: today - 7, current: true).save(failOnError: true,flush: true)
+
+        when:
+        def attributions = service.generateAttributions()
+
+        then:
+        assert attributions.containsKey("someRandomUser")
+        def attributionArray = attributions.get("someRandomUser")
+        assert attributionArray.size()==1
+        def attributionsObject = attributionArray[0]
+        assert attributionsObject == FeatureOperation.ADD_FEATURE
+    }
 }

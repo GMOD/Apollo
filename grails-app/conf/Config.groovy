@@ -392,19 +392,13 @@ apollo {
     // comment out if you don't want this to be reported
     google_analytics = ["UA-62921593-1"]
 
-    phone {
-        phoneHome = true
-        url = "https://s3.amazonaws.com/"
-        bucketPrefix = "apollo-usage-"
-        fileName = "ping.json"
-    }
-
     native_track_selector_default_on = false
 }
 
 
 grails.plugin.databasemigration.updateOnStart = true
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
+grails.plugin.springwebsocket.useCustomConfig = true
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {
@@ -419,7 +413,7 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.10-release"
+        branch = "1.16.11-release"
 //		branch = "dev"
 //        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
         alwaysPull = true

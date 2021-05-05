@@ -102,7 +102,6 @@ apollo {
     use_cds_for_new_transcripts = checkBooleanEnvironment("WEBAPOLLO_CDS_FOR_NEW_TRANSCRIPTS",false)
     count_annotations = checkBooleanEnvironment("WEBAPOLLO_COUNT_ANNOTATIONS",true)
     add_merged_commented = checkBooleanEnvironment("WEBAPOLLO_ADD_MERGED_COMMENT",true)
-    phone.phoneHome = checkBooleanEnvironment("WEBAPOLLO_PHONE_HOME",true)
     feature_has_dbxrefs = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_DBXREFS",true)
     feature_has_attributes = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_ATTRS",true)
     feature_has_pubmed_ids = checkBooleanEnvironment("WEBAPOLLO_FEATURE_HAS_PUBMED",true)
@@ -145,7 +144,7 @@ apollo {
 jbrowse {
     git {
         url = "https://github.com/GMOD/jbrowse"
-        branch = "1.16.10-release"
+        branch = "1.16.11-release"
     }
     plugins {
         ScreenShotPlugin{

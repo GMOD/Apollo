@@ -51,7 +51,7 @@ class OrganismService {
 
         int totalDeleted = 0
         def featureCount = Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequenceList)", [sequenceList: sequences])[0]
-        println "features to delete ${featureCount}"
+        log.debug "features to delete ${featureCount}"
         while(featureCount>0){
             def featurePairs = Feature.executeQuery("select f.id,f.uniqueName from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequenceList)", [max:MAX_DELETE_SIZE,sequenceList: sequences])
             // maximum transaction size  30
@@ -99,7 +99,7 @@ class OrganismService {
             totalDeleted += featurePairs.size()
 
             featureCount = Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequenceList)", [sequenceList: sequences])[0]
-            println "features remaining to delete ${featureCount} vs deleted ${totalDeleted}"
+            log.debug "features remaining to delete ${featureCount} vs deleted ${totalDeleted}"
         }
         return totalDeleted
 
@@ -109,9 +109,9 @@ class OrganismService {
     def deleteAllFeaturesForOrganism(Organism organism) {
 
         int totalDeleted = 0
-        println "organism ${organism}"
+        log.debug "organism ${organism}"
         def featureCount = Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [organism: organism])[0]
-        println "features to delete ${featureCount}"
+        log.debug "features to delete ${featureCount}"
         while(featureCount>0){
             def featurePairs = Feature.executeQuery("select f.id,f.uniqueName from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [max:MAX_DELETE_SIZE,organism: organism])
             // maximum transaction size  30
@@ -160,7 +160,7 @@ class OrganismService {
             totalDeleted += featurePairs.size()
 
             featureCount = Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [organism: organism])[0]
-            println "features remaining to delete ${featureCount} vs deleted ${totalDeleted}"
+            log.debug "features remaining to delete ${featureCount} vs deleted ${totalDeleted}"
         }
         return totalDeleted
 

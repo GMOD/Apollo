@@ -1,9 +1,31 @@
 
+
+## 2.6.4 
+
+Features
+
+- Added getAttributions method [2591](https://github.com/GMOD/Apollo/pull/2591) via @mbc32.
+- Make getting track features by location optional to pull unique code [2600](https://github.com/GMOD/Apollo/pull/2600).
+- Added additional websocket authentication support [2598](https://github.com/GMOD/Apollo/pull/2598).
+- Added 'set optimal ORF' function [2129](https://github.com/GMOD/Apollo/pull/2129).
+
+Bug Fix
+
+- Provide better detection and fallback for detecting proper Grails version [2020](https://github.com/GMOD/Apollo/issues/2020).
+- Bad WithOrFrom functional annotation evidence can hide display [2595](https://github.com/GMOD/Apollo/issues/2595).
+- Fixed bad API doc [2605](https://github.com/GMOD/Apollo/issues/2605).
+- Fix safari annotation panel layout [2603](https://github.com/GMOD/Apollo/issues/2603).
+
+Infrastructure Changes
+
+- Upgrade to [JBrowse 1.16.11](https://github.com/GMOD/jbrowse/releases/tag/1.16.11-release)
+- Removed server phone home [2614](https://github.com/GMOD/Apollo/pull/2614).
+
+
 ## 2.6.3
 
 Features
 
-- Fix empty attribute list in annotation panel [2552](https://github.com/GMOD/Apollo/issues/2552).
 - Added ability to use posts to sequence methods [2555](https://github.com/GMOD/Apollo/pull/2558).
 - Added system info web service [2557](https://github.com/GMOD/Apollo/pull/2557).
 - Add "merged from" comment to merged in transcript and gene [2567](https://github.com/GMOD/Apollo/issues/2567).
@@ -12,6 +34,7 @@ Features
 
 Bug Fixes:
 
+- Fix empty attribute list in annotation panel [2552](https://github.com/GMOD/Apollo/issues/2552).
 - Bad coordinate value in genomic element details screen in annotator panel [2559](https://github.com/GMOD/Apollo/issues/2559).
 - Web services indicated user had no organism permissions when checking the login [2554](https://github.com/GMOD/Apollo/issues/2554).
 - Vcf reads as ISO-8859-1 instead of UTF-8 from reader mangling some symbols. [2498](https://github.com/GMOD/Apollo/issues/2498).

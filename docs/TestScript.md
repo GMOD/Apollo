@@ -350,11 +350,11 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 ### F) Test Docker load
 
-17.0) Run against docker built on quay.io and/or Docker hub
+17.0) Run against docker built on Docker hub
 
 17.1) Load docker with a sample files directory and database: 
 
-    docker run -it -v /jbrowse/root/directory/:/data -v /postgres/data/directory:/var/lib/postgresql -p 8888:8080 quay.io/gmod/apollo:latest
+    docker run -it -v /jbrowse/root/directory/:/data -v /postgres/data/directory:/var/lib/postgresql -p 8888:8080 gmod/apollo:latest
     
 17.2) Confirm that we can load a genome and tracks from the existing directory (e.g,. Honeybee)
 

@@ -4,18 +4,23 @@ package org.bbop.apollo.gwt.shared.track;
 public enum SequenceTypeEnum {
 
     FA("fa"),
+    FASTA("fasta"),
     FNA("fna"),
     FA_GZ("fa.gz","gz"),
+    FASTA_GZ("fasta.gz","gz"),
     FNA_GZ("fna.gz","gz"),
     FA_ZIP("fa.zip","zip"),
+    FASTA_ZIP("fasta.zip","zip"),
     FNA_ZIP("fna.zip","zip"),
     FA_TGZ("fa.tgz","tar.gz"),
+    FASTA_TGZ("fasta.tgz","tar.gz"),
     FNA_TGZ("fna.tgz","tar.gz"),
     FA_TAR_GZ("fa.tar.gz","tar.gz"),
+    FASTA_TAR_GZ("fasta.tar.gz","tar.gz"),
     FNA_TAR_GZ("fna.tar.gz","tar.gz");
 
-    private String suffix ;
-    private String compression;
+    private final String suffix ;
+    private final String compression;
 
     SequenceTypeEnum(String suffix){
         this(suffix,null);
@@ -32,6 +37,10 @@ public enum SequenceTypeEnum {
 
     public String getCompression() {
         return compression;
+    }
+
+    public String getCorrectedSuffix(){
+        return FA.suffix + (compression!=null ?  "." + compression : "") ;
     }
 
     public static SequenceTypeEnum getSequenceTypeForFile(String fileName){

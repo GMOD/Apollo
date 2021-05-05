@@ -122,7 +122,7 @@ There are two sections, ```plugins``` and ```git```, which specifies the JBrowse
 ```
  git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.9-release"
+        branch = "1.16.11-release"
 ```
    
 If a git block a ```tag``` or ```branch``` can be specified.  
@@ -764,23 +764,6 @@ To hide public tracks from public organisms add `apollo.permission.level.private
          "urlTemplate" : "tracks/GeneData/{refseq}/trackData.json"
       },
 ```
-
-### Phone Home
-
-In order to determine our usage and the current versions of Apollo being used (which helps us to provide Apollo for free), the server and the client will phone home and to google analytics.
-
-To turn off the server phone home set the configuration this way.
-    
-    apollo.phone.phoneHome = false
-    
-To add your own google analytics code set the code up this way:
-
-    google_analytics = ["UA-62921593-1","Your Google Analytics ID"]
-    
-If you don't want any reporting set:
-    
-    google_analytics = []
-
 
 ### Only owners can edit
 
