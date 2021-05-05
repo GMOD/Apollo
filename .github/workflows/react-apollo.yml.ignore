@@ -37,7 +37,7 @@ jobs:
         with:
           repository: gmod/apollo-gmod-js
           path: apollo-gmod-js
-          ref: master
+          ref: apollo2-branch
       - name: Install deps and clean environment
         run: |
           pwd
