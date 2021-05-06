@@ -1,6 +1,6 @@
 # Demo
 
-<b>Please use our [Demo Server](http://demo.genomearchitect.org/Apollo2/) with demo@demo.com / demo at login to play around with our features.  Annotations are routinely removed so go wild.</b>
+<b>Please use our [Demo Server](http://demo.genomearchitect.io/Apollo2/) with demo@demo.com / demo at login to play around with our features.  Annotations are routinely removed so go wild.</b>
 
 Then, click on the "Ref Sequence" tab from the panel on the right to choose a Group to display. You can choose one of the Groups visible in the list, or you may type the name of the name of the Group in the "Search" box (for example: Group16.4 Group1.37; these groups have many gene models to get you started). You may now start annotating! Once you have displayed the first group, you may also choose to switch to a different Group from the drop-down menu in the navigation bar (e.g. Group1.10 Group1.33).
 

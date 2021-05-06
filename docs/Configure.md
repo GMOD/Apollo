@@ -647,7 +647,7 @@ It will provide a popup that gives you a public URL to view while not logged in 
 - `tracks` are url-encoded tracks separated by a comma
 
 Example:  
-http://demo.genomearchitect.org/Apollo2/3836/jbrowse/index.html?loc=Group1.31:287765..336436&tracks=Official%20Gene%20Set%20v3.2,GeneID
+http://demo.genomearchitect.io/Apollo2/3836/jbrowse/index.html?loc=Group1.31:287765..336436&tracks=Official%20Gene%20Set%20v3.2,GeneID
 
 ####Logged in URL
 
@@ -658,9 +658,9 @@ http://demo.genomearchitect.org/Apollo2/3836/jbrowse/index.html?loc=Group1.31:28
 - `tracks` are url-encoded tracks separated by a comma
 
 Examples:
-- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?loc=Group1.31:287765..336436&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
-- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?loc=GB51936-RA&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
-- http://demo.genomearchitect.org/Apollo2/annotator/loadLink?uuid=355617c7-f8c1-4105-bb11-755cee1855df&tracks=Official%20Gene%20Set%20v3.2,GeneID
+- http://demo.genomearchitect.io/Apollo2/annotator/loadLink?loc=Group1.31:287765..336436&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
+- http://demo.genomearchitect.io/Apollo2/annotator/loadLink?loc=GB51936-RA&organism=3836&tracks=Official%20Gene%20Set%20v3.2,GeneID
+- http://demo.genomearchitect.io/Apollo2/annotator/loadLink?uuid=355617c7-f8c1-4105-bb11-755cee1855df&tracks=Official%20Gene%20Set%20v3.2,GeneID
 
 ### Setting default track list behavior
 
