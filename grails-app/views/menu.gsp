@@ -13,14 +13,14 @@
 </head>
 <body>
 %{--<div id="apolloLogo" style="width: 100%">--}%
-  %{--<a href="http://genomearchitect.org">--}%
+  %{--<a href="https://genomearchitect.readthedocs.io/">--}%
   %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
   %{--Genome Annotator--}%
   %{--<nav:primary class="nav primary small-menu"/>--}%
   %{--<nav:primary/>--}%
   %{--<ul class="nav nav-pills header1" >--}%
     %{--<li role="presentation" class="">--}%
-      %{--<a href="http://genomearchitect.org">--}%
+      %{--<a href="https://genomearchitect.readthedocs.io/">--}%
         %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
     %{--</li>--}%
 
