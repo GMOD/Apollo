@@ -4,10 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.Modal;
-import org.gwtbootstrap3.client.ui.ModalBody;
-import org.gwtbootstrap3.client.ui.TextArea;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -16,18 +13,33 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
  */
 public class UploadDialog extends Modal {
 
+    final TextArea textArea = new TextArea();
 
     public UploadDialog(AnnotationInfo annotationInfo) {
-        setTitle("Upload: "+annotationInfo.getUniqueName());
+        setSize(ModalSize.LARGE);
+        setHeight("500px");
         setClosable(true);
         setFade(true);
         setDataBackdrop(ModalBackdrop.STATIC);
         setDataKeyboard(true);
+        setRemoveOnHide(true);
 
-//        if (message != null) {
-        TextArea textArea = new TextArea();
         ModalBody modalBody = new ModalBody();
+        modalBody.setHeight("300px");
+        textArea.setStyleName("");
+        textArea.setHeight("250px");
+        textArea.setWidth("100%");
 
+        ModalHeader modalHeader = new ModalHeader();
+        modalHeader.setTitle("Upload annotation for " + annotationInfo.getType() + " named: "+annotationInfo.getName());
+        Button exampleLink = new Button("Example Text");
+        exampleLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                textArea.setText("Example text here\nand here");
+            }
+        });
+        modalHeader.add(exampleLink);
 
 
         Button button = new Button("Apply Annotations");
@@ -41,9 +53,13 @@ public class UploadDialog extends Modal {
         });
 
         modalBody.add(textArea);
-        modalBody.add(button);
 
+        ModalFooter modalFooter = new ModalFooter();
+        modalFooter.add(button);
+
+        add(modalHeader);
         add(modalBody);
+        add(modalFooter);
 //        }
 //        if (showOnConstruct) {
 //        }
