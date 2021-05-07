@@ -15,12 +15,20 @@ import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+
+
 /**
  * Created by ndunn on 4/30/15.
  */
 public class UploadDialog extends Modal {
 
     final TextArea textArea = new TextArea();
+    final String EXAMPLE_ANNOTATION = "\n" +
+      "{\n" +
+      " \"go_annotations\":[{\"reference\":\"PMID:Example\",\"geneRelationship\":\"RO:0002331\",\"goTerm\":\"GO:1901560\",\"notes\":\"[\\\"ExampleNote2\\\",\\\"ExampleNote1\\\"]\",\"evidenceCodeLabel\":\"HDA (ECO:0007005): inferred from high throughput direct assay\",\"negate\":false,\"aspect\":\"BP\",\"goTermLabel\":\"response to purvalanol A (GO:1901560) \",\"evidenceCode\":\"ECO:0007005\",\"id\":1,\"withOrFrom\":\"[\\\"Uniprot:Example2\\\",\\\"UniProt:Example1\\\"]\"},{\"reference\":\"PMID:Example\",\"geneRelationship\":\"RO:0002327\",\"goTerm\":\"GO:0051018\",\"notes\":\"[\\\"ExampleNote\\\"]\",\"evidenceCodeLabel\":\"TAS (ECO:0000304): traceable author statement\",\"negate\":false,\"aspect\":\"MF\",\"goTermLabel\":\"protein kinase A binding (GO:0051018) \",\"evidenceCode\":\"ECO:0000304\",\"id\":2,\"withOrFrom\":\"[\\\"Uniprot:Example3\\\"]\"}],    \n" +
+      " \"gene_product\": [{\"reference\":\"PMID:21873635\",\"notes\":\"[\\\"Sample\\\"]\",\"evidenceCodeLabel\":\"IBA (ECO:0000318): inferred from biological aspect of ancestor\",\"alternate\":true,\"evidenceCode\":\"ECO:0000318\",\"id\":1,\"productName\":\"AQP1\",\"withOrFrom\":\"[\\\"UniProtKB:P29972\\\",\\\"RGD:2141\\\"]\"},{\"reference\":\"PMID:21873635\",\"notes\":\"[]\",\"evidenceCodeLabel\":\"IBA (ECO:0000318): inferred from biological aspect of ancestor\",\"alternate\":false,\"evidenceCode\":\"ECO:0000318\",\"id\":2,\"productName\":\"FAM20A\",\"withOrFrom\":\"[\\\"PANTHER:PTN000966558\\\"]\"}],\n" +
+      " \"provenance\": [{\"reference\":\":\",\"notes\":\"[]\",\"field\":\"TYPE\",\"evidenceCodeLabel\":\"HDA (ECO:0007005): inferred from high throughput direct assay\",\"evidenceCode\":\"ECO:0007005\",\"id\":1,\"withOrFrom\":\"[]\"},{\"reference\":\"PMID:79972\",\"notes\":\"[\\\"test\\\",\\\"note\\\"]\",\"field\":\"SYNONYM\",\"evidenceCodeLabel\":\"IEP (ECO:0000270): inferred from expression pattern\",\"evidenceCode\":\"ECO:0000270\",\"id\":2,\"withOrFrom\":\"[\\\"TEST2:DEF123\\\",\\\"TEST:ABC123\\\"]\"}]\n" +
+      "}" ;
 
     public UploadDialog(AnnotationInfo annotationInfo) {
         setSize(ModalSize.LARGE);
@@ -40,11 +48,11 @@ public class UploadDialog extends Modal {
 
         ModalHeader modalHeader = new ModalHeader();
         modalHeader.setTitle("Upload annotation for " + annotationInfo.getType() + " named: "+annotationInfo.getName());
-        Button exampleLink = new Button("Example Text");
+        Button exampleLink = new Button("Example Annotation");
         exampleLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                textArea.setText("Example text here\nand here");
+                textArea.setText(EXAMPLE_ANNOTATION);
             }
         });
         modalHeader.add(exampleLink);
