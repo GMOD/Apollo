@@ -494,7 +494,7 @@ Extra tabs can be added to the side panel by over-riding the apollo configuratio
 ```
     extraTabs = [
             ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
-            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="http://genomearchitect.org" target="_blank">linked here</a>']
+            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="https://genomearchitect.readthedocs.io/" target="_blank">linked here</a>']
     ]
 
 ```

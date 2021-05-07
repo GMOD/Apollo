@@ -131,7 +131,7 @@ environments {
 //    }
 //    extraTabs = [
 //            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
-//            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="http://genomearchitect.org" target="_blank">linked here</a>']
+//            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="https://genomearchitect.readthedocs.io/" target="_blank">linked here</a>']
 //            ['title': 'GGA', 'url': 'https://gitter.im/galaxy-genome-annotation/Lobby/~embed']
 //            ['title': 'JBrowse', 'url': 'https://gitter.im/GMOD/jbrowse/~embed']
 //    ]
