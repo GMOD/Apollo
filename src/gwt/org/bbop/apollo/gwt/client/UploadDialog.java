@@ -1,20 +1,36 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.rpc.impl.RequestCallbackAdapter;
 import com.google.gwt.user.client.ui.HTML;
 import grails.converters.JSON;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
+import org.bbop.apollo.gwt.client.rest.GoRestService;
+import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.go.Aspect;
+import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.shared.go.Reference;
+import org.bbop.apollo.gwt.shared.go.WithOrFrom;
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException;
 import org.codehaus.groovy.grails.web.json.JSONElement;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -30,7 +46,7 @@ public class UploadDialog extends Modal {
       " \"provenance\": [{\"reference\":\":\",\"notes\":\"[]\",\"field\":\"TYPE\",\"evidenceCodeLabel\":\"HDA (ECO:0007005): inferred from high throughput direct assay\",\"evidenceCode\":\"ECO:0007005\",\"id\":1,\"withOrFrom\":\"[]\"},{\"reference\":\"PMID:79972\",\"notes\":\"[\\\"test\\\",\\\"note\\\"]\",\"field\":\"SYNONYM\",\"evidenceCodeLabel\":\"IEP (ECO:0000270): inferred from expression pattern\",\"evidenceCode\":\"ECO:0000270\",\"id\":2,\"withOrFrom\":\"[\\\"TEST2:DEF123\\\",\\\"TEST:ABC123\\\"]\"}]\n" +
       "}" ;
 
-    public UploadDialog(AnnotationInfo annotationInfo) {
+    public UploadDialog(final AnnotationInfo annotationInfo) {
         setSize(ModalSize.LARGE);
         setHeight("500px");
         setClosable(true);
@@ -63,7 +79,21 @@ public class UploadDialog extends Modal {
             @Override
             public void onClick(ClickEvent event) {
                 // TODO: convert and put in REST services with a nice return message.
-                Bootbox.alert("adding");
+                JSONObject reportObject = validateJson();
+                Bootbox.confirm("Add: "+reportObject.toString(), new ConfirmCallback() {
+                    @Override
+                    public void callback(boolean result) {
+                        if(result){
+                            JSONObject annotationsObject = JSONParser.parseStrict(textArea.getText()).isObject();
+                            JSONArray goAnnotations = annotationsObject.get(FeatureStringEnum.GO_ANNOTATIONS.getValue()).isArray();
+                            GoRestService.addGoAnnotations(annotationInfo,goAnnotations);
+                            JSONArray geneProducts = annotationsObject.get(FeatureStringEnum.GENE_PRODUCT.getValue()).isArray();
+                            GeneProductRestService.addGeneProducts(annotationInfo,geneProducts);
+                            JSONArray provenances = annotationsObject.get(FeatureStringEnum.PROVENANCE.getValue()).isArray();
+                            ProvenanceRestService.addProvenances(annotationInfo,provenances);
+                        }
+                    }
+                });
                 hide();
             }
         });
@@ -74,7 +104,6 @@ public class UploadDialog extends Modal {
             public void onClick(ClickEvent event) {
                 try {
                     JSONObject reportObject = validateJson();
-
                     Bootbox.alert(reportObject.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
