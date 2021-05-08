@@ -1,36 +1,20 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.rpc.impl.RequestCallbackAdapter;
-import com.google.gwt.user.client.ui.HTML;
-import grails.converters.JSON;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.bbop.apollo.gwt.shared.go.Aspect;
-import org.bbop.apollo.gwt.shared.go.GoAnnotation;
-import org.bbop.apollo.gwt.shared.go.Reference;
-import org.bbop.apollo.gwt.shared.go.WithOrFrom;
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException;
-import org.codehaus.groovy.grails.web.json.JSONElement;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
