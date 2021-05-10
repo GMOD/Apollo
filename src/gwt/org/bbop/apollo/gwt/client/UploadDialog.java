@@ -10,6 +10,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
@@ -133,8 +134,15 @@ public class UploadDialog extends Modal {
                                 @Override
                                 public void onResponseReceived(Request request, Response response) {
                                     JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-//                                    loadAnnotationsFromResponse(returnObject);
-//                                    clearModal();
+                                    GWT.log(returnObject.toString());
+                                    Bootbox.confirm("Saved successfully, reload?", new ConfirmCallback() {
+                                        @Override
+                                        public void callback(boolean result) {
+                                            if(result){
+                                                Window.Location.reload();
+                                            }
+                                        }
+                                    });
                                 }
 
                                 @Override
