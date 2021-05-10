@@ -1076,7 +1076,7 @@ class AnnotatorController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "data", type = "json strong", paramType = RestApiParamType.QUERY, description = "JSON of go annotations, gene products , and provenance to be added at once")
+            , @RestApiParam(name = "data", type = "json strong", paramType = RestApiParamType.QUERY, description = "JSON of go annotations, gene products , and provenance to be added at once (see upload annotations in interface)")
     ]
     )
     def addFunctionalAnnotations(){
@@ -1088,7 +1088,7 @@ class AnnotatorController {
         }
         User user = permissionService.getCurrentUser(dataObject)
         Feature feature = null
-        JSONObject originalFeatureJsonObject = null
+//        JSONObject originalFeatureJsonObject = null
 
         List<GoAnnotation> goAnnotationList = []
         List<GeneProduct> geneProductArrayList = []
@@ -1098,7 +1098,7 @@ class AnnotatorController {
         for(JSONObject object in goArray){
             if(feature==null){
                 feature = Feature.findByUniqueName(object.feature)
-                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             }
             GoAnnotation goAnnotation = new GoAnnotation()
             goAnnotation.feature = feature
@@ -1124,7 +1124,7 @@ class AnnotatorController {
         for(JSONObject object in geneProductArray){
             if(feature==null){
                 feature = Feature.findByUniqueName(object.feature)
-                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             }
             GeneProduct geneProduct = new GeneProduct()
             geneProduct.feature = feature
@@ -1148,7 +1148,7 @@ class AnnotatorController {
         for(JSONObject object in provenanceArray){
             if(feature==null){
                 feature = Feature.findByUniqueName(object.feature)
-                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             }
             Provenance provenance = new Provenance()
             provenance.feature = feature
@@ -1167,18 +1167,18 @@ class AnnotatorController {
         }
 
 
-        JSONArray oldFeaturesJsonArray = new JSONArray()
-        oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        JSONArray newFeaturesJsonArray = new JSONArray()
-        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-        newFeaturesJsonArray.add(currentFeatureJsonObject)
-        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_BULK_FUNCTIONAL_ANNOTATIONS,
-                feature.name,
-                feature.uniqueName,
-                dataObject,
-                oldFeaturesJsonArray,
-                newFeaturesJsonArray,
-                user)
+//        JSONArray oldFeaturesJsonArray = new JSONArray()
+//        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+//        JSONArray newFeaturesJsonArray = new JSONArray()
+//        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+//        newFeaturesJsonArray.add(currentFeatureJsonObject)
+//        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_BULK_FUNCTIONAL_ANNOTATIONS,
+//                feature.name,
+//                feature.uniqueName,
+//                dataObject,
+//                oldFeaturesJsonArray,
+//                newFeaturesJsonArray,
+//                user)
 
         if(feature==null){
             render new JSONObject() as JSON
