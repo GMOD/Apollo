@@ -79,6 +79,8 @@ public class GeneDetailPanel extends Composite {
     InlineCheckBox partialMax;
     @UiField
     InlineCheckBox obsoleteButton;
+    @UiField
+    Button uploadAnnotationButton;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -99,6 +101,11 @@ public class GeneDetailPanel extends Composite {
         String updatedName = nameField.getText();
         internalAnnotationInfo.setName(updatedName);
         updateGene();
+    }
+
+    @UiHandler("uploadAnnotationButton")
+    void uploadAnnotation(ClickEvent clickEvent){
+        new UploadDialog(internalAnnotationInfo) ;
     }
 
     @UiHandler("symbolField")

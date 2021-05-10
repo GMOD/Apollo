@@ -5,8 +5,11 @@ public class Reference {
     private String prefix;
     private String lookupId;
 
+    public final static String NOT_PROVIDED = "NOT_PROVIDED";
+    public final static String UNKNOWN = "UNKNOWN";
 
-    public Reference(String display) {
+
+  public Reference(String display) {
         assert display.contains(":");
         this.prefix = display.split(":")[0];
         this.lookupId = display.split(":")[1];
@@ -17,7 +20,11 @@ public class Reference {
         this.lookupId = id ;
     }
 
-    public String getPrefix() {
+  public static Reference createEmptyReference() {
+      return new Reference(NOT_PROVIDED,UNKNOWN);
+  }
+
+  public String getPrefix() {
         return prefix;
     }
 

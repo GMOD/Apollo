@@ -24,7 +24,9 @@ public class GeneProductConverter {
       geneProduct.setEvidenceCodeLabel(object.get("evidenceCodeLabel").isString().stringValue());
     }
     geneProduct.setEvidenceCode(object.get("evidenceCode").isString().stringValue());
-    geneProduct.setReference(new Reference(object.get("reference").isString().stringValue()));
+    if(object.containsKey("reference")){
+      geneProduct.setReference(new Reference(object.get("reference").isString().stringValue()));
+    }
 
     List<String> noteList = new ArrayList<>();
     if (object.containsKey("notes")) {
@@ -68,7 +70,7 @@ public class GeneProductConverter {
     object.put("alternate", JSONBoolean.getInstance(geneProduct.isAlternate()));
     object.put("evidenceCode", new JSONString(geneProduct.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(geneProduct.getEvidenceCodeLabel()));
-    object.put("reference", new JSONString(geneProduct.getReference().getReferenceString()));
+    object.put("reference", new JSONString(geneProduct.getReference()!=null ?geneProduct.getReference().getReferenceString():"") );
     JSONArray notesArray = new JSONArray();
     if(geneProduct.getNoteList()!=null && geneProduct.getNoteList().size()>0){
       for (String note : geneProduct.getNoteList()) {
@@ -79,8 +81,10 @@ public class GeneProductConverter {
     // TODO: finish this
     JSONArray withArray = new JSONArray();
 
-    for (WithOrFrom withOrFrom : geneProduct.getWithOrFromList()) {
-      withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+    if(geneProduct.getWithOrFromList()!=null){
+      for (WithOrFrom withOrFrom : geneProduct.getWithOrFromList()) {
+        withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+      }
     }
 
     object.put("withOrFrom", withArray);

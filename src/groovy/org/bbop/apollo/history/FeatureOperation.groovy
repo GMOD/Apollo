@@ -59,6 +59,7 @@ enum FeatureOperation {
   REMOVE_GO_ANNOTATION(false),
   UPDATE_GO_ANNOTATION(false),
   ADD_GO_ANNOTATION(false),
+  ADD_BULK_FUNCTIONAL_ANNOTATIONS(false),
 
   REMOVE_GENE_PRODUCT(false),
   UPDATE_GENE_PRODUCT(false),
