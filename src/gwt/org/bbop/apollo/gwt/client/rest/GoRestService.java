@@ -64,7 +64,7 @@ public class GoRestService {
                 }
             }
             else{
-                String jsonString = "\\["+Reference.UNKNOWN + ":" + Reference.NOT_PROVIDED +"\\]";
+                String jsonString = "["+Reference.UNKNOWN + ":" + Reference.NOT_PROVIDED +"]";
                 withOrFromList.add(new WithOrFrom(jsonString));
 
             }
