@@ -165,7 +165,7 @@ public class AnnotationRestService extends RestService {
   }
 
   public static JSONObject addFunctionalAnnotations(RequestCallback requestCallback, JSONObject jsonObject) {
-    RestService.sendRequest(requestCallback,"annotator/addFunctionalAnnotation","data="+jsonObject.toString());
+    RestService.sendRequest(requestCallback,"annotator/addFunctionalAnnotations","data="+jsonObject.toString());
     return jsonObject;
   }
 }
