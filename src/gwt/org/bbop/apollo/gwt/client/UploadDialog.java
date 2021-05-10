@@ -138,7 +138,7 @@ public class UploadDialog extends Modal {
                                     int goAnnotationSize = returnObject.containsKey("goAnnotations") ? returnObject.get("goAnnotations").isArray().size() : 0;
                                     int geneProductSize = returnObject.containsKey("geneProducts") ? returnObject.get("geneProducts").isArray().size() : 0;
                                     int provenanceSize = returnObject.containsKey("provenances") ? returnObject.get("provenances").isArray().size() : 0;
-                                    String message = "Saved successfully.";
+                                    String message = "Saved successfully!  ";
                                     message += "Now has ";
                                     message += goAnnotationSize + " go annotations, ";
                                     message += geneProductSize + " gene products, ";
