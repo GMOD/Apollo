@@ -132,7 +132,6 @@ public class UploadDialog extends Modal {
                                 @Override
                                 public void onResponseReceived(Request request, Response response) {
                                     JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-                                    GWT.log(returnObject.toString());
                                     int goAnnotationSize = returnObject.containsKey("goAnnotations") ? returnObject.get("goAnnotations").isArray().size() : 0;
                                     int geneProductSize = returnObject.containsKey("geneProducts") ? returnObject.get("geneProducts").isArray().size() : 0;
                                     int provenanceSize = returnObject.containsKey("provenances") ? returnObject.get("provenances").isArray().size() : 0;
@@ -157,7 +156,6 @@ public class UploadDialog extends Modal {
                                     Bootbox.alert("Error:"+exception.getMessage());
                                 }
                             };
-                            GWT.log(jsonObject.toString());
                             AnnotationRestService.addFunctionalAnnotations(requestCallback,jsonObject);
                         }
                     }

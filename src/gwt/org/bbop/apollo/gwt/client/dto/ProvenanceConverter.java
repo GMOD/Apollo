@@ -20,7 +20,6 @@ public class ProvenanceConverter {
 //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
 //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
 //                    "[\"adf:12312\"]"
-    GWT.log(object.toString());
     provenance.setId(Math.round(object.get("id").isNumber().doubleValue()));
     provenance.setFeature(object.get("feature").isString().stringValue());
     provenance.setField(object.get("field").isString().stringValue());

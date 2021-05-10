@@ -476,11 +476,6 @@ public class ProvenancePanel extends Composite {
     return noteList;
   }
 
-//    @UiHandler("referenceValidateButton")
-//    public void validateReference(ClickEvent clickEvent) {
-//        GWT.log("not sure what to do here ");
-//    }
-
   @UiHandler("cancelNewProvenance")
   public void cancelNewProvenanceButton(ClickEvent e) {
     clearModal();
