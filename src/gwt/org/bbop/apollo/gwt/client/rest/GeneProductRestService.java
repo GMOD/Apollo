@@ -47,20 +47,24 @@ public class GeneProductRestService {
             geneProduct.setEvidenceCode(annotationObject.get("evidenceCode").isString().stringValue());
             geneProduct.setEvidenceCodeLabel(annotationObject.get("evidenceCodeLabel").isString().stringValue());
             geneProduct.setAlternate(annotationObject.get("alternate").isBoolean().booleanValue());
-            String[] referenceString = annotationObject.get("reference").isString().stringValue().split(":");
-            Reference reference = new Reference(referenceString[0], referenceString[1]);
-            geneProduct.setReference(reference);
-            List<WithOrFrom> withOrFromList = new ArrayList<>();
-            JSONArray goWithOrFromArray = annotationObject.get("withOrFrom").isArray();
-            if(goWithOrFromArray==null){
-                String goWithString = annotationObject.get("withOrFrom").isString().stringValue();
-                goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+            if(annotationObject.containsKey("reference")){
+                String[] referenceString = annotationObject.get("reference").isString().stringValue().split(":");
+                Reference reference = new Reference(referenceString[0], referenceString[1]);
+                geneProduct.setReference(reference);
             }
-            for(int j = 0 ; j < goWithOrFromArray.size() ; j++){
-                WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
-                withOrFromList.add(withOrFrom);
+            if(annotationObject.containsKey("withOrFrom")){
+                List<WithOrFrom> withOrFromList = new ArrayList<>();
+                JSONArray goWithOrFromArray = annotationObject.get("withOrFrom").isArray();
+                if(goWithOrFromArray==null){
+                    String goWithString = annotationObject.get("withOrFrom").isString().stringValue();
+                    goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+                }
+                for(int j = 0 ; j < goWithOrFromArray.size() ; j++){
+                    WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
+                    withOrFromList.add(withOrFrom);
+                }
+                geneProduct.setWithOrFromList(withOrFromList);
             }
-            geneProduct.setWithOrFromList(withOrFromList);
             List<String> notesList = new ArrayList<>();
             JSONArray notesJsonArray = annotationObject.get("notes").isArray();
             if(notesJsonArray==null){

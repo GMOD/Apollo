@@ -71,7 +71,7 @@ public class ProvenanceConverter {
     object.put("field", new JSONString(provenance.getField()));
     object.put("evidenceCode", new JSONString(provenance.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(provenance.getEvidenceCodeLabel()));
-    object.put("reference", new JSONString(provenance.getReference().getReferenceString()));
+    object.put("reference", new JSONString(provenance.getReference() !=null ? provenance.getReference().getReferenceString():""));
 
     JSONArray notesArray = new JSONArray();
     if(provenance.getNoteList()!=null && provenance.getNoteList().size()>0){
@@ -84,8 +84,10 @@ public class ProvenanceConverter {
     // TODO: finish this
     JSONArray withArray = new JSONArray();
 
-    for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
-      withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+    if(provenance.getWithOrFromList()!=null){
+      for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
+        withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+      }
     }
 
     object.put("withOrFrom", withArray);

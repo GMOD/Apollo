@@ -48,21 +48,28 @@ public class ProvenanceRestService {
 
             provenance.setEvidenceCode(provenanceObject.get("evidenceCode").isString().stringValue());
             provenance.setEvidenceCodeLabel(provenanceObject.get("evidenceCodeLabel").isString().stringValue());
-            String[] referenceString = provenanceObject.get("reference").isString().stringValue().split(":");
-            Reference reference = new Reference(referenceString[0], referenceString[1]);
-            provenance.setReference(reference);
-            //
+
+            if(provenanceObject.containsKey("reference")){
+                String[] referenceString = provenanceObject.get("reference").isString().stringValue().split(":");
+                Reference reference = new Reference(referenceString[0], referenceString[1]);
+                provenance.setReference(reference);
+            }
+            
             List<WithOrFrom> withOrFromList = new ArrayList<>();
-            JSONArray goWithOrFromArray = provenanceObject.get("withOrFrom").isArray();
-            if(goWithOrFromArray==null){
-                String goWithString = provenanceObject.get("withOrFrom").isString().stringValue();
-                goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+
+            if(provenanceObject.containsKey("withOrFrom")) {
+                JSONArray goWithOrFromArray = provenanceObject.get("withOrFrom").isArray();
+                if (goWithOrFromArray == null) {
+                    String goWithString = provenanceObject.get("withOrFrom").isString().stringValue();
+                    goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+                }
+                for (int j = 0; j < goWithOrFromArray.size(); j++) {
+                    WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
+                    withOrFromList.add(withOrFrom);
+                }
+                provenance.setWithOrFromList(withOrFromList);
             }
-            for(int j = 0 ; j < goWithOrFromArray.size() ; j++){
-                WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
-                withOrFromList.add(withOrFrom);
-            }
-            provenance.setWithOrFromList(withOrFromList);
+
             List<String> notesList = new ArrayList<>();
             JSONArray notesJsonArray = provenanceObject.get("notes").isArray();
             if(notesJsonArray==null){

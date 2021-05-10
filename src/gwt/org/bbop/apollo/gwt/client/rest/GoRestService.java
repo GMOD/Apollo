@@ -49,20 +49,41 @@ public class GoRestService {
             goAnnotation.setEvidenceCode(goAnnotationObject.get("evidenceCode").isString().stringValue());
             goAnnotation.setEvidenceCodeLabel(goAnnotationObject.get("evidenceCodeLabel").isString().stringValue());
             goAnnotation.setNegate(goAnnotationObject.get("negate").isBoolean().booleanValue());
-            String[] referenceString = goAnnotationObject.get("reference").isString().stringValue().split(":");
-            Reference reference = new Reference(referenceString[0], referenceString[1]);
-            goAnnotation.setReference(reference);
-            List<WithOrFrom> withOrFromList = new ArrayList<>();
-            JSONArray goWithOrFromArray = goAnnotationObject.get("withOrFrom").isArray();
-            if(goWithOrFromArray==null){
-                String goWithString = goAnnotationObject.get("withOrFrom").isString().stringValue();
-                goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+
+
+            if(goAnnotationObject.containsKey("reference")){
+                String[] referenceString = goAnnotationObject.get("reference").isString().stringValue().split(":");
+                Reference reference = new Reference(referenceString[0], referenceString[1]);
+                goAnnotation.setReference(reference);
             }
-            for(int j = 0 ; j < goWithOrFromArray.size() ; j++){
-                WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
-                withOrFromList.add(withOrFrom);
+            else{
+                goAnnotation.setReference(Reference.createEmptyReference());
+            }
+
+
+            List<WithOrFrom> withOrFromList = new ArrayList<>();
+            if(goAnnotationObject.containsKey("withOrFrom")) {
+                JSONArray goWithOrFromArray = goAnnotationObject.get("withOrFrom").isArray();
+                if (goWithOrFromArray == null) {
+                    String goWithString = goAnnotationObject.get("withOrFrom").isString().stringValue();
+                    goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+                }
+                for (int j = 0; j < goWithOrFromArray.size(); j++) {
+                    WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
+                    withOrFromList.add(withOrFrom);
+                }
+            }
+            else{
+                String jsonString = "\\["+Reference.UNKNOWN + ":" + Reference.NOT_PROVIDED +"\\]";
+                withOrFromList.add(new WithOrFrom(jsonString));
+
             }
             goAnnotation.setWithOrFromList(withOrFromList);
+
+
+
+
+
             List<String> notesList = new ArrayList<>();
             JSONArray notesJsonArray = goAnnotationObject.get("notes").isArray();
             if(notesJsonArray==null){
