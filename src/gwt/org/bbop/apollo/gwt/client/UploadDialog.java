@@ -92,7 +92,7 @@ public class UploadDialog extends Modal {
             public void onClick(ClickEvent event) {
                 // TODO: convert and put in REST services with a nice return message.
                 JSONObject reportObject = validateJson();
-                Bootbox.confirm("Add: "+reportObject.toString(), new ConfirmCallback() {
+                Bootbox.confirm("Add these functional annotations? "+reportObject.toString(), new ConfirmCallback() {
                     @Override
                     public void callback(boolean result) {
                         if(result){
@@ -135,7 +135,16 @@ public class UploadDialog extends Modal {
                                 public void onResponseReceived(Request request, Response response) {
                                     JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
                                     GWT.log(returnObject.toString());
-                                    Bootbox.confirm("Saved successfully, reload?", new ConfirmCallback() {
+                                    int goAnnotationSize = returnObject.containsKey("goAnnotations") ? returnObject.get("goAnnotations").isArray().size() : 0;
+                                    int geneProductSize = returnObject.containsKey("geneProducts") ? returnObject.get("geneProducts").isArray().size() : 0;
+                                    int provenanceSize = returnObject.containsKey("provenances") ? returnObject.get("provenances").isArray().size() : 0;
+                                    String message = "Saved successfully.";
+                                    message += "Now has ";
+                                    message += goAnnotationSize + " go annotations, ";
+                                    message += geneProductSize + " gene products, ";
+                                    message += provenanceSize + " provenance annotations. ";
+                                    message += " Reload to see? ";
+                                    Bootbox.confirm(message, new ConfirmCallback() {
                                         @Override
                                         public void callback(boolean result) {
                                             if(result){
