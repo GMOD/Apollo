@@ -2181,9 +2181,9 @@ class RequestHandlingService {
                   provenanceService.deleteAnnotationFromFeature(transcript)
                   geneProductService.deleteAnnotationFromFeature(transcript)
 
-                  transcript.goAnnotations.clear()
-                  transcript.geneProducts.clear()
-                  transcript.provenances.clear()
+                  transcript?.goAnnotations?.clear()
+                  transcript?.geneProducts?.clear()
+                  transcript?.provenances?.clear()
 
 //                  goAnnotationService.removeGoAnnotationsFromFeature(transcript)
 //                  provenanceService.removeProvenancesFromFeature(transcript)
