@@ -42,6 +42,9 @@ public class GeneProductRestService {
                 Reference reference = new Reference(referenceString[0], referenceString[1]);
                 geneProduct.setReference(reference);
             }
+            else{
+                geneProduct.setReference(Reference.createEmptyReference());
+            }
             if(annotationObject.containsKey("withOrFrom")){
                 List<WithOrFrom> withOrFromList = new ArrayList<>();
                 JSONArray goWithOrFromArray = annotationObject.get("withOrFrom").isArray();

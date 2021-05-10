@@ -5,6 +5,9 @@ public class Reference {
     private String prefix;
     private String lookupId;
 
+    public final static String NOT_PROVIDED = "NOT_PROVIDED";
+    public final static String UNKNOWN = "UNKNOWN";
+
 
     public Reference(String display) {
         assert display.contains(":");
@@ -15,6 +18,10 @@ public class Reference {
     public Reference(String prefix,String id) {
         this.prefix = prefix ;
         this.lookupId = id ;
+    }
+
+    public static Reference createEmptyReference() {
+        return new Reference(NOT_PROVIDED,UNKNOWN);
     }
 
     public String getPrefix() {

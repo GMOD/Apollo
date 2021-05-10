@@ -44,6 +44,9 @@ public class ProvenanceRestService {
                 Reference reference = new Reference(referenceString[0], referenceString[1]);
                 provenance.setReference(reference);
             }
+            else{
+                provenance.setReference(Reference.createEmptyReference());
+            }
 
             List<WithOrFrom> withOrFromList = new ArrayList<>();
 
