@@ -27,18 +27,8 @@ public class ProvenanceRestService {
 
     static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
-    public static void addProvenances(AnnotationInfo annotationInfo, JSONArray provenances){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-//                                    GWT.log("yeah");
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert(exception.getMessage());
-            }
-        };
+    public static List<Provenance> generateProvenances(AnnotationInfo annotationInfo, JSONArray provenances){
+        List<Provenance> provenanceList = new ArrayList<>();
         for(int i = 0 ; i < provenances.size() ; i++){
             JSONObject provenanceObject = provenances.get(i).isObject();
 
@@ -54,7 +44,7 @@ public class ProvenanceRestService {
                 Reference reference = new Reference(referenceString[0], referenceString[1]);
                 provenance.setReference(reference);
             }
-            
+
             List<WithOrFrom> withOrFromList = new ArrayList<>();
 
             if(provenanceObject.containsKey("withOrFrom")) {
@@ -80,8 +70,10 @@ public class ProvenanceRestService {
                 notesList.add(notesJsonArray.get(j).isString().stringValue());
             }
             provenance.setNoteList(notesList);
-            ProvenanceRestService.saveProvenance(requestCallback, provenance);
+//            ProvenanceRestService.saveProvenance(requestCallback, provenance);
+            provenanceList.add(provenance);
         }
+        return provenanceList;
     }
 
     public static void saveProvenance(RequestCallback requestCallback, Provenance provenance) {

@@ -1,20 +1,33 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
+import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
+import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.client.rest.ProvenanceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
+import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.shared.provenance.Provenance;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+
+import java.util.List;
 
 
 /**
@@ -84,11 +97,53 @@ public class UploadDialog extends Modal {
                         if(result){
                             JSONObject annotationsObject = JSONParser.parseStrict(textArea.getText()).isObject();
                             JSONArray goAnnotations = annotationsObject.get(FeatureStringEnum.GO_ANNOTATIONS.getValue()).isArray();
-                            GoRestService.addGoAnnotations(annotationInfo,goAnnotations);
+                            List<GoAnnotation> goAnnotationList = GoRestService.generateGoAnnotations(annotationInfo,goAnnotations);
+
                             JSONArray geneProducts = annotationsObject.get(FeatureStringEnum.GENE_PRODUCT.getValue()).isArray();
-                            GeneProductRestService.addGeneProducts(annotationInfo,geneProducts);
+                            List<GeneProduct> geneProductList = GeneProductRestService.generateGeneProducts(annotationInfo,geneProducts);
+
+
                             JSONArray provenances = annotationsObject.get(FeatureStringEnum.PROVENANCE.getValue()).isArray();
-                            ProvenanceRestService.addProvenances(annotationInfo,provenances);
+                            List<Provenance> provenanceList = ProvenanceRestService.generateProvenances(annotationInfo,provenances);
+
+
+                            JSONObject jsonObject = new JSONObject();
+                            JSONArray goArray = new JSONArray();
+                            jsonObject.put(FeatureStringEnum.GO_ANNOTATIONS.getValue(), goArray);
+                            for(int i = 0 ; i < goAnnotationList.size() ; i++){
+                                goArray.set(i, GoAnnotationConverter.convertToJson(goAnnotationList.get(i)));
+                            }
+
+
+                            JSONArray geneProductArray = new JSONArray();
+                            jsonObject.put(FeatureStringEnum.GENE_PRODUCT.getValue(), geneProductArray);
+                            for(int i = 0 ; i < geneProductList.size() ; i++){
+                                geneProductArray.set(i, GeneProductConverter.convertToJson(geneProductList.get(i)));
+                            }
+
+
+                            JSONArray provenanceArray = new JSONArray();
+                            jsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), provenanceArray);
+                            for(int i = 0 ; i < provenanceList.size() ; i++){
+                                provenanceArray.set(i, ProvenanceConverter.convertToJson(provenanceList.get(i)));
+                            }
+
+
+                            RequestCallback requestCallback = new RequestCallback() {
+                                @Override
+                                public void onResponseReceived(Request request, Response response) {
+                                    JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
+//                                    loadAnnotationsFromResponse(returnObject);
+//                                    clearModal();
+                                }
+
+                                @Override
+                                public void onError(Request request, Throwable exception) {
+                                    Bootbox.alert("Error:"+exception.getMessage());
+                                }
+                            };
+                            GWT.log(jsonObject.toString());
+                            AnnotationRestService.addFunctionalAnnotations(requestCallback,jsonObject);
                         }
                     }
                 });

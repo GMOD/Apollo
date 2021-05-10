@@ -27,18 +27,8 @@ public class GeneProductRestService {
 
     static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
-    public static void addGeneProducts(AnnotationInfo annotationInfo, JSONArray geneProducts){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-//                                    GWT.log("yeah");
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert(exception.getMessage());
-            }
-        };
+    public static List<GeneProduct> generateGeneProducts(AnnotationInfo annotationInfo, JSONArray geneProducts){
+        List<GeneProduct> geneProductList = new ArrayList<>();
         for(int i = 0 ; i < geneProducts.size() ; i++){
             JSONObject annotationObject = geneProducts.get(i).isObject();
             GeneProduct geneProduct = new GeneProduct();
@@ -75,8 +65,10 @@ public class GeneProductRestService {
                 notesList.add(notesJsonArray.get(j).isString().stringValue());
             }
             geneProduct.setNoteList(notesList);
-            GeneProductRestService.saveGeneProduct(requestCallback, geneProduct);
+            geneProductList.add(geneProduct);
+//            GeneProductRestService.saveGeneProduct(requestCallback, geneProduct);
         }
+        return geneProductList;
     }
 
     public static void saveGeneProduct(RequestCallback requestCallback, GeneProduct geneProduct) {

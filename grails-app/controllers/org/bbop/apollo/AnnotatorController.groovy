@@ -21,6 +21,8 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
+
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
  */
@@ -1066,6 +1068,31 @@ class AnnotatorController {
         }
         exportService.export(params.format, response.outputStream, annotatorGroupList, fields, labels, formatters, parameters)
     }
+
+
+    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "data", type = "json strong", paramType = RestApiParamType.QUERY, description = "JSON of go annotations, gene products , and provenance to be added at once")
+    ]
+    )
+    def addFunctionalAnnotations(){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "input data object ${dataObject as JSON}"
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+            render status : UNAUTHORIZED
+            return
+        }
+        User user = permissionService.getCurrentUser(dataObject)
+
+
+
+
+        render new JSONObject() as JSON
+    }
+
+
 
     @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [

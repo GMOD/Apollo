@@ -26,18 +26,8 @@ public class GoRestService {
 
     static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
-    public static void addGoAnnotations(AnnotationInfo annotationInfo,JSONArray goAnnotations){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-//                                    GWT.log("yeah");
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert(exception.getMessage());
-            }
-        };
+    public static List<GoAnnotation> generateGoAnnotations(AnnotationInfo annotationInfo, JSONArray goAnnotations){
+        List<GoAnnotation> goAnnotationList = new ArrayList<>();
         for(int i = 0 ; i < goAnnotations.size() ; i++){
             JSONObject goAnnotationObject = goAnnotations.get(i).isObject();
             GoAnnotation goAnnotation = new GoAnnotation();
@@ -94,8 +84,9 @@ public class GoRestService {
                 notesList.add(notesJsonArray.get(j).isString().stringValue());
             }
             goAnnotation.setNoteList(notesList);
-            GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
+            goAnnotationList.add(goAnnotation);
         }
+        return goAnnotationList;
     }
 
     public static void saveGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
