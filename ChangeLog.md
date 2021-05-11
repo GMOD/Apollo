@@ -1,6 +1,15 @@
+## 2.6.5
 
+Features
 
-## 2.6.4 
+- Added a "topLevel" option to the "getFeatures" web services endpoint that
+  causes the endpoint to return top-level (e.g. gene) features.
+
+Bug Fixes
+
+Infrastructure Changes
+
+## 2.6.4
 
 Features
 
@@ -79,7 +88,7 @@ Infrastructure Changes
 
 Infrastructure Changes
 
-- Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).  
+- Upgrade to [JBrowse 1.16.9](https://github.com/GMOD/jbrowse/releases/tag/1.16.9) / [2489](https://github.com/GMOD/Apollo/pull/2489).
 - Fixed Python dependency for Travis for BioPython (3.7) and upgraded to Xenial [2493](https://github.com/GMOD/Apollo/pull/2493).
 - Updated internal Docker Python script to add to use the [Apollo 4.2.3 library](https://pypi.org/project/apollo/).
 - Shows and hide annotation detail panels on demand so list is not obscured [2538](https://github.com/GMOD/Apollo/pull/2538)
@@ -87,10 +96,10 @@ Infrastructure Changes
 
 Bug Fixes
 
-- Tabix upload of tracks was not including the index file [2487](https://github.com/GMOD/Apollo/pull/2487).  
-- Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).  
-- Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).  
-- Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).  
+- Tabix upload of tracks was not including the index file [2487](https://github.com/GMOD/Apollo/pull/2487).
+- Fasta file was displaying the wrong file formats [2486](https://github.com/GMOD/Apollo/pull/2486).
+- Removed unused database migration script causing issues with mysql [d50f061887](https://github.com/GMOD/Apollo/commit/d50f0618874ae194e88d959d2b9a802f3a1ba7fa>).
+- Allow addition of a controller vocabulary for Gene Product Description  [2488](https://github.com/GMOD/Apollo/pull/2488).
 - Fixed ECO evidence code links [2491](https://github.com/GMOD/Apollo/pull/2491).
 - Fixed load-link urls [2500](https://github.com/GMOD/Apollo/pull/2500).
 
@@ -101,7 +110,7 @@ Features
 
 - Remove popups for annotations in favor of annotator panel [2334](https://github.com/GMOD/Apollo/pull/2334)
 - Added 2 more pseudogenic SO terms and several more non-coding RNA terms and updated interfaces to reflect these [2475](https://github.com/GMOD/Apollo/pull/2475)
-- Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424) 
+- Implemented gene product and field provenance annotations with evidence and GFF3 export [2371](https://github.com/GMOD/Apollo/pull/2371), [2234](https://github.com/GMOD/Apollo/pull/2234), [2312](https://github.com/GMOD/Apollo/pull/2312), [2424](https://github.com/GMOD/Apollo/pull/2424)
 - Added name and type to top of annotation details [2423](https://github.com/GMOD/Apollo/pull/2423)
 - Added GO Annotations to GFF3 export and extended to transcript [2400](https://github.com/GMOD/Apollo/pull/2400)
 - `loadLink` can take name of gene in evidence (if JBrowse names have been processed) [2444](https://github.com/GMOD/Apollo/pull/2444)
@@ -137,12 +146,12 @@ Bug Fixes
 
 Features
 
-- Moved blat / blast search to its own tab [2259](https://github.com/GMOD/Apollo/pull/2259) 
-- Allow creation of annotations from blat features [2225](https://github.com/GMOD/Apollo/pull/2225) 
-- On upload of fasta file execute `faToTwoBit` if present to create searchable blat file [2262](https://github.com/GMOD/Apollo/pull/2262) 
+- Moved blat / blast search to its own tab [2259](https://github.com/GMOD/Apollo/pull/2259)
+- Allow creation of annotations from blat features [2225](https://github.com/GMOD/Apollo/pull/2225)
+- On upload of fasta file execute `faToTwoBit` if present to create searchable blat file [2262](https://github.com/GMOD/Apollo/pull/2262)
 - Allows history tracking for non-structural edits [2246](https://github.com/GMOD/Apollo/pull/2246)
 - Search pop-up links directly to sequence search [2253](https://github.com/GMOD/Apollo/pull/2209)
-- Organism and Group tab should searchable [2081](https://github.com/GMOD/Apollo/pull/2081) 
+- Organism and Group tab should searchable [2081](https://github.com/GMOD/Apollo/pull/2081)
 - Allow upload of blat data from web-services [2209](https://github.com/GMOD/Apollo/pull/2209)
 - Added citation and documentation link to help menu [2243](https://github.com/GMOD/Apollo/pull/2243)
 - Allow update of organism via rest API [2227](https://github.com/GMOD/Apollo/pull/2227)
@@ -154,7 +163,7 @@ Features
 Bug Fixes
 
 - Fixed color by type error [2203](https://github.com/GMOD/Apollo/issues/2203)
-- Find all organisms creates exception when organism does not exist [2275](https://github.com/GMOD/Apollo/issues/2275) 
+- Find all organisms creates exception when organism does not exist [2275](https://github.com/GMOD/Apollo/issues/2275)
 - Fixed bug where in the track web-service that hides genomic element that is overlapped by a larger genomic element [2255](https://github.com/GMOD/Apollo/issues/2275)
 - Fixed errors with remote services organism info update [2248](https://github.com/GMOD/Apollo/pull/2248)
 - Numerous GO annotation fixes [2229](https://github.com/GMOD/Apollo/pull/2229),  [2233](https://github.com/GMOD/Apollo/pull/2233), [2171](https://github.com/GMOD/Apollo/issues/2171)
@@ -170,7 +179,7 @@ Infrastructure Changes
 - Allowed for Node 12 [2274](https://github.com/GMOD/Apollo/issues/2274)
 - Reorder of documentation into multiple layers, moving user's guide into local [documentation / read the doc](https://genomearchitect.readthedocs.io/en/latest/).
 - Added web-services tests using arrow's [python-apollo](https://github.com/galaxy-genome-annotation/python-apollo) from the [galaxy-genome-annoation](https://galaxyproject.org/use/gga/) group [2285](https://github.com/GMOD/Apollo/issues/2285).
- 
+
 
 ## 2.4.0
 
@@ -194,11 +203,11 @@ Infrastructure Changes
 - Integrated Docker into the Apollo repository directly so that `latest` is always the current snapshot and `stable` is always the latest release. [2184](https://github.com/GMOD/Apollo/issues/2184)
 - Upgrade to [JBrowse 1.16.5](https://github.com/GMOD/jbrowse/releases/tag/1.16.5-release)
 - Added script to delete features by name and unique name [2138](https://github.com/GMOD/Apollo/issues/2138)
- 
+
  Bug Fixes
- 
-- Fix issue with rendering neat features [2063](https://github.com/GMOD/Apollo/pull/2063) 
-- Fix issue with creating annotations for reads with indels in them [2085](https://github.com/GMOD/Apollo/pull/2085) 
+
+- Fix issue with rendering neat features [2063](https://github.com/GMOD/Apollo/pull/2063)
+- Fix issue with creating annotations for reads with indels in them [2085](https://github.com/GMOD/Apollo/pull/2085)
 - Fixes error when changing annotation type when status is set [2167](https://github.com/GMOD/Apollo/issues/2167)
 - Fixes for variant search in annotator panel [2147](https://github.com/GMOD/Apollo/issues/2147)
 - Fixed bug where `txtz` is not supported when adding a gnome feature [2136](https://github.com/GMOD/Apollo/issues/2136)
@@ -210,7 +219,7 @@ Infrastructure Changes
 - Fixed bug where unable to drag features when the new inferHTMLSubfeatures is fals [2099](https://github.com/GMOD/Apollo/issues/2099)
 - Unable to create variants in some cases [2103](https://github.com/GMOD/Apollo/issues/2103)
 
- 
+
 
 ## 2.3.1
 
@@ -294,7 +303,7 @@ Features
 - Allow fetching variant data from evidence tracks via web service [#1867](https://github.com/GMOD/Apollo/pull/1867)
 - Recognized dot notation from JBrowse / Apollo [#1839](https://github.com/GMOD/Apollo/issues/1839)
 - Allow setting default native track to true [#1848](https://github.com/GMOD/Apollo/pull/1848)
-- Provide [sample data](https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md#adding-sample-data) (and links in doc)[#1817](https://github.com/GMOD/Apollo/pull/1817) 
+- Provide [sample data](https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md#adding-sample-data) (and links in doc)[#1817](https://github.com/GMOD/Apollo/pull/1817)
 
 
 Bug Fixes
@@ -318,7 +327,7 @@ Features
 - Added sequence API [#1799](https://github.com/GMOD/Apollo/pull/1799)
 - Added ability to remove gridlines from the view menu in both light and dark themes [#1547](https://github.com/GMOD/Apollo/pull/1547)
 
-Bug Fixes 
+Bug Fixes
 
 - Fixed bug when flipping strand fails to flip the strand of the owning gene [#1769](https://github.com/GMOD/Apollo/issues/1769)
 - Fixes to track services to allow remote jbrowse tracks and jsonz [#1767](https://github.com/GMOD/Apollo/issues/1767)
@@ -366,7 +375,7 @@ Bug Fixes
 - Fixed bug that now allows leading start non-M codons in organisms with non-standard code to be translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
 - Updated GWT code to fix a bug that prevented Apollo from generating URLs appropriately - pipes were not being encoded. [#1606](https://github.com/GMOD/Apollo/pull/1606)
 - Fixed bug in the calculation of open reading frames for the negative strand for the purpose of coloring each exon according to the CDS. Exported sequences had been - and remain - correctly generated. [#1629](https://github.com/GMOD/Apollo/issues/1629)
-- Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
+- Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631)
 - Restored _'Pin to top'_ and _'Delete track'_ functionality for tracks with ```HTMLFeatures```. [#1632](https://github.com/GMOD/Apollo/issues/1632)
 - Fixed cascade bug when changing annotation type for an annotation that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
 - Apollo client being initialized twice in some instances. [#1742](https://github.com/GMOD/Apollo/issues/1742)
@@ -406,7 +415,7 @@ Bug Fixes
 
 ## 2.0.5
 
-Features 
+Features
 
 + Increase UI and performance by calling setCurrentSequenceLocation less aggressively #1007
 + Various performance improvements #1272,#1276
@@ -425,7 +434,7 @@ Features
 + Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 #1075
 + Delete expired preferences #1368
 + Location URLs are now encapsulated in links #1361
-+ Bumped default JBrowse version 
++ Bumped default JBrowse version
 
 
 Bug Fixes
@@ -532,7 +541,7 @@ Bug Fixes
 + Fixed a bug where `targetURL` was not preserved properly through login in loadLink and Reports page (#1058).
 + Fixed a bug where user/group selection drop-down goes the wrong direction (#1066).
 + Fixed a bug where creating a pseudogene, repeat region or transposable element from a Canvas feature track led to an error (#1077).
-+ Fixed a bug when creating a non-coding Transcript owner was not set and the username was not being displayed when hovering (#1085). 
++ Fixed a bug when creating a non-coding Transcript owner was not set and the username was not being displayed when hovering (#1085).
 
 ## 2.0.2
 
@@ -606,9 +615,9 @@ Bug Fixes
 + Fixed a bug that made certain annotation operations slow down over time (#555).
 + Fixed a bug that made changing the location of the organisms's data directory cause problems (#567).
 + Fixed a bug that occured when splitting and merging a transcript back together again (#588).
-+ Fixed a bug that prevented multiple values for an attribute in the Information Editor (#579). 
++ Fixed a bug that prevented multiple values for an attribute in the Information Editor (#579).
 + Fixed a bug preventing features with long names (#580).
-+ Fixed a bug where a closed track in the genome browser was not showing up as un-checked in the side-panel (#554). 
++ Fixed a bug where a closed track in the genome browser was not showing up as un-checked in the side-panel (#554).
 + Fixed a bug where the group permissions where not being displayed correctly on the Group panel (#664).
 
 
@@ -625,7 +634,7 @@ Bug Fixes
 
 + Fixed multiple bugs having to do with sequence alterations (#534, #531, #458, #456).
 + Fixed logout for multiple windows on the same browser (#480).
-+ JBrowse only mode not listening to websockets (#537).  
++ JBrowse only mode not listening to websockets (#537).
 
 
 ## 2.0.0-RC5
@@ -636,13 +645,13 @@ Features
 
 Bug Fixes
 
-+ History operations fail when setting acceptor / donor (#530). 
++ History operations fail when setting acceptor / donor (#530).
 
 ## 2.0.0-RC4
 Features
 
 + Optimized transcript merging (#529).
-+ Added "add_comment", "add_attribute", "set_status" to the web services API (#492). 
++ Added "add_comment", "add_attribute", "set_status" to the web services API (#492).
 + Add an interim export panel (#78).
 + Added google analytics integration (#146).
 
@@ -762,7 +771,7 @@ Bug Fixes
 + Fixed "Previous" button on sequence page to update datagrid appropriately (#176).
 + Fixed "Show track labels" feature that was causing feature labels to go offscreen (#179).
 + Renamed "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
-+ Fixed mislabeled column in "Changes" page (#169). 
++ Fixed mislabeled column in "Changes" page (#169).
 + Fixed "Add sequence search track" function not matching amino acid queries (#168).
 + Fixed bad layout on "Changes" page (#180).
 + Fixed plus/minus strand filters making bigwig score go to zero (#181).
@@ -772,7 +781,7 @@ Bug Fixes
 
 ## 1.0.3 release
 
-Features 
+Features
 
 + Added ability to view GFF3 for individual annotations
 
@@ -789,9 +798,9 @@ Bug Fixes
 + Fixed GFF3 and FASTA export where no annotations existed (#62)
 + Fixed where genome insertion trigers recalculate CDS on non-coding features (#30)
 
-## 1.0.2 release 
+## 1.0.2 release
 
-Features: 
+Features:
 
 + Using JBrowse 1.11.5
 + Make subfeature unresizable after it becomes unselected
@@ -955,4 +964,3 @@ Features:
 + Improved interface for adding insertions and deletions
 + Option to hide plus and/or minus strand
 + Various bugfixes
-
