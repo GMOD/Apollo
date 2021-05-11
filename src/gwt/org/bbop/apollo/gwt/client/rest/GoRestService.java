@@ -69,10 +69,7 @@ public class GoRestService {
             }
             goAnnotation.setWithOrFromList(withOrFromList);
 
-
-
-
-
+            
             List<String> notesList = new ArrayList<>();
             JSONArray notesJsonArray = goAnnotationObject.get("notes").isArray();
             if(notesJsonArray==null){

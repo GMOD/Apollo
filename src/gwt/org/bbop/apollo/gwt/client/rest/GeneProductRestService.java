@@ -69,7 +69,6 @@ public class GeneProductRestService {
             }
             geneProduct.setNoteList(notesList);
             geneProductList.add(geneProduct);
-//            GeneProductRestService.saveGeneProduct(requestCallback, geneProduct);
         }
         return geneProductList;
     }
