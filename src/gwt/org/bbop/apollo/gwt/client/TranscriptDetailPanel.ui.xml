@@ -61,6 +61,7 @@
                 <b:Button ui:field="syncNameButton" icon="REFRESH" enabled="true" text="Sync name with gene"
                           addStyleNames="{style.action-buttons}"/>
                 <b:InlineCheckBox ui:field="obsoleteButton">Obsolete</b:InlineCheckBox>
+                <b:Button ui:field="uploadAnnotationButton" icon="UPLOAD">Annotations</b:Button>
                 <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
                           text="Delete" pull="RIGHT"
                           ui:field="deleteAnnotation" enabled="true"

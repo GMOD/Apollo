@@ -20,7 +20,6 @@ public class ProvenanceConverter {
 //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
 //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
 //                    "[\"adf:12312\"]"
-    GWT.log(object.toString());
     provenance.setId(Math.round(object.get("id").isNumber().doubleValue()));
     provenance.setFeature(object.get("feature").isString().stringValue());
     provenance.setField(object.get("field").isString().stringValue());
@@ -71,7 +70,7 @@ public class ProvenanceConverter {
     object.put("field", new JSONString(provenance.getField()));
     object.put("evidenceCode", new JSONString(provenance.getEvidenceCode()));
     object.put("evidenceCodeLabel", new JSONString(provenance.getEvidenceCodeLabel()));
-    object.put("reference", new JSONString(provenance.getReference().getReferenceString()));
+    object.put("reference", new JSONString(provenance.getReference() !=null ? provenance.getReference().getReferenceString():""));
 
     JSONArray notesArray = new JSONArray();
     if(provenance.getNoteList()!=null && provenance.getNoteList().size()>0){
@@ -84,8 +83,10 @@ public class ProvenanceConverter {
     // TODO: finish this
     JSONArray withArray = new JSONArray();
 
-    for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
-      withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+    if(provenance.getWithOrFromList()!=null){
+      for (WithOrFrom withOrFrom : provenance.getWithOrFromList()) {
+        withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
+      }
     }
 
     object.put("withOrFrom", withArray);

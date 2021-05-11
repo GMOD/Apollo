@@ -2,6 +2,7 @@
 
 Features
 
+- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617).
 - Added a "topLevel" option to the "getFeatures" web services endpoint that
   causes the endpoint to return top-level (e.g. gene) features.
 
