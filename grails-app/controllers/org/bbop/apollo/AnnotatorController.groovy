@@ -1166,6 +1166,9 @@ class AnnotatorController {
             provenanceArrayList.add(provenance)
         }
 
+        /**
+         * Adds history
+         */
 
 //        JSONArray oldFeaturesJsonArray = new JSONArray()
 //        oldFeaturesJsonArray.add(originalFeatureJsonObject)
