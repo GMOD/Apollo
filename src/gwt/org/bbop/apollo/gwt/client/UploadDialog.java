@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
@@ -47,6 +46,9 @@ public class UploadDialog extends Modal {
       " \"gene_product\": [{\"notes\":\"[\\\"Sample\\\"]\",\"evidenceCodeLabel\":\"IBA (ECO:0000318): inferred from biological aspect of ancestor\",\"alternate\":true,\"evidenceCode\":\"ECO:0000318\",\"id\":1,\"productName\":\"AQP1\"},{\"reference\":\"PMID:21873635\",\"notes\":\"[]\",\"evidenceCodeLabel\":\"IBA (ECO:0000318): inferred from biological aspect of ancestor\",\"alternate\":false,\"evidenceCode\":\"ECO:0000318\",\"id\":2,\"productName\":\"FAM20A\"}],\n" +
       " \"provenance\": [{\"notes\":\"[]\",\"field\":\"TYPE\",\"evidenceCodeLabel\":\"HDA (ECO:0007005): inferred from high throughput direct assay\",\"evidenceCode\":\"ECO:0007005\",\"id\":1},{\"reference\":\"PMID:79972\",\"notes\":\"[\\\"test\\\",\\\"note\\\"]\",\"field\":\"SYNONYM\",\"evidenceCodeLabel\":\"IEP (ECO:0000270): inferred from expression pattern\",\"evidenceCode\":\"ECO:0000270\",\"id\":2}]\n" +
       "}" ;
+    final String EXAMPLE_ANNOTATION_GO_ONLY= "{" +
+      " \"go_annotations\":[{\"geneRelationship\":\"RO:0002331\",\"goTerm\":\"GO:1901560\",\"notes\":\"[\\\"ExampleNote2\\\",\\\"ExampleNote1\\\"]\",\"evidenceCodeLabel\":\"HDA (ECO:0007005): inferred from high throughput direct assay\",\"negate\":false,\"aspect\":\"BP\",\"goTermLabel\":\"response to purvalanol A (GO:1901560) \",\"evidenceCode\":\"ECO:0007005\",\"id\":1},{\"reference\":\"PMID:Example\",\"geneRelationship\":\"RO:0002327\",\"goTerm\":\"GO:0051018\",\"notes\":\"[\\\"ExampleNote\\\"]\",\"evidenceCodeLabel\":\"TAS (ECO:0000304): traceable author statement\",\"negate\":false,\"aspect\":\"MF\",\"goTermLabel\":\"protein kinase A binding (GO:0051018) \",\"evidenceCode\":\"ECO:0000304\",\"id\":2}]\n" +
+      "}" ;
 
     public UploadDialog(final AnnotationInfo annotationInfo) {
         setSize(ModalSize.LARGE);
@@ -74,7 +76,7 @@ public class UploadDialog extends Modal {
             }
         });
         modalHeader.add(exampleLink);
-        Button exampleLinkEmptyRef = new Button("Example Annotation Empty Ref");
+        Button exampleLinkEmptyRef = new Button("Example Empty Reference");
         exampleLinkEmptyRef.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -82,6 +84,14 @@ public class UploadDialog extends Modal {
             }
         });
         modalHeader.add(exampleLinkEmptyRef);
+        Button exampleLinkGoOnly= new Button("Example GO Only");
+        exampleLinkGoOnly.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                textArea.setText(EXAMPLE_ANNOTATION_GO_ONLY);
+            }
+        });
+        modalHeader.add(exampleLinkGoOnly);
 
 
         Button applyAnnotationsButton = new Button("Apply Annotations");
@@ -95,14 +105,14 @@ public class UploadDialog extends Modal {
                     public void callback(boolean result) {
                         if(result){
                             JSONObject annotationsObject = JSONParser.parseStrict(textArea.getText()).isObject();
-                            JSONArray goAnnotations = annotationsObject.get(FeatureStringEnum.GO_ANNOTATIONS.getValue()).isArray();
+
+                            JSONArray goAnnotations = annotationsObject.containsKey(FeatureStringEnum.GO_ANNOTATIONS.getValue()) ?annotationsObject.get(FeatureStringEnum.GO_ANNOTATIONS.getValue()).isArray() : new JSONArray();
                             List<GoAnnotation> goAnnotationList = GoRestService.generateGoAnnotations(annotationInfo,goAnnotations);
 
-                            JSONArray geneProducts = annotationsObject.get(FeatureStringEnum.GENE_PRODUCT.getValue()).isArray();
+                            JSONArray geneProducts = annotationsObject.containsKey(FeatureStringEnum.GENE_PRODUCT.getValue()) ? annotationsObject.get(FeatureStringEnum.GENE_PRODUCT.getValue()).isArray() : new JSONArray();
                             List<GeneProduct> geneProductList = GeneProductRestService.generateGeneProducts(annotationInfo,geneProducts);
 
-
-                            JSONArray provenances = annotationsObject.get(FeatureStringEnum.PROVENANCE.getValue()).isArray();
+                            JSONArray provenances = annotationsObject.containsKey(FeatureStringEnum.PROVENANCE.getValue()) ? annotationsObject.get(FeatureStringEnum.PROVENANCE.getValue()).isArray() : new JSONArray();
                             List<Provenance> provenanceList = ProvenanceRestService.generateProvenances(annotationInfo,provenances);
 
 

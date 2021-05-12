@@ -3,7 +3,7 @@
 
 Features
 
-- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617).
+- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617),[2618](https://github.com/GMOD/Apollo/pull/2618).
 
 
 ## 2.6.4 

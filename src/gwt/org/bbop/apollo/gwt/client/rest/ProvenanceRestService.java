@@ -73,7 +73,6 @@ public class ProvenanceRestService {
                 notesList.add(notesJsonArray.get(j).isString().stringValue());
             }
             provenance.setNoteList(notesList);
-//            ProvenanceRestService.saveProvenance(requestCallback, provenance);
             provenanceList.add(provenance);
         }
         return provenanceList;

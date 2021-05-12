@@ -63,16 +63,13 @@ public class GoRestService {
                 }
             }
             else{
-                String jsonString = "["+Reference.UNKNOWN + ":" + Reference.NOT_PROVIDED +"]";
+                String jsonString = Reference.UNKNOWN + ":" + Reference.NOT_PROVIDED;
                 withOrFromList.add(new WithOrFrom(jsonString));
 
             }
             goAnnotation.setWithOrFromList(withOrFromList);
 
-
-
-
-
+            
             List<String> notesList = new ArrayList<>();
             JSONArray notesJsonArray = goAnnotationObject.get("notes").isArray();
             if(notesJsonArray==null){
