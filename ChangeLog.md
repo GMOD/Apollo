@@ -5,6 +5,10 @@ Features
 
 - Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617),[2618](https://github.com/GMOD/Apollo/pull/2618).
 
+Bug Fix
+
+- Removed deprecation from SequenceController.sequenceByName [2619](https://github.com/GMOD/Apollo/pull/2619).
+
 
 ## 2.6.4 
 
