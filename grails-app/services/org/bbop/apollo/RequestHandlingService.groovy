@@ -670,6 +670,10 @@ class RequestHandlingService {
         }
         log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
+        Boolean topLevel = false
+        if (inputObject.has('topLevel')) {
+            topLevel = new Boolean(inputObject.topLevel)
+        }
         def features = Feature.createCriteria().listDistinct {
             featureLocations {
                 eq('sequence', sequence)
@@ -696,7 +700,7 @@ class RequestHandlingService {
             fetchMode 'parentFeatureRelationships.childFeature.featureProperties', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
-            'in'('class', viewableAnnotationTranscriptList + viewableAnnotationFeatureList + viewableSequenceAlterationList)
+            'in'('class', (topLevel ? viewableAnnotationTranscriptParentList : viewableAnnotationTranscriptList) + viewableAnnotationFeatureList + viewableSequenceAlterationList)
         }
 
 

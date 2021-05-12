@@ -465,6 +465,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sequence name")
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
+            , @RestApiParam(name = "topLevel", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Whether to return top-level (e.g. gene) features, default false")
     ])
     def getFeatures() {
         JSONObject returnObject = permissionService.handleInput(request, params)
