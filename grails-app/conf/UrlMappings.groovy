@@ -41,7 +41,8 @@ class UrlMappings {
 
         "/sequence/${organismString}/?loc=${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
         "/sequence/${organismString}/${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
-        "/sequence/${organismString}/${sequenceName}/${featureName}.${type}"(controller: "sequence", action: "sequenceByName",[params:params])
+        // mapping not found
+//        "/sequence/sequenceByName/${organismString}/${sequenceName}/${featureName}.${type}"(controller: "sequence", action: "sequenceByName",[params:params])
         "/sequence/cache/clear/${organismName}/${sequenceName}"(controller: "sequence", action: "clearSequenceCache")
         "/sequence/cache/clear/${organismName}"(controller: "sequence", action: "clearOrganismCache")
 

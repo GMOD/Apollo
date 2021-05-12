@@ -2,11 +2,13 @@
 
 Features
 
-- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617).
+- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617),[2618](https://github.com/GMOD/Apollo/pull/2618).
 - Added a "topLevel" option to the "getFeatures" web services endpoint that
   causes the endpoint to return top-level (e.g. gene) features.
 
 Bug Fixes
+
+- Removed deprecation from SequenceController.sequenceByName [2619](https://github.com/GMOD/Apollo/pull/2619).
 
 Infrastructure Changes
 
