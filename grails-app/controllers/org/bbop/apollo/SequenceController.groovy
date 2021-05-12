@@ -250,7 +250,7 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "GET /sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>, POST /sequence/sequenceByLocation", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
@@ -260,6 +260,8 @@ class SequenceController {
     ])
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
+
+        println "sequence by location "
 
         // handle post data
         def inputJSON = request.JSON as JSONObject
@@ -304,7 +306,7 @@ class SequenceController {
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/sequenceByName", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
