@@ -60,8 +60,7 @@ COPY docker-files/build.sh /bin/build.sh
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 RUN chown -R apollo:apollo /apollo
 
-# install grails and python libraries
-USER apollo
+# install python libraries
 
 # fix for pip install decode error
 # RUN locale-gen en_US.UTF-8
@@ -73,6 +72,9 @@ ENV LANGUAGE=en_US.UTF-8
 RUN pip3 install setuptools
 RUN pip3 install wheel
 RUN pip3 install nose apollo==4.2.10
+
+# install grails
+USER apollo
 
 RUN curl -s get.sdkman.io | bash && \
 	/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5" && \
