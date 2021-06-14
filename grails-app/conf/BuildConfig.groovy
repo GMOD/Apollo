@@ -56,7 +56,8 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
 
-        mavenRepo "http://repo.grails.org/grails/core"
+        mavenRepo "https://repo.grails.org/artifactory/core/"
+        mavenRepo "https://repo.grails.org/artifactory/plugins/"
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -198,4 +199,3 @@ grails.project.dependency.resolution = {
 //    version="2.7.0"
 //    gin.version = '2.1.2'
 //}
-
