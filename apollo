@@ -165,7 +165,7 @@ function check_configs(){
            : "${JAVA_HOME?:Need to set JAVA_HOME}"
             grails_executable="./grailsw"
        else
-           echo "Using system grails `$grails_executable  -v | cut -f4 -d' '`";
+           echo "Using system grails `$grails_executable  --version | cut -f4 -d' '`";
        fi
     fi
 
