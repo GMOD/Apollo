@@ -8,12 +8,14 @@ import com.google.gwt.json.client.*;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.AnnotatorPanel;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
-import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
+import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.shared.provenance.Provenance;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -160,5 +162,10 @@ public class AnnotationRestService extends RestService {
     url += "&statusString=" ;
     sendRequest(requestCallback, url);
 
+  }
+
+  public static JSONObject addFunctionalAnnotations(RequestCallback requestCallback, JSONObject jsonObject) {
+    RestService.sendRequest(requestCallback,"annotator/addFunctionalAnnotations","data="+jsonObject.toString());
+    return jsonObject;
   }
 }

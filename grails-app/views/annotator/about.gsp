@@ -40,7 +40,7 @@
 <nav class="navbar navbar-custom" role="navigation">
     <div class="navbar-header">
         <div class="container-fluid">
-            <a class="navbar-brand" href="http://genomearchitect.org/" target="_blank">
+            <a class="navbar-brand" href="https://genomearchitect.readthedocs.io//" target="_blank">
                 <g:img style="padding: 0;margin: -18px; height:53px;" id="logo" file="ApolloLogo_100x36.png"/>
             </a>
         </div>

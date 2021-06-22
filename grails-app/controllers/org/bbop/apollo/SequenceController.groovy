@@ -250,7 +250,7 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "GET /sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>, POST /sequence/sequenceByLocation", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
@@ -260,6 +260,8 @@ class SequenceController {
     ])
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
+
+        println "sequence by location "
 
         // handle post data
         def inputJSON = request.JSON as JSONObject
@@ -304,7 +306,7 @@ class SequenceController {
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/sequenceByName", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
@@ -312,7 +314,6 @@ class SequenceController {
             , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
-    @Deprecated
     @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 
@@ -351,7 +352,6 @@ class SequenceController {
         }
 
         Feature feature = Feature.findByUniqueName(featureName)
-        println "feature name: $featureName"
         if (!feature) {
             def features = Feature.findAllByName(featureName)
 
@@ -366,13 +366,9 @@ class SequenceController {
             }
         }
 
-        println "found a feature: $feature"
-
         if (feature) {
             String sequenceString = sequenceService.getSequenceForFeature(feature, type)
-            println "A: ${sequenceString?.trim()} .. $type"
             if(sequenceString?.trim()){
-                println "B"
                 render sequenceString
                 sequenceService.cacheRequest(sequenceString, organismString, sequenceName, featureName, type, paramMap)
                 return
@@ -393,7 +389,7 @@ class SequenceController {
         JSONObject organismJson = permissionService.handleInput(request, params)
         // if global admin
         Organism organism = Organism.findByCommonName(organismName) ?: Organism.findById(organismName as Long)
-        if (permissionService.hasGlobalPermissions(organismJson,GlobalPermissionEnum.ADMIN) || checkPermission(organismName)){
+        if (organism && permissionService.hasGlobalPermissions(organismJson,GlobalPermissionEnum.ADMIN) || checkPermission(organismName)){
             int removed = SequenceCache.countByOrganismNameAndSequenceName(organismName, sequenceName)
             SequenceCache.deleteAll(SequenceCache.findAllByOrganismNameAndSequenceName(organismName, sequenceName))
             render new JSONObject(removed: removed) as JSON

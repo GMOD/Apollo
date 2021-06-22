@@ -4,6 +4,8 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
@@ -20,6 +22,8 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
+
+import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
@@ -1066,6 +1070,127 @@ class AnnotatorController {
         }
         exportService.export(params.format, response.outputStream, annotatorGroupList, fields, labels, formatters, parameters)
     }
+
+
+    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "data", type = "json strong", paramType = RestApiParamType.QUERY, description = "JSON of go annotations, gene products , and provenance to be added at once (see upload annotations in interface)")
+    ]
+    )
+    def addFunctionalAnnotations(){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "input data object ${dataObject as JSON}"
+        if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
+            render status : UNAUTHORIZED
+            return
+        }
+        User user = permissionService.getCurrentUser(dataObject)
+        Feature feature = null
+//        JSONObject originalFeatureJsonObject = null
+
+        List<GoAnnotation> goAnnotationList = []
+        List<GeneProduct> geneProductArrayList = []
+        List<Provenance> provenanceArrayList = []
+
+        JSONArray goArray = dataObject.getJSONArray(FeatureStringEnum.GO_ANNOTATIONS.value)
+        for(JSONObject object in goArray){
+            if(feature==null){
+                feature = Feature.findByUniqueName(object.feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            }
+            GoAnnotation goAnnotation = new GoAnnotation()
+            goAnnotation.feature = feature
+            goAnnotation.aspect = object.aspect
+            goAnnotation.goRef = object.goTerm
+            goAnnotation.geneProductRelationshipRef = object.geneRelationship
+            goAnnotation.evidenceRef = object.evidenceCode
+            goAnnotation.goRefLabel = object.goTermLabel
+            goAnnotation.evidenceRefLabel = object.evidenceCodeLabel
+            goAnnotation.negate = object.negate ?: false
+            goAnnotation.withOrFromArray = object.withOrFrom
+            goAnnotation.notesArray = object.notes
+            goAnnotation.reference = object.reference
+            goAnnotation.lastUpdated = new Date()
+            goAnnotation.dateCreated = new Date()
+            goAnnotation.addToOwners(user)
+            feature.addToGoAnnotations(goAnnotation)
+            goAnnotation.save(failOnError: true)
+            goAnnotationList.add(goAnnotation)
+        }
+
+        JSONArray geneProductArray = dataObject.getJSONArray(FeatureStringEnum.GENE_PRODUCT.value)
+        for(JSONObject object in geneProductArray){
+            if(feature==null){
+                feature = Feature.findByUniqueName(object.feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            }
+            GeneProduct geneProduct = new GeneProduct()
+            geneProduct.feature = feature
+            geneProduct.productName = object.productName
+            geneProduct.evidenceRef = object.evidenceCode
+            geneProduct.evidenceRefLabel = object.evidenceCodeLabel
+            geneProduct.alternate = object.alternate ?: false
+            geneProduct.withOrFromArray = object.withOrFrom
+            geneProduct.notesArray = object.notes
+            geneProduct.reference = object.reference
+            geneProduct.lastUpdated = new Date()
+            geneProduct.dateCreated = new Date()
+            geneProduct.addToOwners(user)
+            feature.addToGeneProducts(geneProduct)
+            geneProduct.save(failOnError: true)
+            GeneProductName.findOrSaveByName(geneProduct.productName)
+            geneProductArrayList.add(geneProduct)
+        }
+
+        JSONArray provenanceArray = dataObject.getJSONArray(FeatureStringEnum.PROVENANCE.value)
+        for(JSONObject object in provenanceArray){
+            if(feature==null){
+                feature = Feature.findByUniqueName(object.feature)
+//                originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            }
+            Provenance provenance = new Provenance()
+            provenance.feature = feature
+            provenance.field = object.field
+            provenance.evidenceRef = object.evidenceCode
+            provenance.evidenceRefLabel = object.evidenceCodeLabel
+            provenance.withOrFromArray = object.withOrFrom
+            provenance.notesArray = object.notes
+            provenance.reference = object.reference
+            provenance.lastUpdated = new Date()
+            provenance.dateCreated = new Date()
+            provenance.addToOwners(user)
+            feature.addToProvenances(provenance)
+            provenance.save(failOnError: true)
+            provenanceArrayList.add(provenance)
+        }
+
+        /**
+         * Adds history
+         */
+
+//        JSONArray oldFeaturesJsonArray = new JSONArray()
+//        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+//        JSONArray newFeaturesJsonArray = new JSONArray()
+//        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+//        newFeaturesJsonArray.add(currentFeatureJsonObject)
+//        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_BULK_FUNCTIONAL_ANNOTATIONS,
+//                feature.name,
+//                feature.uniqueName,
+//                dataObject,
+//                oldFeaturesJsonArray,
+//                newFeaturesJsonArray,
+//                user)
+
+        if(feature==null){
+            render new JSONObject() as JSON
+            return
+        }
+        render feature as JSON
+    }
+
+
 
     @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [

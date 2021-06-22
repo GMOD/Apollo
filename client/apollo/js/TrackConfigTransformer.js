@@ -1,5 +1,5 @@
 /**
- *  TrackConfigTransformer takes JBrowse track.config object and, if needed, 
+ *  TrackConfigTransformer takes JBrowse track.config object and, if needed,
  *      modifies in place to use WebApollo-specific track types, etc.
  */
 define( [ 'dojo/_base/declare' ],
@@ -9,7 +9,7 @@ return declare( null, {
 
 
 constructor: function( args )  {
-   
+
     this.transformers=[];
     var browser=args.browser;
     this.overridePlugins=browser.config.overridePlugins;
@@ -32,6 +32,11 @@ constructor: function( args )  {
         trackConfig.type = "WebApollo/View/Track/WebApolloNeatCanvasFeatures";
     };
 
+    this.transformers["BlastView/View/Track/CanvasFeatures"] = function(trackConfig) {
+        // trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
+        trackConfig.type = "WebApollo/View/Track/WebApolloNeatCanvasFeatures";
+    };
+
     this.transformers["JBrowse/View/Track/HTMLVariants"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLVariants";
     };
@@ -43,12 +48,12 @@ constructor: function( args )  {
     this.transformers["JBrowse/View/Track/Sequence"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/AnnotSequenceTrack";
         trackConfig.storeClass = "WebApollo/Store/SeqFeature/ScratchPad";
-        trackConfig.style = { className: "{type}", 
+        trackConfig.style = { className: "{type}",
                               uniqueIdField : "id" };
         trackConfig.compress = 0;
         trackConfig.subfeatures = 1;
     };
-    
+
     this.transformers["JBrowse/View/Track/Alignments"] = function(trackConfig) {
         if(!trackConfig.overrideDraggable&&!browser.config.overrideDraggable) {
             trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
@@ -70,7 +75,7 @@ transform: function(trackConfig) {
         transformer(trackConfig);
     }
 }
-                    
+
 });
 
 });

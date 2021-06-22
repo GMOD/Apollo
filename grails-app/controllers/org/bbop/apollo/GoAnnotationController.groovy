@@ -84,7 +84,7 @@ class GoAnnotationController {
       return
     }
     User user = permissionService.getCurrentUser(dataObject)
-      GoAnnotation goAnnotation = new GoAnnotation()
+    GoAnnotation goAnnotation = new GoAnnotation()
     Feature feature = Feature.findByUniqueName(dataObject.feature)
 
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)

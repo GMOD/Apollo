@@ -267,7 +267,6 @@ public class ExportPanel extends Modal {
     public Div parseStatus(String status) {
         Div div = new Div();
         JSONObject jsonObject = JSONParser.parseStrict(status).isObject();
-        GWT.log(jsonObject.toString());
         for(String key : jsonObject.keySet()) {
             div.add(new Paragraph(key + ": " + jsonObject.get(key).toString().replaceAll("\"", "")));
         }

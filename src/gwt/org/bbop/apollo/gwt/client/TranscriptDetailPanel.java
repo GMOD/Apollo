@@ -75,6 +75,8 @@ public class TranscriptDetailPanel extends Composite {
     InlineCheckBox partialMax;
     @UiField
     InlineCheckBox obsoleteButton;
+    @UiField
+    Button uploadAnnotationButton;
 
     private Boolean editable = false;
 
@@ -193,6 +195,11 @@ public class TranscriptDetailPanel extends Composite {
 
         RestService.sendRequest(requestCallback, "annotator/updatePartials/", data);
 
+    }
+
+    @UiHandler("uploadAnnotationButton")
+    void uploadAnnotation(ClickEvent clickEvent){
+       new UploadDialog(internalAnnotationInfo) ;
     }
 
     @UiHandler("annotationIdButton")

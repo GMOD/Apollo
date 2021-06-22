@@ -4,6 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -11,8 +12,13 @@ import com.google.gwt.user.client.ui.Anchor;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.ProvenanceConverter;
+import org.bbop.apollo.gwt.shared.provenance.Reference;
+import org.bbop.apollo.gwt.shared.provenance.WithOrFrom;
 import org.bbop.apollo.gwt.shared.provenance.Provenance;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ndunn on 1/14/15.
@@ -20,6 +26,57 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 public class ProvenanceRestService {
 
     static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
+
+    public static List<Provenance> generateProvenances(AnnotationInfo annotationInfo, JSONArray provenances){
+        List<Provenance> provenanceList = new ArrayList<>();
+        for(int i = 0 ; i < provenances.size() ; i++){
+            JSONObject provenanceObject = provenances.get(i).isObject();
+
+            Provenance provenance = new Provenance();
+            provenance.setFeature(annotationInfo.getUniqueName());
+            provenance.setField(provenanceObject.get("field").isString().stringValue());
+
+            provenance.setEvidenceCode(provenanceObject.get("evidenceCode").isString().stringValue());
+            provenance.setEvidenceCodeLabel(provenanceObject.get("evidenceCodeLabel").isString().stringValue());
+
+            if(provenanceObject.containsKey("reference")){
+                String[] referenceString = provenanceObject.get("reference").isString().stringValue().split(":");
+                Reference reference = new Reference(referenceString[0], referenceString[1]);
+                provenance.setReference(reference);
+            }
+            else{
+                provenance.setReference(Reference.createEmptyReference());
+            }
+
+            List<WithOrFrom> withOrFromList = new ArrayList<>();
+
+            if(provenanceObject.containsKey("withOrFrom")) {
+                JSONArray goWithOrFromArray = provenanceObject.get("withOrFrom").isArray();
+                if (goWithOrFromArray == null) {
+                    String goWithString = provenanceObject.get("withOrFrom").isString().stringValue();
+                    goWithOrFromArray = JSONParser.parseStrict(goWithString).isArray();
+                }
+                for (int j = 0; j < goWithOrFromArray.size(); j++) {
+                    WithOrFrom withOrFrom = new WithOrFrom(goWithOrFromArray.get(j).isString().stringValue());
+                    withOrFromList.add(withOrFrom);
+                }
+                provenance.setWithOrFromList(withOrFromList);
+            }
+
+            List<String> notesList = new ArrayList<>();
+            JSONArray notesJsonArray = provenanceObject.get("notes").isArray();
+            if(notesJsonArray==null){
+                String notes = provenanceObject.get("notes").isString().stringValue();
+                notesJsonArray = JSONParser.parseStrict(notes).isArray();
+            }
+            for(int j = 0 ; j < notesJsonArray.size() ; j++){
+                notesList.add(notesJsonArray.get(j).isString().stringValue());
+            }
+            provenance.setNoteList(notesList);
+            provenanceList.add(provenance);
+        }
+        return provenanceList;
+    }
 
     public static void saveProvenance(RequestCallback requestCallback, Provenance provenance) {
         RestService.sendRequest(requestCallback, "provenance/save", "data=" + ProvenanceConverter.convertToJson(provenance).toString());
