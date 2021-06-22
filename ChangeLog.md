@@ -2,13 +2,16 @@
 
 Features
 
-- Added method to upload bulk functional annotations from JSON in the interface [2617](https://github.com/GMOD/Apollo/pull/2617),[2618](https://github.com/GMOD/Apollo/pull/2618).
+- Added method to upload bulk functional annotations from JSON in the interface. [2617](https://github.com/GMOD/Apollo/pull/2617),[2618](https://github.com/GMOD/Apollo/pull/2618)
 - Added a "topLevel" option to the "getFeatures" web services endpoint that
-  causes the endpoint to return top-level (e.g. gene) features.
+  causes the endpoint to return top-level (e.g. gene) features. [2616](https://github.com/GMOD/Apollo/pull/2616)
 
 Bug Fixes
 
-- Removed deprecation from SequenceController.sequenceByName [2619](https://github.com/GMOD/Apollo/pull/2619).
+- Removed deprecation from SequenceController.sequenceByName. [2619](https://github.com/GMOD/Apollo/pull/2619)
+- Fix contextual menu for blastview tracks. Thanks @abretaud. [2621](https://github.com/GMOD/Apollo/pull/2621)
+- Make Python libraries installed globally in Docker image. [2622](https://github.com/GMOD/Apollo/pull/2622)
+- Update mavenRepo to fix error grails server error during build, see [grails/grails-core#11825](https://github.com/grails/grails-core/issues/11825). [2624](https://github.com/GMOD/Apollo/pull/2624)
 
 Infrastructure Changes
 
