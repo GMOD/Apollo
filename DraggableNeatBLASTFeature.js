@@ -15,7 +15,7 @@ define( [
 
 
 var DraggableNeatBLASTFeatures = declare( [NeatFeatureTrack,HTMLFeatureTrack],{
-constructor: function(args)  {  }
+constructor: function(args)  {  },
  
     bitscore_color: function (bitscore) {
        var colors = ["#5e5e5e","#53739c","#508f62","#845e93","#bd4939"];
