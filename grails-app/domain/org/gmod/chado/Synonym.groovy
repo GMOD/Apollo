@@ -21,6 +21,7 @@ featureSynonyms: FeatureSynonym
     }
 
     static constraints = {
+        synonymSgml nullable: true
 //        searchableSynonymSgml nullable: true
     }
 }
