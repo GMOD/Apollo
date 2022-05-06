@@ -116,8 +116,8 @@
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
                     <b:TextBox stylePrimaryName="{style.location-button}" enabled="false" ui:field="locationField"/>
                     <b:InputGroupAddon>Partial:</b:InputGroupAddon>
-                    <b:InlineCheckBox ui:field="partialMin" addStyleNames="{style.partial-button}">3'</b:InlineCheckBox>
-                    <b:InlineCheckBox ui:field="partialMax" addStyleNames="{style.partial-button}">5'</b:InlineCheckBox>
+                    <b:InlineCheckBox ui:field="partialMin" addStyleNames="{style.partial-button}">fmin</b:InlineCheckBox>
+                    <b:InlineCheckBox ui:field="partialMax" addStyleNames="{style.partial-button}">fmax</b:InlineCheckBox>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
