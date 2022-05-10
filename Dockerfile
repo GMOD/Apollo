@@ -1,5 +1,5 @@
 # Apollo2.X
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 MAINTAINER Nathan Dunn GH @nathandunn
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -34,7 +34,7 @@ RUN curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o
 	chmod +x /usr/local/bin/blat && \
 	curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/faToTwoBit" -o /usr/local/bin/faToTwoBit && \
 	chmod +x /usr/local/bin/faToTwoBit && \
-	wget --quiet https://github.com/erasche/chado-schema-builder/releases/download/1.31-jenkins26/chado-1.31.sql.gz -O /chado.sql.gz && \
+	wget --quiet https://github.com/galaxy-genome-annotation/chado-schema-builder/releases/download/1.31-jenkins26/chado-1.31.sql.gz -O /chado.sql.gz && \
 	gunzip /chado.sql.gz
 
 #NOTE, we had problems with the build the archive-file coming in from github so using a clone instead

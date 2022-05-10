@@ -51,7 +51,7 @@ For example:
 
 NOTE: If you don't use a locally mounted PostgreSQL database (e.g., creating an empty directory and mounting using `-v postgres-data:/var/lib/postgresql`)
 or [set appropriate environment variables](https://docs.docker.com/engine/reference/commandline/run/) for a remote database 
-( see variables [defined here](https://github.com/GMOD/apollo/blob/master/launch.sh)) your annotations and setup may not be persisted.
+( see variables [defined here](https://github.com/GMOD/Apollo/blob/develop/docker-files/launch.sh)) your annotations and setup may not be persisted.
 
 
 

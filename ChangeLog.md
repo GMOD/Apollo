@@ -1,3 +1,15 @@
+## 2.6.6
+
+Features
+
+- Update Docker container to use Ubuntu 20.04 as the base image (was 18.04). Thanks @christabone. [2645](https://github.com/GMOD/Apollo/pull/2645)
+
+Bug Fixes
+
+- Fix typo in Docker docs. Thanks @christabone. [2638](https://github.com/GMOD/Apollo/pull/2638)
+- Use `fmin` and `fmax` instead of `3'` and `5'` in the UI when marking feature ends as partial. This more accurately reflects how Apollo stores the data about partials. [2646](https://github.com/GMOD/Apollo/pull/2646)
+
+
 ## 2.6.5
 
 Features

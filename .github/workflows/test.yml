@@ -12,6 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12'
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -20,4 +24,3 @@ jobs:
       run: chmod +x gradlew
     - name: Build and test with Gradle
       run: ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
-
