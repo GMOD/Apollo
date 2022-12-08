@@ -44,7 +44,6 @@ grails.project.dependency.resolution = {
      excludes "grails-plugin-log4j", "grails-plugin-logging", "log4j"
     }
 
-    log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // whether to verify checksums on resolve
     legacyResolve false
     // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
@@ -68,6 +67,11 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
+
+
+        runtime 'org.apache.logging.log4j:log4j-api:2.19.0'
+        runtime 'org.apache.logging.log4j:log4j-core:2.19.0'
+        runtime 'org.apache.logging.log4j:log4j-1.2-api:2.19.0'
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         runtime 'mysql:mysql-connector-java:5.1.29'
         runtime 'org.postgresql:postgresql:9.4.1212'
@@ -133,7 +137,6 @@ grails.project.dependency.resolution = {
         compile(":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }
-        compile ":audit-logging:1.0.3"
 
         // Uncomment these to enable additional asset-pipeline capabilities
         //compile ":sass-asset-pipeline:1.9.0"
@@ -163,7 +166,6 @@ grails.project.dependency.resolution = {
         //}
         compile ":yammer-metrics:3.0.1-2"
         compile "org.grails.plugins:quartz2:2.1.6.2"
-        compile "org.grails.plugins:export:1.6"
 
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests
