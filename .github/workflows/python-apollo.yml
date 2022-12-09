@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8.7]
+        python-version: [3.8.8]
     steps:
       - name: Checkout Apollo
         uses: actions/checkout@v2
