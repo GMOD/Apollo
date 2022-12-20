@@ -6,7 +6,10 @@ jobs:
   test-python-apollo:
     name: test-python-apollo
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.8.7]
     steps:
       - name: Checkout Apollo
         uses: actions/checkout@v2
@@ -24,9 +27,9 @@ jobs:
           echo "Done sleeping, I hope it is working"
           curl -i 'http://localhost:8080/apollo/annotator/system'
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.8.7'
+          python-version: ${{ matrix.python-version }}
       - name: Checkout Pypi
         uses: actions/checkout@v2
         with:
