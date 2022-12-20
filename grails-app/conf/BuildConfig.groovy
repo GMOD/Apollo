@@ -137,6 +137,7 @@ grails.project.dependency.resolution = {
         compile(":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }
+        compile ":audit-logging:1.0.3"
 
         // Uncomment these to enable additional asset-pipeline capabilities
         //compile ":sass-asset-pipeline:1.9.0"
