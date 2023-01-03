@@ -6,7 +6,7 @@ jobs:
   test-python-apollo:
     name: test-python-apollo
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.8.7]
@@ -84,5 +84,3 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
-

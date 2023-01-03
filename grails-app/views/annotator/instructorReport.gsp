@@ -3,7 +3,6 @@
 <html>
 <head>
     <meta name="layout" content="report">
-    <export:resource />
     <title>Annotators</title>
 
     <script>
@@ -34,8 +33,6 @@
         <div class="groupHeader">
             <p>Group: ${userGroup.name}</p>
         </div>
-        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup.id]"> </export:formats>
-        </p>
 
         <table class="reportTable">
         <thead>
