@@ -1,3 +1,15 @@
+## 2.7.0
+
+Features
+
+- Add info icon with tooltip describing meaning of fmin and fmax in "Partial". @garrettjstevens. [2649](https://github.com/GMOD/Apollo/pull/2649).
+
+Infrastructure Changes
+
+- Upgrade Log4j to 2.19.0. Thanks @cmdcolin. [2654](https://github.com/GMOD/Apollo/pull/2654).
+  - Due to this change, export of instructor reports is no longer available
+
+
 ## 2.6.6
 
 Features
