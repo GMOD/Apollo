@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.8.7]
+        python-version: [3.9]
     steps:
       - name: Checkout Apollo
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         run: |
           pwd
           cd python-apollo
-          pip install -U pip setuptools nose apollo
+          pip install "setuptools==68.2.2" nose apollo
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
