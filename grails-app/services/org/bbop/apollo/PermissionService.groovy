@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.authc.CredentialsException
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
@@ -514,28 +515,23 @@ class PermissionService {
         Session session = SecurityUtils.subject.getSession(false)
         if (!session) {
             // login with jsonObject username and password
-            log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            log.debug "creating session with found json object ${jsonObject.username}"
             if (!jsonObject.username) {
-                log.error "Username not supplied so can not authenticate."
-                jsonObject.error_message = "Username not supplied so can not authenticate."
-                return jsonObject
+                throw new CredentialsException("Username not supplied so can not authenticate.")
+            }
+            if (!jsonObject.password) {
+                throw new CredentialsException("Password not supplied so can not authenticate.")
             }
 
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
 
-            try {
-                Subject subject = SecurityUtils.getSubject()
-                subject.getSession(true)
+            Subject subject = SecurityUtils.getSubject()
+            subject.getSession(true)
 
-                subject.login(authToken)
-                if (!subject.authenticated) {
-                    log.warn "Failed to authenticate user ${jsonObject.username}"
-                    jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
-                    return jsonObject
-                }
-            } catch (Exception ae) {
-                log.error("Problem authenticating: " + ae.fillInStackTrace())
-                jsonObject.error_message = "Problem authenticating: " + ae.fillInStackTrace()
+            subject.login(authToken)
+            if (!subject.authenticated) {
+                log.warn "Failed to authenticate user ${jsonObject.username}"
+                jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
                 return jsonObject
             }
         } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
@@ -619,34 +615,28 @@ class PermissionService {
             return false
         }
         */
-        try {
-            String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-            // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
-            jsonObject = validateSessionForJsonObject(jsonObject)
-            Organism organism = getOrganismFromInput(jsonObject)
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
+        jsonObject = validateSessionForJsonObject(jsonObject)
+        Organism organism = getOrganismFromInput(jsonObject)
 
-            if(clientToken!=FeatureStringEnum.IGNORE.value){
-                organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
-            }
-            // don't set the preferences if it is coming off a script
-            if (clientToken != FeatureStringEnum.IGNORE.value) {
-                preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
-            }
-            if(organism){
-                return checkPermissions(jsonObject, organism, permissionEnum)
-            }
-            else{
-                // make sure we have permissionsEnum for at least one organism
-                String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
-                User user = User.findByUsername(username)
-                List<PermissionEnum> permissionEnums = getAllPermissionsForUser(user)
-                PermissionEnum highestValue = findHighestEnum(permissionEnums)
-                return highestValue.rank >= permissionEnum.rank
-            }
-
-        } catch (e) {
-            log.warn(e)
-            return false
+        if(clientToken!=FeatureStringEnum.IGNORE.value){
+            organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+        }
+        // don't set the preferences if it is coming off a script
+        if (clientToken != FeatureStringEnum.IGNORE.value) {
+            preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
+        }
+        if(organism){
+            return checkPermissions(jsonObject, organism, permissionEnum)
+        }
+        else{
+            // make sure we have permissionsEnum for at least one organism
+            String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
+            User user = User.findByUsername(username)
+            List<PermissionEnum> permissionEnums = getAllPermissionsForUser(user)
+            PermissionEnum highestValue = findHighestEnum(permissionEnums)
+            return highestValue.rank >= permissionEnum.rank
         }
 
     }

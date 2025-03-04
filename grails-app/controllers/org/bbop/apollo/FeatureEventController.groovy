@@ -48,6 +48,12 @@ class FeatureEventController {
     ])
     def findChanges() {
         JSONObject inputObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!permissionService.hasGlobalPermissions(inputObject, org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN)) {
             render status: org.springframework.http.HttpStatus.UNAUTHORIZED
             return

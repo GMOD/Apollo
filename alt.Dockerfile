@@ -62,20 +62,7 @@ RUN ls /apollo
 
 COPY docker-files/build.sh /bin/build.sh
 ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
-RUN <<EOF
-mkdir /var/lib/postgresql
-mkdir /data
-
-chown -R apollo:apollo /apollo
-chown -R apollo:apollo ${CATALINA_BASE}
-chown -R apollo:apollo ${CATALINA_HOME}
-chown -R apollo:apollo /var/run/postgresql
-chown -R apollo:apollo /var/lib/postgresql
-chown -R apollo:apollo /etc/tomcat9
-chown -R apollo:apollo /var/log/tomcat9
-chown -R apollo:apollo /var/cache/tomcat9
-chown -R apollo:apollo  /data
-EOF
+RUN chown -R apollo:apollo /apollo
 
 # install python libraries
 
@@ -102,11 +89,12 @@ curl -s https://get.sdkman.io | bash
 
 /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
 
+USER root
 # remove from webapps and copy it into a staging directory
 rm -rf ${CATALINA_BASE}/webapps/*
 cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
 EOF
 
 ADD docker-files/createenv.sh /createenv.sh
-ADD docker-files/launch.sh /launch.sh
+ADD docker-files/alt-launch.sh /launch.sh
 CMD ["/launch.sh"]
