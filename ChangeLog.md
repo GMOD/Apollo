@@ -1,3 +1,13 @@
+## 2.8.0
+
+Bug Fixes
+
+- Security fixes
+
+Infrastructure Changes
+
+- Upgrade to [JBrowse 1.16.12](https://github.com/GMOD/jbrowse/releases/tag/1.16.12-release)
+
 ## 2.7.0
 
 Features
