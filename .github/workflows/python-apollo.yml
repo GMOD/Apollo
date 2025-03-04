@@ -41,7 +41,7 @@ jobs:
           pwd
           cd python-apollo
           pip install "setuptools==68.2.2" nose apollo
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -69,7 +69,7 @@ jobs:
           export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
           python setup.py nosetests
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -78,7 +78,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Cache local Maven repository
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
