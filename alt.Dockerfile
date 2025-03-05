@@ -88,9 +88,11 @@ curl -s https://get.sdkman.io | bash
 /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1"
 
 /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+EOF
 
 USER root
 # remove from webapps and copy it into a staging directory
+RUN <<EOF
 rm -rf ${CATALINA_BASE}/webapps/*
 cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
 EOF
