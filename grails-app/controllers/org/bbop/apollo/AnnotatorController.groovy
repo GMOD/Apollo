@@ -224,6 +224,12 @@ class AnnotatorController {
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(data,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -346,6 +352,12 @@ class AnnotatorController {
     def updatePartials() {
         log.debug "update partials  ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(data,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -410,6 +422,12 @@ class AnnotatorController {
     )
     def setExonBoundaries() {
         JSONObject data = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(data,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -826,6 +844,13 @@ class AnnotatorController {
     @RestApiMethod(description = "Get system info", path = "/system", verb = RestApiVerb.GET)
     @RestApiParams(params = [])
     def system() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         def jsonObject = new JSONObject()
         jsonObject.apollo_version = grails.util.Metadata.current['app.version']
         jsonObject.grails_version = GroovySystem.getVersion()
@@ -861,6 +886,12 @@ class AnnotatorController {
     @Transactional
     String updateCommonPath() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         JSONObject returnObject = new JSONObject()
         String directory = dataObject.directory
 
@@ -884,6 +915,13 @@ class AnnotatorController {
     @RestApiMethod(description = "Get system info", path = "/getSystemInfo", verb = RestApiVerb.POST)
     @Transactional(readOnly  = true )
     String getSystemInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         log.debug "Getting the common data path"
         JSONObject returnObject = new JSONObject()
 
@@ -1081,6 +1119,12 @@ class AnnotatorController {
     )
     def addFunctionalAnnotations(){
         JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         println "input data object ${dataObject as JSON}"
         if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
             render status : UNAUTHORIZED
@@ -1202,6 +1246,12 @@ class AnnotatorController {
     )
     def getAnnotatorsReportForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return

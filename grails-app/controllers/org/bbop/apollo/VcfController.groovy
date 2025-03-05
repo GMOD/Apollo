@@ -44,6 +44,13 @@ class VcfController {
             @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default: false).  Use cache for request, if available."),
     ])
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type, boolean includeGenotypes) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if(!trackService.checkPermission(request, response, organismString)) return
 
         JSONArray featuresArray = new JSONArray()

@@ -31,11 +31,11 @@ class FileService {
      */
     List<String> decompress(File archiveFile, String path, String directoryName = null, boolean tempDir = false) {
         // decompressing
-        if (archiveFile.name.contains(".zip")) {
+        if (archiveFile.name.endsWith(".zip")) {
             return decompressZipArchive(archiveFile, path, directoryName, tempDir)
-        } else if (archiveFile.name.contains(".tar.gz") || archiveFile.name.contains(".tgz")) {
+        } else if (archiveFile.name.endsWith(".tar.gz") || archiveFile.name.endsWith(".tgz")) {
             return decompressTarArchive(archiveFile, path, directoryName, tempDir)
-        } else if (archiveFile.name.contains(".gz")) {
+        } else if (archiveFile.name.endsWith(".gz")) {
             return decompressGzipArchive(archiveFile, path, directoryName, tempDir)
         } else {
             throw new IOException("Cannot detect format (either *.zip, *.tar.gz or *.tgz) for file: ${archiveFile.name}")
@@ -47,10 +47,13 @@ class FileService {
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
         TarArchiveEntry entry
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
-            if(entry.name.contains("trackList.json")){
-                String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
-                log.debug "found path ${foundPath}"
-                return foundPath
+            if(entry.name.endsWith("trackList.json")){
+                Path entryPath = Paths.get(entry.name)
+                if (!entryPath.normalize().startsWith('..')) {
+                    String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
+                    log.debug "found path ${foundPath}"
+                    return foundPath
+                }
             }
         }
         log.debug "trackList.json not included in the archive"
@@ -61,8 +64,13 @@ class FileService {
         ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, new FileInputStream(zipFile))
         ZipArchiveEntry entry
         while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
-            if(entry.name.contains("trackList.json")){
-                return entry.name.substring(0,entry.name.length() - "trackList.json".length())
+            if(entry.name.endsWith("trackList.json")){
+                Path entryPath = Paths.get(entry.name)
+                if (!entryPath.normalize().startsWith('..')) {
+                    String foundPath = entry.name.substring(0,entry.name.length() - "trackList.json".length())
+                    log.debug "found path ${foundPath}"
+                    return foundPath
+                }
             }
         }
         log.debug "trackList.json not included in the archive"

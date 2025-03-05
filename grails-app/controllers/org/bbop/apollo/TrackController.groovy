@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -51,6 +52,13 @@ class TrackController {
     ])
     @Transactional
     def clearTrackCache(String organismName, String trackName) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!trackService.checkPermission(request, response, organismName)) return
         int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName and tc.trackName = :trackName",[commonName:organismName,trackName: trackName])
         render new JSONObject(removed: removed) as JSON
@@ -62,6 +70,13 @@ class TrackController {
     ])
     @Transactional
     def clearOrganismCache(String organismName) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (organismName.toLowerCase().equals("all") && permissionService.isAdmin()) {
             log.info "Deleting cache for all organisms"
             JSONArray jsonArray = new JSONArray()
@@ -87,6 +102,13 @@ class TrackController {
     ])
     @Transactional
     def getTracks(String organismName) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!trackService.checkPermission(request, response, organismName)) return
         render trackService.getAllTracks(organismName) as JSON
     }
@@ -104,6 +126,13 @@ class TrackController {
     ])
     @Transactional
     def featuresByName(String organismString, String trackName, String sequence, String featureName, String type) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!trackService.checkPermission(request, response, organismString)) return
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -201,6 +230,13 @@ class TrackController {
     ])
     @Transactional
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(requestObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
         if (!trackService.checkPermission(request, response, organismString)) return
 
         Set<String> nameSet = getNames(params.name ? params.name : "")
