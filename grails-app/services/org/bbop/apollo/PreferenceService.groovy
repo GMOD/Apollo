@@ -700,7 +700,8 @@ class PreferenceService {
                 organism = Organism.first()
             }
             if (!organism) {
-                throw new PermissionException("User does not have permission for any organisms.")
+                log.warn("Not able to get organism preference")
+                return null
             }
 
 //            sequence = sequence ?: Sequence.findByOrganism(organism, [sort: "end", order: "desc", max: 1])
