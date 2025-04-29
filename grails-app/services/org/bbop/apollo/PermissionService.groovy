@@ -624,7 +624,7 @@ class PermissionService {
             organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
         }
         // don't set the preferences if it is coming off a script
-        if (clientToken != FeatureStringEnum.IGNORE.value) {
+        if (clientToken != FeatureStringEnum.IGNORE.value && organism) {
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
         }
         if(organism){
