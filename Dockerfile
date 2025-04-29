@@ -31,9 +31,9 @@ curl -sL https://deb.nodesource.com/setup_12.x | bash -
 apt-get -qq update --fix-missing
 apt-get --no-install-recommends -y install nodejs
 
-curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o /usr/local/bin/blat
+curl -s "https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v385/blat/blat" -o /usr/local/bin/blat
 chmod +x /usr/local/bin/blat
-curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/faToTwoBit" -o /usr/local/bin/faToTwoBit
+curl -s "https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v385/faToTwoBit" -o /usr/local/bin/faToTwoBit
 chmod +x /usr/local/bin/faToTwoBit
 wget --quiet https://github.com/galaxy-genome-annotation/chado-schema-builder/releases/download/1.31-jenkins26/chado-1.31.sql.gz -O /chado.sql.gz
 gunzip /chado.sql.gz
