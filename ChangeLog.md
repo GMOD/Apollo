@@ -1,3 +1,10 @@
+## 2.8.1
+
+Bug Fixes
+
+- Fix not being able to see or add users in the UI when no organisms have been added yet. [2666](https://github.com/GMOD/Apollo/pull/2666).
+- Fix blat search not working in Docker image. [2670](https://github.com/GMOD/Apollo/pull/2670).
+
 ## 2.8.0
 
 Bug Fixes

@@ -295,9 +295,11 @@ class UserController {
 
             UserOrganismPreference uop = preferenceService.getCurrentOrganismPreferenceInDB(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
-            uop.nativeTrackList = dataObject.get("tracklist")
-            uop.save(flush: true)
-            log.info "Added userOrganismPreference ${uop.nativeTrackList}"
+            if (uop){
+                uop.nativeTrackList = dataObject.get("tracklist")
+                uop.save(flush: true)
+                log.info "Added userOrganismPreference ${uop.nativeTrackList}"
+            }
             render new JSONObject() as JSON
         }
         catch (Exception e) {
