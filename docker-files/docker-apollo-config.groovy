@@ -1,7 +1,11 @@
 println "WEBAPOLLO environment"
 System.getenv().each {
     if (it.key.contains("APOLLO") || it.key.contains("CHADO")) {
-        println it.key + " " + it.value
+        if (it.key.contains("PASSWORD") && it.value) {
+            println it.key + " ***"
+        } else {
+            println it.key + " " + it.value
+        }
     }
 }
 
