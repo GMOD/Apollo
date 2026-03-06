@@ -1,0 +1,1258 @@
+[
+  {
+    "strand": -1,
+    "children": [
+      {
+        "strand": -1,
+        "children": [
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9136932,
+            "type": "exon",
+            "fmax": 9137144,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9136932,
+            "type": "three_prime_UTR",
+            "fmax": 9136982,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "name": "F23B2.4",
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9136982,
+            "type": "CDS",
+            "fmax": 9137144,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9137198,
+            "type": "CDS",
+            "fmax": 9137559,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9137720,
+            "type": "CDS",
+            "fmax": 9137915,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9138008,
+            "type": "CDS",
+            "fmax": 9138100,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9138147,
+            "type": "CDS",
+            "fmax": 9138286,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9138329,
+            "type": "CDS",
+            "fmax": 9138526,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9138575,
+            "type": "CDS",
+            "fmax": 9138747,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9138803,
+            "type": "CDS",
+            "fmax": 9138970,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9140662,
+            "type": "CDS",
+            "fmax": 9140821,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9140888,
+            "type": "CDS",
+            "fmax": 9141042,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9141098,
+            "type": "CDS",
+            "fmax": 9141559,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9141861,
+            "type": "CDS",
+            "fmax": 9141975,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9142278,
+            "type": "CDS",
+            "fmax": 9142513,
+            "seqId": "IV"
+          },
+          {
+            "phase": 2,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9142592,
+            "type": "CDS",
+            "fmax": 9142758,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9143197,
+            "type": "CDS",
+            "fmax": 9143489,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9143594,
+            "type": "CDS",
+            "fmax": 9143814,
+            "seqId": "IV"
+          },
+          {
+            "phase": 2,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9143946,
+            "type": "CDS",
+            "fmax": 9144067,
+            "seqId": "IV"
+          },
+          {
+            "phase": 1,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9144142,
+            "type": "CDS",
+            "fmax": 9144258,
+            "seqId": "IV"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "source": "WormBase",
+            "id": "CDS:F23B2.4",
+            "fmin": 9146140,
+            "type": "CDS",
+            "fmax": 9146196,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9137144,
+            "type": "intron",
+            "fmax": 9137198,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9137198,
+            "type": "exon",
+            "fmax": 9137559,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9137559,
+            "type": "intron",
+            "fmax": 9137720,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9137720,
+            "type": "exon",
+            "fmax": 9137915,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9137915,
+            "type": "intron",
+            "fmax": 9138008,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138008,
+            "type": "exon",
+            "fmax": 9138100,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138100,
+            "type": "intron",
+            "fmax": 9138147,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138147,
+            "type": "exon",
+            "fmax": 9138286,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138286,
+            "type": "intron",
+            "fmax": 9138329,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138329,
+            "type": "exon",
+            "fmax": 9138526,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138526,
+            "type": "intron",
+            "fmax": 9138575,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138575,
+            "type": "exon",
+            "fmax": 9138747,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138747,
+            "type": "intron",
+            "fmax": 9138803,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138803,
+            "type": "exon",
+            "fmax": 9138970,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9138970,
+            "type": "intron",
+            "fmax": 9140662,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9140662,
+            "type": "exon",
+            "fmax": 9140821,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9140821,
+            "type": "intron",
+            "fmax": 9140888,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9140888,
+            "type": "exon",
+            "fmax": 9141042,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9141042,
+            "type": "intron",
+            "fmax": 9141098,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9141098,
+            "type": "exon",
+            "fmax": 9141559,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9141559,
+            "type": "intron",
+            "fmax": 9141861,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9141861,
+            "type": "exon",
+            "fmax": 9141975,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9141975,
+            "type": "intron",
+            "fmax": 9142278,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9142278,
+            "type": "exon",
+            "fmax": 9142513,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9142513,
+            "type": "intron",
+            "fmax": 9142592,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9142592,
+            "type": "exon",
+            "fmax": 9142758,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9142758,
+            "type": "intron",
+            "fmax": 9143197,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9143197,
+            "type": "exon",
+            "fmax": 9143489,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9143489,
+            "type": "intron",
+            "fmax": 9143594,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9143594,
+            "type": "exon",
+            "fmax": 9143814,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9143814,
+            "type": "intron",
+            "fmax": 9143946,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9143946,
+            "type": "exon",
+            "fmax": 9144067,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9144067,
+            "type": "intron",
+            "fmax": 9144142,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9144142,
+            "type": "exon",
+            "fmax": 9144258,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9144258,
+            "type": "intron",
+            "fmax": 9146140,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9146140,
+            "type": "exon",
+            "fmax": 9146210,
+            "seqId": "IV"
+          },
+          {
+            "strand": -1,
+            "source": "WormBase",
+            "fmin": 9146196,
+            "type": "five_prime_UTR",
+            "fmax": 9146210,
+            "seqId": "IV"
+          }
+        ],
+        "name": "F23B2.4",
+        "source": "WormBase",
+        "id": "Transcript:F23B2.4",
+        "fmin": 9136932,
+        "type": "mRNA",
+        "fmax": 9146210,
+        "seqId": "IV"
+      },
+      [
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9137203,
+                  "type": "exon",
+                  "fmax": 9137224,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.21",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.21",
+              "fmin": 9137203,
+              "type": "piRNA",
+              "fmax": 9137224,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00165937",
+          "source": "WormBase",
+          "id": "Gene:WBGene00165937",
+          "fmin": 9137203,
+          "type": "gene",
+          "fmax": 9137224,
+          "seqId": "IV"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9139759,
+                  "type": "exon",
+                  "fmax": 9139780,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.29",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.29",
+              "fmin": 9139759,
+              "type": "piRNA",
+              "fmax": 9139780,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00172179",
+          "source": "WormBase",
+          "id": "Gene:WBGene00172179",
+          "fmin": 9139759,
+          "type": "gene",
+          "fmax": 9139780,
+          "seqId": "IV"
+        },
+        {
+          "strand": -1,
+          "children": [
+            {
+              "strand": -1,
+              "children": [
+                {
+                  "strand": -1,
+                  "source": "WormBase",
+                  "fmin": 9139940,
+                  "type": "exon",
+                  "fmax": 9139961,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.22",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.22",
+              "fmin": 9139940,
+              "type": "piRNA",
+              "fmax": 9139961,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00166012",
+          "source": "WormBase",
+          "id": "Gene:WBGene00166012",
+          "fmin": 9139940,
+          "type": "gene",
+          "fmax": 9139961,
+          "seqId": "IV"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9140164,
+                  "type": "exon",
+                  "fmax": 9140185,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.24",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.24",
+              "fmin": 9140164,
+              "type": "piRNA",
+              "fmax": 9140185,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00166781",
+          "source": "WormBase",
+          "id": "Gene:WBGene00166781",
+          "fmin": 9140164,
+          "type": "gene",
+          "fmax": 9140185,
+          "seqId": "IV"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9140414,
+                  "type": "exon",
+                  "fmax": 9140523,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.15",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.15",
+              "fmin": 9140414,
+              "type": "snRNA",
+              "fmax": 9140523,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00004843",
+          "source": "WormBase",
+          "id": "Gene:WBGene00004843",
+          "fmin": 9140414,
+          "type": "gene",
+          "fmax": 9140523,
+          "seqId": "IV"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9141400,
+                  "type": "exon",
+                  "fmax": 9141421,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.26",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.26",
+              "fmin": 9141400,
+              "type": "piRNA",
+              "fmax": 9141421,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00167260",
+          "source": "WormBase",
+          "id": "Gene:WBGene00167260",
+          "fmin": 9141400,
+          "type": "gene",
+          "fmax": 9141421,
+          "seqId": "IV"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144691,
+                  "type": "five_prime_UTR",
+                  "fmax": 9144712,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144691,
+                  "type": "exon",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "name": "F23B2.5a",
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9144712,
+                  "type": "CDS",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9144812,
+                  "type": "CDS",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9145348,
+                  "type": "CDS",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9145487,
+                  "type": "CDS",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9145764,
+                  "type": "CDS",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 1,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5a",
+                  "fmin": 9145907,
+                  "type": "CDS",
+                  "fmax": 9145977,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144766,
+                  "type": "intron",
+                  "fmax": 9144812,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144812,
+                  "type": "exon",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144912,
+                  "type": "intron",
+                  "fmax": 9145348,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145348,
+                  "type": "exon",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145435,
+                  "type": "intron",
+                  "fmax": 9145487,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145487,
+                  "type": "exon",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145607,
+                  "type": "intron",
+                  "fmax": 9145764,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145764,
+                  "type": "exon",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145861,
+                  "type": "intron",
+                  "fmax": 9145907,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145907,
+                  "type": "exon",
+                  "fmax": 9146122,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145977,
+                  "type": "three_prime_UTR",
+                  "fmax": 9146122,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.5a",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.5a",
+              "fmin": 9144691,
+              "type": "mRNA",
+              "fmax": 9146122,
+              "seqId": "IV"
+            },
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144704,
+                  "type": "five_prime_UTR",
+                  "fmax": 9144712,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144704,
+                  "type": "exon",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "name": "F23B2.5b",
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9144712,
+                  "type": "CDS",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9144812,
+                  "type": "CDS",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9145348,
+                  "type": "CDS",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9145520,
+                  "type": "CDS",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9145764,
+                  "type": "CDS",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 1,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5b",
+                  "fmin": 9145907,
+                  "type": "CDS",
+                  "fmax": 9145977,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144766,
+                  "type": "intron",
+                  "fmax": 9144812,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144812,
+                  "type": "exon",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144912,
+                  "type": "intron",
+                  "fmax": 9145348,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145348,
+                  "type": "exon",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145435,
+                  "type": "intron",
+                  "fmax": 9145520,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145520,
+                  "type": "exon",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145607,
+                  "type": "intron",
+                  "fmax": 9145764,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145764,
+                  "type": "exon",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145861,
+                  "type": "intron",
+                  "fmax": 9145907,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145907,
+                  "type": "exon",
+                  "fmax": 9146119,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145977,
+                  "type": "three_prime_UTR",
+                  "fmax": 9146119,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.5b",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.5b",
+              "fmin": 9144704,
+              "type": "mRNA",
+              "fmax": 9146119,
+              "seqId": "IV"
+            },
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "name": "F23B2.5c",
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9144712,
+                  "type": "CDS",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 0,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9144812,
+                  "type": "CDS",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9145348,
+                  "type": "CDS",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9145586,
+                  "type": "CDS",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 2,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9145764,
+                  "type": "CDS",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "phase": 1,
+                  "strand": 1,
+                  "source": "WormBase",
+                  "id": "CDS:F23B2.5c",
+                  "fmin": 9145907,
+                  "type": "CDS",
+                  "fmax": 9145977,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144712,
+                  "type": "exon",
+                  "fmax": 9144766,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144766,
+                  "type": "intron",
+                  "fmax": 9144812,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144812,
+                  "type": "exon",
+                  "fmax": 9144912,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9144912,
+                  "type": "intron",
+                  "fmax": 9145348,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145348,
+                  "type": "exon",
+                  "fmax": 9145435,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145435,
+                  "type": "intron",
+                  "fmax": 9145586,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145586,
+                  "type": "exon",
+                  "fmax": 9145607,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145607,
+                  "type": "intron",
+                  "fmax": 9145764,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145764,
+                  "type": "exon",
+                  "fmax": 9145861,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145861,
+                  "type": "intron",
+                  "fmax": 9145907,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145907,
+                  "type": "exon",
+                  "fmax": 9146119,
+                  "seqId": "IV"
+                },
+                {
+                  "strand": 1,
+                  "source": "WormBase",
+                  "fmin": 9145977,
+                  "type": "three_prime_UTR",
+                  "fmax": 9146119,
+                  "seqId": "IV"
+                }
+              ],
+              "name": "F23B2.5c",
+              "source": "WormBase",
+              "id": "Transcript:F23B2.5c",
+              "fmin": 9144712,
+              "type": "mRNA",
+              "fmax": 9146119,
+              "seqId": "IV"
+            }
+          ],
+          "name": "WBGene00001444",
+          "source": "WormBase",
+          "id": "Gene:WBGene00001444",
+          "fmin": 9144691,
+          "type": "gene",
+          "fmax": 9146122,
+          "seqId": "IV"
+        }
+      ]
+    ],
+    "name": "WBGene00000906",
+    "source": "WormBase",
+    "id": "http://localhost:8080/apollo/track/Caenorhabditis elegans/All Genes/IV/WBGene00000906.json",
+    "fmin": 9136932,
+    "type": "gene",
+    "fmax": 9146210,
+    "seqId": "IV"
+  }
+]
