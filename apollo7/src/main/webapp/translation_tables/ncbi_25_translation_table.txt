@@ -1,0 +1,3 @@
+TGA	G
+TTG	L	start
+GTG	L	start

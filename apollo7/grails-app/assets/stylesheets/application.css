@@ -1,0 +1,55 @@
+/*
+* This is a manifest file that'll be compiled into application.css, which will include all the files
+* listed below.
+*
+* Any CSS file within this directory can be referenced here using a relative path.
+*
+* You're free to add application-wide styles to this file and they'll appear at the top of the
+* compiled file, but it's generally better to create a new file per style scope.
+*
+*= require main
+*= require mobile
+*= require bootstrap
+*= require font-awesome.min.css
+*= require_self
+*/
+
+.apollo-header{
+   background-color: #396494;
+   padding-left: 12px;
+}
+
+.apollo-dropdown{
+   background-color: #ddd;
+}
+
+
+.navbar {
+    margin-bottom: 0px;
+    min-height: 25px;
+}
+
+
+.btn {
+    padding: 3px;
+}
+
+.apollo-home{
+    background-image: url("images/ApolloLogo_100x36.png");
+}
+
+.info-border{
+    border-radius: 20px;
+    border: solid;
+    border-color: darkgray;
+    border-width: 2px;
+    margin: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    /*width: 20%;*/
+    float: left;
+    background-color: #eeeeee;
+}
+

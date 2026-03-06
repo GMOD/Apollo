@@ -1,0 +1,6 @@
+TTG	L	start
+CTG	L	start
+ATT	I	start
+ATC	I	start
+ATA	I	start
+GTG	V	start

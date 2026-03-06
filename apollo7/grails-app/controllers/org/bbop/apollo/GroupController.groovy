@@ -1,0 +1,524 @@
+package org.bbop.apollo
+
+import grails.converters.JSON
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
+import org.springframework.http.HttpStatus
+
+class GroupController {
+
+    def permissionService
+    def preferenceService
+    def groupService
+
+    def getOrganismPermissionsForGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
+        || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        UserGroup group = UserGroup.findById(dataObject.groupId)
+        if (!group) {
+            group = UserGroup.findByName(dataObject.name)
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get organism permissions")
+            render jsonObject as JSON
+            return
+        }
+
+        List<GroupOrganismPermission> groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
+        render groupOrganismPermissions as JSON
+    }
+
+    def loadGroups() {
+        try {
+            log.debug "loadGroups"
+            JSONObject dataObject = permissionService.handleInput(request, params)
+            try {
+                permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+            } catch (e) {
+                def error = [error: e.message]
+                render error as JSON
+            }
+            // allow instructor to view groups
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            JSONArray returnArray = new JSONArray()
+            def allowableOrganisms = permissionService.getOrganisms((User) currentUser)
+
+            Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
+
+            List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
+            for (GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList) {
+                List<GroupOrganismPermission> groupOrganismPermissionListTemp = groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
+                if (groupOrganismPermissionListTemp == null) {
+                    groupOrganismPermissionListTemp = new ArrayList<>()
+                }
+                groupOrganismPermissionListTemp.add(groupOrganismPermission)
+                groupOrganismPermissionMap.put(groupOrganismPermission.group.name, groupOrganismPermissionListTemp)
+            }
+
+            // restricted groups
+            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
+            def filteredGroups =  groups
+
+            // if user is admin, then include all
+            // if group has metadata with the creator or no metadata then include
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
+            if (!permissionService.isUserGlobalAdmin(currentUser)) {
+                log.debug "filtering groups"
+
+                filteredGroups = groups.findAll(){
+                    // permissionService.currentUser is None when accessing by webservice
+                    it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
+                }
+            }
+
+            filteredGroups.each {
+                def groupObject = new JSONObject()
+                groupObject.id = it.id
+                groupObject.name = it.name
+                groupObject.public = it.isPublicGroup()
+                groupObject.numberOfUsers = it.users?.size()
+
+                JSONArray userArray = new JSONArray()
+                it.users.each { user ->
+                    JSONObject userObject = new JSONObject()
+                    userObject.id = user.id
+                    userObject.email = user.username
+                    userObject.firstName = user.firstName
+                    userObject.lastName = user.lastName
+                    userArray.add(userObject)
+                }
+                groupObject.users = userArray
+
+                JSONArray adminArray = new JSONArray()
+                it.admin.each { user ->
+                    JSONObject userObject = new JSONObject()
+                    userObject.id = user.id
+                    userObject.email = user.username
+                    userObject.firstName = user.firstName
+                    userObject.lastName = user.lastName
+                    adminArray.add(userObject)
+                }
+                groupObject.admin = adminArray
+
+                // add organism permissions
+                JSONArray organismPermissionsArray = new JSONArray()
+                def groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
+                List<Long> organismsWithPermissions = new ArrayList<>()
+                for (GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3) {
+                    if (allowableOrganisms.contains(groupOrganismPermission.organism)) {
+                        JSONObject organismJSON = new JSONObject()
+                        organismJSON.organism = groupOrganismPermission.organism.commonName
+                        organismJSON.permissions = groupOrganismPermission.permissions
+                        organismJSON.permissionArray = groupOrganismPermission.permissionValues
+                        organismJSON.groupId = groupOrganismPermission.groupId
+                        organismJSON.id = groupOrganismPermission.id
+                        organismPermissionsArray.add(organismJSON)
+                        organismsWithPermissions.add(groupOrganismPermission.organism.id)
+                    }
+                }
+
+                Set<Organism> organismList = allowableOrganisms.findAll() {
+                    !organismsWithPermissions.contains(it.id)
+                }
+
+                for (Organism organism in organismList) {
+                    JSONObject organismJSON = new JSONObject()
+                    organismJSON.organism = organism.commonName
+                    organismJSON.permissions = "[]"
+                    organismJSON.permissionArray = new JSONArray()
+                    organismJSON.groupId = it.id
+                    organismPermissionsArray.add(organismJSON)
+                }
+
+
+                groupObject.organismPermissions = organismPermissionsArray
+                returnArray.put(groupObject)
+            }
+            render returnArray as JSON
+        }
+        catch (Exception e) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+            def error = [error: e.message]
+            log.error error
+            render error as JSON
+        }
+    }
+
+    @Transactional
+    def createGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        // allow instructor to create Group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        log.info "Creating group"
+        // permissionService.currentUser is None when accessing by webservice
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String[] names = dataObject.name.split(",")
+        log.info( "adding groups ${names as JSON}")
+
+        List<UserGroup> groups = groupService.createGroups(dataObject?.metadata?.toString(), currentUser, names)
+        println "usring add groups ${groups as JSON}"
+
+        if(groups.size()==1){
+            render groups[0] as JSON
+        }
+        else{
+            render groups as JSON
+        }
+    }
+
+    @Transactional
+    def deleteGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+
+      if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+        render status: HttpStatus.UNAUTHORIZED
+        return
+      }
+      def currentUser = permissionService.getCurrentUser(dataObject)
+
+        List<UserGroup> groupList
+        if(dataObject.id){
+            List<Long> ids
+            if(dataObject.id instanceof Integer){
+                ids = [dataObject.id as Integer]
+            }
+            if(dataObject.id instanceof String){
+                ids = dataObject.id.split(',').collect() as Long
+            }
+            groupList = UserGroup.findAllByIdInList(ids)
+        }
+        else
+        if(dataObject.name){
+            List<String> splitGroups = dataObject.name.split(",") as List<String>
+            println splitGroups
+            println splitGroups.size()
+            groupList = UserGroup.findAllByNameInList(splitGroups)
+        }
+        if (!groupList) {
+            def error = [error: "Group ${dataObject.name} not found"]
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+
+        groupService.deleteGroups(dataObject,currentUser,groupList)
+
+        render new JSONObject() as JSON
+    }
+
+    @Transactional
+    def updateGroup() {
+        log.info "Updating group"
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        UserGroup group = UserGroup.findById(dataObject.id)
+        if (!group) {
+            group = UserGroup.findByName(dataObject.name)
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
+            render jsonObject as JSON
+            return
+        }
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+
+        // the only thing that can really change
+        log.info "Updated group ${group.name} to use name ${dataObject.name}"
+        group.name = dataObject.name
+        // also allow update metadata
+        group.metadata = dataObject.metadata?dataObject.metadata.toString():group.metadata
+        group.save(flush: true)
+    }
+
+    /**
+     * Only changing one of the boolean permissions
+     * @return
+     */
+    @Transactional
+    def updateOrganismPermission() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        if (
+            !permissionService.hasGlobalPermissions(dataObject,GlobalPermissionEnum.INSTRUCTOR)
+            || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "Trying to update group organism permissions"
+        GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
+
+
+        UserGroup group
+        if (dataObject.groupId) {
+            group = UserGroup.findById(dataObject.groupId as Long)
+        }
+        if (!group) {
+            group = UserGroup.findByName(dataObject.name)
+        }
+        if (!group) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find group for ${dataObject.name} and ${dataObject.groupId}"] as JSON)
+            return
+        }
+
+        log.debug "Finding organism by ${dataObject.organism}"
+        Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
+        if (!organism) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism for ${dataObject.organism}"] as JSON)
+            return
+        }
+
+
+        log.debug "found ${groupOrganismPermission}"
+        if (!groupOrganismPermission) {
+            groupOrganismPermission = GroupOrganismPermission.findByGroupAndOrganism(group, organism)
+        }
+
+        if (!groupOrganismPermission) {
+            log.debug "creating new permissions! "
+            groupOrganismPermission = new GroupOrganismPermission(
+                    group: group
+                    , organism: organism
+                    , permissions: "[]"
+                    , permissionArray: new JSONArray()
+            ).save(insert: true)
+            log.debug "created new permissions! "
+        }
+
+
+
+        JSONArray permissionsArray = new JSONArray()
+        if (dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())) {
+            permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
+        }
+        if (dataObject.getBoolean(PermissionEnum.WRITE.name())) {
+            permissionsArray.add(PermissionEnum.WRITE.name())
+        }
+        if (dataObject.getBoolean(PermissionEnum.EXPORT.name())) {
+            permissionsArray.add(PermissionEnum.EXPORT.name())
+        }
+        if (dataObject.getBoolean(PermissionEnum.READ.name())) {
+            permissionsArray.add(PermissionEnum.READ.name())
+        }
+
+        if(permissionsArray.size()==0){
+            groupOrganismPermission.delete(flush: true)
+            render groupOrganismPermission as JSON
+            return
+        }
+
+
+        groupOrganismPermission.permissions = permissionsArray.toString()
+        groupOrganismPermission.save(flush: true)
+
+        log.info "Updated permissions for group ${group.name} and organism ${organism?.commonName} and permissions ${permissionsArray?.toString()}"
+
+        render groupOrganismPermission as JSON
+
+    }
+
+    @Transactional
+    def updateMembership() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        // allow global admin, group creator, and group admin to update the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
+                || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
+        ) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+
+        if(dataObject.memberships) {
+
+            def memberships = dataObject.memberships
+
+            memberships.each { membership ->
+                groupService.updateMembership(dataObject,currentUser,membership.groupId,membership.users)
+            }
+        }
+        else{
+            groupService.updateMembership(dataObject,currentUser,dataObject.groupId,dataObject.users)
+        }
+        loadGroups()
+    }
+
+    @Transactional
+    def updateGroupAdmin() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
+
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "Trying to update group admin"
+
+        List<User> oldUsers = groupInstance.admin as List
+        //Fixed bug on passing array through web services: cannot cast String to List
+        JSONArray arr = new JSONArray(dataObject.users)
+        List<String> usernames = new ArrayList<String>()
+        for (int i = 0; i < arr.length(); i++){
+            usernames.add(arr.getString(i))
+        }
+        List<User> newUsers = User.findAllByUsernameInList(usernames)
+        List<User> usersToAdd = newUsers - oldUsers
+        List<User> usersToRemove = oldUsers - newUsers
+        usersToAdd.each {
+            groupInstance.addToAdmin(it)
+            it.addToGroupAdmins(groupInstance)
+            it.save()
+        }
+        usersToRemove.each {
+            groupInstance.removeFromAdmin(it)
+            it.removeFromGroupAdmins(groupInstance)
+            it.save()
+        }
+
+        groupInstance.save(flush: true)
+        log.info "Updated group ${groupInstance.name} admin ${newUsers.join(' ')}"
+        loadGroups()
+    }
+
+    def getGroupAdmin() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            response.status = HttpStatus.UNAUTHORIZED.value()
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONArray returnArray = new JSONArray()
+        def adminList = groupInstance.admin
+        println "admin = ${adminList}"
+        adminList.each {
+            JSONObject user = new JSONObject()
+            user.id = it.id
+            user.firstName = it.firstName
+            user.lastName = it.lastName
+            user.username = it.username
+            returnArray.put(user)
+        }
+
+        render returnArray as JSON
+
+    }
+
+    def getGroupCreator() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        try {
+            permissionService.hasPermissions(dataObject,PermissionEnum.READ)
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            response.status = HttpStatus.UNAUTHORIZED.value()
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONObject metaData = new JSONObject()
+        metaData.creator = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        render metaData as JSON
+
+    }
+
+
+}

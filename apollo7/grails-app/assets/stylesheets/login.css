@@ -1,0 +1,22 @@
+@CHARSET "UTF-8";
+
+.user_login {
+	/* width:30%; */
+	margin:5px;
+}
+
+.fieldname {
+	margin-right:5px;
+	font-size: 1.3em;
+}
+
+.input_field {
+	width: 10em;
+	float: right;
+}
+
+.button_login {
+	text-align:center;
+	margin-top:10px;
+	width: 100%;
+}

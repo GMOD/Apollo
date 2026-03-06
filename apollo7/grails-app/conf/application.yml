@@ -1,0 +1,210 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: org.bbop.apollo
+    gorm:
+        failOnError: true
+        reactor:
+            events: false
+    # BACKWARDS INCOMPATIBILITY: External config loading changed.
+    # In Grails 2, apollo-config.groovy was loaded via grails.config.locations.
+    # In Grails 7/Spring Boot 3, use spring.config.import or
+    # spring.config.additional-location instead.
+    # Users with existing apollo-config.groovy files will need to convert
+    # to application-apollo.yml or application-apollo.properties format,
+    # or use: spring.config.additional-location=file:./apollo-config.yml
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    jmx:
+        unique-names: true
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+    devtools:
+        restart:
+            additional-exclude:
+                - '*.gsp'
+                - '**/*.gsp'
+                - '*.gson'
+                - '**/*.gson'
+                - 'logback-spring.xml'
+                - '*.properties'
+environments:
+    development:
+        management:
+            endpoints:
+                enabled-by-default: true
+                web:
+                    base-path: '/actuator'
+                    exposure:
+                        include: '*'
+    production:
+        management:
+            endpoints:
+                enabled-by-default: false
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            all: '*/*'
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            form: application/x-www-form-urlencoded
+            html:
+              - text/html
+              - application/xhtml+xml
+            js: text/javascript
+            json:
+              - application/json
+              - text/json
+            multipartForm: multipart/form-data
+            pdf: application/pdf
+            rss: application/rss+xml
+            text: text/plain
+            hal:
+              - application/hal+json
+              - application/hal+xml
+            xml:
+              - text/xml
+              - application/xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlet: html
+                taglib: none
+                staticparts: none
+
+# BACKWARDS INCOMPATIBILITY: CORS is now configured via Spring Boot
+# instead of the cors plugin. The old cors.url.pattern = '*' config
+# is replaced by this Spring-native configuration.
+server:
+    servlet:
+        context-path: /apollo
+
+---
+# Apollo application settings
+# BACKWARDS INCOMPATIBILITY: These were previously in Config.groovy under
+# the 'apollo' block. They are now in application.yml. Any custom overrides
+# previously in apollo-config.groovy need to be moved to
+# application-apollo.yml or environment variables.
+apollo:
+    default_minimum_intron_size: 1
+    history_size: 0
+    overlapper_class: "org.bbop.apollo.sequence.OrfOverlapper"
+    track_name_comparator: "/config/track_name_comparator.js"
+    use_cds_for_new_transcripts: false
+    count_annotations: true
+    add_merged_comment: true
+    transcript_overlapper: "CDS"
+    feature_has_dbxrefs: true
+    feature_has_attributes: true
+    feature_has_pubmed_ids: true
+    feature_has_go_ids: true
+    feature_has_comments: true
+    feature_has_status: true
+    export_subfeatures_attr: false
+    user_pure_memory_store: true
+    is_partial_translation_allowed: false
+    export_subfeature_attrs: false
+    store_orig_id: true
+    calculate_non_canonical_splice_sites: true
+    common_data_directory: "apollo_data"
+    chado_export_fasta_for_sequence: false
+    chado_export_fasta_for_cds: false
+    only_owners_delete: false
+    get_translation_code: 1
+    fa_to_twobit_exe: "/usr/local/bin/faToTwoBit"
+    splice_donor_sites:
+        - "GT"
+    splice_acceptor_sites:
+        - "AG"
+    gff3:
+        source: "."
+    bootstrap: false
+    native_track_selector_default_on: false
+
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: true
+        # BACKWARDS INCOMPATIBILITY: Hibernate cache region factory changed.
+        # Old: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+        # Grails 7 uses Spring Boot auto-config for cache region factory.
+    # BACKWARDS INCOMPATIBILITY: flush mode changed.
+    # Old app used manual OSIV flush mode. Grails 7 defaults to COMMIT.
+    # If queries behave differently, check flush mode settings.
+dataSource:
+    pooled: true
+    jmxExport: true
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+
+environments:
+    development:
+        dataSource:
+            dbCreate: update
+            url: jdbc:h2:./devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    test:
+        dataSource:
+            dbCreate: create-drop
+            url: jdbc:h2:mem:testDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    production:
+        dataSource:
+            dbCreate: none
+            # BACKWARDS INCOMPATIBILITY: Production DB is now configured via
+            # environment variables instead of apollo-config.groovy.
+            # Set APOLLO_DB_URL, APOLLO_DB_DRIVER, APOLLO_DB_USERNAME, APOLLO_DB_PASSWORD
+            url: ${APOLLO_DB_URL:}
+            driverClassName: ${APOLLO_DB_DRIVER:org.postgresql.Driver}
+            username: ${APOLLO_DB_USERNAME:}
+            password: ${APOLLO_DB_PASSWORD:}
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT 1
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED

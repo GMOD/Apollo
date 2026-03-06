@@ -1,0 +1,5 @@
+AGA	S
+AGG	S
+ATA	M	start
+TGA	W
+ATT	I	start

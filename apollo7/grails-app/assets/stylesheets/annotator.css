@@ -1,0 +1,126 @@
+/** Add css rules here for your application. */
+/**
+*= require_self
+*= require bootstrap
+*/
+
+/** Example rules used by the template application (remove for your app) */
+h1 {
+    font-size: 2em;
+    font-weight: bold;
+    color: #777777;
+    margin: 40px 0px 70px;
+    text-align: center;
+}
+
+.sendButton {
+    display: block;
+    font-size: 16pt;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+    width: 400px;
+}
+
+.dialogVPanel {
+    margin: 5px;
+}
+
+.serverResponseLabelError {
+    color: red;
+}
+
+#closeButton {
+    margin: 15px 6px 6px;
+}
+
+.details-header {
+    background-color: #cccccc;
+    width: 100%;
+    border-top: 0;
+}
+
+.details-button {
+    display: inline-table;
+    cursor: pointer;
+}
+
+.details-header-title {
+    font-size: larger;
+    width: 20%;
+    margin-left: 10px;
+    text-align: left;
+    font-weight: 200;
+    display: inline-table;
+}
+
+.table-header1 {
+    font-size: large;
+    font-weight: bolder;
+    background-color: #808080;
+}
+
+.detail-table-header1 {
+    font-weight: bolder;
+}
+
+.detail-table-cell {
+    align-content: center;
+    text-align: center;
+}
+
+.selectedTreeItem {
+    background-color: darkgray;
+    color: #808080;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+.gwt-Tree {
+
+}
+
+.gwt-TreeItem {
+    cursor: hand;
+    cursor: pointer;
+}
+
+.gwt-TreeItem-selected {
+    color: black;
+    font-weight: bolder;
+    background-color: darkkhaki;
+}
+
+.dropdown-menu {
+    width: 80px;
+}
+
+.dropdown-menu .item {
+    padding: 5px;
+    width: 80px;
+}
+
+.dropdown-menu .item-selected {
+    background-color: #eee;
+    width: 80px;
+}
+
+.lookup-display {
+    margin-left: 5px;
+    /*margin-right: 5px;*/
+    /*display: inline-table;*/
+    /*background-color: gray;*/
+    /*color: white;*/
+    /*font-size: smaller;*/
+    /*height: 25px;*/
+    /*width: 100px;*/
+}
+
+
