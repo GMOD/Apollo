@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
-import org.apache.shiro.crypto.hash.Sha256Hash
+import org.bbop.apollo.security.Sha256PasswordEncoder
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -297,6 +297,7 @@ class UserController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
@@ -320,6 +321,7 @@ class UserController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
@@ -359,7 +361,7 @@ class UserController {
                     , username: dataObject.email
                     // set metadata got from dataObject, need to convert to String
                     , metadata: dataObject.metadata ? dataObject.metadata.toString() : null
-                    , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
+                    , passwordHash: new Sha256PasswordEncoder().encode(dataObject.newPassword ?: dataObject.password)
             )
             user.save(insert: true)
             // to support webservice, get current user from session or input object
@@ -609,7 +611,7 @@ class UserController {
             user.metadata = dataObject.metadata ? dataObject.metadata.toString() : user.metadata
 
             if (dataObject.newPassword) {
-                user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
+                user.passwordHash = new Sha256PasswordEncoder().encode(dataObject.newPassword)
             }
             // allow accessing from webservice
             // role may be not provided through webservice, so dataObject doesn't have 'role'
@@ -655,6 +657,7 @@ class UserController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.USER)) {
           render status: HttpStatus.UNAUTHORIZED
@@ -680,6 +683,7 @@ class UserController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -750,6 +754,7 @@ class UserController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']

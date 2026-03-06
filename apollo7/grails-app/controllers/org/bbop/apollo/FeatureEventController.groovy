@@ -35,6 +35,7 @@ class FeatureEventController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(inputObject, org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN)) {
             render status: org.springframework.http.HttpStatus.UNAUTHORIZED

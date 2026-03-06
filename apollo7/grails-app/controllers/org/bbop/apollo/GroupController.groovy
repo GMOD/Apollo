@@ -22,6 +22,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
         || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
@@ -53,6 +54,7 @@ class GroupController {
             } catch (e) {
                 def error = [error: e.message]
                 render error as JSON
+                return
             }
             // allow instructor to view groups
             if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -173,6 +175,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         // allow instructor to create Group
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -205,6 +208,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
 
       if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -252,6 +256,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
@@ -292,6 +297,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (
             !permissionService.hasGlobalPermissions(dataObject,GlobalPermissionEnum.INSTRUCTOR)
@@ -380,6 +386,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
 
         def currentUser = permissionService.getCurrentUser(dataObject)
@@ -413,6 +420,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         // to support webservice, get current user from session or input object
@@ -459,6 +467,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         println "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
@@ -498,6 +507,7 @@ class GroupController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         println "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {

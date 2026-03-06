@@ -67,7 +67,7 @@ class NameService {
 
 
     boolean isUniqueGene(Organism organism,String name){
-        return 0 == Gene.executeQuery("select count(g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o = ${organism.id} and g.name = '${name}' ").first() as Integer
+        return 0 == Gene.executeQuery("select count(g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id = :orgId and g.name = :name", [orgId: organism.id, name: name]).first() as Integer
     }
 
     boolean isUnique(Organism organism,String name){

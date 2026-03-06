@@ -5,35 +5,34 @@ upgrade from Grails 2.5.5 to Grails 7.0.7.
 
 ## Critical: Security Framework
 
-### Shiro → Spring Security (NOT YET MIGRATED)
+### Shiro → Spring Security (COMPLETED)
 
-The Apache Shiro plugin for Grails does not exist for Grails 7. The codebase
-currently retains Shiro library dependencies as a transitional measure, but
-the full security stack needs migration to Spring Security Core.
+Apache Shiro has been fully replaced with Spring Security. The migration uses
+Spring Boot's `spring-boot-starter-security` with a custom security configuration.
 
-**What breaks:**
-- `DbRealm.groovy` (Shiro realm) — has no Grails 7 equivalent
-- `SecurityFilters.groovy` → converted to `SecurityInterceptor.groovy` but
-  still references `SecurityUtils.getSubject()` (Shiro API)
-- `PermissionService` uses `SecurityUtils.subject.principal` throughout
-- `LoginController` uses `SecurityUtils.getSubject()`, `subject.login()`,
-  `subject.logout()`, Shiro `SavedRequest`, etc.
-- `AuthenticatingHandshakeHandler` uses Shiro `UsernamePasswordToken`
-- All controllers/services that call `permissionService.isAdmin()` or
-  `permissionService.authenticateWithToken()` go through Shiro
+**What changed:**
+- `SecurityUtils.subject.principal` → `ApolloSecurityUtils.currentUsername`
+  (backed by `SecurityContextHolder`)
+- `SecurityUtils.subject.getSession()` → `ApolloSecurityUtils.getSession()`
+  (backed by `HttpSession` via `RequestContextHolder`)
+- `SecurityUtils.subject.login(token)` → `ApolloSecurityUtils.loginUser()`
+  (sets Spring Security authentication context directly)
+- `SecurityUtils.subject.logout()` → `ApolloSecurityUtils.logout()`
+  (clears security context and invalidates session)
+- `Sha256Hash` (Shiro) → `Sha256PasswordEncoder` (custom, compatible hash format)
+- `UsernamePasswordToken` (Shiro) → username/password strings passed directly
+- `DbRealm.groovy` → removed (authentication done directly in authenticator services)
+- `SecurityConfig.groovy` permits all requests at the Spring Security filter level;
+  access control is handled by Apollo's own `SecurityInterceptor` and `PermissionService`
 
-**Migration path:**
-1. Add `spring-security-core` plugin
-2. Adapt `User`/`Role` domain classes (currently custom, need Spring Security
-   conventions or a custom `UserDetailsService`)
-3. Replace `SecurityUtils.subject.principal` with Spring Security's
-   `SecurityContextHolder.getContext().authentication.name`
-4. Replace `SecurityFilters`/`SecurityInterceptor` with `@Secured` annotations
-   or Spring Security filter chain
-5. Replace `DbRealm` with a `UserDetailsService` implementation
+**Key new files:**
+- `src/main/groovy/org/bbop/apollo/security/ApolloSecurityUtils.groovy` — static utility replacing Shiro's SecurityUtils
+- `src/main/groovy/org/bbop/apollo/security/Sha256PasswordEncoder.groovy` — password encoder compatible with existing hashes
+- `src/main/groovy/org/bbop/apollo/security/SecurityConfig.groovy` — Spring Security configuration
 
-**User impact:** Any custom authenticator plugins or external auth integrations
-will need to be rewritten against Spring Security APIs.
+**User impact:** Custom authenticator plugins or external auth integrations
+that referenced Shiro APIs will need to be rewritten against Spring Security
+APIs or the new `ApolloSecurityUtils` utility class.
 
 ## Critical: External Configuration
 

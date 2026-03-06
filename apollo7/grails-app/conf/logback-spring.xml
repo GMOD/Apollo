@@ -19,6 +19,7 @@
 
     <springProfile name="development">
         <logger name="StackTrace" level="ERROR" />
+        <logger name="org.bbop.apollo" level="DEBUG"/>
 
 <!--        <logger name="Test38" level="DEBUG"/>-->
 

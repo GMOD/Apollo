@@ -46,6 +46,7 @@ class TrackController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismName)) return
         int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName and tc.trackName = :trackName",[commonName:organismName,trackName: trackName])
@@ -60,6 +61,7 @@ class TrackController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (organismName.toLowerCase().equals("all") && permissionService.isAdmin()) {
             log.info "Deleting cache for all organisms"
@@ -88,6 +90,7 @@ class TrackController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismName)) return
         render trackService.getAllTracks(organismName) as JSON
@@ -102,6 +105,7 @@ class TrackController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismString)) return
 
@@ -191,6 +195,7 @@ class TrackController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismString)) return
 

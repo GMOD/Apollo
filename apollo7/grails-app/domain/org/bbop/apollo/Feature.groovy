@@ -7,6 +7,8 @@ class Feature implements Ontological{
 
     static auditable = true
 
+    static transients = ['ontologyId', 'cvTerm', 'alternateCvTerm']
+
     static constraints = {
         name nullable: false
         uniqueName nullable: false

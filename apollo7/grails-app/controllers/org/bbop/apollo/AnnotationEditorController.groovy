@@ -2,8 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import groovy.json.JsonBuilder
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -54,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "bang "
     }
 
+
     // Map the operation specified in the URL to a controller
     def handleOperation(String track, String operation) {
         JSONObject postObject = findPost()
@@ -70,7 +70,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "getUserPermission ${params.data}"
         JSONObject returnObject = permissionService.handleInput(request, params)
 
-        String username = SecurityUtils.subject.principal
+        String username = ApolloSecurityUtils.currentUsername
         if (username) {
             int permission = PermissionEnum.NONE.value
 
@@ -95,7 +95,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             }
             returnObject.put(REST_PERMISSION, permission)
             returnObject.put(REST_USERNAME, username)
-            render returnObject
+            render returnObject as JSON
         } else {
             def errorMessage = [message: "You must first login before editing"]
             response.status = HttpStatus.UNAUTHORIZED.value()
@@ -115,316 +115,117 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getHistoryForFeatures() {
-        log.debug "getHistoryForFeatures ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            if (!inputObject.track && inputObject.sequence) {
+                inputObject.track = inputObject.sequence
+            }
+            JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+            JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer()
+            featureEventService.generateHistory(historyContainer, featuresArray)
         }
-        if (!inputObject.track && inputObject.sequence) {
-            inputObject.track = inputObject.sequence  // support some legacy
-        }
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        if(permissionService.hasPermissions(inputObject, PermissionEnum.READ)){
-            JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
-            historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
-            render historyContainer as JSON
-        }
-        else{
-            render status: HttpStatus.UNAUTHORIZED
-        }
-
     }
 
 
     def getTranslationTable() {
-        JSONObject returnObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(returnObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        // use the over-wridden one
-        TranslationTable translationTable = organismService.getTranslationTable(organism)
+        withPermission(PermissionEnum.READ) { returnObject ->
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            TranslationTable translationTable = organismService.getTranslationTable(organism)
 
-        JSONObject ttable = new JSONObject()
-        for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
-            ttable.put(t.getKey(), t.getValue())
-        }
+            JSONObject ttable = new JSONObject()
+            for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
+                ttable.put(t.getKey(), t.getValue())
+            }
 
-        JSONArray startProteins = new JSONArray()
-        JSONArray stopProteins = new JSONArray()
+            JSONArray startProteins = new JSONArray()
+            JSONArray stopProteins = new JSONArray()
+            for (String startCodon in translationTable.getStartCodons()) {
+                startProteins.add(translationTable.getTranslationTable().get(startCodon))
+            }
+            for (String stopCodon in translationTable.getStopCodons()) {
+                stopProteins.add(translationTable.getTranslationTable().get(stopCodon))
+            }
 
-        for (String startCodon in translationTable.getStartCodons()) {
-            startProteins.add(translationTable.getTranslationTable().get(startCodon))
+            returnObject.put(REST_TRANSLATION_TABLE, ttable)
+            returnObject.put(REST_START_PROTEINS, startProteins.unique())
+            returnObject.put(REST_STOP_PROTEINS, stopProteins.unique())
+            returnObject
         }
-        for (String stopCodon in translationTable.getStopCodons()) {
-            stopProteins.add(translationTable.getTranslationTable().get(stopCodon))
-        }
-
-        returnObject.put(REST_TRANSLATION_TABLE, ttable)
-        returnObject.put(REST_START_PROTEINS, startProteins.unique())
-        returnObject.put(REST_STOP_PROTEINS, stopProteins.unique())
-        render returnObject
     }
 
 
     def addFeature() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addFeature(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addFeature(it) }
     }
 
     def setExonBoundaries() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setExonBoundaries(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setExonBoundaries(it) }
     }
 
     def setShineDalgarnoBoundaries() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setShineDalgarnoBoundaries(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setShineDalgarnoBoundaries(it) }
     }
 
     def addExon() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addExon(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addExon(it) }
     }
 
-
     def addComments() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addComments(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addComments(it) }
     }
 
     def deleteComments() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteComments(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteComments(it) }
     }
-
 
     def updateComments() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.updateComments(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.updateComments(it) }
     }
 
-
     def getComments() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render requestHandlingService.getComments(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.READ) { requestHandlingService.getComments(it) }
     }
 
     def addTranscript() {
-        try {
-            log.debug "addTranscript ${params}"
-            JSONObject inputObject = permissionService.handleInput(request, params)
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-            if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-                render requestHandlingService.addTranscript(inputObject)
-            } else {
-                render status: HttpStatus.UNAUTHORIZED
-            }
-        }
-        catch (Exception e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addTranscript(it) }
     }
 
     def duplicateTranscript() {
-        log.debug "duplicateTranscript ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.duplicateTranscript(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.duplicateTranscript(it) }
     }
 
     def setTranslationStart() {
-        log.debug "setTranslationStart ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setTranslationStart(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setTranslationStart(it) }
     }
 
     def setTranslationEnd() {
-        log.debug "setTranslationEnd ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setTranslationEnd(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setTranslationEnd(it) }
     }
 
     def setLongestOrf() {
-        log.debug "setLongestORF ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setLongestOrf(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setLongestOrf(it) }
     }
 
     def setBoundaries() {
-        log.debug "setBoundaries ${params}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setBoundaries(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setBoundaries(it) }
     }
 
     def getFeatures() {
-        JSONObject returnObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(returnObject, PermissionEnum.READ)
-            render requestHandlingService.getFeatures(returnObject)
-        } catch (e) {
-            def error = [error: 'problem getting features: ' + e.fillInStackTrace()]
-            render error as JSON
-            log.error(error.error)
-        }
+        withPermission(PermissionEnum.READ) { requestHandlingService.getFeatures(it) }
     }
 
 
     def getSequenceAlterations() {
-        JSONObject returnObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(returnObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+            JSONArray jsonFeatures = new JSONArray()
+            inputObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
+            List<SequenceAlterationArtifact> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
+                    , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+            for (SequenceAlterationArtifact alteration : sequenceAlterationList) {
+                jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true))
+            }
+            inputObject
         }
-        Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-        JSONArray jsonFeatures = new JSONArray()
-        returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
-
-        List<SequenceAlterationArtifact> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
-        for (SequenceAlterationArtifact alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
-        }
-
-        render returnObject
     }
 
 
@@ -444,157 +245,47 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
         log.debug "return config ${annotationInfoEditorConfigContainer}"
-        render annotationInfoEditorConfigContainer
+        render annotationInfoEditorConfigContainer as JSON
     }
 
     def setName() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setName(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setName(it) }
     }
 
     def setDescription() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setDescription(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setDescription(it) }
     }
 
     def setSymbol() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setSymbol(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setSymbol(it) }
     }
 
     def setStatus() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setStatus(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setStatus(it) }
     }
 
     def addAttribute() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addNonReservedProperties(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addNonReservedProperties(it) }
     }
 
     def deleteAttribute() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteNonReservedProperties(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteNonReservedProperties(it) }
     }
 
     def updateAttribute() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.updateNonReservedProperties(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.updateNonReservedProperties(it) }
     }
 
     def addDbxref() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addNonPrimaryDbxrefs(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addNonPrimaryDbxrefs(it) }
     }
 
     def updateDbxref() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.updateNonPrimaryDbxrefs(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.updateNonPrimaryDbxrefs(it) }
     }
 
     def deleteDbxref() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteNonPrimaryDbxrefs(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteNonPrimaryDbxrefs(it) }
     }
 
     def getInformation() {
@@ -605,6 +296,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
@@ -644,23 +336,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
         }
 
-        render featureContainer
+        render featureContainer as JSON
     }
 
     def getAttributes() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+        withPermission(PermissionEnum.READ) { inputObject ->
             String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray attributes = new JSONArray()
             feature.featureProperties.each {
-                if (it.ontologyId != Comment.ontologyId && it.tag != null ) {
+                if (it.ontologyId != Comment.ontologyId && it.tag != null) {
                     JSONObject attributeObject = new JSONObject()
                     attributeObject.put(FeatureStringEnum.TAG.value, it.tag)
                     attributeObject.put(FeatureStringEnum.VALUE.value, it.value)
@@ -669,21 +354,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             }
             JSONObject returnObject = new JSONObject()
             returnObject.put(FeatureStringEnum.ATTRIBUTES.value, attributes)
-            render returnObject as JSON
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
+            returnObject
         }
     }
 
     def getDbxrefs() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+        withPermission(PermissionEnum.READ) { inputObject ->
             String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             JSONArray annotations = new JSONArray()
@@ -692,148 +368,48 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 dbxrefObject.put(FeatureStringEnum.TAG.value, it.db.name)
                 dbxrefObject.put(FeatureStringEnum.VALUE.value, it.accession)
                 annotations.add(dbxrefObject)
-
             }
             JSONObject returnObject = new JSONObject()
             returnObject.put("annotations", annotations)
-            render returnObject as JSON
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
+            returnObject
         }
     }
 
     def setReadthroughStopCodon() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setReadthroughStopCodon(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.setReadthroughStopCodon(it) }
     }
 
     def addSequenceAlteration() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addSequenceAlteration(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addSequenceAlteration(it) }
     }
 
     def deleteSequenceAlteration() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteSequenceAlteration(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteSequenceAlteration(it) }
     }
 
     def flipStrand() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.flipStrand(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.flipStrand(it) }
     }
 
     def mergeExons() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.mergeExons(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.mergeExons(it) }
     }
 
     def splitExon() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.splitExon(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.splitExon(it) }
     }
 
-
     def deleteFeature() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteFeature(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteFeature(it) }
     }
 
 
     def deleteVariantEffectsForSequences() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.removeVariantEffect(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.removeVariantEffect(it) }
     }
 
     def deleteFeaturesForSequences() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            // create features from sequences
+        withPermission(PermissionEnum.WRITE) { inputObject ->
             JSONArray features = new JSONArray()
             inputObject.features = features
             List<Long> sequenceList = inputObject.sequence.collect {
@@ -846,86 +422,32 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 features.add(jsonObject)
             }
             inputObject.remove("sequence")
-            render requestHandlingService.deleteFeature(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
+            requestHandlingService.deleteFeature(inputObject)
         }
     }
 
     def deleteExon() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteExon(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.deleteExon(it) }
     }
 
     def makeIntron() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.makeIntron(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.makeIntron(it) }
     }
 
     def splitTranscript() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.splitTranscript(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.splitTranscript(it) }
     }
 
     def mergeTranscripts() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.mergeTranscripts(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.mergeTranscripts(it) }
     }
 
     def getSequence() {
-        log.debug "getSequence ${params.data}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try{
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-            permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)
+        withPermission(PermissionEnum.EXPORT) { inputObject ->
             JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer()
             JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
-            render featureContainer
-        }
-        catch (ae) {
-            def error = [error: ae.message]
-            render error as JSON
+            featureContainer
         }
     }
 
@@ -959,87 +481,39 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getCannedComments() {
-        log.debug "canned comment data ${params.data}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+            String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+            List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+            cannedCommentService.getCannedComments(organism, featureTypeList)
         }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
-        render cannedCommentService.getCannedComments(organism, featureTypeList) as JSON
     }
 
     def getCannedKeys() {
-        log.debug "canned key data ${params.data}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+            String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+            List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+            cannedAttributeService.getCannedKeys(organism, featureTypeList)
         }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
-        render cannedAttributeService.getCannedKeys(organism, featureTypeList) as JSON
     }
 
     def getCannedValues() {
-        log.debug "canned value data ${params.data}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+            String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+            List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+            cannedAttributeService.getCannedValues(organism, featureTypeList)
         }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
-        render cannedAttributeService.getCannedValues(organism, featureTypeList) as JSON
     }
 
     def getAvailableStatuses() {
-        log.debug "get available statuses${params.data}"
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.READ) { inputObject ->
+            Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+            String type = inputObject.containsKey(FeatureStringEnum.TYPE.value) ? inputObject.getString(FeatureStringEnum.TYPE.value) : null
+            List<FeatureType> featureTypeList = type ? getFeatureTypeListForType(type) : []
+            availableStatusService.getAvailableStatuses(organism, featureTypeList)
         }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = null
-        if (inputObject.containsKey(FeatureStringEnum.TYPE.value)) {
-            type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        }
-        List<FeatureType> featureTypeList = type ? getFeatureTypeListForType(type) : []
-        log.debug "type ${type} ${featureTypeList}"
-        render availableStatusService.getAvailableStatuses(organism, featureTypeList) as JSON
     }
 
     def searchSequence() {
@@ -1084,43 +558,21 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getRecentAnnotations() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
-        }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        if (inputObject.get('days') instanceof Integer) {
-            String filterString = inputObject.containsKey(FeatureStringEnum.STATUS.value) ? inputObject.getString(FeatureStringEnum.STATUS.value) : null
-            JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.getInt('days'),filterString)
-            render updatedGenes
-        } else {
-            def error = [error: inputObject.get('days') + ' Param days must be an Integer']
-            render error as JSON
+        withPermission(PermissionEnum.EXPORT) { inputObject ->
+            if (inputObject.get('days') instanceof Integer) {
+                String filterString = inputObject.containsKey(FeatureStringEnum.STATUS.value) ? inputObject.getString(FeatureStringEnum.STATUS.value) : null
+                annotationEditorService.recentAnnotations(inputObject.getInt('days'), filterString)
+            } else {
+                throw new AnnotationException(inputObject.get('days') + ' Param days must be an Integer')
+            }
         }
     }
 
     def getAttributions() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
-        try {
-            permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
-            def error = [error: e.message]
-            render error as JSON
+        withPermission(PermissionEnum.EXPORT) { inputObject ->
+            int max = inputObject.max ?: 1000
+            featureEventService.generateAttributions(max)
         }
-        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-        int max = inputObject.max ?: 1000
-        JSONObject attributions =  featureEventService.generateAttributions( max )
-        render attributions
     }
 
 
@@ -1154,7 +606,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             // test case
                 case "logout":
                     try {
-                        SecurityUtils.subject.logout()
+                        ApolloSecurityUtils.logout()
                     } catch (e) {
                         log.warn "No thread, so sending through websocket instead ${e}"
                     }

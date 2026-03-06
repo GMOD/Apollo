@@ -2,6 +2,10 @@ package org.bbop.apollo
 
 class DBXref {
 
+    static mapping = {
+        version false
+    }
+
     static constraints = {
         db nullable: false
         accession nullable: false

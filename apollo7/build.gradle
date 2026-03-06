@@ -31,11 +31,6 @@ repositories {
 }
 
 configurations.configureEach {
-    resolutionStrategy.eachDependency { details ->
-        if (details.requested.group == 'org.apache.shiro') {
-            details.useVersion '2.0.2'
-        }
-    }
 }
 
 dependencies {
@@ -67,23 +62,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-websocket"
 
     // Spring Security (replaces Shiro)
-    // TODO: migrate from Shiro to Spring Security
-    // implementation "org.grails.plugins:spring-security-core:6.1.1"
-
-    // Apache Shiro (kept temporarily during migration)
-    // BACKWARDS INCOMPATIBILITY: Shiro 2.x has breaking API changes from 1.x.
-    // The Grails Shiro plugin does not exist for Grails 7.
-    // This must be replaced with Spring Security Core.
-    implementation("org.apache.shiro:shiro-core:2.0.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-beanutils'
-    }
-    implementation("org.apache.shiro:shiro-web:2.0.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
-    implementation("org.apache.shiro:shiro-spring:2.0.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
+    implementation "org.springframework.boot:spring-boot-starter-security"
 
     // Database drivers
     runtimeOnly "com.mysql:mysql-connector-j:9.2.0"

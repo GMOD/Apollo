@@ -13,6 +13,8 @@ class CustomTranscript extends Transcript implements ConfigurableFeature{
     String customOntologyId
     String customClassName
 
+    static transients = ['ontologyId', 'cvTerm', 'alternateCvTerm', 'className']
+
     static constraints = {
         metaData nullable: true, blank: true
         customCvTerm nullable: false

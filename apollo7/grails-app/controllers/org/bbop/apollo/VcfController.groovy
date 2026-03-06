@@ -32,6 +32,7 @@ class VcfController {
         } catch (e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if(!trackService.checkPermission(request, response, organismString)) return
 

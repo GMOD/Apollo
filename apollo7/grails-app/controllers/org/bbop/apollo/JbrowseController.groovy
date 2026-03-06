@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.apache.commons.io.FilenameUtils
-import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range // this line is needed, even if the import doesn't show it
@@ -84,7 +84,7 @@ class JbrowseController {
             if(!availableOrganisms){
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                 String username = permissionService.currentUser.username
-                SecurityUtils.subject.logout()
+                ApolloSecurityUtils.logout()
                 forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
                 return
             }
@@ -462,7 +462,7 @@ class JbrowseController {
         if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
-        def plugins = grailsApplication.config.jbrowse?.plugins
+        def plugins = grailsApplication.config.getProperty('jbrowse.plugins', Map, [:])
         // not sure if I do it this way or via the include
         if (plugins) {
             def pluginKeys = []

@@ -1,7 +1,6 @@
 package org.bbop.apollo.websocket
 
 import grails.util.Holders
-import org.apache.shiro.authc.UsernamePasswordToken
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler
@@ -29,8 +28,7 @@ class AuthenticatingHandshakeHandler extends DefaultHandshakeHandler {
         if (!(username && password)) {
             return null
         }
-        UsernamePasswordToken authToken = new UsernamePasswordToken(username, password)
-        if (usernamePasswordAuthenticatorService.authenticate(authToken, null)) {
+        if (usernamePasswordAuthenticatorService.authenticate(username, password, null)) {
             return request.getPrincipal()
         }
         return null

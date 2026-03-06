@@ -26,7 +26,7 @@ class ProxyService {
 
     @Transactional
     def initProxies(){
-        def proxies = grailsApplication.config.apollo.proxies
+        def proxies = grailsApplication.config.getProperty('apollo.proxies', List, [])
 
         for(proxyConfig in proxies){
             def proxy = Proxy.findByReferenceUrlAndTargetUrl(proxyConfig.referenceUrl,proxyConfig.targetUrl)

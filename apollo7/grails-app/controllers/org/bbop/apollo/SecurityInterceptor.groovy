@@ -1,14 +1,10 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.subject.Subject
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
 
-// BACKWARDS INCOMPATIBILITY: Grails filters (SecurityFilters.groovy) were replaced
-// by interceptors in Grails 3+. This is the interceptor equivalent of the old
-// SecurityFilters.
 class SecurityInterceptor {
 
     def permissionService
@@ -34,12 +30,11 @@ class SecurityInterceptor {
 
         try {
             log.debug "apollo interceptor ${controllerName}::${actionName}"
-            Subject subject = SecurityUtils.getSubject()
-            if (subject.isAuthenticated()) {
+            if (ApolloSecurityUtils.isAuthenticated()) {
                 return true
             }
 
-            if (permissionService.authenticateWithToken(request)) {
+            if (permissionService.authenticateWithToken(null, null, request)) {
                 if (params.targetUri) {
                     redirect(uri: params.targetUri)
                 }

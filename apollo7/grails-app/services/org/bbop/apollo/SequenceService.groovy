@@ -679,7 +679,7 @@ class SequenceService {
             List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations, fmin: fmin, fmax: fmax])
             featuresToWrite += listOfSequenceAlterations
         }
-        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
     }
 
     String checkCache(String organismString, String sequenceName, String featureName, String type, Map paramMap) {

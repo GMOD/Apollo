@@ -2,11 +2,15 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
+import org.springframework.http.HttpStatus
 
 abstract class AbstractApolloController {
+
+    def permissionService
 
     public static String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
@@ -28,6 +32,21 @@ abstract class AbstractApolloController {
         return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
     }
 
+
+    protected def withPermission(PermissionEnum permission, Closure action) {
+        try {
+            JSONObject inputObject = permissionService.handleInput(request, params)
+            permissionService.hasPermissions(inputObject, PermissionEnum.READ)
+            if (permissionService.hasPermissions(inputObject, permission)) {
+                render action(inputObject) as JSON
+            } else {
+                render status: HttpStatus.UNAUTHORIZED
+            }
+        } catch (e) {
+            def error = [error: e.message]
+            render error as JSON
+        }
+    }
 
     protected def findPost() {
         for (p in params) {

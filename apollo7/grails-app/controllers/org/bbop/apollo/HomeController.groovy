@@ -1,8 +1,5 @@
 package org.bbop.apollo
 
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.mgt.SecurityManager
-import org.apache.shiro.session.mgt.DefaultSessionManager
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.PerformanceMetric
 import org.grails.web.json.JSONObject

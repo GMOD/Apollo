@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 class FeatureProperty implements Ontological {
 
+    static transients = ['ontologyId', 'cvTerm', 'alternateCvTerm']
+
     static auditable = true
 
     private static final String TAG_VALUE_DELIMITER = "=";
@@ -37,11 +39,12 @@ class FeatureProperty implements Ontological {
     boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
-        FeatureProperty castOther = (FeatureProperty) other;
+        FeatureProperty castOther = (FeatureProperty) other
 
         if (castOther?.id == this?.id) return true
         if (castOther?.rank != this?.rank) return false
         if (castOther?.value != this?.value) return false
+        return true
     }
 
     int hashCode() {

@@ -224,6 +224,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -308,7 +309,7 @@ class OrganismController {
               log.error e.printStackTrace()
               returnObject.put("error", e.message)
               organism.delete()
-              render returnObject
+              render returnObject as JSON
               return
             }
           } else if (sequenceDataFile) {
@@ -316,7 +317,7 @@ class OrganismController {
             SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(sequenceDataFile.getOriginalFilename())
             if (sequenceTypeEnum == null) {
               returnObject.put("error", "Bad file input: " + sequenceDataFile.originalFilename)
-              render returnObject
+              render returnObject as JSON
               return
             }
 
@@ -420,6 +421,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     log.info "removing track from organism with ${requestObject}"
 
@@ -511,6 +513,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
     log.debug "path to JBrowse binaries ${pathToJBrowseBinaries}"
@@ -930,6 +933,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
 
 
@@ -1150,6 +1154,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
       render(['error': 'Empty fields in request JSON'] as JSON)
@@ -1405,6 +1410,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN)) {
       def error = [error: 'not authorized to view the metadata']

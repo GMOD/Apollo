@@ -1,9 +1,6 @@
 package org.bbop.apollo
 
 
-import groovy.transform.EqualsAndHashCode
-
-@EqualsAndHashCode
 class Organism implements JsonMetadata {
 
     static auditable = true

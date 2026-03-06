@@ -1,18 +1,11 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.authc.AuthenticationException
-import org.apache.shiro.authc.IncorrectCredentialsException
-import org.apache.shiro.authc.UnknownAccountException
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.util.SavedRequest
-import org.apache.shiro.web.util.WebUtils
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
+import org.springframework.security.core.AuthenticationException
 
 import jakarta.servlet.http.HttpServletResponse
 
@@ -71,13 +64,23 @@ class LoginController extends AbstractApolloController {
         log.debug "register -> the jsonObj ${jsonObj}"
         userService.registerAdmin(jsonObj)
 
-
-        return login()
+        // Authenticate the newly registered admin directly
+        String username = jsonObj.username
+        String password = jsonObj.password
+        if(!permissionService.authenticateWithToken(username, password, request)){
+            throw new AnnotationException("Bad credentials for user ${username}")
+        }
+        def session = ApolloSecurityUtils.getSession(true)
+        session.setAttribute("username", username)
+        session.setAttribute("permissions", new HashMap<String, Integer>())
+        User user = User.findByUsername(username)
+        Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
+        if(permissions){
+            session.setAttribute("permissions", permissions)
+        }
+        render new JSONObject() as JSON
     }
 
-    /**
-     * @return
-     */
     def login(){
         def jsonObj
         try {
@@ -89,49 +92,22 @@ class LoginController extends AbstractApolloController {
             log.debug "login -> the jsonObj ${jsonObj}"
             String username = jsonObj.username
             String password = jsonObj.password
-            Boolean rememberMe = jsonObj.rememberMe
 
-            def authToken = new UsernamePasswordToken(username, password as String)
-
-            // Support for "remember me"
-            if (rememberMe) {
-                authToken.rememberMe = true
-            }
-            log.debug "rememberMe: ${rememberMe}"
-            log.debug "authToken : ${authToken.rememberMe}"
-
-            // If a controller redirected to this page, redirect back
-            // to it. Otherwise redirect to the root URI.
             def targetUri = params.targetUri ?: "/"
 
-            // Handle requests saved by Shiro filters.
-            SavedRequest savedRequest = WebUtils.getSavedRequest(request)
-            if (savedRequest) {
-                targetUri = savedRequest.requestURI - request.contextPath
-                if (savedRequest.queryString){
-                  targetUri = targetUri + '?' + savedRequest.queryString
-                }
+            if(!permissionService.authenticateWithToken(username, password, request)){
+                throw new AnnotationException("Bad credentials for user ${username}")
             }
 
-
-            // Perform the actual login. An AuthenticationException
-            // will be thrown if the username is unrecognised or the
-            // password is incorrect.
-            Subject subject = SecurityUtils.getSubject();
-            Session session = subject.getSession(true);
-            if(!permissionService.authenticateWithToken(authToken,request)){
-                throw new IncorrectCredentialsException("Bad credentaisl for user ${username}")
-            }
-//            subject.login(authToken)
-            log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
+            log.debug "IS AUTHENTICATED: " + ApolloSecurityUtils.isAuthenticated()
+            def session = ApolloSecurityUtils.getSession(true)
             log.debug "SESSION ${session}"
-            log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
+            log.debug "LOGIN SESSION ${session?.id}"
 
             session.setAttribute("username", username);
             session.setAttribute("permissions", new HashMap<String, Integer>());
 
             User user = User.findByUsername(username)
-
 
             Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
             if(permissions){
@@ -144,52 +120,17 @@ class LoginController extends AbstractApolloController {
             else{
                 render new JSONObject() as JSON
             }
-        } catch(IncorrectCredentialsException ex) {
-            // Keep the username and "remember me" setting so that the
-            // user doesn't have to enter them again.
+        } catch(AuthenticationException ex) {
             def m = [ username: jsonObj.username ]
             if (jsonObj.rememberMe) {
                 m["rememberMe"] = true
             }
-
-            // Remember the target URI too.
             if (jsonObj.targetUri) {
                 m["targetUri"] = jsonObj.targetUri
             }
             m.error="Incorrect login"
-            // Now redirect back to the login page.
-            //redirect(action: "login", params: m)
             render m as JSON
-        } catch(UnknownAccountException ex) {
-
-            def m = [ username: jsonObj.username ]
-            if (jsonObj.rememberMe) {
-                m["rememberMe"] = true
-            }
-
-            // Remember the target URI too.
-            if (jsonObj.targetUri) {
-                m["targetUri"] = jsonObj.targetUri
-            }
-            m.error="Unknown account"
-            render m as JSON
-
-        } catch ( AuthenticationException ae ) {
-
-            def m = [ username: jsonObj.username ]
-            if (jsonObj.rememberMe) {
-                m["rememberMe"] = true
-            }
-
-            // Remember the target URI too.
-            if (jsonObj.targetUri) {
-                m["targetUri"] = jsonObj.targetUri
-            }
-            m.error="Unknown authentication error"
-            render m as JSON
-            //unexpected condition - error?
-        }
-        catch ( Exception e ) {
+        } catch ( Exception e ) {
             def error=[error: e.message]
             render error as JSON
         }
@@ -197,16 +138,14 @@ class LoginController extends AbstractApolloController {
 
 
     def logout(){
-        log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
         log.debug "logging out with params: ${params}"
-        // have to retrive the username first
-        String username = SecurityUtils.subject.principal ?: params.username
+        String username = ApolloSecurityUtils.currentUsername ?: params.username
         log.debug "sending logout for username ${username}"
-        sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        sendLogout(username, params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         log.debug "sent logout"
         sleep(1000)
         log.debug "doing local logout"
-        SecurityUtils.subject.logout()
+        ApolloSecurityUtils.logout()
         sleep(1000)
         log.debug "logged out"
         if(params.targetUri){

@@ -670,7 +670,7 @@ class RequestHandlingService {
 
         Boolean topLevel = false
         if (inputObject.has('topLevel')) {
-            topLevel = new Boolean(inputObject.topLevel)
+            topLevel = Boolean.valueOf(inputObject.topLevel.toString())
         }
         def features = Feature.createCriteria().listDistinct {
             featureLocations {

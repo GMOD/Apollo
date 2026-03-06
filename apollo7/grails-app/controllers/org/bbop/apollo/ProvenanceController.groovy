@@ -27,6 +27,7 @@ class ProvenanceController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.READ)){
       render status : UNAUTHORIZED
@@ -57,6 +58,7 @@ class ProvenanceController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED
@@ -107,6 +109,7 @@ class ProvenanceController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED
@@ -157,6 +160,7 @@ class ProvenanceController {
     } catch (e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject, GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED

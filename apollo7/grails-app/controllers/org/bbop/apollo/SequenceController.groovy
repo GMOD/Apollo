@@ -2,8 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -86,7 +85,7 @@ class SequenceController {
         User currentUser = permissionService.currentUser
         UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser, sequenceInstance, token)
 
-        Session session = SecurityUtils.subject.getSession(false)
+        def session = ApolloSecurityUtils.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
