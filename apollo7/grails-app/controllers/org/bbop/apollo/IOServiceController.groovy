@@ -18,7 +18,6 @@ class IOServiceController extends AbstractApolloController {
     def fastaHandlerService
     def chadoHandlerService
     def preferenceService
-    def permissionService
     def configWrapperService
     def requestHandlingService
     def vcfHandlerService

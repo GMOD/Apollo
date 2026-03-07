@@ -14,6 +14,7 @@ import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
 import org.hibernate.FlushMode
+import org.hibernate.Hibernate
 
 @Transactional(readOnly = true)
 class FeatureService {
@@ -481,7 +482,7 @@ class FeatureService {
      * @return
      */
     Feature getTopLevelFeature(Feature feature) {
-        Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
+        Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature?.collect { Hibernate.unproxy(it) }
         if (parents) {
             return getTopLevelFeature(parents.iterator().next())
         } else {

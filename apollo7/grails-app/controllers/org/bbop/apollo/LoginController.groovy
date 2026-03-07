@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse
 
 class LoginController extends AbstractApolloController {
 
-    def permissionService
     def userService
     def brokerMessagingTemplate
 

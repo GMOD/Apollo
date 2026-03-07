@@ -158,6 +158,7 @@ apollo:
 
 ---
 hibernate:
+    allow_update_outside_transaction: true
     cache:
         queries: false
         use_second_level_cache: false

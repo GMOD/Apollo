@@ -36,7 +36,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def featureRelationshipService
     def featurePropertyService
     def requestHandlingService
-    def permissionService
     def preferenceService
     def sequenceSearchService
     def featureEventService

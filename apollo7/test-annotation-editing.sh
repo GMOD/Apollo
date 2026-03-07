@@ -1,21 +1,41 @@
 #!/bin/bash
 # Test script for Apollo7 annotation editing and WebSocket validation
-# Prerequisites: App must be running at http://localhost:8080/apollo with a CLEAN database
-# Start with: rm -f devDb.mv.db devDb.trace.db && ./gradlew bootRun
+# Self-sufficient: cleans database, starts app, runs tests, stops app
 
 set -e
 
 BASE_URL="${APOLLO_URL:-http://localhost:8080/apollo}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PASS=0
 FAIL=0
 TEST_DATA_DIR=""
+APP_PID=""
 
 cleanup() {
     if [ -n "$TEST_DATA_DIR" ] && [ -d "$TEST_DATA_DIR" ]; then
         rm -rf "$TEST_DATA_DIR"
     fi
+    if [ -n "$APP_PID" ]; then
+        echo ""
+        echo "=== Stopping app (PID $APP_PID) ==="
+        kill "$APP_PID" 2>/dev/null || true
+        wait "$APP_PID" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT
+
+echo "=== Stopping any existing instance ==="
+pkill -f 'apollo7.*bootRun' 2>/dev/null || true
+pkill -f 'apollo7.*GrailsApp' 2>/dev/null || true
+sleep 2
+
+echo "=== Cleaning database ==="
+rm -f "$SCRIPT_DIR"/devDb.mv.db "$SCRIPT_DIR"/devDb.trace.db
+
+echo "=== Starting app ==="
+cd "$SCRIPT_DIR"
+./gradlew bootRun > /dev/null 2>&1 &
+APP_PID=$!
 
 assert_eq() {
     local desc="$1" expected="$2" actual="$3"
