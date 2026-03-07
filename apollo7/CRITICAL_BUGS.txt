@@ -60,41 +60,49 @@ FIXED ISSUES
     CONSEQUENCE: Without this fix, preference cleanup never runs, and
     stale preferences accumulate indefinitely in the database.
 
-REMAINING ISSUES
------------------
-
-11. FeatureService.groovy NPE risks
+11. FeatureService.groovy NPE risks [FIXED]
     - Line 803: Assumes a transcript always has a feature location.
     - Lines 1528-1529: Assumes CV terms always exist in the database.
     CONSEQUENCE: Server crash when setting translation start on a
     malformed transcript, or when adding a property with an unknown
     CV term type. Blocks those specific editing operations.
+    FIX: Added null checks with AnnotationException for missing
+    feature location, and log warnings for missing CV/CVTerm.
 
-12. SequenceService.groovy NPE risks
+12. SequenceService.groovy NPE risks [FIXED]
     - Line 363: Assumes sequence lookup always succeeds.
     - Lines 653, 669-673: Assumes feature lookup always succeeds.
     CONSEQUENCE: Server crash during data loading (line 363) or during
     GFF3 export / sequence retrieval (lines 653, 669) if a feature was
     deleted between the initial query and the individual lookup. Returns
     500 instead of a helpful error message.
+    FIX: Added null checks with error logging and skip/continue.
 
-13. PermissionService.groovy dead code (line 420-421)
+13. PermissionService.groovy dead code (line 420-421) [FIXED]
     The fallback branch passes null as a query parameter, so the query
     always returns nothing.
     CONSEQUENCE: No user-visible bug — the fallback on line 429 handles
     it. But a wasted database query runs on every permission check where
     no sequence name is provided. Minor performance cost.
+    FIX: Removed the dead query; branch now directly sets sequence = null,
+    falling through to the existing fallback on line 429.
 
-14. AnnotationEditorController.getInformation permission mismatch (line 301)
+14. AnnotationEditorController.getInformation permission mismatch (line 301) [FIXED]
     Checks WRITE permission without the request context.
     CONSEQUENCE: May check permissions against the wrong organism.
     Could show or hide feature information incorrectly.
+    FIX: Changed checkPermissions(PermissionEnum.WRITE) to
+    checkPermissions(inputObject, PermissionEnum.WRITE).
 
-15. GroupController.updateGroup sends no response on success (line 246-281)
+15. GroupController.updateGroup sends no response on success (line 246-281) [FIXED]
     Only the error path sends a response. Success sends nothing.
     CONSEQUENCE: Client receives an empty response after a successful
     group update. If the client expects JSON confirmation, it shows an
     error despite the operation succeeding.
+    FIX: Added `render new JSONObject() as JSON` after successful save.
+
+REMAINING ISSUES
+-----------------
 
 16. IOServiceController.write() cleanup after error render (line 256-258)
     After the catch block renders an error, code continues to run

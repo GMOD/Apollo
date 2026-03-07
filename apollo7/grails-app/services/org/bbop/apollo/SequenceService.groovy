@@ -361,6 +361,10 @@ class SequenceService {
                 }
                 else if (seqsMap[refSeq.name] != length) {
                   Sequence sequence = Sequence.findByNameAndOrganism(refSeq.name,organism)
+                  if (!sequence) {
+                      log.error "Sequence not found for name '${refSeq.name}' and organism '${organism.commonName}'"
+                      return
+                  }
                   sequence.length = length
                   sequence.seqChunkSize = refSeq.seqChunkSize
                   sequence.start = refSeq.start
@@ -651,6 +655,10 @@ class SequenceService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            if (!gbolFeature) {
+                log.error "Feature not found for uniqueName '${uniqueName}'"
+                continue
+            }
             String sequence = getSequenceForFeature(gbolFeature, type, flank)
 
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
@@ -667,7 +675,15 @@ class SequenceService {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            if (!gbolFeature) {
+                log.error "Feature not found for uniqueName '${uniqueName}'"
+                continue
+            }
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
+            if (!gbolFeature) {
+                log.error "Top-level feature not found for '${uniqueName}'"
+                continue
+            }
             featuresToWrite.add(gbolFeature);
 
             int fmin = gbolFeature.fmin

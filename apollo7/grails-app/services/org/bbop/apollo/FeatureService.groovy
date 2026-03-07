@@ -801,6 +801,9 @@ class FeatureService {
             }
         }
         FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        if (!transcriptFeatureLocation) {
+            throw new AnnotationException("No feature location found for transcript ${transcript.uniqueName}")
+        }
         if (transcriptFeatureLocation.strand == Strand.NEGATIVE.value) {
             setFmax(cds, translationStart + 1)
         } else {
@@ -1526,8 +1529,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
                         if (propertyType.has(FeatureStringEnum.NAME.value)) {
                             CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-                            CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
-                            gsolProperty.setType(cvTerm)
+                            if (cv) {
+                                CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
+                                if (cvTerm) {
+                                    gsolProperty.setType(cvTerm)
+                                } else {
+                                    log.warn "CVTerm not found for name '${propertyType.getString(FeatureStringEnum.NAME.value)}' and CV '${cv.name}'"
+                                }
+                            } else {
+                                log.warn "CV not found for name '${propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)}'"
+                            }
                         } else {
                             log.warn "No proper type for the CV is set ${propertyType as JSON}"
                         }

@@ -418,7 +418,7 @@ class PermissionService {
 
         Sequence sequence
         if (!sequenceName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+            sequence = null
         } else {
             sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             if (!sequence) {

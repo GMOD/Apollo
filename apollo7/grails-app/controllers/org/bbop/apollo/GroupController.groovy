@@ -283,6 +283,8 @@ class GroupController {
         // also allow update metadata
         group.metadata = dataObject.metadata?dataObject.metadata.toString():group.metadata
         group.save(flush: true)
+
+        render new JSONObject() as JSON
     }
 
     /**

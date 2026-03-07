@@ -298,7 +298,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render error as JSON
             return
         }
-        if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
+        if (!permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
