@@ -61,23 +61,21 @@ class OrganismService {
             long startTime = System.currentTimeMillis()
             long endTime
             double totalTime
-            featureSubLists.each { featureList ->
+            for (featureList in featureSubLists) {
                 if (featureList) {
-                    def ids = featureList.collect() {
-                        it[0]
-                    }
+                    def ids = new ArrayList()
+                    for (pair in featureList) { ids.add(pair[0]) }
                     log.info"ids ${ids.size()}"
-                    def uniqueNames = featureList.collect() {
-                        it[1]
-                    }
+                    def uniqueNames = new ArrayList()
+                    for (pair in featureList) { uniqueNames.add(pair[1]) }
                     log.debug "uniqueNames ${uniqueNames.size()}"
                     Feature.withNewTransaction{
                         def features = Feature.findAllByIdInList(ids)
-                        features.each { f ->
+                        for (f in features) {
                             f.delete()
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
-                        featureEvents.each { fe ->
+                        for (fe in featureEvents) {
                             fe.delete()
                         }
                         count += featureList.size()
@@ -119,23 +117,21 @@ class OrganismService {
             long startTime = System.currentTimeMillis()
             long endTime
             double totalTime
-            featureSubLists.each { featureList ->
+            for (featureList in featureSubLists) {
                 if (featureList) {
-                    def ids = featureList.collect() {
-                        it[0]
-                    }
+                    def ids = new ArrayList()
+                    for (pair in featureList) { ids.add(pair[0]) }
                     log.info"ids ${ids.size()}"
-                    def uniqueNames = featureList.collect() {
-                        it[1]
-                    }
+                    def uniqueNames = new ArrayList()
+                    for (pair in featureList) { uniqueNames.add(pair[1]) }
                     log.debug "uniqueNames ${uniqueNames.size()}"
                     Feature.withNewTransaction{
                         def features = Feature.findAllByIdInList(ids)
-                        features.each { f ->
+                        for (f in features) {
                             f.delete()
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
-                        featureEvents.each { fe ->
+                        for (fe in featureEvents) {
                             fe.delete()
                         }
                         organism.save(flush: true)

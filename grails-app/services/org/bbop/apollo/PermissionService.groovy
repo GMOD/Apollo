@@ -72,7 +72,9 @@ class PermissionService {
             organismList.addAll(getOrganismsForGroup(userGroup))
         }
         List<Organism> returnOrganismList = []
-        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+        List<Organism> sortedList = new ArrayList<>(organismList)
+        sortedList.sort(Comparator.comparing { Organism o -> o.commonName })
+        for (Organism organism in sortedList) {
             returnOrganismList.add(organism)
         }
 
@@ -93,8 +95,11 @@ class PermissionService {
             organismList.addAll(getOrganismsForGroup(userGroup))
         }
         List<Organism> returnOrganismList = []
-        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
-            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+        List<Organism> sortedList2 = new ArrayList<>(organismList)
+        sortedList2.sort(Comparator.comparing { Organism o -> o.commonName })
+        for (Organism organism in sortedList2) {
+            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism,currentUser)
+            PermissionEnum highestPermission = findHighestEnum(perms)
             if(highestPermission.rank>=permissionEnum.rank){
                 returnOrganismList.add(organism)
             }
@@ -117,8 +122,11 @@ class PermissionService {
             organismList.addAll(getOrganismsForGroup(userGroup))
         }
         Map<Organism,PermissionEnum> returnOrganismMap= [:]
-        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
-            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+        List<Organism> sortedList3 = new ArrayList<>(organismList)
+        sortedList3.sort(Comparator.comparing { Organism o -> o.commonName })
+        for (Organism organism in sortedList3) {
+            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism,currentUser)
+            PermissionEnum highestPermission = findHighestEnum(perms)
             returnOrganismMap.put(organism,highestPermission)
         }
 
@@ -293,7 +301,7 @@ class PermissionService {
             return returnMap
         }
         returnMap.put(user.username, 0)
-        Organism.all.each { organism ->
+        for (Organism organism in Organism.all) {
             List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
             int highestValue = findHighestEnumValue(permissionEnums)
             if (highestValue > returnMap.get(user.username)) {
@@ -553,7 +561,9 @@ class PermissionService {
     GlobalPermissionEnum mapLocalPermissionToGlobal(PermissionEnum permissionEnum) {
         int rank = permissionEnum.rank
 
-        for(gpe in GlobalPermissionEnum.values().sort(){ a,b -> a.rank <=> b.rank }){
+        List<GlobalPermissionEnum> sortedGpes = new ArrayList<>(Arrays.asList(GlobalPermissionEnum.values()))
+        sortedGpes.sort(Comparator.comparingInt { GlobalPermissionEnum g -> g.rank })
+        for(gpe in sortedGpes){
             if(gpe.rank>=rank){
                 return gpe
             }
@@ -661,7 +671,7 @@ class PermissionService {
 
     Map<Organism, Boolean> userHasOrganismPermissions(PermissionEnum permissionEnum) {
         Map<Organism, Boolean> organismUserMap = [:]
-        UserOrganismPermission.findAllByUser(currentUser).each { permission ->
+        for (UserOrganismPermission permission in UserOrganismPermission.findAllByUser(currentUser)) {
             PermissionEnum highestPermssion = findHighestOrganismPermissionForCurrentUser(permission.organism)
             organismUserMap.put(permission.organism, highestPermssion?.rank >= permissionEnum?.rank)
         }
@@ -798,10 +808,8 @@ class PermissionService {
             payloadJson = request.JSON as JSONObject
         }
         else {
-            params.keySet().each { key ->
-                // TODO: what about this?
+            for (String key in params.keySet()) {
                 payloadJson.put(key, params.get(key)[0])
-
             }
         }
         return payloadJson

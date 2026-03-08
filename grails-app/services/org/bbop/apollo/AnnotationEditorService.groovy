@@ -42,7 +42,7 @@ class AnnotationEditorService {
 
 
     Map geneToSpecies = [:]
-    updatedGenes.each { gene ->
+    for (gene in updatedGenes) {
       geneToSpecies[gene.uniqueName] = gene.getFeatureLocation().sequence.organism.commonName
     }
 

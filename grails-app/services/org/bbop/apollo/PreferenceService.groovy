@@ -470,9 +470,9 @@ class PreferenceService {
     }
 
     def saveOutstandingLocationPreferences(String ignoreToken = "") {
-        saveSequenceLocationMap.each {
-            if (it.key.clientToken != ignoreToken) {
-                scheduleDbSave(it.value, it.key)
+        for (entry in saveSequenceLocationMap) {
+            if (entry.key.clientToken != ignoreToken) {
+                scheduleDbSave(entry.value, entry.key)
             }
         }
     }
@@ -760,18 +760,18 @@ class PreferenceService {
 
             // get user client tokens
             Map<User, Map<Organism, UserOrganismPreference>> userClientTokens = [:]
-            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth, [sort: "lastUpdated", order: "desc"]).each {
-                Map<Organism, UserOrganismPreference> organismPreferenceMap = userClientTokens.containsKey(it.user) ? userClientTokens.get((it.user)) : [:]
-                if (organismPreferenceMap.containsKey(it.organism)) {
-                    UserOrganismPreference preference = organismPreferenceMap.get(it.organism)
+            for (pref in UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth, [sort: "lastUpdated", order: "desc"])) {
+                Map<Organism, UserOrganismPreference> organismPreferenceMap = userClientTokens.containsKey(pref.user) ? userClientTokens.get((pref.user)) : [:]
+                if (organismPreferenceMap.containsKey(pref.organism)) {
+                    UserOrganismPreference preference = organismPreferenceMap.get(pref.organism)
                     // since we are sorting from the newest to the oldest, so just delete the older one
                     preference.delete()
                     ++removalCount
-                    organismPreferenceMap.remove(it.organism)
+                    organismPreferenceMap.remove(pref.organism)
                 } else {
-                    organismPreferenceMap.put(it.organism, it)
+                    organismPreferenceMap.put(pref.organism, pref)
                 }
-                userClientTokens.put(it.user, organismPreferenceMap)
+                userClientTokens.put(pref.user, organismPreferenceMap)
             }
 
             log.info "Removed ${removalCount} stale preferences"

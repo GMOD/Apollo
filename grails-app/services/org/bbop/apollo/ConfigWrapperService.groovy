@@ -77,12 +77,16 @@ class ConfigWrapperService {
 
     List<String> getSpliceDonorSites() {
         List<String> configured = config.getProperty('apollo.splice_donor_sites', List, ['GT'])
-        return configured.collect { it.toLowerCase() }
+        List<String> result = new ArrayList<>()
+        for (s in configured) { result.add(s.toLowerCase()) }
+        return result
     }
 
     List<String> getSpliceAcceptorSites() {
         List<String> configured = config.getProperty('apollo.splice_acceptor_sites', List, ['AG'])
-        return configured.collect { it.toLowerCase() }
+        List<String> result = new ArrayList<>()
+        for (s in configured) { result.add(s.toLowerCase()) }
+        return result
     }
 
     int getDefaultMinimumIntronSize() {

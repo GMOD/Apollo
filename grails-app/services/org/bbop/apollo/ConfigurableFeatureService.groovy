@@ -11,10 +11,10 @@ class ConfigurableFeatureService {
      */
     List<String> getTranscriptCvTerms() {
         List<String> returnList = new ArrayList<>()
-        CustomTranscript.all.each {
-            returnList.add(it.getCvTerm())
-            if(it.getAlternateCvTerm()){
-                returnList.add(it.getAlternateCvTerm())
+        for (ct in CustomTranscript.all) {
+            returnList.add(ct.getCvTerm())
+            if(ct.getAlternateCvTerm()){
+                returnList.add(ct.getAlternateCvTerm())
             }
         }
         return returnList

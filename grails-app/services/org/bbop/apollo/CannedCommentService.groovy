@@ -19,8 +19,8 @@ class CannedCommentService {
         List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
         if (cannedCommentOrganismFilters) {
             // if the organism is in the list, that is good
-            CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(organism, cannedCommentList).each {
-                cannedCommentsJSONArray.put(it.cannedComment.comment)
+            for (filter in CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(organism, cannedCommentList)) {
+                cannedCommentsJSONArray.put(filter.cannedComment.comment)
             }
             // we have to add anything from cannedCommentList that isn't in another one
             List<CannedComment> cannedCommentsToExclude = CannedCommentOrganismFilter.findAllByOrganismNotEqualAndCannedCommentInList(organism, cannedCommentList).cannedComment
@@ -32,8 +32,8 @@ class CannedCommentService {
         }
         // otherwise ignore them
         else {
-            cannedCommentList.each {
-                cannedCommentsJSONArray.put(it.comment)
+            for (cc in cannedCommentList) {
+                cannedCommentsJSONArray.put(cc.comment)
             }
         }
         return cannedCommentsJSONArray

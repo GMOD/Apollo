@@ -78,6 +78,13 @@ class SequenceController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!sequenceInstance && inputObject.has("sequenceName")) {
+            sequenceInstance = Sequence.findByName(inputObject.getString("sequenceName"))
+        }
+        if (!sequenceInstance) {
+            render([error: "Sequence not found"] as JSON)
+            return
+        }
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 

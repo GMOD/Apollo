@@ -700,6 +700,7 @@ class UserController {
         if (!user) {
             log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
             render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
+            return
         }
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
@@ -718,17 +719,10 @@ class UserController {
 
 
         JSONArray permissionsArray = new JSONArray()
-        if (dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())) {
-            permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
-        }
-        if (dataObject.getBoolean(PermissionEnum.WRITE.name())) {
-            permissionsArray.add(PermissionEnum.WRITE.name())
-        }
-        if (dataObject.getBoolean(PermissionEnum.EXPORT.name())) {
-            permissionsArray.add(PermissionEnum.EXPORT.name())
-        }
-        if (dataObject.getBoolean(PermissionEnum.READ.name())) {
-            permissionsArray.add(PermissionEnum.READ.name())
+        for (PermissionEnum perm in [PermissionEnum.ADMINISTRATE, PermissionEnum.WRITE, PermissionEnum.EXPORT, PermissionEnum.READ]) {
+            if (dataObject.optBoolean(perm.name(), false)) {
+                permissionsArray.add(perm.name())
+            }
         }
 
         if (permissionsArray.size() == 0) {

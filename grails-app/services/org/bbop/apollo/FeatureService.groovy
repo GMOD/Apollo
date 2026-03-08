@@ -178,8 +178,8 @@ class FeatureService {
         User owner = User.findByUsername(username as String)
         if (owner && features) {
             log.debug "setting owner for feature ${features} to ${owner}"
-            features.each {
-                it.addToOwners(owner)
+            for (f in features) {
+                f.addToOwners(owner)
             }
         } else {
             log.warn "user ${owner} or feature ${features} is null so not setting"
@@ -253,16 +253,19 @@ class FeatureService {
                 log.debug "Gene from parent_id doesn't exist; trying to find overlapping isoform"
                 // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
                 FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
-                Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
-                    it = Feature.get(it.id)
-                    it instanceof Gene
+                List<Feature> overlappingFeatures = new ArrayList<>()
+                for (f in getOverlappingFeatures(featureLocation)) {
+                    f = Feature.get(f.id)
+                    if (f instanceof Gene) {
+                        overlappingFeatures.add(f)
+                    }
                 }
 
                 log.debug "overlapping genes: ${overlappingFeatures.name}"
                 List<Feature> overlappingFeaturesToCheck = new ArrayList<Feature>()
-                overlappingFeatures.each {
-                    if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
-                        overlappingFeaturesToCheck.add(it)
+                for (f in overlappingFeatures) {
+                    if (!checkForComment(f, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(f, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                        overlappingFeaturesToCheck.add(f)
                     }
                 }
 
@@ -338,8 +341,8 @@ class FeatureService {
                                         String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
                                         // TODO: needs improvement
                                         boolean exists = false
-                                        tmpGene.featureDBXrefs.each {
-                                            if (it.db.name == dbString && it.accession == accessionString) {
+                                        for (dbxrefEntry in tmpGene.featureDBXrefs) {
+                                            if (dbxrefEntry.db.name == dbString && dbxrefEntry.accession == accessionString) {
                                                 exists = true
                                             }
                                         }
@@ -358,10 +361,10 @@ class FeatureService {
                                         String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
                                         // TODO: needs improvement
                                         boolean exists = false
-                                        tmpGene.featureProperties.each {
-                                            if (it instanceof Comment) {
+                                        for (fp in tmpGene.featureProperties) {
+                                            if (fp instanceof Comment) {
                                                 exists = true
-                                            } else if (it.tag == tagString && it.value == valueString) {
+                                            } else if (fp.tag == tagString && fp.value == valueString) {
                                                 exists = true
                                             }
                                         }
@@ -485,7 +488,10 @@ class FeatureService {
      * @return
      */
     Feature getTopLevelFeature(Feature feature) {
-        Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature?.collect { Hibernate.unproxy(it) }
+        List<Feature> parents = new ArrayList<>()
+        for (rel in feature?.childFeatureRelationships) {
+            parents.add(Hibernate.unproxy(rel.parentFeature) as Feature)
+        }
         if (parents) {
             return getTopLevelFeature(parents.iterator().next())
         } else {
@@ -1600,10 +1606,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "gene product array ${geneProductString}"
                 List<GeneProduct> geneProducts = geneProductService.convertGff3StringToGeneProducts(geneProductString)
                 log.debug "gene products outputs ${geneProducts}: ${geneProducts.size()}"
-                geneProducts.each {
-                    it.feature = gsolFeature
-                    it.save()
-                    gsolFeature.addToGeneProducts(it)
+                for (gp in geneProducts) {
+                    gp.feature = gsolFeature
+                    gp.save()
+                    gsolFeature.addToGeneProducts(gp)
                 }
                 gsolFeature.save()
             }
@@ -1613,10 +1619,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "provenance array ${provenanceString}"
                 List<Provenance> listOfProvenances = provenanceService.convertGff3StringToProvenances(provenanceString)
                 log.debug "gene products outputs ${listOfProvenances}: ${listOfProvenances.size()}"
-                listOfProvenances.each {
-                    it.feature = gsolFeature
-                    it.save()
-                    gsolFeature.addToProvenances(it)
+                for (prov in listOfProvenances) {
+                    prov.feature = gsolFeature
+                    prov.save()
+                    gsolFeature.addToProvenances(prov)
                 }
                 gsolFeature.save()
             }
@@ -1626,10 +1632,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "go annotations array ${goAnnotationString}"
                 List<GoAnnotation> goAnnotations = goAnnotationService.convertGff3StringToGoAnnotations(goAnnotationString)
                 log.debug "gene products outputs ${goAnnotations}: ${goAnnotations.size()}"
-                goAnnotations.each {
-                    it.feature = gsolFeature
-                    it.save()
-                    gsolFeature.addToGoAnnotations(it)
+                for (ga in goAnnotations) {
+                    ga.feature = gsolFeature
+                    ga.save()
+                    gsolFeature.addToGoAnnotations(ga)
                 }
                 gsolFeature.save()
             }
@@ -1994,7 +2000,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // variant info (properties)
             if (gsolFeature.getVariantInfo()) {
                 JSONArray variantInfoArray = new JSONArray()
-                gsolFeature.variantInfo.each { variantInfo ->
+                for (variantInfo in gsolFeature.variantInfo) {
                     JSONObject variantInfoObject = new JSONObject()
                     variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
                     variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
@@ -2005,12 +2011,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // TODO: optimize
             JSONArray alternateAllelesArray = new JSONArray()
-            gsolFeature.alleles.each { allele ->
+            for (allele in gsolFeature.alleles) {
                 JSONObject alleleObject = new JSONObject()
                 alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
                 if (allele.alleleInfo) {
                     JSONArray alleleInfoArray = new JSONArray()
-                    allele.alleleInfo.each { alleleInfo ->
+                    for (alleleInfo in allele.alleleInfo) {
                         JSONObject alleleInfoObject = new JSONObject()
                         alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
                         alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
@@ -2207,7 +2213,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (gsolFeature.variantInfo) {
                 JSONArray variantInfoArray = new JSONArray()
-                gsolFeature.variantInfo.each { variantInfo ->
+                for (variantInfo in gsolFeature.variantInfo) {
                     JSONObject variantInfoObject = new JSONObject()
                     variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
                     variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
@@ -2495,12 +2501,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Gene originalGene = transcriptService.getGene(transcript)
 
         // TODO: should go left to right, may need to sort
-        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene)?.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
-        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation)?.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
+        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene) ?: []
+        originalTranscripts.sort(Comparator.comparingInt { Transcript t -> t.featureLocation.fmin })
+        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation) ?: []
+        newTranscripts.sort(Comparator.comparingInt { Transcript t -> t.featureLocation.fmin })
 
         List<Transcript> leftBehindTranscripts = originalTranscripts - newTranscripts
 
@@ -2524,8 +2528,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Gene originalOverlappingGene = transcriptService.getGene(originalOverlappingTranscript)
             List<Transcript> overlappingTranscripts = getOverlappingTranscripts(originalOverlappingTranscript.featureLocation)
             overlappingTranscripts = overlappingTranscripts - usedGenes
-            overlappingTranscripts.each { it ->
-                setGeneTranscript(it, originalOverlappingGene)
+            for (ot in overlappingTranscripts) {
+                setGeneTranscript(ot, originalOverlappingGene)
             }
             leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
         }
@@ -2542,22 +2546,23 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         // force null / 0 strand to be positive
         // when getting the up-most strand, make sure to put matching transcript strands BEFORE unmatching strands
         if (transcript.strand != Strand.NEGATIVE.value) {
-            allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                a.strand <=> b.strand ?: a.featureLocation.fmin <=> b.featureLocation.fmin ?: a.name <=> b.name
-            }
+            allSortedTranscripts = allTranscripts ?: []
+            allSortedTranscripts.sort(Comparator.comparingInt { Transcript t -> t.strand }
+                .thenComparingInt { Transcript t -> t.featureLocation.fmin }
+                .thenComparing { Transcript t -> t.name })
         } else {
-            allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax ?: a.name <=> b.name
-            }
+            allSortedTranscripts = allTranscripts ?: []
+            allSortedTranscripts.sort(Comparator.comparingInt { Transcript t -> -(t.strand) }
+                .thenComparingInt { Transcript t -> -(t.featureLocation.fmax) }
+                .thenComparing { Transcript t -> t.name })
         }
 
         // remove exceptions
         List<Transcript> allSortedTranscriptsToCheck = new ArrayList<Transcript>()
 
-        allSortedTranscripts.each {
-            boolean safe = true
-            if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
-                allSortedTranscriptsToCheck.add(it)
+        for (st in allSortedTranscripts) {
+            if (!checkForComment(st, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(st, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                allSortedTranscriptsToCheck.add(st)
             }
         }
 
@@ -2628,8 +2633,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                                 name: nameService.generateUniqueName(fivePrimeGene)
                         )
 
-                        firstTranscript.owners.each {
-                            newGene.addToOwners(it)
+                        for (owner in firstTranscript.owners) {
+                            newGene.addToOwners(owner)
                         }
                         newGene.save(flush: true)
 
@@ -2757,8 +2762,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         log.debug "New gene name: ${newGene.name}"
-        transcript.owners.each {
-            newGene.addToOwners(it)
+        for (owner in transcript.owners) {
+            newGene.addToOwners(owner)
         }
 
         FeatureLocation newGeneFeatureLocation = new FeatureLocation(
@@ -2815,13 +2820,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         newFeatureLocation.fmax = fmaxList.max()
         newFeatureLocation.save(flush: true)
         for (Gene gene in genes) {
-            gene.featureDBXrefs.each { mainGene.addToFeatureDBXrefs(it) }
-            gene.featureGenotypes.each { mainGene.addToFeatureGenotypes(it) }
-            gene.featurePhenotypes.each { mainGene.addToFeaturePhenotypes(it) }
-            gene.featurePublications.each { mainGene.addToFeaturePublications(it) }
-            gene.featureProperties.each { mainGene.addToFeatureProperties(it) }
-            gene.featureSynonyms.each { mainGene.addToFeatureSynonyms(it) }
-            gene.owners.each { mainGene.addToOwners(it) }
+            for (dbx in gene.featureDBXrefs) { mainGene.addToFeatureDBXrefs(dbx) }
+            for (fg in gene.featureGenotypes) { mainGene.addToFeatureGenotypes(fg) }
+            for (fp in gene.featurePhenotypes) { mainGene.addToFeaturePhenotypes(fp) }
+            for (pub in gene.featurePublications) { mainGene.addToFeaturePublications(pub) }
+            for (prop in gene.featureProperties) { mainGene.addToFeatureProperties(prop) }
+            for (syn in gene.featureSynonyms) { mainGene.addToFeatureSynonyms(syn) }
+            for (owner in gene.owners) { mainGene.addToOwners(owner) }
         }
 
         mainGene.save(flush: true)

@@ -95,7 +95,7 @@ class VcfHandlerService {
         def alternateAlleles = variantService.getAlternateAlleles(variant)
         def record = [variant.featureLocation.sequence.name, variant.featureLocation.fmin + 1, variant.uniqueName, referenceAllele ? referenceAllele.bases : "."]
         def alleleInfoMap = [:]
-        alternateAlleles.each { allele ->
+        for (allele in alternateAlleles) {
             if (alleleInfoMap.containsKey('allele_order')) {
                 alleleInfoMap.get('allele_order').add(allele.bases)
             }
@@ -104,12 +104,12 @@ class VcfHandlerService {
             }
 
             def alleleInfos = allele.alleleInfo
-            alleleInfos.each {
-                if (alleleInfoMap.containsKey(it.tag)) {
-                    alleleInfoMap.get(it.tag).add(it.value)
+            for (info in alleleInfos) {
+                if (alleleInfoMap.containsKey(info.tag)) {
+                    alleleInfoMap.get(info.tag).add(info.value)
                 }
                 else {
-                    alleleInfoMap[it.tag] = [it.value]
+                    alleleInfoMap[info.tag] = [info.value]
                 }
             }
         }

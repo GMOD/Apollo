@@ -39,12 +39,12 @@ class AnnotatorService {
             Map<Sequence, Integer> sequenceIntegerMap = [:]
             Map<Organism, Integer> annotationCountMap = [:]
             if (organismList) {
-                Sequence.executeQuery("select o,count(s) from Organism o join o.sequences s where o in (:organismList) group by o ", [organismList: organismList]).each() {
-                    sequenceIntegerMap.put(it[0], it[1])
+                for (row in Sequence.executeQuery("select o,count(s) from Organism o join o.sequences s where o in (:organismList) group by o ", [organismList: organismList])) {
+                    sequenceIntegerMap.put(row[0], row[1])
                 }
                 if (configWrapperService.getCountAnnotations()) {
-                    Feature.executeQuery("select o,count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o in (:organismList) and f.class in (:viewableTypes) group by o", [organismList: organismList, viewableTypes: requestHandlingService.viewableAnnotationList]).each {
-                        annotationCountMap.put(it[0], it[1])
+                    for (row in Feature.executeQuery("select o,count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o in (:organismList) and f.class in (:viewableTypes) group by o", [organismList: organismList, viewableTypes: requestHandlingService.viewableAnnotationList])) {
+                        annotationCountMap.put(row[0], row[1])
                     }
                 } else {
                     for (o in organismList) {
