@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus
 
 class SecurityInterceptor {
 
-    def permissionService
-
+    PermissionService permissionService
     static final List<String> WEB_ACTION_LIST = ['index', 'show', 'create', 'edit', 'update', 'delete']
 
     static final List<String> SECURED_CONTROLLERS = [

@@ -14,9 +14,8 @@ import org.springframework.scheduling.annotation.Scheduled
 @Transactional
 class PreferenceService {
 
-    def permissionService
-    def configWrapperService
-
+    PermissionService permissionService
+    ConfigWrapperService configWrapperService
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 5  // saves every 30 seconds
     // enqueue to store save
     private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = new HashMap<>()

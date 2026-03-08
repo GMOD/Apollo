@@ -12,8 +12,7 @@ class GeneProductNameController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def index(Integer max) {
 //        params.max = Math.min(max ?: 10, 100)
 //        respond GeneProductName.list(params), model:[geneProductNameInstanceCount: GeneProductName.count()]

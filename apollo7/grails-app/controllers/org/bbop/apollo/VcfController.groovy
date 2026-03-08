@@ -13,11 +13,10 @@ import jakarta.servlet.http.HttpServletResponse
 @Transactional
 class VcfController {
 
-    def preferenceService
-    def permissionService
-    def vcfService
-    def trackService
-
+    PreferenceService preferenceService
+    PermissionService permissionService
+    VcfService vcfService
+    TrackService trackService
     def beforeInterceptor = {
         if (params.action == "featuresByLocation") {
             response.setHeader("Access-Control-Allow-Origin", "*")

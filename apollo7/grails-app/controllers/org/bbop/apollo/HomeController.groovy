@@ -6,8 +6,7 @@ import org.grails.web.json.JSONObject
 
 class HomeController {
 
-    def permissionService
-
+    PermissionService permissionService
     /**
      * Permissions handled upstream
      * @return

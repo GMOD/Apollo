@@ -16,11 +16,10 @@ import java.util.zip.GZIPInputStream
 @Transactional
 class TrackService {
 
-    def preferenceService
-    def trackMapperService
-    def permissionService
-    def configWrapperService
-
+    PreferenceService preferenceService
+    TrackMapperService trackMapperService
+    PermissionService permissionService
+    ConfigWrapperService configWrapperService
     static final String TRACKLIST = "trackList.json"
     static final String EXTENDED_TRACKLIST = "extendedTrackList.json"
 

@@ -8,10 +8,9 @@ import org.bbop.apollo.sequence.Strand
 class OverlapperService implements Overlapper{
 
 
-    def transcriptService
-    def exonService 
-    def configWrapperService
-
+    TranscriptService transcriptService
+    ExonService exonService
+    ConfigWrapperService configWrapperService
     @Override
     boolean overlaps(Transcript transcript, Gene gene) {
         return checkForOverlap(transcript,gene)

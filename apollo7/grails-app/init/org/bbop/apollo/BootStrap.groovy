@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import grails.core.GrailsApplication
 import groovy.util.logging.Slf4j
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -10,16 +11,15 @@ class BootStrap {
 
     static final AtomicBoolean ready = new AtomicBoolean(false)
 
-    def sequenceService
-    def configWrapperService
-    def grailsApplication
-    def featureTypeService
-    def domainMarshallerService
-    def proxyService
-    def userService
-    def roleService
-    def trackService
-
+    SequenceService sequenceService
+    ConfigWrapperService configWrapperService
+    GrailsApplication grailsApplication
+    FeatureTypeService featureTypeService
+    DomainMarshallerService domainMarshallerService
+    ProxyService proxyService
+    UserService userService
+    RoleService roleService
+    TrackService trackService
     def init = { servletContext ->
         log.info "Initializing Apollo..."
         def dataSource = grailsApplication.config.getProperty('dataSource', Map)

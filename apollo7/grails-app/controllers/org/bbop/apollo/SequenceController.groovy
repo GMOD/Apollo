@@ -23,12 +23,11 @@ class SequenceController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def sequenceService
-    def requestHandlingService
-    def permissionService
-    def preferenceService
-    def reportService
-
+    SequenceService sequenceService
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
+    PreferenceService preferenceService
+    ReportService reportService
     def permissions() {}
 
     def beforeInterceptor = {

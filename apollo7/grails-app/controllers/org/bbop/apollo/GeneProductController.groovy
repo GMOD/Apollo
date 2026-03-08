@@ -6,6 +6,7 @@ import org.bbop.apollo.Feature
 import org.bbop.apollo.GeneProductName
 import org.bbop.apollo.User
 import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.geneProduct.GeneProductService
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -19,11 +20,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED
 class GeneProductController {
 
 
-    def permissionService
-    def geneProductService
-    def featureEventService
-    def featureService
-
+    PermissionService permissionService
+    GeneProductService geneProductService
+    FeatureEventService featureEventService
+    FeatureService featureService
     def search() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)

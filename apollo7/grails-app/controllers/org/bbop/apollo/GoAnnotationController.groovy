@@ -5,6 +5,7 @@ import grails.gorm.transactions.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
 import org.bbop.apollo.go.GoAnnotation
+import org.bbop.apollo.go.GoAnnotationService
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -18,11 +19,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED
 class GoAnnotationController {
 
 
-  def permissionService
-  def goAnnotationService
-  def featureEventService
-  def featureService
-
+  PermissionService permissionService
+  GoAnnotationService goAnnotationService
+  FeatureEventService featureEventService
+  FeatureService featureService
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {

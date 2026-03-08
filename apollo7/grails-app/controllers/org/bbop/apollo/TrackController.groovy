@@ -11,11 +11,10 @@ import org.grails.web.json.JSONObject
 @Transactional(readOnly = true)
 class TrackController {
 
-    def preferenceService
-    def permissionService
-    def trackService
-    def svgService
-
+    PreferenceService preferenceService
+    PermissionService permissionService
+    TrackService trackService
+    SvgService svgService
   final double DEFAULT_OVERLAP_FILTER = 50.0
 
   def beforeInterceptor = {

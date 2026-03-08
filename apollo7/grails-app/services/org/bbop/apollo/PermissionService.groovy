@@ -12,17 +12,19 @@ import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONObject
 import grails.web.servlet.mvc.GrailsParameterMap
 
+import org.bbop.apollo.authenticator.AuthenticatorService
+import org.bbop.apollo.authenticator.RemoteUserAuthenticatorService
+import org.bbop.apollo.authenticator.UsernamePasswordAuthenticatorService
+
 import jakarta.servlet.http.HttpServletRequest
 
 @Transactional
 class PermissionService {
 
-    def preferenceService
-    def configWrapperService
-    def remoteUserAuthenticatorService
-    def usernamePasswordAuthenticatorService
-
-
+    PreferenceService preferenceService
+    ConfigWrapperService configWrapperService
+    RemoteUserAuthenticatorService remoteUserAuthenticatorService
+    UsernamePasswordAuthenticatorService usernamePasswordAuthenticatorService
     boolean isUserBetterOrEqualRank(User user,GlobalPermissionEnum globalPermissionEnum) {
         if (user != null) {
             for (Role role in user.roles) {
@@ -675,7 +677,7 @@ class PermissionService {
 
         for (auth in authentications) {
             if (auth.active) {
-                def authenticationService
+                AuthenticatorService authenticationService
                 if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
                     if (auth?.params?.containsKey("default_group")) {

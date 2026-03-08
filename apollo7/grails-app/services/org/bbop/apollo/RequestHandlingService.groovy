@@ -3,6 +3,9 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.geneProduct.GeneProductService
+import org.bbop.apollo.go.GoAnnotationService
+import org.bbop.apollo.provenance.ProvenanceService
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -25,23 +28,23 @@ class RequestHandlingService {
 
     public static String REST_SEQUENCE_ALTERNATION_EVENT = "sequenceAlterationEvent"
 
-    def featureService
-    def featureRelationshipService
-    def transcriptService
-    def cdsService
-    def exonService
-    def variantService
-    def nonCanonicalSplitSiteService
-    def configWrapperService
-    def nameService
-    def permissionService
-    def preferenceService
-    def featurePropertyService
-    def featureEventService
-    def goAnnotationService
-    def geneProductService
-    def provenanceService
-    def jsonWebUtilityService
+    FeatureService featureService
+    FeatureRelationshipService featureRelationshipService
+    TranscriptService transcriptService
+    CdsService cdsService
+    ExonService exonService
+    VariantService variantService
+    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
+    ConfigWrapperService configWrapperService
+    NameService nameService
+    PermissionService permissionService
+    PreferenceService preferenceService
+    FeaturePropertyService featurePropertyService
+    FeatureEventService featureEventService
+    GoAnnotationService goAnnotationService
+    GeneProductService geneProductService
+    ProvenanceService provenanceService
+    JsonWebUtilityService jsonWebUtilityService
     def brokerMessagingTemplate
 
 

@@ -9,8 +9,7 @@ import org.grails.web.json.JSONObject
 @Transactional
 class SequenceSearchService {
 
-    def configWrapperService
-
+    ConfigWrapperService configWrapperService
     def searchSequence(JSONObject input, String database) {
 
 

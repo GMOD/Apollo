@@ -10,8 +10,7 @@ import org.grails.web.json.JSONObject
 @Transactional
 class GroupService {
 
-    def permissionService
-
+    PermissionService permissionService
     List<UserGroup> createGroups(String metadata,User currentUser,String[] names) {
         List<UserGroup> groups = []
         for(name in names){

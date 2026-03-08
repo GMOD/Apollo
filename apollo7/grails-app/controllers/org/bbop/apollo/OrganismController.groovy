@@ -29,17 +29,15 @@ class OrganismController {
 
   static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-  def sequenceService
-  def permissionService
-  def requestHandlingService
-  def preferenceService
-  def organismService
-  def reportService
-  def configWrapperService
-  def trackService
-  def fileService
-
-
+  SequenceService sequenceService
+  PermissionService permissionService
+  RequestHandlingService requestHandlingService
+  PreferenceService preferenceService
+  OrganismService organismService
+  ReportService reportService
+  ConfigWrapperService configWrapperService
+  TrackService trackService
+  FileService fileService
   @Transactional
   def deleteOrganism() {
 

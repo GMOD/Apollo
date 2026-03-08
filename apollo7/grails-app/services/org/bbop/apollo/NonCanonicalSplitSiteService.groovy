@@ -8,12 +8,11 @@ import org.bbop.apollo.sequence.Strand
 @Transactional
 class NonCanonicalSplitSiteService {
 
-    def featureRelationshipService
-    def configWrapperService
-    def transcriptService
-    def featureService
-    def sequenceService
-
+    FeatureRelationshipService featureRelationshipService
+    ConfigWrapperService configWrapperService
+    TranscriptService transcriptService
+    FeatureService featureService
+    SequenceService sequenceService
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
      *

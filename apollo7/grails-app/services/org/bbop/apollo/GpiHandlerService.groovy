@@ -11,8 +11,7 @@ import java.text.SimpleDateFormat
  */
 class GpiHandlerService {
 
-    def configWrapperService
-
+    ConfigWrapperService configWrapperService
     SimpleDateFormat gpadDateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
     void writeFeaturesToText(String path, Collection<? extends Feature> features) throws IOException {

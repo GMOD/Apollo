@@ -19,12 +19,11 @@ class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
-    def sequenceService
-    def permissionService
-    def preferenceService
-    def jbrowseService
-    def trackService
-
+    SequenceService sequenceService
+    PermissionService permissionService
+    PreferenceService preferenceService
+    JbrowseService jbrowseService
+    TrackService trackService
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }

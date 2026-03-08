@@ -12,13 +12,12 @@ import org.grails.web.json.JSONObject
 @Transactional
 class AnnotatorService {
 
-    def permissionService
-    def preferenceService
-    def requestHandlingService
-    def configWrapperService
-    def trackService
-    def variantService
-
+    PermissionService permissionService
+    PreferenceService preferenceService
+    RequestHandlingService requestHandlingService
+    ConfigWrapperService configWrapperService
+    TrackService trackService
+    VariantService variantService
     Integer getAnnotationCount(Organism organism) {
         if(configWrapperService.getCountAnnotations()){
             def viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList

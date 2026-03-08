@@ -10,9 +10,8 @@ class ProxyController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-    def proxyService
-
+    PermissionService permissionService
+    ProxyService proxyService
     def beforeInterceptor = {
         if (actionName != "request" && !permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             forward action: "notAuthorized", controller: "annotator"

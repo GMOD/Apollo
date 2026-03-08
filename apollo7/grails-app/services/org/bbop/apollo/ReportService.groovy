@@ -12,8 +12,7 @@ import org.grails.web.json.JSONArray
 @Transactional
 class ReportService {
 
-    def permissionService
-
+    PermissionService permissionService
     def generateAllFeatureSummary() {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
         thisFeatureSummaryInstance.geneCount = Gene.count

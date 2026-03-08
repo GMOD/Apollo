@@ -15,10 +15,8 @@ class FeatureEventController {
     static final String DAY_DATE_FORMAT = 'yyyy-MM-dd'
     static final String FULL_DATE_FORMAT = DAY_DATE_FORMAT + ' HH:mm:ss'
 
-    def requestHandlingService
-    def permissionService
-
-
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     /**

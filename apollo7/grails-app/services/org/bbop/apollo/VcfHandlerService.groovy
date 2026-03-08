@@ -6,11 +6,10 @@ import java.text.SimpleDateFormat
 @Transactional
 class VcfHandlerService {
 
-    def sequenceService
-    def featureService
-    def featurePropertyService
-    def variantService
-
+    SequenceService sequenceService
+    FeatureService featureService
+    FeaturePropertyService featurePropertyService
+    VariantService variantService
     static final format = "VCFv4.2"
     static final header = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO"]
     SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMdd")

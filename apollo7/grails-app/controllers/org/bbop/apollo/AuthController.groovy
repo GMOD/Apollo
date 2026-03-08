@@ -5,9 +5,8 @@ import org.springframework.security.core.AuthenticationException
 
 class AuthController {
 
-    def permissionService
-    def preferenceService
-
+    PermissionService permissionService
+    PreferenceService preferenceService
     def index = { redirect(action: "login", params: params) }
 
     def login = {

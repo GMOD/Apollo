@@ -13,19 +13,18 @@ import java.util.zip.GZIPOutputStream
 
 class IOServiceController extends AbstractApolloController {
 
-    def sequenceService
-    def gff3HandlerService
-    def fastaHandlerService
-    def chadoHandlerService
-    def preferenceService
-    def configWrapperService
-    def requestHandlingService
-    def vcfHandlerService
-    def trackService
-    def fileService
-    def gpad2HandlerService
-    def gpiHandlerService
-
+    SequenceService sequenceService
+    Gff3HandlerService gff3HandlerService
+    FastaHandlerService fastaHandlerService
+    ChadoHandlerService chadoHandlerService
+    PreferenceService preferenceService
+    ConfigWrapperService configWrapperService
+    RequestHandlingService requestHandlingService
+    VcfHandlerService vcfHandlerService
+    TrackService trackService
+    FileService fileService
+    Gpad2HandlerService gpad2HandlerService
+    GpiHandlerService gpiHandlerService
   // fileMap of uuid / filename
     // see #464
     private Map<String, DownloadFile> fileMap = new HashMap<>()

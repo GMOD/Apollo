@@ -10,8 +10,7 @@ class FeatureTypeController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def beforeInterceptor = {
         if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             forward action: "notAuthorized" ,controller: "annotator"

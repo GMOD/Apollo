@@ -12,14 +12,13 @@ import org.bbop.apollo.sequence.Strand
 class ExonService {
 
 //    CvTermService cvTermService
-    def transcriptService
-    def featureService
-    def featureRelationshipService
-    def featurePropertyService
-    def sequenceService
-    def overlapperService
-    def nameService
-
+    TranscriptService transcriptService
+    FeatureService featureService
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    SequenceService sequenceService
+    OverlapperService overlapperService
+    NameService nameService
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
      * <code>null</code> if this exon is not associated with any transcript.

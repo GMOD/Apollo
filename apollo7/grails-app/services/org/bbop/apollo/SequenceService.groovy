@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
 import htsjdk.samtools.reference.FastaSequenceIndex
@@ -21,19 +22,17 @@ import java.util.zip.GZIPInputStream
 @Transactional
 class SequenceService {
 
-    def configWrapperService
-    def grailsApplication
-    def featureService
-    def transcriptService
-    def requestHandlingService
-    def exonService
-    def cdsService
-    def gff3HandlerService
-    def overlapperService
-    def organismService
-    def trackService
-
-
+    ConfigWrapperService configWrapperService
+    GrailsApplication grailsApplication
+    FeatureService featureService
+    TranscriptService transcriptService
+    RequestHandlingService requestHandlingService
+    ExonService exonService
+    CdsService cdsService
+    Gff3HandlerService gff3HandlerService
+    OverlapperService overlapperService
+    OrganismService organismService
+    TrackService trackService
     List<FeatureLocation> getFeatureLocations(Sequence sequence) {
         FeatureLocation.findAllBySequence(sequence)
     }

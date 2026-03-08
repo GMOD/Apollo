@@ -14,8 +14,7 @@ class SuggestedNameController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def beforeInterceptor = {
       // if a non-JSON method
       if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {

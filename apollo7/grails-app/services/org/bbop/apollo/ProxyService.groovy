@@ -1,13 +1,13 @@
 package org.bbop.apollo
 
+import grails.core.GrailsApplication
 import grails.gorm.transactions.Transactional
 
 @Transactional(readOnly = true)
 class ProxyService {
 
 //    private final static List<String> defaultProxies = ["http://golr.berkeleybop.org/"]
-    def grailsApplication
-
+    GrailsApplication grailsApplication
     /**
      * Looks through all proxies to return valid proxies
      *

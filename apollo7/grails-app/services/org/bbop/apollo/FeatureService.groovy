@@ -4,7 +4,10 @@ import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.geneProduct.GeneProductService
 import org.bbop.apollo.go.GoAnnotation
+import org.bbop.apollo.go.GoAnnotationService
+import org.bbop.apollo.provenance.ProvenanceService
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -14,30 +17,30 @@ import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
 import org.hibernate.FlushMode
+import org.hibernate.SessionFactory
 import org.hibernate.Hibernate
 
 @Transactional(readOnly = true)
 class FeatureService {
 
 
-    def nameService
-    def configWrapperService
-    def featureService
-    def transcriptService
-    def exonService
-    def cdsService
-    def nonCanonicalSplitSiteService
-    def featureRelationshipService
-    def featurePropertyService
-    def sequenceService
-    def permissionService
-    def overlapperService
-    def organismService
-    def sessionFactory
-    def goAnnotationService
-    def geneProductService
-    def provenanceService
-
+    NameService nameService
+    ConfigWrapperService configWrapperService
+    FeatureService featureService
+    TranscriptService transcriptService
+    ExonService exonService
+    CdsService cdsService
+    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    SequenceService sequenceService
+    PermissionService permissionService
+    OverlapperService overlapperService
+    OrganismService organismService
+    SessionFactory sessionFactory
+    GoAnnotationService goAnnotationService
+    GeneProductService geneProductService
+    ProvenanceService provenanceService
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final String MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene"

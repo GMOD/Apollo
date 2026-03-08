@@ -14,10 +14,9 @@ public class FastaHandlerService {
     private Mode mode;
     public final static int NUM_RESIDUES_PER_LINE = 60;
 
-    def sequenceService
-    def transcriptService
-    def featurePropertyService
-
+    SequenceService sequenceService
+    TranscriptService transcriptService
+    FeaturePropertyService featurePropertyService
     public enum Mode {
         READ,
         WRITE

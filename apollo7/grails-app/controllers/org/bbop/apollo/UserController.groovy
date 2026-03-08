@@ -13,12 +13,10 @@ import org.springframework.http.HttpStatus
 @Transactional(readOnly = true)
 class UserController {
 
-    def permissionService
-    def preferenceService
-    def userService
-    def trackService
-
-
+    PermissionService permissionService
+    PreferenceService preferenceService
+    UserService userService
+    TrackService trackService
     def loadUsers() {
         try {
             JSONObject dataObject = permissionService.handleInput(request, params)

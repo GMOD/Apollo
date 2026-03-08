@@ -15,14 +15,13 @@ class TranscriptService {
     ]
 
     // services
-    def featureService
-    def featurePropertyService
-    def featureRelationshipService
-    def nameService
-    def nonCanonicalSplitSiteService
-    def sequenceService
-    def configWrapperService
-
+    FeatureService featureService
+    FeaturePropertyService featurePropertyService
+    FeatureRelationshipService featureRelationshipService
+    NameService nameService
+    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
+    SequenceService sequenceService
+    ConfigWrapperService configWrapperService
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
      *  if no CDS is associated.

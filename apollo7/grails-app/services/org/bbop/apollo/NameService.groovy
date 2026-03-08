@@ -5,7 +5,7 @@ import grails.gorm.transactions.Transactional
 @Transactional(readOnly = true)
 class NameService {
 
-    def transcriptService
+    TranscriptService transcriptService
     def letterPaddingStrategy = new LetterPaddingStrategy()
     def leftPaddingStrategy = new LeftPaddingStrategy()
 

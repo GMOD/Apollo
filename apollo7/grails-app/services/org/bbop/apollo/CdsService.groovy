@@ -11,14 +11,13 @@ class CdsService {
     public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
     public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 
-    def featureRelationshipService
-    def featurePropertyService
-    def transcriptService
-    def featureService
-    def exonService
-    def sequenceService
-    def overlapperService
-    
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    TranscriptService transcriptService
+    FeatureService featureService
+    ExonService exonService
+    SequenceService sequenceService
+    OverlapperService overlapperService
     void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
             return

@@ -23,19 +23,18 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED
  */
 class AnnotatorController {
 
-    def featureService
-    def requestHandlingService
-    def permissionService
-    def annotatorService
-    def trackService
-    def preferenceService
-    def reportService
-    def configWrapperService
+    FeatureService featureService
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
+    AnnotatorService annotatorService
+    TrackService trackService
+    PreferenceService preferenceService
+    ReportService reportService
+    ConfigWrapperService configWrapperService
     def exportService
-    def variantService
-    def jsonWebUtilityService
-    def featureEventService
-
+    VariantService variantService
+    JsonWebUtilityService jsonWebUtilityService
+    FeatureEventService featureEventService
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
                                          FeatureStringEnum.ORGANISM.value,

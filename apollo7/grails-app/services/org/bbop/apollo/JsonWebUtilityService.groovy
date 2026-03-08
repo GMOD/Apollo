@@ -9,7 +9,7 @@ import org.grails.web.json.JSONObject
 @Transactional
 class JsonWebUtilityService {
 
-  def featureService
+  FeatureService featureService
   JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
     JSONObject jsonFeatureContainer = new JSONObject()
     JSONArray jsonFeatures = new JSONArray()

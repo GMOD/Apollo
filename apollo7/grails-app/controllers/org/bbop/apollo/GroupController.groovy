@@ -11,10 +11,9 @@ import org.springframework.http.HttpStatus
 
 class GroupController {
 
-    def permissionService
-    def preferenceService
-    def groupService
-
+    PermissionService permissionService
+    PreferenceService preferenceService
+    GroupService groupService
     def getOrganismPermissionsForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {

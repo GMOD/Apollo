@@ -6,6 +6,7 @@ import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.grails.web.json.JSONArray
+import org.bbop.apollo.provenance.ProvenanceService
 import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
@@ -15,11 +16,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED
 class ProvenanceController {
 
 
-  def permissionService
-  def provenanceService
-  def featureEventService
-  def featureService
-
+  PermissionService permissionService
+  ProvenanceService provenanceService
+  FeatureEventService featureEventService
+  FeatureService featureService
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {

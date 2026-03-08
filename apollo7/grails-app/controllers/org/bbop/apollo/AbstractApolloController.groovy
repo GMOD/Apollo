@@ -10,8 +10,7 @@ import org.springframework.http.HttpStatus
 
 abstract class AbstractApolloController {
 
-    def permissionService
-
+    PermissionService permissionService
     public static String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
     public static String REST_FEATURES = "features"

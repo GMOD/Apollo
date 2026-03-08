@@ -16,9 +16,8 @@ import java.util.zip.ZipInputStream
 @Transactional
 class OrganismService {
 
-    def featureService
-    def configWrapperService
-
+    FeatureService featureService
+    ConfigWrapperService configWrapperService
     int MAX_DELETE_SIZE = 10000
     int TRANSACTION_SIZE = 30
 

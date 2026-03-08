@@ -7,7 +7,7 @@ class PermissionTagLib {
     static namespace = 'perms'
     //static encodeAsForTags = [tagName: [taglib:'html'], otherTagName: [taglib:'none']]
 
-    def permissionService
+    PermissionService permissionService
 
     def isUserAdmin = { attrs, body ->
         if (permissionService.isUserGlobalAdmin(attrs.user)) {

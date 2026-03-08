@@ -16,12 +16,11 @@ import java.text.DateFormat
 @Transactional
 class FeatureEventService {
 
-    def permissionService
-    def transcriptService
-    def featureService
-    def requestHandlingService
-    def jsonWebUtilityService
-
+    PermissionService permissionService
+    TranscriptService transcriptService
+    FeatureService featureService
+    RequestHandlingService requestHandlingService
+    JsonWebUtilityService jsonWebUtilityService
     /**
      *
      * @param featureOperation

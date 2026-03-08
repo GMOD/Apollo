@@ -30,21 +30,21 @@ import java.security.Principal
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
-    def featureService
-    def sequenceService
-    def configWrapperService
-    def featureRelationshipService
-    def featurePropertyService
-    def requestHandlingService
-    def preferenceService
-    def sequenceSearchService
-    def featureEventService
-    def annotationEditorService
-    def organismService
-    def jsonWebUtilityService
-    def cannedCommentService
-    def cannedAttributeService
-    def availableStatusService
+    FeatureService featureService
+    SequenceService sequenceService
+    ConfigWrapperService configWrapperService
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    RequestHandlingService requestHandlingService
+    PreferenceService preferenceService
+    SequenceSearchService sequenceSearchService
+    FeatureEventService featureEventService
+    AnnotationEditorService annotationEditorService
+    OrganismService organismService
+    JsonWebUtilityService jsonWebUtilityService
+    CannedCommentService cannedCommentService
+    CannedAttributeService cannedAttributeService
+    AvailableStatusService availableStatusService
     def brokerMessagingTemplate
 
 
