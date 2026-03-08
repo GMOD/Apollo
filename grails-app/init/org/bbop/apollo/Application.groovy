@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @CompileStatic
@@ -19,7 +20,7 @@ class Application extends GrailsAutoConfiguration {
     }
 
     @Bean
-    WebMvcConfigurer corsConfigurer() {
+    WebMvcConfigurer webConfigurer() {
         new WebMvcConfigurer() {
             @Override
             void addCorsMappings(CorsRegistry registry) {
@@ -27,6 +28,22 @@ class Application extends GrailsAutoConfiguration {
                     .allowedOrigins("*")
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
+            }
+
+            @Override
+            void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/annotator/**")
+                    .addResourceLocations("/annotator/")
+                registry.addResourceHandler("/jbrowse/**")
+                    .addResourceLocations("/jbrowse/")
+                registry.addResourceHandler("/css/**")
+                    .addResourceLocations("/css/")
+                registry.addResourceHandler("/js/**")
+                    .addResourceLocations("/js/")
+                registry.addResourceHandler("/images/**")
+                    .addResourceLocations("/images/")
+                registry.addResourceHandler("/translation_tables/**")
+                    .addResourceLocations("/translation_tables/")
             }
         }
     }

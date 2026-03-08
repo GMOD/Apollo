@@ -155,6 +155,11 @@ apollo:
         - name: "Username Password Authenticator"
           className: "usernamePasswordAuthenticatorService"
           active: true
+    admin:
+        username: admin@local.host
+        password: password
+        firstName: Admin
+        lastName: User
 
 ---
 hibernate:

@@ -750,7 +750,9 @@ class PreferenceService {
 
         try {
             log.info "Removing stale preferences"
-            Date lastMonth = new Date().minus(0)
+            Calendar cal = Calendar.getInstance()
+            cal.add(Calendar.MONTH, -1)
+            Date lastMonth = cal.getTime()
             int removalCount = 0
 
             // get user client tokens
@@ -771,7 +773,7 @@ class PreferenceService {
 
             log.info "Removed ${removalCount} stale preferences"
         } catch (Exception e) {
-            log.error("Error removing preferences ${e}")
+            log.error(e.message, e)
         }
 
     }

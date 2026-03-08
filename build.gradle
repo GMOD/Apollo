@@ -133,20 +133,90 @@ task compileGwt(type: JavaExec) {
 }
 
 // JBrowse 1 installation tasks
+//
+// Default JBrowse settings. Override in apollo-config.groovy:
+//
+//   jbrowse {
+//       git {
+//           url = "https://github.com/gmod/jbrowse"
+//           branch = "master"
+//       }
+//       plugins {
+//           WebApollo { included = true }
+//           NeatHTMLFeatures { included = true }
+//           NeatCanvasFeatures { included = true }
+//           RegexSequenceSearch { included = true }
+//           HideTrackLabels { included = true }
+//           // External plugins cloned from git:
+//           // MyVariantInfo {
+//           //     git = 'https://github.com/GMOD/myvariantviewer'
+//           //     branch = 'master'
+//           // }
+//       }
+//   }
 
 ext {
-    jbrowseGitUrl = "https://github.com/gmod/jbrowse"
-    jbrowseBranch = "1.16.12-release"
     jbrowseDir = file("jbrowse")
     jbrowseWebappDir = file("src/main/webapp/jbrowse")
+    pluginsDir = "jbrowse/plugins"
 }
 
-task cloneJBrowse {
-    description "Clone JBrowse 1 from git"
-    onlyIf { !jbrowseDir.exists() }
-    doLast {
-        exec {
-            commandLine "git", "clone", jbrowseGitUrl, "--branch", jbrowseBranch, "--single-branch", "--depth", "1"
+def loadJBrowseConfig() {
+    def defaults = [
+        git: [url: "https://github.com/gmod/jbrowse", branch: "master"],
+        plugins: [
+            WebApollo: [included: true],
+            NeatHTMLFeatures: [included: true],
+            NeatCanvasFeatures: [included: true],
+            RegexSequenceSearch: [included: true],
+            HideTrackLabels: [included: true],
+        ]
+    ]
+
+    File configFile = file("apollo-config.groovy")
+    if (!configFile.exists()) {
+        return defaults
+    }
+
+    try {
+        def config = new ConfigSlurper().parse(configFile.toURI().toURL())
+        if (config.jbrowse) {
+            def jb = config.jbrowse
+            if (jb.git) {
+                if (jb.git.url) defaults.git.url = jb.git.url
+                if (jb.git.branch) defaults.git.branch = jb.git.branch
+                if (jb.git.tag) defaults.git.tag = jb.git.tag
+            }
+            if (jb.plugins) {
+                jb.plugins.each { name, settings ->
+                    defaults.plugins[name] = settings
+                }
+            }
+        }
+        return defaults
+    } catch (Exception e) {
+        logger.warn "Could not parse apollo-config.groovy for JBrowse config: ${e.message}"
+        return defaults
+    }
+}
+
+def installJBrowsePlugins(def jbrowseConfig) {
+    def plugins = jbrowseConfig.plugins ?: [:]
+    plugins.each { name, settings ->
+        def path = "${pluginsDir}/${name}"
+        if (settings.included == true) {
+            if (!file(path).exists()) {
+                logger.warn "Included plugin ${name} not found at ${path}"
+            }
+        } else if (settings.git) {
+            if (!file(path).exists()) {
+                logger.lifecycle "Cloning plugin ${name} from ${settings.git}"
+                exec {
+                    commandLine "git", "clone", settings.git,
+                        "--branch", settings.branch ?: "master",
+                        "--single-branch", "--depth", "1", path
+                }
+            }
         }
     }
 }
@@ -154,8 +224,14 @@ task cloneJBrowse {
 task installJBrowseWebOnly {
     description "Install JBrowse for web (no Perl tools)"
     doLast {
+        def jbConfig = loadJBrowseConfig()
+        def gitUrl = jbConfig.git.url
+        def gitBranch = jbConfig.git.tag ?: jbConfig.git.branch
+
         if (!jbrowseDir.exists()) {
-            tasks.cloneJBrowse.execute()
+            exec {
+                commandLine "git", "clone", gitUrl, "--branch", gitBranch, "--single-branch", "--depth", "1"
+            }
         }
         exec {
             workingDir "jbrowse"
@@ -170,6 +246,7 @@ task installJBrowseWebOnly {
             workingDir "jbrowse/plugins/WebApollo"
             commandLine "yarn"
         }
+        installJBrowsePlugins(jbConfig)
         exec {
             workingDir "jbrowse"
             commandLine "npm", "run", "build"
@@ -187,8 +264,14 @@ task installJBrowseWebOnly {
 task installJBrowse {
     description "Install JBrowse with Perl tools"
     doLast {
+        def jbConfig = loadJBrowseConfig()
+        def gitUrl = jbConfig.git.url
+        def gitBranch = jbConfig.git.tag ?: jbConfig.git.branch
+
         if (!jbrowseDir.exists()) {
-            tasks.cloneJBrowse.execute()
+            exec {
+                commandLine "git", "clone", gitUrl, "--branch", gitBranch, "--single-branch", "--depth", "1"
+            }
         }
         exec {
             workingDir "jbrowse"
@@ -203,6 +286,7 @@ task installJBrowse {
             workingDir "jbrowse/plugins/WebApollo"
             commandLine "yarn"
         }
+        installJBrowsePlugins(jbConfig)
         exec {
             workingDir "jbrowse"
             commandLine "./setup.sh"
