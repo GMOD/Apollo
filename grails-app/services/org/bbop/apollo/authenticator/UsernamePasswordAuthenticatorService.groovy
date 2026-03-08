@@ -35,7 +35,7 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService {
             ApolloSecurityUtils.loginUser(username, user.roles*.name)
             return true
         } catch (Exception ae) {
-            log.error("Problem authenticating: " + ae.fillInStackTrace())
+            log.error(ae.message, ae)
             return false
         }
     }

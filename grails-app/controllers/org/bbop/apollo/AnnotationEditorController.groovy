@@ -702,7 +702,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         def destination = "/topic/AnnotationNotification/user/" + username
         log.error "error destination message: ${destination}"
-        brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
+        brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.toString())
 
         return errorObject.toString()
     }

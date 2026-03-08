@@ -12,8 +12,6 @@
     %{--<meta name="layout" content="main"/>--}%
     <title>Annotator</title>
 
-    <asset:javascript src="spring-websocket"/>
-
     <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
     <script>
         %{--rootUrl: '${applicationContext.servletContext.getContextPath()}'--}%

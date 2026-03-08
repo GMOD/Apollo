@@ -129,7 +129,10 @@ class PreferenceService {
         } else {
             UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)
             OrganismDTO organismDTO = setSessionPreference(clientToken, userOrganismPreference)?.organism
-            return Organism.findById(organismDTO.id)
+            if (organismDTO) {
+                return Organism.findById(organismDTO.id)
+            }
+            return null
         }
     }
 
