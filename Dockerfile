@@ -1,8 +1,12 @@
 FROM eclipse-temurin:17-jdk AS builder
 
+RUN apt-get update && apt-get install -y git nodejs npm && \
+    npm install -g yarn && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
 COPY . .
-RUN ./gradlew bootJar --no-daemon -x test
+RUN ./gradlew installJBrowseWebOnly compileGwt bootJar --no-daemon -x test
 
 FROM eclipse-temurin:17-jre
 
@@ -18,7 +22,7 @@ USER apollo
 ENV SPRING_PROFILES_ACTIVE=production
 EXPOSE 8080
 
-HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=3s --start-period=120s --retries=3 \
     CMD curl -sf http://localhost:8080/apollo/health/index || exit 1
 
 ENTRYPOINT ["java", "-jar", "apollo.jar"]

@@ -25,5 +25,8 @@ jobs:
       - name: Compile and type-check
         run: ./gradlew classes
 
+      - name: Compile GWT
+        run: ./gradlew compileGwt
+
       - name: Run tests
         run: ./gradlew test
