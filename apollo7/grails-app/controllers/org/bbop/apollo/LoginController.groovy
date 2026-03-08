@@ -7,12 +7,14 @@ import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
 import org.springframework.security.core.AuthenticationException
 
+import org.springframework.messaging.simp.SimpMessagingTemplate
+
 import jakarta.servlet.http.HttpServletResponse
 
 class LoginController extends AbstractApolloController {
 
     UserService userService
-    def brokerMessagingTemplate
+    SimpMessagingTemplate brokerMessagingTemplate
 
     def index() {}
 

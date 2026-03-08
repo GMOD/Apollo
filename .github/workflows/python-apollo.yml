@@ -1,86 +1,76 @@
 name: Python-Apollo
 
-on: ["push", "pull_request"]
+on:
+  push:
+    branches: [develop, apollo_g7]
+  pull_request:
+    branches: [develop]
 
 jobs:
   test-python-apollo:
     name: test-python-apollo
-
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
+
     steps:
       - name: Checkout Apollo
-        uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.8
-      - name: Run Apollo
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Start Apollo
+        working-directory: apollo7
         run: |
-          cp test/config/python-apollo-config.groovy apollo-config.groovy
-          date
-          ./grailsw run-app &
-          echo "Sleeping here while Apollo builds"
-          sleep 240
-          echo "Done sleeping, I hope it is working"
-          curl -i 'http://localhost:8080/apollo/annotator/system'
-      - name: Setup python
-        uses: actions/setup-python@v2
+          cp ../test/config/python-apollo-config.groovy apollo-config.groovy
+          ./gradlew bootRun > apollo.log 2>&1 &
+
+          # Wait for health endpoint
+          for i in $(seq 1 120); do
+            response=$(curl -s 'http://localhost:8080/apollo/health/index' 2>/dev/null)
+            if echo "$response" | grep -q '"status":"ready"'; then
+              echo "Apollo is ready (${i}s)"
+              break
+            fi
+            if [ $i -eq 120 ]; then
+              echo "FAIL: Apollo not ready after 120 seconds"
+              cat apollo.log
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Checkout Pypi
-        uses: actions/checkout@v2
+          python-version: '3.12'
+
+      - name: Checkout python-apollo
+        uses: actions/checkout@v4
         with:
           repository: galaxy-genome-annotation/python-apollo
           path: python-apollo
           ref: master
-      - name: Python install
+
+      - name: Install python-apollo
         run: |
-          pwd
           cd python-apollo
-          pip install "setuptools==68.2.2" nose apollo
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Bootstrap
+          pip install apollo
+
+      - name: Bootstrap test data
         run: |
-          pwd
-          echo "Testing if awake"
-          curl -i 'http://localhost:8080/apollo/annotator/system'
           cd python-apollo
-          pwd
-          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
-          echo "Testing arrow command"
+          export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
           arrow users get_users
-          echo $ARROW_GLOBAL_CONFIG_PATH
-          ls $ARROW_GLOBAL_CONFIG_PATH
-          cat $ARROW_GLOBAL_CONFIG_PATH
           ./bootstrap_apollo.sh --nodocker
+
       - name: Run tests
         run: |
-          pwd
           cd python-apollo
-          pwd
-          export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/local-apollo2-arrow.yml
-          python setup.py nosetests
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Cache local Maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
+          python -m pytest || python setup.py nosetests

@@ -14,6 +14,7 @@ import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
+import org.springframework.messaging.simp.SimpMessagingTemplate
 
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.Charset
@@ -45,7 +46,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     CannedCommentService cannedCommentService
     CannedAttributeService cannedAttributeService
     AvailableStatusService availableStatusService
-    def brokerMessagingTemplate
+    SimpMessagingTemplate brokerMessagingTemplate
 
 
     def index() {

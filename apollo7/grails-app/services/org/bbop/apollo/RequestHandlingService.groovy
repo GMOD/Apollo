@@ -14,6 +14,7 @@ import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONException
 import org.grails.web.json.JSONObject
 import org.hibernate.FetchMode
+import org.springframework.messaging.simp.SimpMessagingTemplate
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -45,7 +46,7 @@ class RequestHandlingService {
     GeneProductService geneProductService
     ProvenanceService provenanceService
     JsonWebUtilityService jsonWebUtilityService
-    def brokerMessagingTemplate
+    SimpMessagingTemplate brokerMessagingTemplate
 
 
     public static final List<String> viewableAnnotationFeatureList = [
