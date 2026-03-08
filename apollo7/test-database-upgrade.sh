@@ -93,7 +93,9 @@ wait_for_app() {
             tail -30 "$SCRIPT_DIR/upgrade-test.log"
             return 1
         fi
-        if curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" 2>/dev/null | grep -q "200\|302"; then
+        local response
+        response=$(curl -s "$BASE_URL/health/index" 2>/dev/null)
+        if echo "$response" | grep -q '"status":"ready"'; then
             echo "  App is ready (took ${i}s)"
             return 0
         fi
@@ -153,9 +155,7 @@ if ! wait_for_app 120; then
     exit 1
 fi
 
-# Wait for bootstrap to fully finish — initRoles() must complete before we can register
-echo "  Waiting for bootstrap to complete..."
-sleep 10
+# Health endpoint confirms bootstrap is complete — no extra sleep needed
 
 echo ""
 echo "=== Phase 2b: Register admin and create fixture data via API ==="
@@ -346,9 +346,7 @@ if ! wait_for_app 120; then
     exit 1
 fi
 
-# Wait for migration + bootstrap to fully complete before testing
-echo "  Waiting for migration and bootstrap to complete..."
-sleep 15
+# Health endpoint confirms migration + bootstrap are complete
 
 # Check migration ran
 if grep -q "ChangeSet.*changelog-7_0_0" "$SCRIPT_DIR/upgrade-test.log" 2>/dev/null; then

@@ -207,8 +207,7 @@ class OrganismController {
       def error = [error: 'problem removing organism features for organism: ' + e]
       render error as JSON
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
-      e.printStackTrace()
-      log.error(error.error)
+      log.error(error.error, e)
     }
   }
 
@@ -306,7 +305,7 @@ class OrganismController {
               findAllOrganisms()
             }
             catch (IOException e) {
-              log.error e.printStackTrace()
+              log.error e.message, e
               returnObject.put("error", e.message)
               organism.delete()
               render returnObject as JSON
@@ -384,7 +383,7 @@ class OrganismController {
               findAllOrganisms()
             }
             catch (IOException e) {
-              log.error e.printStackTrace()
+              log.error e.message, e
               returnObject.put("error", e.message)
               organism.delete()
             }
@@ -404,7 +403,7 @@ class OrganismController {
       }
     }
     catch (e) {
-      log.error e.printStackTrace()
+      log.error e.message, e
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       returnObject.put("error", e.message)
     }
@@ -613,7 +612,7 @@ class OrganismController {
                 returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
               }
               catch (IOException e) {
-                log.error e.printStackTrace()
+                log.error e.message, e
                 returnObject.put("error", e.message)
               }
             } else {
@@ -661,7 +660,7 @@ class OrganismController {
                   returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
                 }
                 catch (IOException e) {
-                  log.error e.printStackTrace()
+                  log.error e.message, e
                   returnObject.put("error", e.message)
                 }
               } else {
@@ -727,7 +726,7 @@ class OrganismController {
                   returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray + extendedTracksArray)
                 }
                 catch (IOException e) {
-                  log.error e.printStackTrace()
+                  log.error e.message, e
                   returnObject.put("error", e.message)
                 }
               }
@@ -779,7 +778,7 @@ class OrganismController {
                       returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
                     }
                     catch (IOException e) {
-                      log.error e.printStackTrace()
+                      log.error e.message, e
                       returnObject.put("error", e.message)
                     }
                   }
@@ -969,9 +968,7 @@ class OrganismController {
     }
 
     try {
-//      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
-      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
-//        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+      if (!permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
         render status: HttpStatus.UNAUTHORIZED
         return
       }
@@ -1142,8 +1139,7 @@ class OrganismController {
     } catch (e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
-      e.printStackTrace()
-      log.error(error.error)
+      log.error(error.error, e)
     }
   }
 
@@ -1532,7 +1528,7 @@ class OrganismController {
       render jsonArray as JSON
     }
     catch (Exception e) {
-      e.printStackTrace()
+      log.error(e.message, e)
       def error = [error: e.message]
       render error as JSON
     }

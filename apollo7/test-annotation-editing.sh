@@ -4,10 +4,8 @@
 
 set -e
 
-BASE_URL="${APOLLO_URL:-http://localhost:8080/apollo}"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PASS=0
-FAIL=0
+. "$(dirname "$0")/test-helpers.sh"
+
 TEST_DATA_DIR=""
 APP_PID=""
 
@@ -15,77 +13,15 @@ cleanup() {
     if [ -n "$TEST_DATA_DIR" ] && [ -d "$TEST_DATA_DIR" ]; then
         rm -rf "$TEST_DATA_DIR"
     fi
-    if [ -n "$APP_PID" ]; then
-        echo ""
-        echo "=== Stopping app (PID $APP_PID) ==="
-        kill "$APP_PID" 2>/dev/null || true
-        wait "$APP_PID" 2>/dev/null || true
-    fi
+    stop_app
 }
 trap cleanup EXIT
-
-echo "=== Stopping any existing instance ==="
-pkill -f 'apollo7.*bootRun' 2>/dev/null || true
-pkill -f 'apollo7.*GrailsApp' 2>/dev/null || true
-sleep 2
-
-echo "=== Cleaning database ==="
-rm -f "$SCRIPT_DIR"/devDb.mv.db "$SCRIPT_DIR"/devDb.trace.db
-
-echo "=== Starting app ==="
-cd "$SCRIPT_DIR"
-./gradlew bootRun > /dev/null 2>&1 &
-APP_PID=$!
-
-assert_eq() {
-    local desc="$1" expected="$2" actual="$3"
-    if [ "$expected" = "$actual" ]; then
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    else
-        echo "  FAIL: $desc (expected '$expected', got '$actual')"
-        FAIL=$((FAIL + 1))
-    fi
-}
-
-assert_contains() {
-    local desc="$1" expected="$2" actual="$3"
-    if echo "$actual" | grep -q "$expected"; then
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    else
-        echo "  FAIL: $desc (expected to contain '$expected', got '$actual')"
-        FAIL=$((FAIL + 1))
-    fi
-}
-
-assert_not_contains() {
-    local desc="$1" unexpected="$2" actual="$3"
-    if echo "$actual" | grep -q "$unexpected"; then
-        echo "  FAIL: $desc (unexpectedly contains '$unexpected')"
-        FAIL=$((FAIL + 1))
-    else
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    fi
-}
 
 # Common auth params for webservice calls
 AUTH='"username":"admin@test.com","password":"testpass123"'
 CLIENT_TOKEN="test-client-$$"
 
-echo "=== Waiting for app to be ready ==="
-for i in $(seq 1 60); do
-    if curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" | grep -q "200\|302"; then
-        echo "  App is ready"
-        break
-    fi
-    if [ "$i" -eq 60 ]; then
-        echo "  FAIL: App not ready after 60 seconds"
-        exit 1
-    fi
-    sleep 1
-done
+start_app
 
 echo ""
 echo "=== Setup: Register admin user ==="
@@ -376,7 +312,6 @@ assert_contains "STOMP info has websocket" "websocket" "$RESPONSE"
 
 echo ""
 echo "=== Test 16: WebSocket STOMP connection test ==="
-# Test actual STOMP WebSocket connectivity using node.js
 WSTEST_RESULT=$(node -e "
 const http = require('http');
 const url = new URL('$BASE_URL/stomp/info');
@@ -386,7 +321,6 @@ const req = http.get(url.href, (res) => {
     res.on('end', () => {
         try {
             const info = JSON.parse(data);
-            // SockJS info endpoint should have websocket, cookie_needed, origins, entropy
             if (info.websocket !== undefined && info.entropy) {
                 console.log('STOMP_OK');
             } else {
@@ -404,24 +338,18 @@ assert_eq "STOMP endpoint is fully functional" "STOMP_OK" "$WSTEST_RESULT"
 
 echo ""
 echo "=== Test 17: SockJS WebSocket upgrade test ==="
-# Test that SockJS transport negotiation works
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
     -H "Upgrade: websocket" \
     -H "Connection: Upgrade" \
     -H "Sec-WebSocket-Version: 13" \
     -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
     "$BASE_URL/stomp/websocket")
-# SockJS websocket endpoint should return 400 (needs proper upgrade) or 101
 echo "  INFO: WebSocket upgrade response: $HTTP_CODE"
-# Also test SockJS xhr transport
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
     -X POST "$BASE_URL/stomp/000/test/xhr")
 assert_eq "SockJS XHR transport responds 200" "200" "$HTTP_CODE"
 
-echo ""
-echo "==============================="
-echo "Results: $PASS passed, $FAIL failed"
-echo "==============================="
+print_results
 
 if [ "$FAIL" -gt 0 ]; then
     exit 1

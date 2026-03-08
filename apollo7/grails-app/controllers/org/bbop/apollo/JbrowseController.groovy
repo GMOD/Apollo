@@ -369,8 +369,7 @@ class JbrowseController {
                 }
 
             } catch (Exception e) {
-                log.error(e.message);
-                e.printStackTrace();
+                log.error(e.message, e);
             }
 
             output.close();

@@ -3,8 +3,12 @@ package org.bbop.apollo
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import groovy.util.logging.Slf4j
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 @Slf4j
 class BootStrap {
+
+    static final AtomicBoolean ready = new AtomicBoolean(false)
 
     def sequenceService
     def configWrapperService
@@ -42,6 +46,9 @@ class BootStrap {
         }
 
         trackService.checkCommonDataDirectory()
+
+        ready.set(true)
+        log.info "Apollo initialization complete"
     }
 
     def destroy = {

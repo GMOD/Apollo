@@ -474,8 +474,7 @@ class PermissionService {
             }
 
         } catch (e) {
-            log.error "Error checking permissions from session ${e}"
-            e.printStackTrace()
+            log.error("Error checking permissions from session: ${e.message}", e)
             return false
         }
         return false

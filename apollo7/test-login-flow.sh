@@ -4,82 +4,18 @@
 
 set -e
 
-BASE_URL="${APOLLO_URL:-http://localhost:8080/apollo}"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$(dirname "$0")/test-helpers.sh"
+
 COOKIE_JAR=$(mktemp)
-PASS=0
-FAIL=0
 APP_PID=""
 
 cleanup() {
     rm -f "$COOKIE_JAR"
-    if [ -n "$APP_PID" ]; then
-        echo ""
-        echo "=== Stopping app (PID $APP_PID) ==="
-        kill "$APP_PID" 2>/dev/null || true
-        wait "$APP_PID" 2>/dev/null || true
-    fi
+    stop_app
 }
 trap cleanup EXIT
 
-echo "=== Stopping any existing instance ==="
-pkill -f 'apollo7.*bootRun' 2>/dev/null || true
-pkill -f 'apollo7.*GrailsApp' 2>/dev/null || true
-sleep 2
-
-echo "=== Cleaning database ==="
-rm -f "$SCRIPT_DIR"/devDb.mv.db "$SCRIPT_DIR"/devDb.trace.db
-
-echo "=== Starting app ==="
-cd "$SCRIPT_DIR"
-./gradlew bootRun > /dev/null 2>&1 &
-APP_PID=$!
-
-assert_eq() {
-    local desc="$1" expected="$2" actual="$3"
-    if [ "$expected" = "$actual" ]; then
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    else
-        echo "  FAIL: $desc (expected '$expected', got '$actual')"
-        FAIL=$((FAIL + 1))
-    fi
-}
-
-assert_contains() {
-    local desc="$1" expected="$2" actual="$3"
-    if echo "$actual" | grep -q "$expected"; then
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    else
-        echo "  FAIL: $desc (expected to contain '$expected', got '$actual')"
-        FAIL=$((FAIL + 1))
-    fi
-}
-
-assert_not_contains() {
-    local desc="$1" unexpected="$2" actual="$3"
-    if echo "$actual" | grep -q "$unexpected"; then
-        echo "  FAIL: $desc (unexpectedly contains '$unexpected')"
-        FAIL=$((FAIL + 1))
-    else
-        echo "  PASS: $desc"
-        PASS=$((PASS + 1))
-    fi
-}
-
-echo "=== Waiting for app to be ready ==="
-for i in $(seq 1 60); do
-    if curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" | grep -q "200\|302"; then
-        echo "  App is ready"
-        break
-    fi
-    if [ "$i" -eq 60 ]; then
-        echo "  FAIL: App not ready after 60 seconds"
-        exit 1
-    fi
-    sleep 1
-done
+start_app
 
 echo ""
 echo "=== Test 1: Root URL redirects to annotator ==="
@@ -174,10 +110,7 @@ RESPONSE=$(curl -s -X POST "$BASE_URL/login/login" \
     -d '{"username":"admin@test.com","password":"wrongpassword"}')
 assert_contains "Wrong password returns error" "error" "$RESPONSE"
 
-echo ""
-echo "==============================="
-echo "Results: $PASS passed, $FAIL failed"
-echo "==============================="
+print_results
 
 if [ "$FAIL" -gt 0 ]; then
     exit 1

@@ -655,8 +655,7 @@ class AnnotatorController {
         }
         catch (Exception e) {
             def error = [error: e.message]
-            log.error e.message
-            e.printStackTrace()
+            log.error(e.message, e)
             render error as JSON
         }
 

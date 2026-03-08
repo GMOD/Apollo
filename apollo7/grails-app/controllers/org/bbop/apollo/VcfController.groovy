@@ -68,7 +68,7 @@ class VcfController {
             featuresArray = vcfService.processVcfRecords(organism, vcfFileReader, sequence, fmin, fmax, includeGenotypes)
         }
         catch (IOException e) {
-            log.error(e.stackTrace)
+            log.error(e.message, e)
         }
 
         // returning from the cache is more consistent.

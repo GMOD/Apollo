@@ -184,8 +184,7 @@ class CannedCommentController {
         } catch (e) {
             def error = [error: 'problem saving CannedComment: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 

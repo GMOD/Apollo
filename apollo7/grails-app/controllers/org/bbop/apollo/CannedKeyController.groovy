@@ -185,8 +185,7 @@ class CannedKeyController {
         } catch (e) {
             def error = [error: 'problem saving CannedKey: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 

@@ -184,8 +184,7 @@ class CannedValueController {
         } catch (e) {
             def error = [error: 'problem saving CannedValue: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 

@@ -547,7 +547,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
         catch (IOException e) {
             log.debug("Cannot create a temp file for 'get GFF3' operation", e)
-            e.printStackTrace()
         }
         catch (ae) {
             def error = [error: ae.message]

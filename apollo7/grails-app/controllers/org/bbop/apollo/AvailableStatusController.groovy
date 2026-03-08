@@ -186,8 +186,7 @@ class AvailableStatusController {
         } catch (e) {
             def error = new JSONObject([error: 'problem saving AvailableStatus: ' + e])
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 

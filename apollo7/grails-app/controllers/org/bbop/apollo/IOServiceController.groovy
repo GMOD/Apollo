@@ -251,7 +251,7 @@ class IOServiceController extends AbstractApolloController {
         }
         catch (Exception e) {
             def error = [error: e.message]
-            e.printStackTrace()
+            log.error(e.message, e)
             render error as JSON
         }
         if (outputFile?.exists()) {
