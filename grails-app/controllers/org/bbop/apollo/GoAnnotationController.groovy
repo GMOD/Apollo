@@ -1,49 +1,36 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
 import org.bbop.apollo.go.GoAnnotation
+import org.bbop.apollo.go.GoAnnotationService
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
-@RestApi(name = "GO Annotation", description = "Methods for managing go annotations")
 @Transactional(readOnly = true)
 class GoAnnotationController {
 
 
-  def permissionService
-  def goAnnotationService
-  def featureEventService
-  def featureService
-
-  @RestApiMethod(description = "Load Go Annotations for feature", path = "/goAnnotation", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "uniqueName", type = "Feature uniqueName", paramType = RestApiParamType.QUERY, description = "Feature name to query on")
-  ]
-  )
+  PermissionService permissionService
+  GoAnnotationService goAnnotationService
+  FeatureEventService featureEventService
+  FeatureService featureService
   def index() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.READ)){
       render status : UNAUTHORIZED
@@ -66,30 +53,15 @@ class GoAnnotationController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "reference":"refprefix:44444444"
-  @RestApiMethod(description = "Save New Go Annotations for feature", path = "/goAnnotation/save", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature feature to query on")
-    , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
-    , @RestApiParam(name = "goTermLabel", type = "string", paramType = RestApiParamType.QUERY, description = "GO Term Label")
-    , @RestApiParam(name = "aspect", type = "string", paramType = RestApiParamType.QUERY, description = "(required) BP, MF, CC")
-    , @RestApiParam(name = "geneRelationship", type = "string", paramType = RestApiParamType.QUERY, description = "Gene relationship (RO) CURIE")
-    , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
-    , @RestApiParam(name = "evidenceCodeLAbel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
-    , @RestApiParam(name = "negate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Negate evidence (default false)")
-    , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
-  ]
-  )
   @Transactional
   def save() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED
@@ -136,31 +108,15 @@ class GoAnnotationController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Update existing Go Annotations for feature", path = "/goAnnotation/update", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
-    , @RestApiParam(name = "feature", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of feature to query on")
-    , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
-    , @RestApiParam(name = "goTermLabel", type = "string", paramType = RestApiParamType.QUERY, description = "GO Term Label")
-    , @RestApiParam(name = "aspect", type = "string", paramType = RestApiParamType.QUERY, description = "(required) BP, MF, CC")
-    , @RestApiParam(name = "geneRelationship", type = "string", paramType = RestApiParamType.QUERY, description = "Gene relationship (RO) CURIE")
-    , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
-    , @RestApiParam(name = "evidenceCodeLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) Label")
-    , @RestApiParam(name = "negate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Negate evidence (default false)")
-    , @RestApiParam(name = "withOrFrom", type = "string", paramType = RestApiParamType.QUERY, description = "JSON Array of with or from CURIE strings, e.g., {[\"UniProtKB:12312]]\"]}")
-    , @RestApiParam(name = "reference", type = "string", paramType = RestApiParamType.QUERY, description = "Reference CURIE string, e.g., \"PMID:12312]]\"")
-  ]
-  )
   @Transactional
   def update() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED
@@ -205,22 +161,15 @@ class GoAnnotationController {
     render annotations as JSON
   }
 
-  @RestApiMethod(description = "Delete existing Go Annotations for feature", path = "/goAnnotation/delete", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to delete (required)")
-    , @RestApiParam(name = "uniqueName", type = "string", paramType = RestApiParamType.QUERY, description = "Gene uniqueName to remove feature from")
-  ]
-  )
   @Transactional
   def delete() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
       render status : UNAUTHORIZED

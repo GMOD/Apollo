@@ -1,31 +1,22 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
-@RestApi(name = "History Services", description = "Methods for querying history")
 @Transactional(readOnly = true)
 class FeatureEventController {
 
     static final String DAY_DATE_FORMAT = 'yyyy-MM-dd'
     static final String FULL_DATE_FORMAT = DAY_DATE_FORMAT + ' HH:mm:ss'
 
-    def requestHandlingService
-    def permissionService
-
-
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     /**
@@ -35,24 +26,14 @@ class FeatureEventController {
      * @param beforeDate
      * @return
      */
-    @RestApiMethod(description = "Returns a JSON representation of all current Annotations before or after a given date.", path = "/featureEvent/findChanges", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "date", type = "Date", paramType = RestApiParamType.QUERY, description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
-            , @RestApiParam(name = "afterDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search after or on the given date.")
-            , @RestApiParam(name = "beforeDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search before or on the given date.")
-            , @RestApiParam(name = "max", type = "Integer", paramType = RestApiParamType.QUERY, description = "Max to return")
-            , @RestApiParam(name = "sort", type = "String", paramType = RestApiParamType.QUERY, description = "Sort parameter (lastUpdated).  See FeatureEvent object/table.")
-            , @RestApiParam(name = "order", type = "String", paramType = RestApiParamType.QUERY, description = "desc/asc sort order by sort param")
-    ])
     def findChanges() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(inputObject, org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN)) {
             render status: org.springframework.http.HttpStatus.UNAUTHORIZED

@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 
 import static org.springframework.http.HttpStatus.*
@@ -10,9 +10,8 @@ class ProxyController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-    def proxyService
-
+    PermissionService permissionService
+    ProxyService proxyService
     def beforeInterceptor = {
         if (actionName != "request" && !permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             forward action: "notAuthorized", controller: "annotator"

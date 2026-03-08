@@ -24,5 +24,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile Groovy sources
-        working-directory: apollo7
         run: ./gradlew compileGroovy

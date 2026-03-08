@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
+import org.hibernate.Hibernate
 
 @Transactional(readOnly = true)
 class FeatureRelationshipService {
@@ -10,7 +11,7 @@ class FeatureRelationshipService {
         if (feature?.parentFeatureRelationships != null) {
             feature.parentFeatureRelationships.each { it ->
                 if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
-                    list.push(it.childFeature)
+                    list.push((Feature) Hibernate.unproxy(it.childFeature))
                 }
             }
         }
@@ -55,7 +56,7 @@ class FeatureRelationshipService {
         if (feature?.childFeatureRelationships != null) {
             feature.childFeatureRelationships.each { it ->
                 if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
-                    list.push(it.parentFeature)
+                    list.push((Feature) Hibernate.unproxy(it.parentFeature))
                 }
             }
         }
@@ -181,7 +182,7 @@ class FeatureRelationshipService {
     List<Feature> getChildren(Feature feature) {
         def exonRelations = feature.parentFeatureRelationships.findAll()
         return exonRelations.collect { it ->
-            it.childFeature
+            (Feature) Hibernate.unproxy(it.childFeature)
         }
     }
 

@@ -6,17 +6,17 @@ import org.bbop.apollo.operation.OperationEnum
  * We store operation attributes as JSON
  */
 class Operation {
-   
+
     OperationEnum operationType
     String featureUniqueName
     // if not self
 //    private Map<String, Object> attributes;
-    
+
     String attributes;
-   
+
 //    List<Feature> oldFeatures
     String oldFeatures;
-    
+
 //    List<Feature> newFeatures
     String newFeatures;
 
@@ -32,5 +32,5 @@ class Operation {
         newFeatures nullable: true, blank: false
         oldFeatures nullable: true, blank: false
     }
-    
+
 }

@@ -1,15 +1,15 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import liquibase.util.file.FilenameUtils
-import org.apache.shiro.SecurityUtils
+import org.apache.commons.io.FilenameUtils
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range // this line is needed, even if the import doesn't show it
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
@@ -19,14 +19,11 @@ class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
-    def grailsApplication
-    def sequenceService
-    def permissionService
-    def preferenceService
-    def jbrowseService
-    def servletContext
-    def trackService
-
+    SequenceService sequenceService
+    PermissionService permissionService
+    PreferenceService preferenceService
+    JbrowseService jbrowseService
+    TrackService trackService
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }
@@ -86,7 +83,7 @@ class JbrowseController {
             if(!availableOrganisms){
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                 String username = permissionService.currentUser.username
-                SecurityUtils.subject.logout()
+                ApolloSecurityUtils.logout()
                 forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
                 return
             }
@@ -371,8 +368,7 @@ class JbrowseController {
                 }
 
             } catch (Exception e) {
-                log.error(e.message);
-                e.printStackTrace();
+                log.error(e.message, e);
             }
 
             output.close();
@@ -464,7 +460,7 @@ class JbrowseController {
         if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
-        def plugins = grailsApplication.config.jbrowse?.plugins
+        def plugins = grailsApplication.config.getProperty('jbrowse.plugins', Map, [:])
         // not sure if I do it this way or via the include
         if (plugins) {
             def pluginKeys = []
@@ -531,7 +527,7 @@ class JbrowseController {
                 String requestName = names[names.length - 1];
                 return requestName.startsWith("lf-");
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.warn "Problem trying to cache file ${fileName}: ${e}"
         }
 
@@ -561,7 +557,7 @@ class JbrowseController {
      */
     private static long sublong(String value, int beginIndex, int endIndex) {
         String substring = value.substring(beginIndex, endIndex);
-        return (substring.length() > 0) ? Long.parseLong(substring) : -1;
+        return (substring.length() > 0) ? substring as Long : -1
     }
 
     def passthrough() {

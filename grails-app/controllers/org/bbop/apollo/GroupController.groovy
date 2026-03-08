@@ -1,42 +1,27 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
 
-@RestApi(name = "Group Services", description = "Methods for managing groups")
 class GroupController {
 
-    def permissionService
-    def preferenceService
-    def groupService
-
-    @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
-    ]
-    )
+    PermissionService permissionService
+    PreferenceService preferenceService
+    GroupService groupService
     def getOrganismPermissionsForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)
         || !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)
@@ -59,21 +44,16 @@ class GroupController {
         render groupOrganismPermissions as JSON
     }
 
-    @RestApiMethod(description = "Load all groups", path = "/group/loadGroups", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Optional only load a specific groupId")
-    ])
     def loadGroups() {
         try {
             log.debug "loadGroups"
             JSONObject dataObject = permissionService.handleInput(request, params)
             try {
                 permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-            } catch (e) {
+            } catch (Exception e) {
                 def error = [error: e.message]
                 render error as JSON
+                return
             }
             // allow instructor to view groups
             if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -181,26 +161,20 @@ class GroupController {
         catch (Exception e) {
             response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
             def error = [error: e.message]
-            log.error error
+            log.error e.message, e
             render error as JSON
         }
     }
 
-    @RestApiMethod(description = "Create group", path = "/group/createGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add, or a comma-delimited list of names")
-    ]
-    )
     @Transactional
     def createGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         // allow instructor to create Group
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -215,8 +189,7 @@ class GroupController {
         log.info( "adding groups ${names as JSON}")
 
         List<UserGroup> groups = groupService.createGroups(dataObject?.metadata?.toString(), currentUser, names)
-        println "usring add groups ${groups as JSON}"
-
+        log.debug "usring add groups ${groups as JSON}"
         if(groups.size()==1){
             render groups[0] as JSON
         }
@@ -225,22 +198,15 @@ class GroupController {
         }
     }
 
-    @RestApiMethod(description = "Delete a group", path = "/group/deleteGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name or comma-delimited list of names to remove")
-    ]
-    )
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
 
       if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
@@ -263,8 +229,8 @@ class GroupController {
         else
         if(dataObject.name){
             List<String> splitGroups = dataObject.name.split(",") as List<String>
-            println splitGroups
-            println splitGroups.size()
+            log.debug "splitGroups"
+            log.debug "splitGroups.size()"
             groupList = UserGroup.findAllByNameInList(splitGroups)
         }
         if (!groupList) {
@@ -279,23 +245,16 @@ class GroupController {
         render new JSONObject() as JSON
     }
 
-    @RestApiMethod(description = "Update group", path = "/group/updateGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to update")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to change to (the only editable optoin)")
-    ]
-    )
     @Transactional
     def updateGroup() {
         log.info "Updating group"
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
@@ -322,34 +281,23 @@ class GroupController {
         // also allow update metadata
         group.metadata = dataObject.metadata?dataObject.metadata.toString():group.metadata
         group.save(flush: true)
+
+        render new JSONObject() as JSON
     }
 
     /**
      * Only changing one of the boolean permissions
      * @return
      */
-    @RestApiMethod(description = "Update organism permission", path = "/group/updateOrganismPermission", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to modify permissions for (must provide this or 'name')")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to modify permissions for (must provide this or 'groupId')")
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name")
-
-            , @RestApiParam(name = "ADMINISTRATE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative and all lesser (including user/group) privileges for the organism")
-            , @RestApiParam(name = "WRITE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write and all lesser privileges for the organism")
-            , @RestApiParam(name = "EXPORT", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export and all lesser privileges for the organism")
-            , @RestApiParam(name = "READ", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read and all lesser privileges for the organism")
-    ]
-    )
     @Transactional
     def updateOrganismPermission() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (
             !permissionService.hasGlobalPermissions(dataObject,GlobalPermissionEnum.INSTRUCTOR)
@@ -430,23 +378,15 @@ class GroupController {
 
     }
 
-    @RestApiMethod(description = "Update group membership", path = "/group/updateMembership", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
-            , @RestApiParam(name = "users", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
-            , @RestApiParam(name = "memberships", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "Bulk memberships (instead of users and groupId) to update of the form: [ {groupId: <groupId>,users: [\"user1\", \"user2\", \"user3\"]}, {groupId:<another-groupId>, users: [\"user2\", \"user8\"]}]")
-    ]
-    )
     @Transactional
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
 
         def currentUser = permissionService.getCurrentUser(dataObject)
@@ -472,22 +412,15 @@ class GroupController {
         loadGroups()
     }
 
-    @RestApiMethod(description = "Update group admin", path = "/group/updateGroupAdmin", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
-            , @RestApiParam(name = "users", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
-    ]
-    )
     @Transactional
     def updateGroupAdmin() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         // to support webservice, get current user from session or input object
@@ -527,21 +460,16 @@ class GroupController {
         loadGroups()
     }
 
-    @RestApiMethod(description = "Get group admins, returns group admins as JSONArray", path = "/group/getGroupAdmin", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
-    ])
     def getGroupAdmin() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
-        println "data: ${dataObject}"
+        log.debug "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)
@@ -558,7 +486,7 @@ class GroupController {
         }
         JSONArray returnArray = new JSONArray()
         def adminList = groupInstance.admin
-        println "admin = ${adminList}"
+        log.debug "admin = ${adminList}"
         adminList.each {
             JSONObject user = new JSONObject()
             user.id = it.id
@@ -572,21 +500,16 @@ class GroupController {
 
     }
 
-    @RestApiMethod(description = "Get creator metadata for group, returns userId as JSONObject", path = "/group/getGroupCreator", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
-    ])
     def getGroupCreator() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
-        println "data: ${dataObject}"
+        log.debug "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)

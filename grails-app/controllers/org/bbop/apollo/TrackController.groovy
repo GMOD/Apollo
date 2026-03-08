@@ -1,28 +1,20 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 
-@RestApi(name = "Track Services", description = "Methods for retrieving track data")
 @Transactional(readOnly = true)
 class TrackController {
 
-    def preferenceService
-    def permissionService
-    def trackService
-    def svgService
-
+    PreferenceService preferenceService
+    PermissionService permissionService
+    TrackService trackService
+    SvgService svgService
   final double DEFAULT_OVERLAP_FILTER = 50.0
 
   def beforeInterceptor = {
@@ -45,37 +37,30 @@ class TrackController {
         render jsonObject as JSON
     }
 
-    @RestApiMethod(description = "Remove track cache for an organism and track", path = "/track/cache/clear/<organism name>/<track name>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name (required)")
-    ])
     @Transactional
     def clearTrackCache(String organismName, String trackName) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismName)) return
         int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName and tc.trackName = :trackName",[commonName:organismName,trackName: trackName])
         render new JSONObject(removed: removed) as JSON
     }
 
-    @RestApiMethod(description = "Remove track cache for an organism", path = "/track/cache/clear/<organism name>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
-    ])
     @Transactional
     def clearOrganismCache(String organismName) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (organismName.toLowerCase().equals("all") && permissionService.isAdmin()) {
             log.info "Deleting cache for all organisms"
@@ -96,42 +81,30 @@ class TrackController {
 
     }
 
-    @RestApiMethod(description = "List all tracks for an organism", path = "/track/list/<organism name>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
-    ])
     @Transactional
     def getTracks(String organismName) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismName)) return
         render trackService.getAllTracks(organismName) as JSON
     }
 
 
-    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
-            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
-            , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
-            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-            , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'." )
-            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
-    ])
     @Transactional
     def featuresByName(String organismString, String trackName, String sequence, String featureName, String type) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismString)) return
 
@@ -213,29 +186,15 @@ class TrackController {
         return nameSet
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.<type>?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
-            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
-            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range(required)")
-            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
-            , @RestApiParam(name = "name", type = "string / string[]", paramType = RestApiParamType.QUERY, description = "If top-level feature 'name' matches, then annotate with 'selected'=true.  Multiple names can be passed in.")
-            , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
-            , @RestApiParam(name = "unique", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false) Whether or not to pull a unique name for each.")
-            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-            , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'.")
-            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
-            , @RestApiParam(name = "overlapFilter", type = "double", paramType = RestApiParamType.QUERY, description = "(default 20).  The widget of overlapping genes to display.  1 would be only features directly overlapping.  Double_max would be any gene that overlaps, even if it overlaps the entire chromosome.")
-    ])
     @Transactional
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!trackService.checkPermission(request, response, organismString)) return
 

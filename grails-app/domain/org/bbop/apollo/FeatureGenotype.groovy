@@ -15,7 +15,7 @@ class FeatureGenotype {
 
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         FeatureGenotype castOther = ( FeatureGenotype ) other;
@@ -23,7 +23,7 @@ class FeatureGenotype {
         return ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) ) && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) ) && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) ) && ( (this.getChromosomeFeature()==castOther.getChromosomeFeature()) || ( this.getChromosomeFeature()!=null && castOther.getChromosomeFeature()!=null && this.getChromosomeFeature().equals(castOther.getChromosomeFeature()) ) ) && (this.getRank()==castOther.getRank()) && (this.getCgroup()==castOther.getCgroup());
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

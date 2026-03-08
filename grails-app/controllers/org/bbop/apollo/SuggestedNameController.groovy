@@ -1,28 +1,20 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
-@RestApi(name = "Suggested Names Services", description = "Methods for managing suggested names")
 @Transactional(readOnly = true)
 class SuggestedNameController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def beforeInterceptor = {
       // if a non-JSON method
       if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
@@ -163,14 +155,6 @@ class SuggestedNameController {
         }
     }
 
-    @RestApiMethod(description = "Create suggested name", path = "/suggestedName/createName", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Suggested name to add")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def createName() {
         JSONObject nameJson = permissionService.handleInput(request, params)
@@ -196,25 +180,14 @@ class SuggestedNameController {
                 render error as JSON
                 log.error(error.error)
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: 'problem saving SuggestedName: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 
 
-    @RestApiMethod(description = "Update suggested name", path = "/suggestedName/updateName", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Suggested name ID to update (or specify the old_name)")
-            , @RestApiParam(name = "old_name", type = "string", paramType = RestApiParamType.QUERY, description = "Suggested name to update")
-            , @RestApiParam(name = "new_name", type = "string", paramType = RestApiParamType.QUERY, description = "Suggested name to change to (the only editable option)")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def updateName() {
         try {
@@ -255,13 +228,6 @@ class SuggestedNameController {
         }
     }
 
-    @RestApiMethod(description = "Remove a suggested name", path = "/suggestedName/deleteName", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Suggested name ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Suggested name to delete")
-    ])
     @Transactional
     def deleteName() {
         try {
@@ -295,12 +261,6 @@ class SuggestedNameController {
         }
     }
 
-    @RestApiMethod(description = "Returns a JSON array of all suggested names, or optionally, gets information about a specific suggested name", path = "/suggestedName/search", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "featureType", type = "string", paramType = RestApiParamType.QUERY, description = "Feature type")
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism name")
-            , @RestApiParam(name = "query", type = "string", paramType = RestApiParamType.QUERY, description = "Query value")
-    ])
     @Transactional
     def search() {
         try {
@@ -344,13 +304,6 @@ class SuggestedNameController {
         }
     }
 
-    @RestApiMethod(description = "Returns a JSON array of all suggested names, or optionally, gets information about a specific suggested name", path = "/suggestedName/showName", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Name ID to show (or specify a name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Name to show")
-    ])
     @Transactional
     def showName() {
         try {
@@ -387,20 +340,13 @@ class SuggestedNameController {
         }
     }
 
-    @RestApiMethod(description = "A comma-delimited list of names", path = "/suggestedName/addNames", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-//            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add, with organisms, and types {names:[ {name:'name1':organisms:['bee','cow'],types:['gene','ncRNA']}}")
-            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add")
-    ])
     @Transactional
     def addNames() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
-            println "Adding suggested names ${nameJson}"
+            log.debug "Adding suggested names ${nameJson}"
             if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
-                println "DOES NOT have global permissions"
+                log.debug "DOES NOT have global permissions"
                 render status: UNAUTHORIZED
                 return
             }
@@ -412,7 +358,7 @@ class SuggestedNameController {
                 render  nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']
-                println(error.error)
+                log.debug error.error
                 render error as JSON
             }
         }

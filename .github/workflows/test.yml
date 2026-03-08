@@ -23,9 +23,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile and type-check
-        working-directory: apollo7
         run: ./gradlew classes
 
       - name: Run tests
-        working-directory: apollo7
         run: ./gradlew test

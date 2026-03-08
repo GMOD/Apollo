@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
-import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.gorm.transactions.Transactional
+import org.grails.web.json.JSONObject
 
 import java.security.MessageDigest
 import java.sql.Timestamp
@@ -27,11 +27,10 @@ import java.sql.Timestamp
 @Transactional
 class ChadoHandlerService {
 
-    def configWrapperService
-    def sequenceService
-    def transcriptService
-    def cdsService
-
+    ConfigWrapperService configWrapperService
+    SequenceService sequenceService
+    TranscriptService transcriptService
+    CdsService cdsService
     private static final String SEQUENCE_ONTOLOGY = "sequence"
     private static final String RELATIONSHIP_ONTOLOGY = "relationship"
     private static final String FEATURE_PROPERTY = "feature_property"

@@ -17,7 +17,7 @@ class Genotype {
             ,phenotypeStatements : PhenotypeStatement
     ]
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         Genotype castOther = ( Genotype ) other;
@@ -25,7 +25,7 @@ class Genotype {
         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

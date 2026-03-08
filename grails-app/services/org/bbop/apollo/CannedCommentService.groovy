@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
-import org.codehaus.groovy.grails.web.json.JSONArray
+import grails.gorm.transactions.Transactional
+import org.grails.web.json.JSONArray
 
 @Transactional
 class CannedCommentService {

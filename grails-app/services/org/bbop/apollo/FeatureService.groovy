@@ -1,43 +1,46 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.geneProduct.GeneProduct
+import org.bbop.apollo.geneProduct.GeneProductService
 import org.bbop.apollo.go.GoAnnotation
+import org.bbop.apollo.go.GoAnnotationService
+import org.bbop.apollo.provenance.ProvenanceService
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.grails.plugins.metrics.groovy.Timed
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONException
+import org.grails.web.json.JSONObject
 import org.hibernate.FlushMode
+import org.hibernate.SessionFactory
+import org.hibernate.Hibernate
 
 @Transactional(readOnly = true)
 class FeatureService {
 
 
-    def nameService
-    def configWrapperService
-    def featureService
-    def transcriptService
-    def exonService
-    def cdsService
-    def nonCanonicalSplitSiteService
-    def featureRelationshipService
-    def featurePropertyService
-    def sequenceService
-    def permissionService
-    def overlapperService
-    def organismService
-    def sessionFactory
-    def goAnnotationService
-    def geneProductService
-    def provenanceService
-
+    NameService nameService
+    ConfigWrapperService configWrapperService
+    FeatureService featureService
+    TranscriptService transcriptService
+    ExonService exonService
+    CdsService cdsService
+    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    SequenceService sequenceService
+    PermissionService permissionService
+    OverlapperService overlapperService
+    OrganismService organismService
+    SessionFactory sessionFactory
+    GoAnnotationService goAnnotationService
+    GeneProductService geneProductService
+    ProvenanceService provenanceService
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final String MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene"
@@ -53,9 +56,8 @@ class FeatureService {
     public static final PSEUDOGENIC_FEATURE_TYPES = [Pseudogene.cvTerm, PseudogenicRegion.cvTerm, ProcessedPseudogene.cvTerm]
 
 
-    @Timed
     @Transactional
-    FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+    FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence, int defaultStrand = (int) Strand.POSITIVE.value) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation()
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value))
@@ -189,9 +191,9 @@ class FeatureService {
      * @return
      */
 
-    @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, Boolean useCDS = null, boolean useName = false) {
+        if (useCDS == null) { useCDS = configWrapperService.useCDS() }
         log.debug "jsonTranscript: ${jsonTranscript.toString()}"
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null
         Transcript transcript = null
@@ -482,9 +484,8 @@ class FeatureService {
      * @param feature
      * @return
      */
-    @Timed
     Feature getTopLevelFeature(Feature feature) {
-        Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
+        Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature?.collect { Hibernate.unproxy(it) }
         if (parents) {
             return getTopLevelFeature(parents.iterator().next())
         } else {
@@ -493,7 +494,6 @@ class FeatureService {
     }
 
 
-    @Timed
     @Transactional
     def removeExonOverlapsAndAdjacenciesForFeature(Feature feature) {
         if (feature instanceof Gene) {
@@ -570,7 +570,7 @@ class FeatureService {
                         ++inc
                     } catch (AnnotationException e) {
                         // we should probably just re-throw this
-                        log.error(e)
+                        log.error(e.message, e)
                         throw e
                     }
                 }
@@ -619,7 +619,6 @@ class FeatureService {
 //        }
     }
 
-    @Timed
     @Transactional
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript)
@@ -806,6 +805,9 @@ class FeatureService {
             }
         }
         FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        if (!transcriptFeatureLocation) {
+            throw new AnnotationException("No feature location found for transcript ${transcript.uniqueName}")
+        }
         if (transcriptFeatureLocation.strand == Strand.NEGATIVE.value) {
             setFmax(cds, translationStart + 1)
         } else {
@@ -1172,7 +1174,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  *
  */
 
-    @Timed
     @Transactional
     void setLongestORF(Transcript transcript, boolean readThroughStopCodon = false, boolean allowPartials = true ) {
         log.debug "Setting longest orf with $transcript and read through stop codon $readThroughStopCodon and allow partials $allowPartials"
@@ -1302,7 +1303,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
-    @Timed
     @Transactional
     Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
@@ -1533,8 +1533,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
                         if (propertyType.has(FeatureStringEnum.NAME.value)) {
                             CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-                            CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
-                            gsolProperty.setType(cvTerm)
+                            if (cv) {
+                                CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
+                                if (cvTerm) {
+                                    gsolProperty.setType(cvTerm)
+                                } else {
+                                    log.warn "CVTerm not found for name '${propertyType.getString(FeatureStringEnum.NAME.value)}' and CV '${cv.name}'"
+                                }
+                            } else {
+                                log.warn "CV not found for name '${propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)}'"
+                            }
                         } else {
                             log.warn "No proper type for the CV is set ${propertyType as JSON}"
                         }
@@ -1943,7 +1951,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
-    @Timed
     JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
         JSONObject jsonFeature = new JSONObject()
         if (gsolFeature.id) {
@@ -2080,7 +2087,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
-    @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         log.debug "converting features to json ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject()
@@ -2348,7 +2354,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jsonObject
     }
 
-    @Timed
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject()
         if (gsolFeatureLocation.id) {
@@ -2368,7 +2373,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     @Transactional
-    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames = new ArrayList<>()) {
+    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<>()) {
 
         if (feature instanceof Exon) {
             Exon exon = (Exon) feature

@@ -17,8 +17,8 @@ abstract class Frameshift extends TranscriptAttribute{
      *
      * @return Coordinate for the frameshift
      */
-    public int getCoordinate() {
-        return Integer.parseInt(getValue());
+    int getCoordinate() {
+        return getValue() as Integer
     }
 
     /** Returns whether this frameshift is in the plus translational direction.

@@ -13,7 +13,7 @@ class Environment {
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         Environment castOther = ( Environment ) other;
@@ -21,7 +21,7 @@ class Environment {
         return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

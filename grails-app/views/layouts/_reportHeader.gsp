@@ -1,4 +1,4 @@
-<%@ page import="org.codehaus.groovy.grails.web.json.JSONArray" %>
+<%@ page import="org.grails.web.json.JSONArray" %>
 %{--<nav class="navbar navbar-default">--}%
     <div class="apollo-header row">
         <div class="col-lg-10">

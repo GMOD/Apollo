@@ -1,8 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
@@ -11,51 +10,34 @@ import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum
 import org.bbop.apollo.gwt.shared.track.TrackTypeEnum
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.track.TrackDefaults
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
-import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest
 
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
 import java.nio.file.Path
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
-@RestApi(name = "Organism Services", description = "Methods for managing organisms")
 @Transactional(readOnly = true)
 class OrganismController {
 
   static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-  def sequenceService
-  def permissionService
-  def requestHandlingService
-  def preferenceService
-  def organismService
-  def reportService
-  def configWrapperService
-  def trackService
-  def fileService
-
-
-  @RestApiMethod(description = "Remove an organism", path = "/organism/deleteOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
-    , @RestApiParam(name = "organism", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
-      , @RestApiParam(name = "returnAllOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Return all organisms (true / false) (default true)")
-  ])
+  SequenceService sequenceService
+  PermissionService permissionService
+  RequestHandlingService requestHandlingService
+  PreferenceService preferenceService
+  OrganismService organismService
+  ReportService reportService
+  ConfigWrapperService configWrapperService
+  TrackService trackService
+  FileService fileService
   @Transactional
   def deleteOrganism() {
 
@@ -118,13 +100,6 @@ class OrganismController {
     }
   }
 
-  @RestApiMethod(description = "Delete an organism along with its data directory and returns a JSON object containing properties of the deleted organism", path = "/organism/deleteOrganismWithSequence", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-  ])
   @Transactional
   def deleteOrganismWithSequence() {
 
@@ -192,14 +167,6 @@ class OrganismController {
     render responseObject as JSON
   }
 
-  @RestApiMethod(description = "Remove features from an organism", path = "/organism/deleteOrganismFeatures", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism.")
-    , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Comma-delimited sequence names on that organism if only certain sequences should be deleted.")
-  ])
-  @NotTransactional
   def deleteOrganismFeatures() {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
@@ -234,31 +201,15 @@ class OrganismController {
 
       render [:] as JSON
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem removing organism features for organism: ' + e]
       render error as JSON
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
-      e.printStackTrace()
-      log.error(error.error)
+      log.error(error.error, e)
     }
   }
 
 
-  @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganismWithSequence", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
-    , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-    , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file) if not uploaded")
-    , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
-    , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "commonName for an organism")
-    , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
-    , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-    , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
-    , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
-    , @RestApiParam(name = "searchDatabaseData", type = "file", paramType = RestApiParamType.QUERY, description = "2bit file for blat search (optional)")
-  ])
   @Transactional
   def addOrganismWithSequence() {
 
@@ -267,15 +218,16 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-    CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-    CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
-    CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+    MultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+    MultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
+    MultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
 
     if (!requestObject.containsKey(FeatureStringEnum.ORGANISM_NAME.value)) {
       returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_NAME.value}'.")
@@ -351,10 +303,10 @@ class OrganismController {
               findAllOrganisms()
             }
             catch (IOException e) {
-              log.error e.printStackTrace()
+              log.error e.message, e
               returnObject.put("error", e.message)
               organism.delete()
-              render returnObject
+              render returnObject as JSON
               return
             }
           } else if (sequenceDataFile) {
@@ -362,7 +314,7 @@ class OrganismController {
             SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(sequenceDataFile.getOriginalFilename())
             if (sequenceTypeEnum == null) {
               returnObject.put("error", "Bad file input: " + sequenceDataFile.originalFilename)
-              render returnObject
+              render returnObject as JSON
               return
             }
 
@@ -407,7 +359,7 @@ class OrganismController {
                   log.info "executing command '${indexCommand}"
                   indexCommand.execute()
                   organism.blatdb = searchPath
-                } catch (e) {
+                } catch (Exception e) {
                   log.error("Failed to create a twobit file ${e.message}")
                   organism.blatdb = ''
                 }
@@ -429,7 +381,7 @@ class OrganismController {
               findAllOrganisms()
             }
             catch (IOException e) {
-              log.error e.printStackTrace()
+              log.error e.message, e
               returnObject.put("error", e.message)
               organism.delete()
             }
@@ -448,8 +400,8 @@ class OrganismController {
         response.status = HttpStatus.UNAUTHORIZED.value()
       }
     }
-    catch (e) {
-      log.error e.printStackTrace()
+    catch (Exception e) {
+      log.error e.message, e
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       returnObject.put("error", e.message)
     }
@@ -457,22 +409,16 @@ class OrganismController {
     render returnObject as JSON
   }
 
-  @RestApiMethod(description = "Removes an added track from an existing organism returning a JSON object containing all tracks for the current organism.", path = "/organism/removeTrackFromOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-    , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Name of track")
-  ])
   @Transactional
   def removeTrackFromOrganism() {
     JSONObject returnObject = new JSONObject()
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     log.info "removing track from organism with ${requestObject}"
 
@@ -554,16 +500,6 @@ class OrganismController {
   }
 
 
-  @RestApiMethod(description = "Adds a track to an existing organism returning a JSON object containing all tracks for the current organism.", path = "/organism/addTrackToOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-    , @RestApiParam(name = "trackData", type = "string", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed track data")
-    , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw, *gff)")
-    , @RestApiParam(name = "trackFileIndex", type = "string", paramType = RestApiParamType.QUERY, description = "index (*.bai, *.tbi)")
-    , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
-  ])
   @Transactional
   def addTrackToOrganism() {
 
@@ -571,9 +507,10 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
     log.debug "path to JBrowse binaries ${pathToJBrowseBinaries}"
@@ -640,9 +577,9 @@ class OrganismController {
         File organismDirectory = new File(organismDirectoryName)
         File commonDataDirectory = new File(trackService.commonDataDirectory)
 
-        CommonsMultipartFile trackDataFile = request.getFile(FeatureStringEnum.TRACK_DATA.value)
-        CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
-        CommonsMultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
+        MultipartFile trackDataFile = request.getFile(FeatureStringEnum.TRACK_DATA.value)
+        MultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
+        MultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
 
         // if this is an uploaded organism
         if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
@@ -673,7 +610,7 @@ class OrganismController {
                 returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
               }
               catch (IOException e) {
-                log.error e.printStackTrace()
+                log.error e.message, e
                 returnObject.put("error", e.message)
               }
             } else {
@@ -721,7 +658,7 @@ class OrganismController {
                   returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
                 }
                 catch (IOException e) {
-                  log.error e.printStackTrace()
+                  log.error e.message, e
                   returnObject.put("error", e.message)
                 }
               } else {
@@ -787,7 +724,7 @@ class OrganismController {
                   returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray + extendedTracksArray)
                 }
                 catch (IOException e) {
-                  log.error e.printStackTrace()
+                  log.error e.message, e
                   returnObject.put("error", e.message)
                 }
               }
@@ -839,7 +776,7 @@ class OrganismController {
                       returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
                     }
                     catch (IOException e) {
-                      log.error e.printStackTrace()
+                      log.error e.message, e
                       returnObject.put("error", e.message)
                     }
                   }
@@ -857,7 +794,7 @@ class OrganismController {
         returnObject.put("error", "Organism not found.")
       }
 
-    } catch (e) {
+    } catch (Exception e) {
       log.error e.message
       returnObject.put("error", e.message)
     }
@@ -865,13 +802,6 @@ class OrganismController {
     render returnObject as JSON
   }
 
-  @RestApiMethod(description = "Deletes a track from an existing organism and returns a JSON object of the deleted track's configuration", path = "/organism/deleteTrackFromOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-    , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Track label corresponding to the track that is to be deleted")
-  ])
   @Transactional
   def deleteTrackFromOrganism() {
 
@@ -990,13 +920,6 @@ class OrganismController {
     render returnObject as JSON
   }
 
-  @RestApiMethod(description = "Update a track in an existing organism returning a JSON object containing old and new track configurations", path = "/organism/updateTrackForOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-    , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
-  ])
   @Transactional
   def updateTrackForOrganism() {
 
@@ -1004,9 +927,10 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
 
 
@@ -1042,9 +966,7 @@ class OrganismController {
     }
 
     try {
-//      permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
-      if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(organismJson))) {
-//        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+      if (!permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
         render status: HttpStatus.UNAUTHORIZED
         return
       }
@@ -1136,19 +1058,6 @@ class OrganismController {
     render returnObject as JSON
   }
 
-  @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "Filesystem path for the organisms data directory (required)")
-    , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "A name used for the organism")
-    , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Species name")
-    , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Species genus")
-    , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Filesystem path for a BLAT database (e.g. a .2bit file)")
-    , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) A flag for whether the organism appears as in the public genomes list (default false)")
-    , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism metadata")
-    , @RestApiParam(name = "returnAllOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Return all organisms (true / false) (default true)")
-  ])
   @Transactional
   def addOrganism() {
     JSONObject organismJson = permissionService.handleInput(request, params)
@@ -1225,27 +1134,21 @@ class OrganismController {
       render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
 
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
-      e.printStackTrace()
-      log.error(error.error)
+      log.error(error.error, e)
     }
   }
 
-  @RestApiMethod(description = "Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences", path = "/organism/getSequencesForOrganism", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name or ID for the organism")
-  ])
   def getSequencesForOrganism() {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(organismJson,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
       render(['error': 'Empty fields in request JSON'] as JSON)
@@ -1260,7 +1163,7 @@ class OrganismController {
       if (!organism) {
         organism = Organism.findById(organismJson.organism)
       }
-    } catch (e) {
+    } catch (Exception e) {
       log.error("Problem finding organism ${organismJson.organism}: ${e}")
       organism = null
     }
@@ -1324,23 +1227,6 @@ class OrganismController {
   }
 
 
-  @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/updateOrganismInfo", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
-    , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
-    , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
-    , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-    , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
-    , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
-    , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "a common name used for the organism")
-    , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
-    , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-    , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
-    , @RestApiParam(name = "noReloadSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false) If set to true, then sequences will not be reloaded if the organism directory changes.")
-    , @RestApiParam(name = "returnAllOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Return all organisms (true / false) (default true)")
-  ])
   @Transactional
   def updateOrganismInfo() {
     try {
@@ -1373,8 +1259,8 @@ class OrganismController {
           sequenceService.updateGenomeFasta(organism)
         }
 
-//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-        CommonsMultipartFile organismDataFile = null
+//        MultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+        MultipartFile organismDataFile = null
         if (request instanceof AbstractMultipartHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         }
@@ -1422,7 +1308,7 @@ class OrganismController {
       render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
       log.error(error.error)
@@ -1475,20 +1361,13 @@ class OrganismController {
 ////      render new JSONObject() as JSON
 //      render organism as JSON
 //    }
-//    catch (e) {
+//    catch (Exception e) {
 //      def error = [error: 'problem saving organism: ' + e]
 //      render error as JSON
 //      log.error(error.error)
 //    }
 //  }
 
-  @RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
-    , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-  ])
   @Transactional
   def updateOrganismMetadata() {
     log.debug "updating organism metadata ${params}"
@@ -1511,26 +1390,21 @@ class OrganismController {
       }
       render new JSONObject() as JSON
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
       log.error("Error updating organism metadata: ${error.error}")
     }
   }
 
-  @RestApiMethod(description = "Get creator metadata for organism, returns userId as String", path = "/organism/getOrganismCreator", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
-  ])
   def getOrganismCreator() {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(organismJson,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
+      return
     }
     if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN)) {
       def error = [error: 'not authorized to view the metadata']
@@ -1551,13 +1425,6 @@ class OrganismController {
 
   }
 
-  @RestApiMethod(description = "Returns a JSON array of all organisms, or optionally, gets information about a specific organism", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
-  @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "showPublicOnly", type = "boolean", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
-  ])
   @Transactional
   def findAllOrganisms() {
     try {
@@ -1572,7 +1439,7 @@ class OrganismController {
         try {
           organism = Organism.findByCommonName(requestObject.organism)
           if (!organism) organism = Organism.findById(requestObject.organism)
-        } catch (e) {
+        } catch (Exception e) {
           log.warn("Unable to find organism for ${requestObject.organism}")
           organism = null
         }
@@ -1595,8 +1462,8 @@ class OrganismController {
           if(permissionService.hasPermissions(requestObject,PermissionEnum.READ)) {
             organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
           }
-        } catch (e) {
-          log.error(e)
+        } catch (Exception e) {
+          log.error(e.message, e)
           render status: UNAUTHORIZED
           return
         }
@@ -1659,13 +1526,13 @@ class OrganismController {
       render jsonArray as JSON
     }
     catch (Exception e) {
-      e.printStackTrace()
+      log.error(e.message, e)
       def error = [error: e.message]
       render error as JSON
     }
   }
 
-  private def decompressFileToRawDirectory(CommonsMultipartFile trackFile, String path, JSONObject trackConfigObject, String newFileName) {
+  private def decompressFileToRawDirectory(MultipartFile trackFile, String path, JSONObject trackConfigObject, String newFileName) {
     File archiveFile = new File(trackFile.getOriginalFilename())
     trackFile.transferTo(archiveFile)
     List<String> fileNames = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), false)

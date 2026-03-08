@@ -1,7 +1,8 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.core.GrailsApplication
+import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
 import htsjdk.samtools.reference.FastaSequenceIndex
 import htsjdk.samtools.reference.IndexedFastaSequenceFile
@@ -11,8 +12,8 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.hibernate.sql.JoinType
 
 import java.util.zip.CRC32
@@ -21,19 +22,17 @@ import java.util.zip.GZIPInputStream
 @Transactional
 class SequenceService {
 
-    def configWrapperService
-    def grailsApplication
-    def featureService
-    def transcriptService
-    def requestHandlingService
-    def exonService
-    def cdsService
-    def gff3HandlerService
-    def overlapperService
-    def organismService
-    def trackService
-
-
+    ConfigWrapperService configWrapperService
+    GrailsApplication grailsApplication
+    FeatureService featureService
+    TranscriptService transcriptService
+    RequestHandlingService requestHandlingService
+    ExonService exonService
+    CdsService cdsService
+    Gff3HandlerService gff3HandlerService
+    OverlapperService overlapperService
+    OrganismService organismService
+    TrackService trackService
     List<FeatureLocation> getFeatureLocations(Sequence sequence) {
         FeatureLocation.findAllBySequence(sequence)
     }
@@ -361,6 +360,10 @@ class SequenceService {
                 }
                 else if (seqsMap[refSeq.name] != length) {
                   Sequence sequence = Sequence.findByNameAndOrganism(refSeq.name,organism)
+                  if (!sequence) {
+                      log.error "Sequence not found for name '${refSeq.name}' and organism '${organism.commonName}'"
+                      return
+                  }
                   sequence.length = length
                   sequence.seqChunkSize = refSeq.seqChunkSize
                   sequence.start = refSeq.start
@@ -651,6 +654,10 @@ class SequenceService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            if (!gbolFeature) {
+                log.error "Feature not found for uniqueName '${uniqueName}'"
+                continue
+            }
             String sequence = getSequenceForFeature(gbolFeature, type, flank)
 
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
@@ -667,7 +674,15 @@ class SequenceService {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            if (!gbolFeature) {
+                log.error "Feature not found for uniqueName '${uniqueName}'"
+                continue
+            }
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
+            if (!gbolFeature) {
+                log.error "Top-level feature not found for '${uniqueName}'"
+                continue
+            }
             featuresToWrite.add(gbolFeature);
 
             int fmin = gbolFeature.fmin
@@ -679,7 +694,7 @@ class SequenceService {
             List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations, fmin: fmin, fmax: fmax])
             featuresToWrite += listOfSequenceAlterations
         }
-        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
     }
 
     String checkCache(String organismString, String sequenceName, String featureName, String type, Map paramMap) {

@@ -1,18 +1,13 @@
-import com.brandseye.cors.CorsFilter
-import grails.plugin.springwebsocket.GrailsSimpAnnotationMethodMessageHandler
+import org.bbop.apollo.websocket.WebSocketConfig
 
-// Place your Spring DSL code here
+// BACKWARDS INCOMPATIBILITY: CorsFilter bean removed.
+// CORS is now handled via Spring Boot's WebMvcConfigurer in Application.groovy.
+// The old com.brandseye.cors.CorsFilter is no longer needed.
+
+// BACKWARDS INCOMPATIBILITY: GrailsSimpAnnotationMethodMessageHandler bean removed.
+// WebSocket message handling is now configured via WebSocketConfig using
+// Spring's standard @EnableWebSocketMessageBroker annotation.
+
 beans = {
-    corsFilter(CorsFilter)
-
-    webSocketConfig org.bbop.apollo.websocket.WebSocketConfig
-
-    grailsSimpAnnotationMethodMessageHandler(
-        GrailsSimpAnnotationMethodMessageHandler,
-        ref("clientInboundChannel"),
-        ref("clientOutboundChannel"),
-        ref("brokerMessagingTemplate")
-    ) {
-        destinationPrefixes = ["/app"]
-    }
+    webSocketConfig(WebSocketConfig)
 }

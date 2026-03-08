@@ -26,7 +26,7 @@ class CVTerm {
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         CVTerm castOther = (CVTerm) other;
@@ -34,7 +34,7 @@ class CVTerm {
         return ((this.getCv() == castOther.getCv()) || (this.getCv() != null && castOther.getCv() != null && this.getCv().equals(castOther.getCv()))) && ((this.getName() == castOther.getName()) || (this.getName() != null && castOther.getName() != null && this.getName().equals(castOther.getName()))) && (this.getIsObsolete() == castOther.getIsObsolete());
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

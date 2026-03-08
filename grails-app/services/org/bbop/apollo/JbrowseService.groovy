@@ -1,12 +1,9 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional
 class JbrowseService {
-
-    @NotTransactional
     Boolean hasOverlappingDirectory(String path1, String path2) {
         String[] paths1 = path1.split("/")
         String[] paths2 = path2.split("/")
@@ -17,8 +14,6 @@ class JbrowseService {
         }
         return false
     }
-
-    @NotTransactional
     String fixOverlappingPath(String path1, String path2) {
         String[] paths1 = path1.split("/")
         String[] paths2 = path2.split("/")

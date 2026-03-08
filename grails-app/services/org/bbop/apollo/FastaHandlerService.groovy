@@ -14,10 +14,9 @@ public class FastaHandlerService {
     private Mode mode;
     public final static int NUM_RESIDUES_PER_LINE = 60;
 
-    def sequenceService
-    def transcriptService
-    def featurePropertyService
-
+    SequenceService sequenceService
+    TranscriptService transcriptService
+    FeaturePropertyService featurePropertyService
     public enum Mode {
         READ,
         WRITE
@@ -29,7 +28,7 @@ public class FastaHandlerService {
     }
     
 
-    public void close() {
+    void close() {
         if (mode == Mode.READ) {
             //TODO
         }
@@ -38,7 +37,7 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format,String region = null ) throws IOException {
+    void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format,String region = null ) throws IOException {
         this.mode = mode
         file = new File(path)
         file.createNewFile()
@@ -66,7 +65,7 @@ public class FastaHandlerService {
         out.close()
     }
     
-    public void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport,String region) throws IOException {
+    void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport,String region) throws IOException {
         if (mode != Mode.WRITE) {
             throw new IOException("Cannot write to file in READ mode");
         }
@@ -84,7 +83,7 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
+    void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
         String seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
         int featureLength = seq.length()
         if (featureLength == 0) {

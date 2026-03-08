@@ -18,7 +18,7 @@ class OrganismProperty {
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         OrganismProperty castOther = ( OrganismProperty ) other;
@@ -26,7 +26,7 @@ class OrganismProperty {
         return ( (this.getGenus()==castOther.getGenus()) || ( this.getGenus()!=null && castOther.getGenus()!=null && this.getGenus().equals(castOther.getGenus()) ) ) && ( (this.getSpecies()==castOther.getSpecies()) || ( this.getSpecies()!=null && castOther.getSpecies()!=null && this.getSpecies().equals(castOther.getSpecies()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 
@@ -40,7 +40,7 @@ class OrganismProperty {
         return result;
     }
 
-    public Organism generateClone() {
+    Organism generateClone() {
         Organism cloned = new Organism();
         cloned.abbreviation = this.abbreviation;
         cloned.genus = this.genus;

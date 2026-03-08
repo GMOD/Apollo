@@ -33,9 +33,9 @@ class UserOrganismPreference extends UserPreference{
 
     int hashCode() {
         int result
-        result = organism.hashCode()
-        result = 31 * result + sequence.hashCode()
-        result = 31 * result + id.hashCode()
+        result = organism != null ? organism.hashCode() : 0
+        result = 31 * result + (sequence != null ? sequence.hashCode() : 0)
+        result = 31 * result + (id != null ? id.hashCode() : 0)
         return result
     }
 }

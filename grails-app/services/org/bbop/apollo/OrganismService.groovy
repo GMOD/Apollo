@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.io.FileType
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -17,9 +16,8 @@ import java.util.zip.ZipInputStream
 @Transactional
 class OrganismService {
 
-    def featureService
-    def configWrapperService
-
+    FeatureService featureService
+    ConfigWrapperService configWrapperService
     int MAX_DELETE_SIZE = 10000
     int TRANSACTION_SIZE = 30
 
@@ -28,7 +26,6 @@ class OrganismService {
      * @param path
      * @return
      */
-    @NotTransactional
     String findBlatDB(String path){
         String searchDatabaseDirectory = path + "/" + FeatureStringEnum.SEARCH_DATABASE_DATA.value
         File searchFile = new File(searchDatabaseDirectory)
@@ -45,8 +42,6 @@ class OrganismService {
         return null
 
     }
-
-    @NotTransactional
     def deleteAllFeaturesForSequences(List<Sequence> sequences) {
 
         int totalDeleted = 0
@@ -104,8 +99,6 @@ class OrganismService {
         return totalDeleted
 
     }
-
-    @NotTransactional
     def deleteAllFeaturesForOrganism(Organism organism) {
 
         int totalDeleted = 0

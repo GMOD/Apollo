@@ -1,18 +1,17 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 @Transactional
 class VariantService {
 
-    def featureService
-    def permissionService
-    def sequenceService
-    def nameService
-
+    FeatureService featureService
+    PermissionService permissionService
+    SequenceService sequenceService
+    NameService nameService
     def createVariant(JSONObject jsonFeature, Sequence sequence, Boolean suppressHistory) {
 
         // this scenario would happen when a variant is created from an evidence track such as a VCF track

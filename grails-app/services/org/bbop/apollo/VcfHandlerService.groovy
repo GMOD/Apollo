@@ -1,16 +1,15 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import java.text.SimpleDateFormat
 
 @Transactional
 class VcfHandlerService {
 
-    def sequenceService
-    def featureService
-    def featurePropertyService
-    def variantService
-
+    SequenceService sequenceService
+    FeatureService featureService
+    FeaturePropertyService featurePropertyService
+    VariantService variantService
     static final format = "VCFv4.2"
     static final header = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO"]
     SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMdd")
@@ -25,8 +24,8 @@ class VcfHandlerService {
      * @param path
      * @param source
      */
-    public void writeVariantsToText(Organism organism, def variants, String path, String source) {
-        println("[VcfHandlerService][writeVariantsToText] path: ${path} variants: ${variants.size()} source: ${source}")
+    void writeVariantsToText(Organism organism, def variants, String path, String source) {
+        log.debug "[VcfHandlerService][writeVariantsToText] path: ${path} variants: ${variants.size()} source: ${source}"
         this.source = source
         this.organism = organism
         File file = new File(path)
@@ -42,7 +41,7 @@ class VcfHandlerService {
      * @param writer
      * @param variants
      */
-    public void writeVcfHeaders(PrintWriter writer, def variants) {
+    void writeVcfHeaders(PrintWriter writer, def variants) {
         String reference = organism.genomeFasta ? organism.directory + File.separator + organism.genomeFasta : organism.directory + File.separator + "seq/"
         writer.write("##fileformat=${format}\n")
         writer.write("##fileDate=${dateFormat.format(new Date())}\n")
@@ -67,7 +66,7 @@ class VcfHandlerService {
      * @param writer
      * @param variants
      */
-    public void writeVariants(PrintWriter writer, def variants) {
+    void writeVariants(PrintWriter writer, def variants) {
         def variantsBySequence = [:]
         for (SequenceAlteration variant : variants) {
             Sequence sequence = variant.featureLocation.sequence
@@ -91,7 +90,7 @@ class VcfHandlerService {
      * @param writer
      * @param variant
      */
-    public void writeVariants(PrintWriter writer, SequenceAlteration variant) {
+    void writeVariants(PrintWriter writer, SequenceAlteration variant) {
         Allele referenceAllele = variantService.getReferenceAllele(variant)
         def alternateAlleles = variantService.getAlternateAlleles(variant)
         def record = [variant.featureLocation.sequence.name, variant.featureLocation.fmin + 1, variant.uniqueName, referenceAllele ? referenceAllele.bases : "."]

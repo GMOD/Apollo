@@ -1,12 +1,12 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.apache.batik.dom.GenericDOMImplementation
 import org.apache.batik.ext.awt.geom.Polygon2D
 import org.apache.batik.svggen.SVGGraphics2D
 import org.bbop.apollo.track.RenderObject
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.w3c.dom.DOMImplementation
 import org.w3c.dom.Document
 import org.w3c.dom.Element

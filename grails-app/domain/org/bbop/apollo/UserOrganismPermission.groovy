@@ -1,10 +1,10 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.json.JSONArray
+import org.grails.web.json.JSONArray
 
 class UserOrganismPermission extends UserPermission{
-    
+
     String permissions // JSONArray wrapping PermissionEnum
 
     List<String> getPermissionValues(){
@@ -18,7 +18,7 @@ class UserOrganismPermission extends UserPermission{
 
         return returnList
     }
-    
+
     static belongsTo = [ Organism ]
 
     static constraints = {
@@ -26,7 +26,7 @@ class UserOrganismPermission extends UserPermission{
 
     static mapping = {
     }
-    
+
 
 
 }

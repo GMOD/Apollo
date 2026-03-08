@@ -1,30 +1,22 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import htsjdk.variant.vcf.VCFFileReader
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
-@RestApi(name = "VCF Services", description = "Methods for retrieving VCF track data as JSON")
 @Transactional
 class VcfController {
 
-    def preferenceService
-    def permissionService
-    def vcfService
-    def trackService
-
+    PreferenceService preferenceService
+    PermissionService permissionService
+    VcfService vcfService
+    TrackService trackService
     def beforeInterceptor = {
         if (params.action == "featuresByLocation") {
             response.setHeader("Access-Control-Allow-Origin", "*")
@@ -32,24 +24,14 @@ class VcfController {
     }
 
 
-    @RestApiMethod(description = "Get VCF track data for a given range as JSON", path = "/vcf/<organism_name>/<track_name>/<sequence_name>:<fmin>..<fmax>.<type>?includeGenotypes=<includeGenotypes>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)"),
-            @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name by label in trackList.json (required)"),
-            @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)"),
-            @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range (required)"),
-            @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)"),
-            @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json (required)"),
-            @RestApiParam(name = "includeGenotypes", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default: false).  If true, will include genotypes associated with variants from VCF."),
-            @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default: false).  Use cache for request, if available."),
-    ])
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type, boolean includeGenotypes) {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if(!trackService.checkPermission(request, response, organismString)) return
 
@@ -85,7 +67,7 @@ class VcfController {
             featuresArray = vcfService.processVcfRecords(organism, vcfFileReader, sequence, fmin, fmax, includeGenotypes)
         }
         catch (IOException e) {
-            log.error(e.stackTrace)
+            log.error(e.message, e)
         }
 
         // returning from the cache is more consistent.

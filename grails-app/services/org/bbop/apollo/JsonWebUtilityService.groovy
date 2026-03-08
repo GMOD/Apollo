@@ -1,20 +1,15 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.grails.plugins.metrics.groovy.Timed
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONException
+import org.grails.web.json.JSONObject
 
 @Transactional
 class JsonWebUtilityService {
 
-  def featureService
-
-  @NotTransactional
-  @Timed
+  FeatureService featureService
   JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
     JSONObject jsonFeatureContainer = new JSONObject()
     JSONArray jsonFeatures = new JSONArray()
@@ -25,7 +20,6 @@ class JsonWebUtilityService {
     return jsonFeatureContainer
   }
 
-  @Timed
   JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
     def jsonObjects = new ArrayList()
     for (Feature feature in features) {

@@ -5,6 +5,7 @@ package org.bbop.apollo
  */
 class User implements Ontological, JsonMetadata{
 
+    static transients = ['ontologyId', 'cvTerm']
 
     static auditable = true
 

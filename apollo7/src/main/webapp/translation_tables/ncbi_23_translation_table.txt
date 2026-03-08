@@ -1,3 +1,0 @@
-ATT	I	start
-GTG	V	start
-TTA	*

@@ -6,24 +6,16 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 
 import static org.springframework.http.HttpStatus.*
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONObject
 
-@RestApi(name = "Canned Keys Services", description = "Methods for managing canned keys")
 @Transactional(readOnly = true)
 class CannedKeyController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def beforeInterceptor = {
       // if a non-JSON method
       if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
@@ -164,14 +156,6 @@ class CannedKeyController {
         }
     }
 
-    @RestApiMethod(description = "Create canned key", path = "/cannedKey/createKey", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "key", type = "string", paramType = RestApiParamType.QUERY, description = "Canned key to add")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def createKey() {
         JSONObject keyJson = permissionService.handleInput(request, params)
@@ -197,24 +181,13 @@ class CannedKeyController {
                 render error as JSON
                 log.error(error.error)
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: 'problem saving CannedKey: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 
-    @RestApiMethod(description = "Update canned key", path = "/cannedKey/updateKey", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Canned key ID to update (or specify the old_key)")
-            , @RestApiParam(name = "old_key", type = "string", paramType = RestApiParamType.QUERY, description = "Canned key to update")
-            , @RestApiParam(name = "new_key", type = "string", paramType = RestApiParamType.QUERY, description = "Canned key to change to (the only editable option)")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def updateKey() {
         try {
@@ -255,13 +228,6 @@ class CannedKeyController {
         }
     }
 
-    @RestApiMethod(description = "Remove a canned key", path = "/cannedKey/deleteKey", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Canned key ID to remove (or specify the name)")
-            , @RestApiParam(name = "key", type = "string", paramType = RestApiParamType.QUERY, description = "Canned key to delete")
-    ])
     @Transactional
     def deleteKey() {
         try {
@@ -295,13 +261,6 @@ class CannedKeyController {
         }
     }
 
-    @RestApiMethod(description = "Returns a JSON array of all canned keys, or optionally, gets information about a specific canned key", path = "/cannedKey/showKey", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Key ID to show (or specify a key)")
-            , @RestApiParam(name = "key", type = "string", paramType = RestApiParamType.QUERY, description = "Key to show")
-    ])
     @Transactional
     def showKey() {
         try {

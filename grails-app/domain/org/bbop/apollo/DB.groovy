@@ -14,7 +14,7 @@ class DB {
      String urlPrefix;
      String url;
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         DB castOther = ( DB ) other;
@@ -22,7 +22,7 @@ class DB {
         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

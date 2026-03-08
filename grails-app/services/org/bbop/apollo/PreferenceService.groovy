@@ -1,22 +1,21 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.SequenceDTO
 import org.bbop.apollo.preference.UserDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONObject
+import org.springframework.scheduling.annotation.Scheduled
 
 @Transactional
 class PreferenceService {
 
-    def permissionService
-    def configWrapperService
-
+    PermissionService permissionService
+    ConfigWrapperService configWrapperService
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 5  // saves every 30 seconds
     // enqueue to store save
     private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = new HashMap<>()
@@ -92,25 +91,23 @@ class PreferenceService {
 
     JSONObject getSessionPreferenceObject(String clientToken) {
         try {
-            Session session = SecurityUtils.subject.getSession(false)
+            def session = ApolloSecurityUtils.getSession(false)
             if (session) {
-//                printKeys(session)
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
             } else {
                 log.debug "No session found"
             }
-        } catch (e) {
-            log.debug "faild to get the gession preference objec5 ${e}"
+        } catch (Exception e) {
+            log.debug "failed to get the session preference object ${e}"
         }
         return null
     }
 
     UserOrganismPreferenceDTO setSessionPreference(String clientToken, UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
-        Session session = SecurityUtils.subject.getSession(false)
+        def session = ApolloSecurityUtils.getSession(false)
         if (session) {
-            // should be client_token , JSONObject
             String preferenceString = (userOrganismPreferenceDTO as JSON).toString()
             session.setAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken, preferenceString)
         } else {
@@ -140,7 +137,7 @@ class PreferenceService {
         log.debug "token for org ${token}"
         if (token.isLong()) {
             log.debug "is long "
-            return Organism.findById(Long.parseLong(token))
+            return Organism.findById(token as Long)
         } else {
             log.debug "is NOT long "
             // Cannot use findByCommonNameIlike, because it will fail to update the permission of an organism named orgam
@@ -161,7 +158,7 @@ class PreferenceService {
 
     UserOrganismPreferenceDTO setCurrentOrganism(User user, Organism organism, String clientToken) {
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, null, clientToken)
-        if (userOrganismPreferenceDTO.organism.id == organism.id) {
+        if (userOrganismPreferenceDTO?.organism?.id == organism.id) {
             log.info "Same organism so not changing preference"
             return userOrganismPreferenceDTO
         }
@@ -196,7 +193,12 @@ class PreferenceService {
             // else use random ones
             else {
                 // then create one
-                Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
+                List<Sequence> sequences = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"])
+                if (!sequences) {
+                    log.warn "No sequences found for organism ${organism.commonName}"
+                    return null
+                }
+                Sequence sequence = sequences.first()
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
                         , organism: organism
@@ -243,8 +245,8 @@ class PreferenceService {
         // 2. update it
         if (organismPreference
                 && userOrganismPreferenceDTO.clientToken == organismPreference.clientToken
-                && userOrganismPreferenceDTO.sequence.name == organismPreference.sequence.name
-                && userOrganismPreferenceDTO.organism.id == organismPreference.organism.id
+                && userOrganismPreferenceDTO.sequence?.name == organismPreference.sequence?.name
+                && userOrganismPreferenceDTO.organism?.id == organismPreference.organism?.id
         ) {
             organismPreference.startbp = userOrganismPreferenceDTO.startbp
             organismPreference.endbp = userOrganismPreferenceDTO.endbp
@@ -298,8 +300,8 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO setCurrentSequence(User user, Sequence sequence, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, sequence.name, clientToken) ?: null
-        if (userOrganismPreferenceDTO.sequence.id == sequence.id) {
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, sequence.name, clientToken)
+        if (userOrganismPreferenceDTO?.sequence?.id == sequence.id) {
             log.info "Same sequence so not changing preference"
             return userOrganismPreferenceDTO
         }
@@ -373,7 +375,11 @@ class PreferenceService {
 
     UserOrganismPreferenceDTO setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
-        if (userOrganismPreferenceDTO.sequence.name != sequenceName || userOrganismPreferenceDTO.sequence?.organism?.id != userOrganismPreferenceDTO.organism.id) {
+        if (!userOrganismPreferenceDTO) {
+            log.warn "No organism preference found for current user and client token ${clientToken}"
+            return null
+        }
+        if (userOrganismPreferenceDTO.sequence?.name != sequenceName || userOrganismPreferenceDTO.sequence?.organism?.id != userOrganismPreferenceDTO.organism?.id) {
             Organism organism = Organism.findById(userOrganismPreferenceDTO.organism.id)
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             userOrganismPreferenceDTO.sequence = getDTOFromSequence(sequence)
@@ -412,7 +418,7 @@ class PreferenceService {
                     evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
                 }
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.warn("Problem saving preference: " + e)
         }
 
@@ -430,7 +436,7 @@ class PreferenceService {
             } else {
                 log.debug "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.error "Problem saving ${e} for ${preferenceDTO as JSON}"
         } finally {
             currentlySavingLocation.remove(preferenceDTO.clientToken)
@@ -560,7 +566,7 @@ class PreferenceService {
         }
 
         def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
-            createAlias('sequence', 'sequence', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
+            createAlias('sequence', 'sequence', org.hibernate.sql.JoinType.LEFT_OUTER_JOIN)
             and {
                 eq("user", user)
                 eq("clientToken", clientToken)
@@ -697,7 +703,7 @@ class PreferenceService {
             if (sequence) {
                 organism = sequence.organism
             }
-            if (!organism && organisms) {
+            if (!organism && organisms && !organisms.isEmpty()) {
                 organism = organisms.first()
             }
             if (!organism && permissionService.isAdmin()) {
@@ -709,7 +715,8 @@ class PreferenceService {
             }
 
 //            sequence = sequence ?: Sequence.findByOrganism(organism, [sort: "end", order: "desc", max: 1])
-            sequence = sequence ?: Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
+            List<Sequence> seqResults = Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1])
+            sequence = sequence ?: (seqResults ? seqResults.first() : null)
             UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
@@ -738,6 +745,7 @@ class PreferenceService {
      * 2. For each client token shared by a user and more than one organism
      * 3. Delete the older set of client tokens for each organisms / user combination
      */
+    @Scheduled(fixedRate = 8 * 60 * 60 * 1000l, initialDelay = 5 * 60 * 1000l)
     def removeStalePreferences() {
 
         try {
@@ -762,7 +770,7 @@ class PreferenceService {
             }
 
             log.info "Removed ${removalCount} stale preferences"
-        } catch (e) {
+        } catch (Exception e) {
             log.error("Error removing preferences ${e}")
         }
 

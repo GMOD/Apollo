@@ -1,31 +1,31 @@
 package org.bbop.apollo
 
-import org.apache.commons.lang.WordUtils
+import org.apache.commons.text.WordUtils
+import org.bbop.apollo.geneProduct.GeneProductService
+import org.bbop.apollo.go.GoAnnotationService
+import org.bbop.apollo.provenance.ProvenanceService
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
-import org.grails.plugins.metrics.groovy.Timed
 import java.text.SimpleDateFormat
 
 
 
 class Gff3HandlerService {
 
-    def sequenceService
-    def featureRelationshipService
-    def transcriptService
-    def configWrapperService
-    def requestHandlingService 
-    def featureService
-    def overlapperService
-    def featurePropertyService
-    def geneProductService
-    def provenanceService
-    def goAnnotationService
-
+    SequenceService sequenceService
+    FeatureRelationshipService featureRelationshipService
+    TranscriptService transcriptService
+    ConfigWrapperService configWrapperService
+    RequestHandlingService requestHandlingService
+    FeatureService featureService
+    OverlapperService overlapperService
+    FeaturePropertyService featurePropertyService
+    GeneProductService geneProductService
+    ProvenanceService provenanceService
+    GoAnnotationService goAnnotationService
     SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
     static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
-    @Timed
     void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
 
@@ -71,7 +71,6 @@ class Gff3HandlerService {
     }
 
 
-    @Timed
     void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
@@ -93,7 +92,6 @@ class Gff3HandlerService {
         }
     }
 
-    @Timed
     void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
@@ -210,7 +208,6 @@ class Gff3HandlerService {
         return gffEntries;
     }
 
-    @Timed
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
         //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
@@ -243,7 +240,6 @@ class Gff3HandlerService {
         }
     }
 
-    @Timed
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
         //log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
@@ -286,7 +282,6 @@ class Gff3HandlerService {
         }
     }
 
-    @Timed
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));

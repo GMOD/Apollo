@@ -1,24 +1,16 @@
 package org.bbop.apollo
 
-import grails.plugins.rest.client.RestBuilder
-import grails.plugins.rest.client.RestResponse
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.mgt.SecurityManager
-import org.apache.shiro.session.mgt.DefaultSessionManager
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.PerformanceMetric
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.grails.plugins.metrics.groovy.Timed
+import org.grails.web.json.JSONObject
 
 class HomeController {
 
-    def permissionService
-
+    PermissionService permissionService
     /**
      * Permissions handled upstream
      * @return
      */
-    @Timed(name = "SystemInfo")
     def systemInfo() {
         Map<String, String> runtimeMapInstance = new HashMap<>()
         Map<String, String> servletMapInstance = new HashMap<>()
@@ -53,9 +45,9 @@ class HomeController {
      */
     def metrics() {
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
-        RestBuilder rest = new RestBuilder()
-        RestResponse response = rest.get(link)
-        JSONObject timerObjects = (response.json as JSONObject).getJSONObject("timers")
+        def restTemplate = new org.springframework.web.client.RestTemplate()
+        def response = restTemplate.getForEntity(link, String)
+        JSONObject timerObjects = (org.grails.web.json.JSONObject.fromObject(response.body) as JSONObject).getJSONObject("timers")
 
         List<PerformanceMetric> performanceMetricList = new ArrayList<>()
         Long countTotal = 0
@@ -99,9 +91,9 @@ class HomeController {
 
         String returnString = "class,method,total,count,mean,max,min,stddev\n"
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
-        RestBuilder rest = new RestBuilder()
-        RestResponse restResponse = rest.get(link)
-        JSONObject timerObjects = (restResponse.json as JSONObject).getJSONObject("timers")
+        def restTemplate = new org.springframework.web.client.RestTemplate()
+        def restResponse = restTemplate.getForEntity(link, String)
+        JSONObject timerObjects = (org.grails.web.json.JSONObject.fromObject(restResponse.body) as JSONObject).getJSONObject("timers")
         for (String timerName : timerObjects.keySet()) {
             returnString += getClassName(timerName) +","+getMethodName(timerName)+","
             JSONObject timerData = timerObjects.getJSONObject(timerName)

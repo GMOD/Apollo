@@ -1,4 +1,0 @@
-AGA	*
-AGG	*
-ATA	M start
-TGA	W

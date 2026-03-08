@@ -1,24 +1,23 @@
 package org.bbop.apollo
 
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 @Transactional
 class AnnotatorService {
 
-    def permissionService
-    def preferenceService
-    def requestHandlingService
-    def configWrapperService
-    def trackService
-    def variantService
-
+    PermissionService permissionService
+    PreferenceService preferenceService
+    RequestHandlingService requestHandlingService
+    ConfigWrapperService configWrapperService
+    TrackService trackService
+    VariantService variantService
     Integer getAnnotationCount(Organism organism) {
         if(configWrapperService.getCountAnnotations()){
             def viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList

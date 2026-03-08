@@ -1,27 +1,25 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceDTO
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONElement
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONElement
+import org.grails.web.json.JSONObject
 
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 import java.util.zip.GZIPInputStream
 
 @Transactional
 class TrackService {
 
-    def preferenceService
-    def trackMapperService
-    def permissionService
-    def configWrapperService
-
+    PreferenceService preferenceService
+    TrackMapperService trackMapperService
+    PermissionService permissionService
+    ConfigWrapperService configWrapperService
     static final String TRACKLIST = "trackList.json"
     static final String EXTENDED_TRACKLIST = "extendedTrackList.json"
 
@@ -91,8 +89,6 @@ class TrackService {
         String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
         return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONObject
     }
-
-    @NotTransactional
     JSONArray getClassesForTrack(String trackName, String organism, String sequence) {
         JSONObject trackObject = getTrackData(trackName, organism, sequence)
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
@@ -163,8 +159,6 @@ class TrackService {
 
         return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONArray
     }
-
-    @NotTransactional
     def convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO,long fmin,long fmax) throws FileNotFoundException {
 
         if (featureArray.size() > 3) {
@@ -232,8 +226,6 @@ class TrackService {
         }
         return convertAllNCListToObject(featureArray, sequenceDTO,fmin,fmax)
     }
-
-    @NotTransactional
     JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO,long fmin = Long.MIN_VALUE,long fmax = Long.MAX_VALUE) throws FileNotFoundException {
         JSONArray returnArray = new JSONArray()
 
@@ -251,8 +243,6 @@ class TrackService {
 
         return returnArray
     }
-
-    @NotTransactional
     JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
         if (fmin < 0 && fmax < 0) return inputArray
 
@@ -320,8 +310,6 @@ class TrackService {
         }
         return returnString
     }
-
-    @NotTransactional
     static Map<String, Boolean> mergeTrackVisibilityMaps(Map<String, Boolean> mapA, Map<String, Boolean> mapB) {
         Map<String, Boolean> returnMap = new HashMap<>()
         mapA.keySet().each { it ->
@@ -500,7 +488,6 @@ class TrackService {
      * @param trackName
      * @return
      */
-    @NotTransactional
     JSONObject findTrackFromArrayByCategory(JSONArray tracksArray, String category,boolean ignoreCase = true) {
         return findTrackFromArrayByKey(tracksArray,category,"category",ignoreCase)
     }
@@ -511,7 +498,6 @@ class TrackService {
      * @param label
      * @return
      */
-    @NotTransactional
     JSONObject findTrackFromArrayByLabel(JSONArray tracksArray, String label,boolean ignoreCase = true) {
         return findTrackFromArrayByKey(tracksArray,label,"label",ignoreCase)
     }
@@ -523,7 +509,6 @@ class TrackService {
      * @paramkey
      * @return
      */
-    @NotTransactional
     JSONObject findTrackFromArrayByKey(JSONArray tracksArray, String keyValue, String key,boolean ignoreCase = true) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
@@ -543,7 +528,6 @@ class TrackService {
      * @param trackName
      * @return
      */
-    @NotTransactional
     def removeTrackFromArray(JSONArray tracksArray, String trackName) {
         JSONArray returnArray = new JSONArray()
         for (int i = 0; i < tracksArray.size(); i++) {
@@ -560,7 +544,6 @@ class TrackService {
      * Removes plugins included in annot.json (which is just WebApollo)
      * @param pluginsArray
      */
-    @NotTransactional
     def removeIncludedPlugins(JSONArray pluginsArray) {
         def iterator = pluginsArray.iterator()
         while (iterator.hasNext()) {
@@ -576,8 +559,6 @@ class TrackService {
             }
         }
     }
-
-    @NotTransactional
     JSONArray flattenArray(JSONArray jsonArray, String... types) {
 
         List<String> typeList = new ArrayList<>()
@@ -602,8 +583,6 @@ class TrackService {
         return rootArray
 
     }
-
-    @NotTransactional
     JSONArray getGeneChildren(JSONObject jsonObject, List<String> typeList) {
         JSONArray geneChildren = new JSONArray()
         boolean hasGeneChild = false
@@ -772,9 +751,6 @@ class TrackService {
         commonDataPreference.save()
         return null
     }
-
-
-    @NotTransactional
     def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath,String topType=null){
         File fileToExecute = new File(jbrowseBinariesPath + "/flatfile-to-json.pl")
         log.debug "file to execute ${fileToExecute}"

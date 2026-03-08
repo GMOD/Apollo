@@ -14,14 +14,14 @@ class FeatureRelationship implements  Ontological{
     String value; // unused, but could be used like metadata (strength / quality of connection)
     int rank;
     static String ontologyId = "part_of"
-    
+
     static hasMany = [
             featureRelationshipProperties : FeatureProperty
             ,featureRelationshipPublications: Publication
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         FeatureRelationship castOther = ( FeatureRelationship ) other;
@@ -31,7 +31,7 @@ class FeatureRelationship implements  Ontological{
                 && this.childFeature ==  castOther.childFeature
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
         result = 37 * result + ( parentFeature == null ? 0 : this.parentFeature.hashCode() );
         result = 37 * result + ( childFeature == null ? 0 : this.childFeature.hashCode() );

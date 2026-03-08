@@ -1,15 +1,16 @@
 package org.bbop.apollo.authenticator
 
-import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.User
+import org.bbop.apollo.security.ApolloSecurityUtils
+import org.bbop.apollo.security.Sha256PasswordEncoder
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 @Transactional
-class UsernamePasswordAuthenticatorService implements AuthenticatorService{
+class UsernamePasswordAuthenticatorService implements AuthenticatorService {
+
+    private static final Sha256PasswordEncoder passwordEncoder = new Sha256PasswordEncoder()
 
     @Override
     def authenticate(HttpServletRequest request) {
@@ -17,23 +18,26 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
         return false
     }
 
-    def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
-        if(authToken==null){
+    def authenticate(String username, String password, HttpServletRequest request) {
+        if (!username || !password) {
             return false
         }
         try {
-            Subject subject = SecurityUtils.getSubject();
-            subject.login(authToken)
-            if (!subject.authenticated) {
-                log.error "Failed to authenticate user ${authToken.username}"
+            User user = User.findByUsername(username)
+            if (!user) {
+                log.error "User not found: ${username}"
                 return false
             }
+            if (!passwordEncoder.matches(password, user.passwordHash)) {
+                log.error "Failed to authenticate user ${username}"
+                return false
+            }
+            ApolloSecurityUtils.loginUser(username, user.roles*.name)
             return true
         } catch (Exception ae) {
             log.error("Problem authenticating: " + ae.fillInStackTrace())
             return false
         }
-
     }
 
     @Override

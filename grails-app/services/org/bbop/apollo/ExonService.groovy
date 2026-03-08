@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 //import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -12,14 +12,13 @@ import org.bbop.apollo.sequence.Strand
 class ExonService {
 
 //    CvTermService cvTermService
-    def transcriptService
-    def featureService
-    def featureRelationshipService
-    def featurePropertyService
-    def sequenceService
-    def overlapperService
-    def nameService
-
+    TranscriptService transcriptService
+    FeatureService featureService
+    FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
+    SequenceService sequenceService
+    OverlapperService overlapperService
+    NameService nameService
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
      * <code>null</code> if this exon is not associated with any transcript.
@@ -40,7 +39,7 @@ class ExonService {
      * @throws AnnotationException - If exons don't belong to the same transcript or are in separate strands
      */
     @Transactional
-    public void mergeExons(Exon exon1, Exon exon2) throws AnnotationException {
+    void mergeExons(Exon exon1, Exon exon2) throws AnnotationException {
 //        // both exons must be part of the same transcript
 //        if (!getTranscript(exon1).equals(getTranscript(exon2))) {
 //            throw new AnnotationEditorException("mergeExons(): Exons must have same parent transcript", exon1, exon2);
@@ -148,7 +147,7 @@ class ExonService {
 
 
     @Transactional
-    public void setFmin(Exon exon, Integer fmin) {
+    void setFmin(Exon exon, Integer fmin) {
         exon.getFeatureLocation().setFmin(fmin);
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
@@ -157,7 +156,7 @@ class ExonService {
     }
 
     @Transactional
-    public void setFmax(Exon exon, Integer fmax) {
+    void setFmax(Exon exon, Integer fmax) {
         exon.getFeatureLocation().setFmax(fmax);
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {
@@ -222,7 +221,7 @@ class ExonService {
      * @param fmax - New fmax to be set
      */
     @Transactional
-    public void setExonBoundaries(Exon exon, int fmin, int fmax) {
+    void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
 //        Transcript transcript = exon.getTranscript();

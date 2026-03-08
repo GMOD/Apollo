@@ -1,14 +1,10 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.json.JsonBuilder
 
 @Transactional
 class AnnotationEditorService {
-
-
-  @NotTransactional
   String cleanJSONString(String inputString) {
     String outputString = new String(inputString)
     // remove leading string

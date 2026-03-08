@@ -1,42 +1,33 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.security.ApolloSecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.Strand
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
-@RestApi(name = "Sequence Services", description = "Methods for retrieving sequence data")
 @Transactional(readOnly = true)
 class SequenceController {
 
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def sequenceService
-    def requestHandlingService
-    def permissionService
-    def preferenceService
-    def reportService
-
+    SequenceService sequenceService
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
+    PreferenceService preferenceService
+    ReportService reportService
     def permissions() {}
 
     def beforeInterceptor = {
@@ -93,7 +84,7 @@ class SequenceController {
         User currentUser = permissionService.currentUser
         UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser, sequenceInstance, token)
 
-        Session session = SecurityUtils.subject.getSession(false)
+        def session = ApolloSecurityUtils.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
@@ -152,7 +143,7 @@ class SequenceController {
               it.name
           }
           render sequences as JSON
-        } catch (e) {
+        } catch (Exception e) {
           log.warn(e.getMessage())
           render new JSONArray() as JSON
         }
@@ -250,19 +241,10 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range (also works as post)", path = "GET /sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>, POST /sequence/sequenceByLocation", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
-            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
-            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range(required)")
-            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
-            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-    ])
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
-        println "sequence by location "
-
+        log.debug "sequence by location "
         // handle post data
         def inputJSON = request.JSON as JSONObject
         organismString = organismString ?: inputJSON.organismString
@@ -306,14 +288,6 @@ class SequenceController {
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name (also works as post)", path = "/sequence/sequenceByName", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
-            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
-            , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "The uniqueName (UUID) or given name of the feature (typically transcript) of the element to retrieve sequence from")
-            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
-            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-    ])
     @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 
@@ -377,13 +351,6 @@ class SequenceController {
         response.status = 404
     }
 
-    @RestApiMethod(description = "Remove sequence cache for an organism and sequence", path = "/sequence/cache/clear/<organism name>/<sequence name>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
-            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
-            , @RestApiParam(name = "username", type = "string", paramType = RestApiParamType.QUERY, description = "username (optional)")
-            , @RestApiParam(name = "password", type = "string", paramType = RestApiParamType.QUERY, description = "password (required)")
-    ])
     @Transactional
     def clearSequenceCache(String organismName, String sequenceName) {
         JSONObject organismJson = permissionService.handleInput(request, params)
@@ -399,12 +366,6 @@ class SequenceController {
         }
     }
 
-    @RestApiMethod(description = "Remove sequence cache for an organism", path = "/sequence/cache/clear/<organism name>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
-            , @RestApiParam(name = "username", type = "string", paramType = RestApiParamType.QUERY, description = "username (optional)")
-            , @RestApiParam(name = "password", type = "string", paramType = RestApiParamType.QUERY, description = "password (required)")
-    ])
     @Transactional
     def clearOrganismCache(String organismName) {
         JSONObject organismJson = permissionService.handleInput(request, params)

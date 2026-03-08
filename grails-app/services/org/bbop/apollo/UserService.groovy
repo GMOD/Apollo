@@ -1,12 +1,12 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
-import org.apache.shiro.crypto.hash.Sha256Hash
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.security.Sha256PasswordEncoder
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 @Transactional
 class UserService {
@@ -104,7 +104,7 @@ class UserService {
 
         User user = new User(
                 username: username
-                ,passwordHash: new Sha256Hash(password).toHex()
+                ,passwordHash: new Sha256PasswordEncoder().encode(password)
                 ,firstName: firstName
                 ,lastName: lastName
         ).save(failOnError: true,flush:true)

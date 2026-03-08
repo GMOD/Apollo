@@ -1,32 +1,30 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.authc.CredentialsException
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
+import grails.gorm.transactions.Transactional
+import org.bbop.apollo.security.ApolloSecurityUtils
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
+import grails.web.servlet.mvc.GrailsParameterMap
 
-import javax.servlet.http.HttpServletRequest
+import org.bbop.apollo.authenticator.AuthenticatorService
+import org.bbop.apollo.authenticator.RemoteUserAuthenticatorService
+import org.bbop.apollo.authenticator.UsernamePasswordAuthenticatorService
+
+import jakarta.servlet.http.HttpServletRequest
 
 @Transactional
 class PermissionService {
 
-    def preferenceService
-    def configWrapperService
-    def remoteUserAuthenticatorService
-    def usernamePasswordAuthenticatorService
-
-
+    PreferenceService preferenceService
+    ConfigWrapperService configWrapperService
+    RemoteUserAuthenticatorService remoteUserAuthenticatorService
+    UsernamePasswordAuthenticatorService usernamePasswordAuthenticatorService
     boolean isUserBetterOrEqualRank(User user,GlobalPermissionEnum globalPermissionEnum) {
         if (user != null) {
             for (Role role in user.roles) {
@@ -42,7 +40,7 @@ class PermissionService {
     }
 
     boolean isAdmin() {
-        String currentUserName = SecurityUtils.subject.principal
+        String currentUserName = ApolloSecurityUtils.currentUsername
         if (currentUserName) {
             User researcher = User.findByUsername(currentUserName)
             if (isUserGlobalAdmin(researcher)) {
@@ -373,7 +371,7 @@ class PermissionService {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
         if (!username) {
-            username = SecurityUtils.subject.principal
+            username = ApolloSecurityUtils.currentUsername
         }
         if (!username) {
             return null
@@ -422,7 +420,7 @@ class PermissionService {
 
         Sequence sequence
         if (!sequenceName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+            sequence = null
         } else {
             sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             if (!sequence) {
@@ -449,16 +447,15 @@ class PermissionService {
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
-            Session session = SecurityUtils.subject.getSession(false)
+            def session = ApolloSecurityUtils.getSession(false)
             if (session) {
                 Map<String, Integer> permissions = (Map<String, Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
-                // permissions not always on session if they come through a web-service, see #1759
                 if(!permissions){
-                    User user = User.findByUsername(SecurityUtils.subject.principal.toString())
+                    User user = User.findByUsername(ApolloSecurityUtils.currentUsername)
                     permissions = getPermissionsForUser(user)
                 }
                 if (permissions) {
-                    Integer permission = permissions.get(SecurityUtils.subject.principal)
+                    Integer permission = permissions.get(ApolloSecurityUtils.currentUsername)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
                     if (sessionPermissionsEnum == null) {
@@ -478,9 +475,8 @@ class PermissionService {
                 log.debug "No session found"
             }
 
-        } catch (e) {
-            log.error "Error checking permissions from session ${e}"
-            e.printStackTrace()
+        } catch (Exception e) {
+            log.error("Error checking permissions from session: ${e.message}", e)
             return false
         }
         return false
@@ -511,40 +507,27 @@ class PermissionService {
      * @return
      */
     JSONObject validateSessionForJsonObject(JSONObject jsonObject) {
-        // not sure if permissions with translate through or not
-        Session session = SecurityUtils.subject.getSession(false)
-        if (!session) {
-            // login with jsonObject username and password
+        def session = ApolloSecurityUtils.getSession(false)
+        if (!session || !ApolloSecurityUtils.isAuthenticated()) {
             log.debug "creating session with found json object ${jsonObject.username}"
             if (!jsonObject.username) {
-                throw new CredentialsException("Username not supplied so can not authenticate.")
+                throw new AuthenticationCredentialsNotFoundException("Username not supplied so can not authenticate.")
             }
             if (!jsonObject.password) {
-                throw new CredentialsException("Password not supplied so can not authenticate.")
+                throw new AuthenticationCredentialsNotFoundException("Password not supplied so can not authenticate.")
             }
 
-            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
-
-            Subject subject = SecurityUtils.getSubject()
-            subject.getSession(true)
-
-            subject.login(authToken)
-            if (!subject.authenticated) {
+            if (!usernamePasswordAuthenticatorService.authenticate(jsonObject.username as String, jsonObject.password as String, null)) {
                 log.warn "Failed to authenticate user ${jsonObject.username}"
                 jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
                 return jsonObject
             }
-        } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
-            jsonObject.username = SecurityUtils?.subject?.principal
-        } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
+        } else if (!jsonObject.username && ApolloSecurityUtils.currentUsername) {
+            jsonObject.username = ApolloSecurityUtils.currentUsername
+        } else if (!jsonObject.username && session.getAttribute(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         } else if (jsonObject.password && jsonObject.username) {
-            // check the authentication of the username and password passed by webservice
-            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
-            Subject subject = SecurityUtils.getSubject()
-            subject.getSession(true)
-            subject.login(authToken)
-            if (!subject.authenticated) {
+            if (!usernamePasswordAuthenticatorService.authenticate(jsonObject.username as String, jsonObject.password as String, null)) {
                 jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
                 return jsonObject
             }
@@ -688,13 +671,13 @@ class PermissionService {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
 
-    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken = null, HttpServletRequest request) {
+    def authenticateWithToken(String username = null, String password = null, HttpServletRequest request) {
 
         def authentications = configWrapperService.authentications
 
         for (auth in authentications) {
             if (auth.active) {
-                def authenticationService
+                AuthenticatorService authenticationService
                 if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
                     if (auth?.params?.containsKey("default_group")) {
@@ -704,18 +687,19 @@ class PermissionService {
                     authenticationService = usernamePasswordAuthenticatorService
                 } else {
                     log.error("No authentication service for ${auth.className}")
-                    // better to return false if mis-configured
                     return false
                 }
 
                 if (authenticationService.requiresToken()) {
                     def req = handleInput(request, request.parameterMap)
-                    def authToken = usernamePasswordToken ?: null
-                    if (!authToken && req.username) {
-                        authToken = new UsernamePasswordToken(req.username as String, req.password as String)
+                    String authUsername = username
+                    String authPassword = password
+                    if (!authUsername && req.username) {
+                        authUsername = req.username as String
+                        authPassword = req.password as String
                     }
-                    if (authenticationService.authenticate(authToken, request)) {
-                        log.info "Authenticated user ${authToken.username} using ${auth.name}"
+                    if (authUsername && authenticationService.authenticate(authUsername, authPassword, request)) {
+                        log.info "Authenticated user ${authUsername} using ${auth.name}"
                         return true
                     }
                 } else {
@@ -736,16 +720,13 @@ class PermissionService {
      * @return
      */
     Boolean sameUser(JSONObject jsonObject, HttpServletRequest request) {
-        // not sure if permissions with translate through or not
-        Session session = SecurityUtils.subject.getSession(false)
-        if (!session) {
-            // login with jsonObject tokens
+        def session = ApolloSecurityUtils.getSession(false)
+        if (!session || !ApolloSecurityUtils.isAuthenticated()) {
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
-            UsernamePasswordToken authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
-            authenticateWithToken(authToken, request)
-        } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
-            jsonObject.username = SecurityUtils?.subject?.principal
-        } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
+            authenticateWithToken(jsonObject.username as String, jsonObject.password as String, request)
+        } else if (!jsonObject.username && ApolloSecurityUtils.currentUsername) {
+            jsonObject.username = ApolloSecurityUtils.currentUsername
+        } else if (!jsonObject.username && session.getAttribute(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
         if (jsonObject.username) {
@@ -762,8 +743,6 @@ class PermissionService {
         def groupPermissions = GroupOrganismPermission.findAllByOrganism(organism)
         GroupOrganismPermission.deleteAll(groupPermissions)
     }
-
-    @NotTransactional
     def getInsufficientPermissionMessage(PermissionEnum permissionEnum) {
         if (permissionEnum == PermissionEnum.ADMINISTRATE) {
             return "Must have permissions ${PermissionEnum.ADMINISTRATE.display}."
@@ -778,7 +757,6 @@ class PermissionService {
      * @param dataObject
      * @return
      */
-    @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
         // replace the dataObject either way
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
@@ -796,8 +774,6 @@ class PermissionService {
         }
         return clientToken
     }
-
-    @NotTransactional
     JSONObject handleInput(HttpServletRequest request, GrailsParameterMap params) {
         JSONObject payloadJson = new JSONObject()
         if (request.JSON) {

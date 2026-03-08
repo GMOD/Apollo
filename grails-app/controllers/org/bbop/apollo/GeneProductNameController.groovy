@@ -1,14 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
@@ -17,8 +12,7 @@ class GeneProductNameController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def index(Integer max) {
 //        params.max = Math.min(max ?: 10, 100)
 //        respond GeneProductName.list(params), model:[geneProductNameInstanceCount: GeneProductName.count()]
@@ -151,20 +145,13 @@ class GeneProductNameController {
         }
     }
 
-    @RestApiMethod(description = "A comma-delimited list of gene product names", path = "/geneProduct/addGeneProductNames", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of gene product names to add")
-        , @RestApiParam(name = "organisms", type = "string", paramType = RestApiParamType.QUERY, description = "(optional, default is none) List of organisms ids limit ALL entries to.  E.g., [3,5]")
-    ])
     @Transactional
     def addGeneProductNames() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
-            println "Adding suggested gene product names ${nameJson}"
+            log.debug "Adding suggested gene product names ${nameJson}"
             if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
-                println "DOES NOT have global permissions"
+                log.debug "DOES NOT have global permissions"
                 render status: UNAUTHORIZED
                 return
             }
@@ -183,7 +170,7 @@ class GeneProductNameController {
                 render nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']
-                println(error.error)
+                log.debug error.error
                 render error as JSON
             }
         }

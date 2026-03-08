@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 class UserPermission extends Permission{
-    
+
     User user
 
     static constraints = {
@@ -9,7 +9,7 @@ class UserPermission extends Permission{
 
     static mapping = {
     }
-    
-    
+
+
 
 }

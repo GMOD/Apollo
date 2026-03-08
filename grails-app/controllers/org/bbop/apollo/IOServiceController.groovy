@@ -1,41 +1,30 @@
 package org.bbop.apollo
 
-import com.google.common.base.Splitter
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.DownloadFile
 import org.bbop.apollo.sequence.Strand
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.grails.plugins.metrics.groovy.Timed
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
 
 import java.util.zip.GZIPOutputStream
 
-@RestApi(name = "IO Services", description = "Methods for bulk importing and exporting sequence data")
 class IOServiceController extends AbstractApolloController {
 
-    def sequenceService
-    def gff3HandlerService
-    def fastaHandlerService
-    def chadoHandlerService
-    def preferenceService
-    def permissionService
-    def configWrapperService
-    def requestHandlingService
-    def vcfHandlerService
-    def trackService
-    def fileService
-    def gpad2HandlerService
-    def gpiHandlerService
-
+    SequenceService sequenceService
+    Gff3HandlerService gff3HandlerService
+    FastaHandlerService fastaHandlerService
+    ChadoHandlerService chadoHandlerService
+    PreferenceService preferenceService
+    ConfigWrapperService configWrapperService
+    RequestHandlingService requestHandlingService
+    VcfHandlerService vcfHandlerService
+    TrackService trackService
+    FileService fileService
+    Gpad2HandlerService gpad2HandlerService
+    GpiHandlerService gpiHandlerService
   // fileMap of uuid / filename
     // see #464
     private Map<String, DownloadFile> fileMap = new HashMap<>()
@@ -50,25 +39,6 @@ class IOServiceController extends AbstractApolloController {
         forward action: "${mappedAction}", params: params
     }
 
-    @RestApiMethod(description = "Write out genomic data.  An example script is used in the https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy"
-            , path = "/IOService/write", verb = RestApiVerb.POST
-    )
-    @RestApiParams(params = [
-    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-
-    , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "Type of annotated genomic features to export 'FASTA','GFF3','CHADO'.")
-
-    , @RestApiParam(name = "seqType", type = "string", paramType = RestApiParamType.QUERY, description = "Type of output sequence 'peptide','cds','cdna','genomic'.")
-    , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
-    , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Names of references sequences to add (default is all).")
-    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to (will default to last organism).")
-    , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
-    , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
-    , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
-    ]
-    )
-    @Timed
     def write() {
         File outputFile = null
         try {
@@ -130,13 +100,15 @@ class IOServiceController extends AbstractApolloController {
                 queryParams['viewableAnnotationList'] = requestHandlingService.nonCodingAnnotationTranscriptList
                 // request nonCoding transcripts that can lack an exon
                 def genesNoExon = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations where fl.sequence.organism = :organism and child.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences) " : ""),queryParams)
-                if(genesNoExon.id){
-                    queryParams['geneIds'] = genesNoExon.id
+                def geneNoExonIds = genesNoExon*.id
+                if(geneNoExonIds){
+                    queryParams['geneIds'] = geneNoExonIds
                 }
 
                 // captures 3 level indirection, joins feature locations only. joining other things slows it down
                 queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
-                def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism  ${genesNoExon.id ? " and f.id not in (:geneIds)": ""}  and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
+                String geneExclusionClause = geneNoExonIds ? " and f.id not in (:geneIds)" : ""
+                def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism" + geneExclusionClause + " and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
 //                 captures rest of feats
                 def otherFeats = Feature.createCriteria().list() {
                     featureLocations {
@@ -174,9 +146,9 @@ class IOServiceController extends AbstractApolloController {
                 }
                 // call gff3HandlerService
                 if (exportGff3Fasta) {
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
+                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'), true, sequenceList)
                 } else {
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
+                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_GO.value) {
                 String sequenceString = organism.commonName
@@ -199,7 +171,7 @@ class IOServiceController extends AbstractApolloController {
                     fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }
                 // call vcfHandlerService
-                vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.apollo.gff3.source as String)
+                vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 String singleSequenceName = (sequences.class!=JSONArray.class) ? sequences : null
                 singleSequenceName = (singleSequenceName==null && sequences.class==JSONArray.class && sequences.size()==1) ? sequences[0] : null
@@ -222,7 +194,8 @@ class IOServiceController extends AbstractApolloController {
 
                     String defline = String.format(">Genomic region %s - %s\n", region, sequence.organism.commonName);
                     String genomicSequence = defline
-                    genomicSequence += Splitter.fixedLength(FastaHandlerService.NUM_RESIDUES_PER_LINE).split(sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, min, max, Strand.POSITIVE)).join("\n")
+                    String rawSequence = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, min, max, Strand.POSITIVE)
+                    genomicSequence += rawSequence.collect { it }.collate(FastaHandlerService.NUM_RESIDUES_PER_LINE).collect { it.join('') }.join("\n")
                     outputFile.text = genomicSequence
                 } else {
                     fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT, region)
@@ -240,12 +213,12 @@ class IOServiceController extends AbstractApolloController {
                 String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
                 if (exportJBrowseSequence) {
                     File inputGff3File = File.createTempFile("temp",".gff")
-                    gff3HandlerService.writeFeaturesToText(inputGff3File.absolutePath, features, grailsApplication.config.apollo.gff3.source as String)
+                    gff3HandlerService.writeFeaturesToText(inputGff3File.absolutePath, features, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
                     File outputJsonDir = File.createTempDir()
                     trackService.generateJSONForGff3(inputGff3File, outputJsonDir.absolutePath, pathToJBrowseBinaries)
                     fileService.compressTarArchive(outputFile,outputJsonDir,".")
                 } else {
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
+                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.getProperty('apollo.gff3.source', String, '.'))
                     trackService.generateJSONForGff3(outputFile, organism.directory, pathToJBrowseBinaries)
                 }
             }
@@ -277,7 +250,7 @@ class IOServiceController extends AbstractApolloController {
         }
         catch (Exception e) {
             def error = [error: e.message]
-            e.printStackTrace()
+            log.error(e.message, e)
             render error as JSON
         }
         if (outputFile?.exists()) {
@@ -285,17 +258,6 @@ class IOServiceController extends AbstractApolloController {
         }
     }
 
-    @RestApiMethod(description = "This is used to retrieve the a download link once the write operation was initialized using output: file."
-            , path = "/IOService/download", verb = RestApiVerb.POST
-    )
-    @RestApiParams(params = [
-//            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-//            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            @RestApiParam(name = "uuid", type = "string", paramType = RestApiParamType.QUERY, description = "UUID that holds the key to the stored download.")
-            , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
-    ]
-    )
-    @Timed
     def download() {
         JSONObject dataObject = permissionService.handleInput(request, params)
 //        if (!permissionService.hasPermissions(dataObject, PermissionEnum.EXPORT)) {
@@ -340,6 +302,6 @@ class IOServiceController extends AbstractApolloController {
     def chadoExportStatus() {
         JSONObject returnObject = new JSONObject()
         returnObject.export_status = configWrapperService.hasChadoDataSource().toString()
-        render returnObject
+        render returnObject as JSON
     }
 }

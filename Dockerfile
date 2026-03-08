@@ -1,112 +1,24 @@
-# Apollo2.X
-FROM ubuntu:22.04
-ENV DEBIAN_FRONTEND=noninteractive
+FROM eclipse-temurin:17-jdk AS builder
 
+WORKDIR /build
+COPY . .
+RUN ./gradlew bootJar --no-daemon -x test
 
-# where bin directories are
-ENV CATALINA_HOME=/usr/share/tomcat9
-# where webapps are deployed
-ENV CATALINA_BASE=/var/lib/tomcat9
-ENV CONTEXT_PATH=ROOT
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+FROM eclipse-temurin:17-jre
 
-RUN <<EOF
-apt-get -qq update --fix-missing
-apt-get --no-install-recommends -y install git locales locales-all \
-build-essential libpq-dev wget python3-pip lsb-release gnupg2 wget xmlstarlet \
-netcat libpng-dev postgresql-common zlib1g-dev libexpat1-dev curl ssl-cert zip \
-unzip openjdk-8-jdk-headless
+RUN useradd -ms /bin/bash -d /apollo apollo
+WORKDIR /apollo
 
-sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+COPY --from=builder /build/build/libs/apollo-*.jar apollo.jar
 
-apt-get -qq update --fix-missing
-apt-get --no-install-recommends -y install postgresql-9.6 \
-postgresql-client-9.6 tomcat9
-apt-get autoremove -y
-apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /apollo/
+RUN mkdir -p /data && chown -R apollo:apollo /apollo /data
 
-curl -sL https://deb.nodesource.com/setup_12.x | bash -
-apt-get -qq update --fix-missing
-apt-get --no-install-recommends -y install nodejs npm
-
-curl -s "https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v385/blat/blat" -o /usr/local/bin/blat
-chmod +x /usr/local/bin/blat
-curl -s "https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v385/faToTwoBit" -o /usr/local/bin/faToTwoBit
-chmod +x /usr/local/bin/faToTwoBit
-wget --quiet https://github.com/galaxy-genome-annotation/chado-schema-builder/releases/download/1.31-jenkins26/chado-1.31.sql.gz -O /chado.sql.gz
-gunzip /chado.sql.gz
-
-#NOTE, we had problems with the build the archive-file coming in from github so using a clone instead
-npm i -g yarn
-useradd -ms /bin/bash -d /apollo apollo
-EOF
-
-COPY client /apollo/client
-COPY gradlew /apollo
-COPY grails-app /apollo/grails-app
-COPY gwt-sdk /apollo/gwt-sdk
-COPY lib /apollo/lib
-COPY src /apollo/src
-COPY web-app /apollo/web-app
-COPY wrapper /apollo/wrapper
-COPY test /apollo/test
-COPY scripts /apollo/scripts
-ADD gra* /apollo/
-COPY apollo /apollo/apollo
-ADD build* /apollo/
-ADD settings.gradle /apollo
-ADD application.properties /apollo
-RUN ls /apollo
-
-COPY docker-files/build.sh /bin/build.sh
-ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
-RUN <<EOF
-mkdir /var/lib/postgresql
-mkdir /data
-
-chown -R apollo:apollo /apollo
-chown -R apollo:apollo ${CATALINA_BASE}
-chown -R apollo:apollo ${CATALINA_HOME}
-chown -R apollo:apollo /var/run/postgresql
-chown -R apollo:apollo /var/lib/postgresql
-chown -R apollo:apollo /etc/tomcat9
-chown -R apollo:apollo /var/log/tomcat9
-chown -R apollo:apollo /var/cache/tomcat9
-chown -R apollo:apollo  /data
-EOF
-
-# install python libraries
-
-# fix for pip install decode error
-# RUN locale-gen en_US.UTF-8
-ENV LC_CTYPE=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-
-RUN <<EOF
-pip3 install setuptools
-pip3 install wheel
-pip3 install nose apollo==4.2.13
-EOF
-
-# install grails
 USER apollo
 
-RUN <<EOF
-curl -s https://get.sdkman.io | bash
-/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install grails 2.5.5"
-/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && yes | sdk install gradle 3.2.1"
+ENV SPRING_PROFILES_ACTIVE=production
+EXPOSE 8080
 
-/bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && /bin/bash /bin/build.sh"
+HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
+    CMD curl -sf http://localhost:8080/apollo/health/index || exit 1
 
-# remove from webapps and copy it into a staging directory
-rm -rf ${CATALINA_BASE}/webapps/*
-cp /apollo/apollo*.war ${CATALINA_BASE}/apollo.war
-EOF
-
-ADD docker-files/createenv.sh /createenv.sh
-ADD docker-files/launch.sh /launch.sh
-CMD ["/launch.sh"]
+ENTRYPOINT ["java", "-jar", "apollo.jar"]

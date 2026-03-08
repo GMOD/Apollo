@@ -1,28 +1,20 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
+import org.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 
-@RestApi(name = "Canned Comments Services", description = "Methods for managing canned comments")
 @Transactional(readOnly = true)
 class CannedCommentController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def permissionService
-
+    PermissionService permissionService
     def beforeInterceptor = {
       // if a non-JSON method
       if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
@@ -163,14 +155,6 @@ class CannedCommentController {
         }
     }
 
-    @RestApiMethod(description = "Create canned comment", path = "/cannedComment/createComment", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "comment", type = "string", paramType = RestApiParamType.QUERY, description = "Canned comment to add")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def createComment() {
         JSONObject commentJson = permissionService.handleInput(request, params)
@@ -196,24 +180,13 @@ class CannedCommentController {
                 render error as JSON
                 log.error(error.error)
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: 'problem saving CannedComment: ' + e]
             render error as JSON
-            e.printStackTrace()
-            log.error(error.error)
+            log.error(error.error, e)
         }
     }
 
-    @RestApiMethod(description = "Update canned comment", path = "/cannedComment/updateComment", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Canned comment ID to update (or specify the old_comment)")
-            , @RestApiParam(name = "old_comment", type = "string", paramType = RestApiParamType.QUERY, description = "Canned comment to update")
-            , @RestApiParam(name = "new_comment", type = "string", paramType = RestApiParamType.QUERY, description = "Canned comment to change to (the only editable option)")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "Optional additional information")
-    ]
-    )
     @Transactional
     def updateComment() {
         try {
@@ -254,13 +227,6 @@ class CannedCommentController {
         }
     }
 
-    @RestApiMethod(description = "Remove a canned comment", path = "/cannedComment/deleteComment", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Canned comment ID to remove (or specify the name)")
-            , @RestApiParam(name = "comment", type = "string", paramType = RestApiParamType.QUERY, description = "Canned comment to delete")
-    ])
     @Transactional
     def deleteComment() {
         try {
@@ -294,13 +260,6 @@ class CannedCommentController {
         }
     }
 
-    @RestApiMethod(description = "Returns a JSON array of all canned comments, or optionally, gets information about a specific canned comment", path = "/cannedComment/showComment", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Comment ID to show (or specify a comment)")
-            , @RestApiParam(name = "comment", type = "string", paramType = RestApiParamType.QUERY, description = "Comment to show")
-    ])
     @Transactional
     def showComment() {
         try {

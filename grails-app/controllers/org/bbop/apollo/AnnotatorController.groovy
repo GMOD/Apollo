@@ -1,8 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.geneProduct.GeneProduct
 import org.bbop.apollo.go.GoAnnotation
@@ -12,15 +11,9 @@ import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.report.AnnotatorSummary
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 import org.hibernate.FetchMode
-import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiMethod
-import org.restapidoc.annotation.RestApiParam
-import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.pojo.RestApiParamType
-import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
@@ -28,23 +21,20 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
  */
-@RestApi(name = "Annotator Engine Services", description = "Methods for running the annotation engine")
 class AnnotatorController {
 
-    def featureService
-    def requestHandlingService
-    def permissionService
-    def annotatorService
-    def trackService
-    def preferenceService
-    def reportService
-    def configWrapperService
+    FeatureService featureService
+    RequestHandlingService requestHandlingService
+    PermissionService permissionService
+    AnnotatorService annotatorService
+    TrackService trackService
+    PreferenceService preferenceService
+    ReportService reportService
+    ConfigWrapperService configWrapperService
     def exportService
-    def variantService
-    def grailsApplication
-    def jsonWebUtilityService
-    def featureEventService
-
+    VariantService variantService
+    JsonWebUtilityService jsonWebUtilityService
+    FeatureEventService featureEventService
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
                                          FeatureStringEnum.ORGANISM.value,
@@ -123,7 +113,7 @@ class AnnotatorController {
                     try {
                         fmin = minMax[0] as Integer
                         fmax = minMax[1] as Integer
-                    } catch (e) {
+                    } catch (Exception e) {
                         log.error "error parsing ${e}"
                         fmin = sequence.start
                         fmax = sequence.end
@@ -143,7 +133,7 @@ class AnnotatorController {
             }
         }
 
-        catch (e) {
+        catch (Exception e) {
             log.error "problem parsing the string ${e}"
         }
 
@@ -175,28 +165,23 @@ class AnnotatorController {
 /**
  * Loads the main annotator panel.
  */
-    @NotTransactional
     def index() {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
         String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
         [userKey: uuid, clientToken: clientToken]
     }
-
-    @NotTransactional
     def getExtraTabs() {
         def extraTabs = configWrapperService.extraTabs
         render extraTabs as JSON
     }
-
-    @NotTransactional
     def adminPanel() {
         if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             Integer highestGlobalRoleRank = permissionService.currentUser.roles.sort() { a, b -> a.rank <=> b.rank }.first().rank
             // should return the highest either way
 //            permissionService.getPermissionsForUser(permissionService.currentUser)
 
-            def administativePanel = grailsApplication.config.apollo.administrativePanel
+            def administativePanel = grailsApplication.config.getProperty('apollo.administrativePanel', List, [])
             [links: administativePanel, highestRank: highestGlobalRoleRank, roles: Role.all]
         } else {
             render text: "Unauthorized"
@@ -207,28 +192,16 @@ class AnnotatorController {
  * updates shallow properties of gene / feature
  * @return
  */
-    @RestApiMethod(description = "Update shallow feature properties", path = "/annotator/updateFeature", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature name")
-            , @RestApiParam(name = "symbol", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature symbol")
-            , @RestApiParam(name = "synonyms", type = "string", paramType = RestApiParamType.QUERY, description = "Updated synonyms pipe (|) separated")
-            , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
-            , @RestApiParam(name = "status", type = "string", paramType = RestApiParamType.QUERY, description = "Updated status")
-            , @RestApiParam(name = "obsolete", type = "boolean", paramType = RestApiParamType.QUERY, description = "Updated if obsolete")
-    ]
-    )
     @Transactional
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -333,30 +306,23 @@ class AnnotatorController {
             requestHandlingService.fireAnnotationEvent(annotationEvent)
         }
 
-        render updateFeatureContainer
+        render updateFeatureContainer as JSON
     }
 
 /**
  * updates shallow properties of gene / feature
  * @return
  */
-    @RestApiMethod(description = "Update partial fmin / famx", path = "/annotator/updatePartials", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
-            , @RestApiParam(name = "data", type = "string", paramType = RestApiParamType.QUERY, description = "Annotation Info object")
-    ]
-    )
     @Transactional
     def updatePartials() {
         log.debug "update partials  ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -406,27 +372,18 @@ class AnnotatorController {
                 newFeaturesJsonArray,
                 user)
 
-        render updateFeatureContainer
+        render updateFeatureContainer as JSON
     }
 
 
-    @RestApiMethod(description = "Update exon boundaries", path = "/annotator/setExonBoundaries", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the exon we are editing")
-            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Exon Location")
-            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Exon Location")
-            , @RestApiParam(name = "strand", type = "int", paramType = RestApiParamType.QUERY, description = "strand for Feature Location 1 or -1")
-    ]
-    )
     def setExonBoundaries() {
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -453,7 +410,7 @@ class AnnotatorController {
 
         requestHandlingService.setExonBoundaries(jsonObject)
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-        render updateFeatureContainer
+        render updateFeatureContainer as JSON
     }
 
 
@@ -502,7 +459,7 @@ class AnnotatorController {
 
             Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             Organism organism = sequenceObj.organism
-            Integer index = Integer.parseInt(request)
+            Integer index = request as Integer
 
             List<String> viewableTypes
 
@@ -556,8 +513,8 @@ class AnnotatorController {
                     }
                     if (range) {
                         Sequence sequenceNameRange = Sequence.findByNameAndOrganism(range.split(":")[0], organism)
-                        Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
-                        Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
+                        Integer fmin = range.split(":")[1].split("\\.\\.")[0] as Integer
+                        Integer fmax = range.split(":")[1].split("\\.\\.")[1] as Integer
                         eq('sequence', sequenceNameRange)
                         or {
                             // case A, left-edge or overlaps
@@ -688,7 +645,7 @@ class AnnotatorController {
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
             returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, pagination.totalCount)
 
-            render returnObject
+            render returnObject as JSON
         }
         catch (PermissionException e) {
             def error = [error: e.message]
@@ -697,159 +654,68 @@ class AnnotatorController {
         }
         catch (Exception e) {
             def error = [error: e.message]
-            log.error e.message
-            e.printStackTrace()
+            log.error(e.message, e)
             render error as JSON
         }
 
     }
 
-    def updateAlternateAlleles() {
+    private def withVariantOperation(Closure operation) {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
+            Feature feature = operation(jsonFeature)
             JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
         }
+        render updateFeatureContainer as JSON
+    }
 
-        render updateFeatureContainer
+    def updateAlternateAlleles() {
+        withVariantOperation { variantService.updateAlternateAlleles(it) }
     }
 
     def addAlleleInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.addAlleleInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.addAlleleInfo(it) }
     }
 
     def updateAlleleInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.updateAlleleInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.updateAlleleInfo(it) }
     }
 
     def deleteAlleleInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.deleteAlleleInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.deleteAlleleInfo(it) }
     }
 
     def addVariantInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.addVariantInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.addVariantInfo(it) }
     }
 
     def updateVariantInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.updateVariantInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.updateVariantInfo(it) }
     }
 
     def deleteVariantInfo() {
-        JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
-
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
-            render status: HttpStatus.UNAUTHORIZED
-            return
-        }
-
-        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature feature = variantService.deleteVariantInfo(jsonFeature)
-            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
-        }
-        render updateFeatureContainer
+        withVariantOperation { variantService.deleteVariantInfo(it) }
     }
 
 /**
  * This is a public passthrough to version
  */
-    @RestApiMethod(description = "Get system info", path = "/system", verb = RestApiVerb.GET)
-    @RestApiParams(params = [])
     def system() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         def jsonObject = new JSONObject()
         jsonObject.apollo_version = grails.util.Metadata.current['app.version']
@@ -877,20 +743,15 @@ class AnnotatorController {
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
-    @RestApiMethod(description = "Update common path and return system info", path = "/updateCommonPath", verb = RestApiVerb.POST)
-    @RestApiParams(params =[
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "directory", type = "string",  paramType = RestApiParamType.QUERY, description = "Relative or absolute common path directory")
-    ])
     @Transactional
     String updateCommonPath() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         JSONObject returnObject = new JSONObject()
         String directory = dataObject.directory
@@ -906,21 +767,21 @@ class AnnotatorController {
             }
             render getSystemInfo()
             return
-        } catch (e) {
+        } catch (Exception e) {
             returnObject.error = e.getMessage()
         }
         render returnObject as JSON
     }
 
-    @RestApiMethod(description = "Get system info", path = "/getSystemInfo", verb = RestApiVerb.POST)
     @Transactional(readOnly  = true )
     String getSystemInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         log.debug "Getting the common data path"
         JSONObject returnObject = new JSONObject()
@@ -945,7 +806,7 @@ class AnnotatorController {
             returnObject.put("usableSpace",file.getUsableSpace())
             returnObject.put("root",new File("").absolutePath)
             returnObject.put("realPath",servletContext.getRealPath("/"))
-        } catch (e) {
+        } catch (Exception e) {
             returnObject.error = e.getMessage()
         }
         render returnObject as JSON
@@ -1070,7 +931,7 @@ class AnnotatorController {
 
     def export() {
         if (!params.max) params.max = 10
-        response.contentType = grailsApplication.config.grails.mime.types[params.format]
+        response.contentType = grailsApplication.config.getProperty("grails.mime.types.${params.format}", String, 'application/json')
         response.setHeader("Content-disposition", "attachment; filename=annotators.${params.extension}")
         List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr", "lastupdated"]
         Map labels = ["username": "Username", "firstname": "First Name", "lastname": "Last Name", "usergroup": "User Group", "organism": "Organism", "totalfeaturecount": "Top Level Features", "genecount": "Genes", "transcripts": "Transcripts", "exons": "Exons", "te": "Transposable Elements", "rr": "Repeat Regions", "lastupdated": "Last Updated"]
@@ -1110,22 +971,16 @@ class AnnotatorController {
     }
 
 
-    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "data", type = "json strong", paramType = RestApiParamType.QUERY, description = "JSON of go annotations, gene products , and provenance to be added at once (see upload annotations in interface)")
-    ]
-    )
     def addFunctionalAnnotations(){
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
-        println "input data object ${dataObject as JSON}"
+        log.debug "input data object ${dataObject as JSON}"
         if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
             render status : UNAUTHORIZED
             return
@@ -1236,21 +1091,14 @@ class AnnotatorController {
 
 
 
-    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
-    @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
-    ]
-    )
     def getAnnotatorsReportForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
+            return
         }
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()

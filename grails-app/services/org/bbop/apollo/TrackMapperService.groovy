@@ -1,13 +1,12 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.apache.commons.collections.map.MultiKeyMap
 import org.bbop.apollo.gwt.shared.track.NclistColumnEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 @Transactional(readOnly = true)
 class TrackMapperService {
@@ -17,9 +16,6 @@ class TrackMapperService {
      * Format Organism, Track, JSONArray
      */
     MultiKeyMap tracks = new MultiKeyMap()
-
-
-    @NotTransactional
     List<String> getAttributes(SequenceDTO sequenceDTO, Integer index){
         JSONArray classArray = tracks.get(sequenceDTO.organismCommonName,sequenceDTO.trackName,sequenceDTO.sequenceName)
         JSONObject classObject =classArray.getJSONObject(index)
@@ -30,13 +26,9 @@ class TrackMapperService {
         }
         return returnAttributes
     }
-
-    @NotTransactional
     def storeTrack(SequenceDTO sequenceDTO, JSONArray jsonArray) {
         tracks.put(sequenceDTO.organismCommonName,sequenceDTO.trackName,sequenceDTO.sequenceName,jsonArray)
     }
-
-    @NotTransactional
     TrackIndex getIndices(SequenceDTO sequenceDTO, Integer index) {
         List<String> attributes = getAttributes(sequenceDTO,index)
         TrackIndex trackIndex = new TrackIndex()

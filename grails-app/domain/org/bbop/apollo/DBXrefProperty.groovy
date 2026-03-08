@@ -10,7 +10,7 @@ class DBXrefProperty {
      String value;
      int rank;
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         DBXrefProperty castOther = ( DBXrefProperty ) other;
@@ -18,7 +18,7 @@ class DBXrefProperty {
         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) ) && (this.getRank()==castOther.getRank());
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

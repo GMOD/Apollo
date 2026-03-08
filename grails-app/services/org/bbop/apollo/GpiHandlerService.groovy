@@ -2,8 +2,7 @@ package org.bbop.apollo
 
 import groovy.json.JsonSlurper
 import org.bbop.apollo.go.GoAnnotation
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.grails.plugins.metrics.groovy.Timed
+import org.grails.web.json.JSONArray
 
 import java.text.SimpleDateFormat
 
@@ -12,11 +11,9 @@ import java.text.SimpleDateFormat
  */
 class GpiHandlerService {
 
-    def configWrapperService
-
+    ConfigWrapperService configWrapperService
     SimpleDateFormat gpadDateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
-    @Timed
     void writeFeaturesToText(String path, Collection<? extends Feature> features) throws IOException {
         WriteObject writeObject = new WriteObject()
 
