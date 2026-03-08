@@ -3,6 +3,7 @@ package org.bbop.apollo.security
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 
@@ -34,9 +35,17 @@ class ApolloSecurityUtils {
     static void loginUser(String username, Collection<String> roleNames) {
         def authorities = roleNames.collect { new SimpleGrantedAuthority("ROLE_${it}") }
         def auth = new UsernamePasswordAuthenticationToken(username, null, authorities)
-        SecurityContextHolder.context.authentication = auth
-        // ensure session is created and security context is stored
-        getSession(true)
+        def context = SecurityContextHolder.context
+        context.authentication = auth
+        // Spring Security 6 no longer auto-persists SecurityContext to session.
+        // Explicitly save it so subsequent requests remain authenticated.
+        def session = getSession(true)
+        if (session) {
+            session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                context
+            )
+        }
     }
 
     static void logout() {
