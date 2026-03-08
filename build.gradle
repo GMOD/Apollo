@@ -30,7 +30,8 @@ repositories {
     }
 }
 
-configurations.configureEach {
+configurations {
+    gwt
 }
 
 dependencies {
@@ -104,6 +105,11 @@ dependencies {
     testAndDevelopmentOnly "org.webjars.npm:bootstrap-icons"
     testAndDevelopmentOnly "org.webjars.npm:jquery"
 
+    // GWT compilation
+    gwt "org.gwtproject:gwt-user:2.10.0"
+    gwt "org.gwtproject:gwt-dev:2.10.0"
+    gwt files("lib/gwt/gwtbootstrap3-0.9.4.jar", "lib/gwt/gwtbootstrap3-extras-0.9.4.jar")
+
     // Testing
     integrationTestImplementation testFixtures("org.apache.grails:grails-geb")
     profile "org.apache.grails.profiles:web"
@@ -114,6 +120,17 @@ dependencies {
 }
 
 compileJava.options.release = 17
+
+// GWT compilation tasks
+
+task compileGwt(type: JavaExec) {
+    description "Compile GWT client to JavaScript"
+    mainClass = "com.google.gwt.dev.Compiler"
+    classpath = files("src/gwt") + configurations.gwt
+    args = ["-war", "src/main/webapp", "org.bbop.apollo.gwt.Annotator"]
+    minHeapSize = "256m"
+    maxHeapSize = "1g"
+}
 
 // JBrowse 1 installation tasks
 

@@ -6,6 +6,9 @@ target/
 out/
 jbrowse/
 src/main/webapp/jbrowse/
+src/main/webapp/annotator/
+src/main/webapp/WEB-INF/
+src/main/gwt-unitCache/
 devDb.*
 .idea
 *.iml

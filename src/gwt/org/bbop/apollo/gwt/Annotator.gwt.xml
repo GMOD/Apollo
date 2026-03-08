@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  When updating your version of GWT, you should also update this DTD reference,
+  so that your app can take advantage of the latest GWT module capabilities.
+-->
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.0//EN"
+        "http://gwtproject.org/doctype/2.8.0/gwt-module.dtd">
+<module rename-to='annotator'>
+    <!-- Inherit the core Web Toolkit stuff.                        -->
+    <inherits name='com.google.gwt.user.User'/>
+
+    <!-- Inherit the default GWT style sheet.  You can change       -->
+    <!-- the theme of your GWT application by uncommenting          -->
+    <!-- any one of the following lines.                            -->
+
+    <inherits name='com.google.gwt.user.theme.clean.Clean'/>
+    <!--<inherits name='com.google.gwt.user.theme.standard.Standard'/>-->
+    <!--<inherits name='com.google.gwt.user.theme.chrome.Chrome'/>  -->
+    <!--<inherits name='com.google.gwt.user.theme.dark.Dark'/>      -->
+
+
+    <inherits name="com.google.gwt.http.HTTP"/>
+    <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="org.gwtbootstrap3.GwtBootstrap3"/>
+    <inherits name="org.gwtbootstrap3.extras.bootbox.Bootbox"/>
+    <inherits name="org.gwtbootstrap3.extras.select.Select"/>
+    <inherits name="org.gwtbootstrap3.extras.toggleswitch.ToggleSwitch"/>
+
+
+
+    <!-- Specify the app entry point class.                         -->
+    <entry-point class='org.bbop.apollo.gwt.client.Annotator'/>
+
+    <!-- Specify the paths for translatable code                    -->
+    <source path='client'/>
+    <source path='shared'/>
+
+    <!-- Add some custom CSS for font sizes -->
+    <stylesheet src='theme.css'/>
+
+    <!-- allow Super Dev Mode -->
+    <add-linker name="xsiframe"/>
+</module>

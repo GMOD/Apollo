@@ -1,0 +1,89 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+             xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
+             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
+        >
+    <ui:style>
+
+        .container {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .widgetPanel {
+            display: inline-table;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        .row {
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        </ui:style>
+
+    <gwt:SplitLayoutPanel>
+        <gwt:west size="250">
+            <cellview:DataGrid ui:field="dataGrid"/>
+        </gwt:west>
+        <gwt:center>
+            <b:Container ui:field="exonEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="false">
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:InputGroup>
+                            <b:InputGroupAddon>5' End</b:InputGroupAddon>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="decreaseFivePrime" icon="ARROW_LEFT"/>
+                            </b:InputGroupButton>
+                            <b:TextBox ui:field="fivePrimeField" text="-"/>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="increaseFivePrime" icon="ARROW_RIGHT"/>
+                            </b:InputGroupButton>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:InputGroup>
+                            <b:InputGroupAddon>3' End</b:InputGroupAddon>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="decreaseThreePrime" icon="ARROW_LEFT"/>
+                            </b:InputGroupButton>
+                            <b:TextBox ui:field="threePrimeField" text="-"/>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="increaseThreePrime" icon="ARROW_RIGHT"/>
+                            </b:InputGroupButton>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:InputGroup>
+                            <b:InputGroupAddon>Strand</b:InputGroupAddon>
+                            <b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">
+                                <b:Button ui:field="negativeStrandValue" enabled="false" icon="MINUS"/>
+                                <b:Button ui:field="positiveStrandValue"  enabled="false" icon="PLUS"/>
+                            </b:ButtonGroup>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+                <!--<b:Row>-->
+                    <!--<b:Column size="6" styleName="{style.widgetPanel}">-->
+                        <!--<b:InputGroup>-->
+                            <!--<b:InputGroupAddon>Phase</b:InputGroupAddon>-->
+                            <!--<b:ButtonGroup dataToggle="BUTTONS">-->
+                                <!--<b:Button ui:field="phaseButton"  enabled="false" styleName="{style.phaseButton}"/>-->
+                            <!--</b:ButtonGroup>-->
+                        <!--</b:InputGroup>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
+                <b:Row styleName="{style.row}">
+                    <b:Column size="6" styleName="{style.widgetPanel}">
+                        <gwt:HTML ui:field="notePanel"/>
+                    </b:Column>
+                </b:Row>
+            </b:Container>
+        </gwt:center>
+    </gwt:SplitLayoutPanel>
+
+</ui:UiBinder>

@@ -35,7 +35,7 @@ fi
 
 case "$1" in
     run-local|run-app)
-        "$GRADLE" installJBrowseWebOnly
+        "$GRADLE" installJBrowseWebOnly compileGwt
         if [[ -n "$2" ]]; then
             "$GRADLE" bootRun --args="--server.port=$2"
         else
@@ -53,13 +53,13 @@ case "$1" in
         "$GRADLE" test
         ;;
     deploy)
-        "$GRADLE" installJBrowse bootWar
+        "$GRADLE" installJBrowse compileGwt bootWar
         ;;
     jbrowse)
         "$GRADLE" installJBrowseWebOnly
         ;;
     compile)
-        "$GRADLE" classes
+        "$GRADLE" classes compileGwt
         ;;
     clean)
         "$GRADLE" clean
