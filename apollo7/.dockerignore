@@ -1,0 +1,11 @@
+.git
+.github
+.gradle
+.idea
+build
+devDb.*
+upgradeTestDb.*
+*.log
+test-*.sh
+run-all-tests.sh
+test-helpers.sh

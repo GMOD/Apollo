@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-SUITES_AVAILABLE="login annotation upgrade"
+SUITES_AVAILABLE="login annotation upgrade postgresql"
 SUITES_TO_RUN="${*:-$SUITES_AVAILABLE}"
 
 TOTAL_PASS=0
@@ -61,6 +61,14 @@ for suite in $SUITES_TO_RUN; do
                 SUITE_RESULTS="${SUITE_RESULTS}  upgrade: PASS\n"
             else
                 SUITE_RESULTS="${SUITE_RESULTS}  upgrade: FAIL\n"
+                TOTAL_FAIL=$((TOTAL_FAIL + 1))
+            fi
+            ;;
+        postgresql)
+            if bash "$SCRIPT_DIR/test-postgresql.sh"; then
+                SUITE_RESULTS="${SUITE_RESULTS}  postgresql: PASS\n"
+            else
+                SUITE_RESULTS="${SUITE_RESULTS}  postgresql: FAIL\n"
                 TOTAL_FAIL=$((TOTAL_FAIL + 1))
             fi
             ;;

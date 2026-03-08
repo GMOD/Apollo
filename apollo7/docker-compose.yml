@@ -1,0 +1,36 @@
+services:
+  apollo:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      APOLLO_DB_URL: jdbc:postgresql://db:5432/apollo
+      APOLLO_DB_DRIVER: org.postgresql.Driver
+      APOLLO_DB_USERNAME: apollo
+      APOLLO_DB_PASSWORD: apollo
+      # Uncomment to auto-create an admin user on first boot:
+      # APOLLO_ADMIN_EMAIL: admin@local.host
+      # APOLLO_ADMIN_PASSWORD: password
+    volumes:
+      - apollo-data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: apollo
+      POSTGRES_USER: apollo
+      POSTGRES_PASSWORD: apollo
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apollo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  apollo-data:
+  pg-data:

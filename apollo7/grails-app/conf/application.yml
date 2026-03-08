@@ -177,7 +177,7 @@ dataSource:
 grails:
     plugin:
         databasemigration:
-            updateOnStart: false
+            updateOnStart: ${APOLLO_MIGRATION_ON_START:false}
             updateOnStartFileName: changelog.groovy
 
 environments:
@@ -191,7 +191,7 @@ environments:
             url: jdbc:h2:mem:testDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE
     production:
         dataSource:
-            dbCreate: validate
+            dbCreate: ${APOLLO_DB_CREATE:update}
             # Production DB can be configured via apollo-config.groovy (same as
             # Apollo 2) or environment variables: APOLLO_DB_URL, APOLLO_DB_DRIVER,
             # APOLLO_DB_USERNAME, APOLLO_DB_PASSWORD
