@@ -1469,7 +1469,7 @@ class OrganismController {
             organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
           }
         } catch (e) {
-          log.error(e)
+          log.error(e.message, e)
           render status: UNAUTHORIZED
           return
         }

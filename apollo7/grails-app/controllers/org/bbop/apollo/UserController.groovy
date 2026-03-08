@@ -209,7 +209,7 @@ class UserController {
         catch (Exception e) {
             response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
             def error = [error: e.message]
-            log.error error
+            log.error e.message, e
             render error as JSON
         }
     }
@@ -232,7 +232,7 @@ class UserController {
                 // sets it by default
                 userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
-                log.error(e)
+                log.error(e.message, e)
             }
 
             def userObject = userService.convertUserToJson(currentUser)

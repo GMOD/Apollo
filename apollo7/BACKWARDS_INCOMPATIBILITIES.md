@@ -34,23 +34,35 @@ Spring Boot's `spring-boot-starter-security` with a custom security configuratio
 that referenced Shiro APIs will need to be rewritten against Spring Security
 APIs or the new `ApolloSecurityUtils` utility class.
 
-## Critical: External Configuration
+## External Configuration
 
-### apollo-config.groovy no longer auto-loaded
+### apollo-config.groovy is still supported
 
 **Old behavior:** `grails.config.locations` in `Config.groovy` loaded
 `apollo-config.groovy` from the classpath or current directory.
 
-**New behavior:** Spring Boot 3 does not support `grails.config.locations`.
-Configuration must be provided via:
-- `application-{profile}.yml` files
-- Environment variables (e.g., `APOLLO_DB_URL`, `APOLLO_DB_DRIVER`)
-- `spring.config.additional-location` JVM property
-- `SPRING_CONFIG_ADDITIONAL_LOCATION` env var
+**New behavior:** Apollo 7 includes `ApolloConfigLoader` which loads
+`apollo-config.groovy` automatically using Groovy's `ConfigSlurper`.
+Existing config files should work without changes. The search order is:
 
-**User impact:** All existing deployment configurations in `apollo-config.groovy`
-must be converted to YAML or properties format. Docker deployments need updated
-environment variable mappings.
+1. `-Dapollo.config.location=/path/to/apollo-config.groovy` (JVM property)
+2. `APOLLO_CONFIG_LOCATION` environment variable
+3. `./apollo-config.groovy` (current working directory)
+4. `apollo-config.groovy` on the classpath
+
+Environment-specific blocks (`environments { production { ... } }`) work
+the same as in Apollo 2. You can also use YAML config or environment variables
+if you prefer:
+- `application-apollo.yml` files
+- Environment variables (e.g., `APOLLO_DB_URL`, `APOLLO_DB_DRIVER`)
+
+**Minor incompatibilities in apollo-config.groovy:**
+- `log4j` blocks are ignored (use `logback-spring.xml` for logging config)
+- `jbrowse` blocks are ignored (JBrowse is no longer bundled)
+- `dataSource_chado` is no longer supported
+- Java class references like `org.hibernate.dialect.PostgresPlusDialect` should
+  be quoted as strings: `"org.hibernate.dialect.PostgresPlusDialect"`
+- `java.sql.Connection.TRANSACTION_READ_COMMITTED` should be replaced with `2`
 
 ## Critical: Database
 
@@ -338,4 +350,4 @@ Jakarta Servlet API (Tomcat 10+, Jetty 12+, WildFly 27+).
 The Dockerfile needs updating:
 - Base image: Ubuntu 22.04+ with Java 17+
 - Tomcat: Version 10+ (for Jakarta EE)
-- Config: Environment variables instead of `apollo-config.groovy`
+- Config: `apollo-config.groovy` still works, or use environment variables

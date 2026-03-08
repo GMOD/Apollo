@@ -89,9 +89,8 @@ dependencies {
     implementation "org.apache.xmlgraphics:batik-svg-dom:1.18"
     implementation "org.apache.xmlgraphics:batik-svggen:1.18"
 
-    // Database migration
-    // TODO: verify grails-database-migration plugin version for Grails 7
-    // implementation "org.grails.plugins:database-migration:4.2.1"
+    // Database migration (Liquibase-based schema management)
+    implementation "org.apache.grails:grails-data-hibernate5-dbmigration"
 
     // Asset pipeline
     runtimeOnly "cloud.wondrify:asset-pipeline-grails"

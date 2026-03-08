@@ -7,13 +7,15 @@ grails:
         failOnError: true
         reactor:
             events: false
-    # BACKWARDS INCOMPATIBILITY: External config loading changed.
-    # In Grails 2, apollo-config.groovy was loaded via grails.config.locations.
-    # In Grails 7/Spring Boot 3, use spring.config.import or
-    # spring.config.additional-location instead.
-    # Users with existing apollo-config.groovy files will need to convert
-    # to application-apollo.yml or application-apollo.properties format,
-    # or use: spring.config.additional-location=file:./apollo-config.yml
+    # External config: apollo-config.groovy is still supported!
+    # Apollo 7 loads apollo-config.groovy automatically via ApolloConfigLoader.
+    # Search order:
+    #   1. -Dapollo.config.location=/path/to/apollo-config.groovy
+    #   2. APOLLO_CONFIG_LOCATION env var
+    #   3. ./apollo-config.groovy (current working directory)
+    #   4. apollo-config.groovy on the classpath
+    # The environment-specific blocks (environments { production { ... } })
+    # work the same as in Apollo 2.
 info:
     app:
         name: '@info.app.name@'
@@ -112,10 +114,8 @@ server:
 
 ---
 # Apollo application settings
-# BACKWARDS INCOMPATIBILITY: These were previously in Config.groovy under
-# the 'apollo' block. They are now in application.yml. Any custom overrides
-# previously in apollo-config.groovy need to be moved to
-# application-apollo.yml or environment variables.
+# Apollo application defaults. Custom overrides can be provided via
+# apollo-config.groovy (same format as Apollo 2) or application-apollo.yml.
 apollo:
     default_minimum_intron_size: 1
     history_size: 0
@@ -174,6 +174,12 @@ dataSource:
     username: sa
     password: ''
 
+grails:
+    plugin:
+        databasemigration:
+            updateOnStart: false
+            updateOnStartFileName: changelog.groovy
+
 environments:
     development:
         dataSource:
@@ -185,10 +191,10 @@ environments:
             url: jdbc:h2:mem:testDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE
     production:
         dataSource:
-            dbCreate: none
-            # BACKWARDS INCOMPATIBILITY: Production DB is now configured via
-            # environment variables instead of apollo-config.groovy.
-            # Set APOLLO_DB_URL, APOLLO_DB_DRIVER, APOLLO_DB_USERNAME, APOLLO_DB_PASSWORD
+            dbCreate: validate
+            # Production DB can be configured via apollo-config.groovy (same as
+            # Apollo 2) or environment variables: APOLLO_DB_URL, APOLLO_DB_DRIVER,
+            # APOLLO_DB_USERNAME, APOLLO_DB_PASSWORD
             url: ${APOLLO_DB_URL:}
             driverClassName: ${APOLLO_DB_DRIVER:org.postgresql.Driver}
             username: ${APOLLO_DB_USERNAME:}

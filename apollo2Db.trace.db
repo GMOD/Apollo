@@ -1,0 +1,56 @@
+2026-03-07 11:44:49.398965-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: IO Exception: "java.nio.file.NoSuchFileException: /tmp/apollo2_schema.sql"; "/tmp/apollo2_schema.sql"; SQL statement:
+RUNSCRIPT FROM '/tmp/apollo2_schema.sql'  compression zip [90031-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:566)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.message.DbException.convertIOException(DbException.java:454)
+	at org.h2.command.dml.ScriptBase.openInput(ScriptBase.java:170)
+	at org.h2.command.dml.RunScriptCommand.update(RunScriptCommand.java:53)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:304)
+	at org.h2.command.Command.executeUpdate(Command.java:248)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.tools.RunScript.processRunscript(RunScript.java:273)
+	at org.h2.tools.RunScript.runTool(RunScript.java:137)
+	at org.h2.tools.RunScript.main(RunScript.java:66)
+Caused by: java.nio.file.NoSuchFileException: /tmp/apollo2_schema.sql
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:261)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:380)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:432)
+	at java.base/java.nio.file.spi.FileSystemProvider.newInputStream(FileSystemProvider.java:420)
+	at java.base/java.nio.file.Files.newInputStream(Files.java:160)
+	at org.h2.store.fs.disk.FilePathDisk.newInputStream(FilePathDisk.java:442)
+	at org.h2.store.fs.FileUtils.newInputStream(FileUtils.java:277)
+	at org.h2.command.dml.ScriptBase.openInput(ScriptBase.java:168)
+	... 9 more
+2026-03-07 11:45:24.188848-05:00 database: flush
+org.h2.message.DbException: General error: "org.h2.mvstore.MVStoreException: Writing to sun.nio.ch.FileChannelImpl@41ffa50b failed; length 4096 at 28672 [2.3.232/2]" [50000-232]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.message.DbException.convert(DbException.java:407)
+	at org.h2.mvstore.db.Store.lambda$new$0(Store.java:122)
+	at org.h2.mvstore.MVStore.handleException(MVStore.java:1546)
+	at org.h2.mvstore.MVStore.panic(MVStore.java:371)
+	at org.h2.mvstore.FileStore.storeBuffer(FileStore.java:1531)
+	at org.h2.mvstore.FileStore.lambda$serializeAndStore$3(FileStore.java:1436)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientException: General error: "org.h2.mvstore.MVStoreException: Writing to sun.nio.ch.FileChannelImpl@41ffa50b failed; length 4096 at 28672 [2.3.232/2]" [50000-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:566)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 12 more
+Caused by: org.h2.mvstore.MVStoreException: Writing to sun.nio.ch.FileChannelImpl@41ffa50b failed; length 4096 at 28672 [2.3.232/2]
+	at org.h2.mvstore.DataUtils.newMVStoreException(DataUtils.java:996)
+	at org.h2.mvstore.DataUtils.writeFully(DataUtils.java:478)
+	at org.h2.mvstore.SingleFileStore.writeFully(SingleFileStore.java:67)
+	at org.h2.mvstore.SingleFileStore.writeFully(SingleFileStore.java:28)
+	at org.h2.mvstore.RandomAccessStore.writeChunk(RandomAccessStore.java:366)
+	at org.h2.mvstore.RandomAccessStore.writeChunk(RandomAccessStore.java:28)
+	at org.h2.mvsto
