@@ -213,7 +213,10 @@ class FeatureEventController {
         }.sort()
 
         Date today = new Date()
-        Date veryOldDate = today.minus(20 * 365)  // 20 years back
+        Calendar cal = Calendar.getInstance()
+        cal.setTime(today)
+        cal.add(Calendar.YEAR, -20)
+        Date veryOldDate = cal.getTime()
         Date beforeDate = params.beforeDate ?: today
         Date afterDate = params.afterDate ?: veryOldDate
         Date dateCreatedBeforeDate = params.dateCreatedBeforeDate ?: today

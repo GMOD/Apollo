@@ -62,7 +62,21 @@ start_app() {
     echo "=== Stopping any existing instance ==="
     pkill -f 'apollo.*bootRun' 2>/dev/null || true
     pkill -f 'apollo.*GrailsApp' 2>/dev/null || true
+    pkill -f 'apollo.*Application' 2>/dev/null || true
     sleep 2
+    # Force kill any stragglers
+    pkill -9 -f 'apollo.*bootRun' 2>/dev/null || true
+    pkill -9 -f 'apollo.*GrailsApp' 2>/dev/null || true
+    pkill -9 -f 'apollo.*Application' 2>/dev/null || true
+    sleep 2
+
+    # Wait for port to be free
+    for i in $(seq 1 10); do
+        if ! curl -s -o /dev/null http://localhost:8080/apollo/health/index 2>/dev/null; then
+            break
+        fi
+        sleep 1
+    done
 
     echo "=== Cleaning database ==="
     rm -f "$SCRIPT_DIR"/devDb.mv.db "$SCRIPT_DIR"/devDb.trace.db

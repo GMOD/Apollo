@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-SUITES_AVAILABLE="login annotation upgrade postgresql"
+SUITES_AVAILABLE="login e2e annotation upgrade postgresql"
 SUITES_TO_RUN="${*:-$SUITES_AVAILABLE}"
 
 TOTAL_PASS=0
@@ -45,6 +45,14 @@ for suite in $SUITES_TO_RUN; do
                 SUITE_RESULTS="${SUITE_RESULTS}  login: PASS\n"
             else
                 SUITE_RESULTS="${SUITE_RESULTS}  login: FAIL\n"
+                TOTAL_FAIL=$((TOTAL_FAIL + 1))
+            fi
+            ;;
+        e2e)
+            if bash "$SCRIPT_DIR/test-e2e.sh"; then
+                SUITE_RESULTS="${SUITE_RESULTS}  e2e: PASS\n"
+            else
+                SUITE_RESULTS="${SUITE_RESULTS}  e2e: FAIL\n"
                 TOTAL_FAIL=$((TOTAL_FAIL + 1))
             fi
             ;;

@@ -307,7 +307,7 @@ class VariantService {
                 log.error "Allele Frequency ${alleleFrequency} value must be within the range 0.0 - 1.0"
             }
         } catch (NumberFormatException e){
-            log.error "Unexpected Allele Frequency value of ${alleleFrequencyString} with exception: ${e.stackTrace}"
+            log.error("Unexpected Allele Frequency value of ${alleleFrequencyString}", e)
         }
     }
 

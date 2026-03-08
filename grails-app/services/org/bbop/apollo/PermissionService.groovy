@@ -307,19 +307,21 @@ class PermissionService {
 
     PermissionEnum findHighestEnum(List<PermissionEnum> permissionEnums) {
         PermissionEnum highestValue = PermissionEnum.NONE
-        permissionEnums.each { it ->
-            highestValue = it.rank > highestValue.rank ? it : highestValue
+        for (PermissionEnum pe : permissionEnums) {
+            if (pe.rank > highestValue.rank) {
+                highestValue = pe
+            }
         }
-
         return highestValue
     }
 
     int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
         int highestValue = -1
-        permissionEnums.each { it ->
-            highestValue = it.value > highestValue ? it.value : highestValue
+        for (PermissionEnum pe : permissionEnums) {
+            if (pe.value > highestValue) {
+                highestValue = pe.value
+            }
         }
-
         return highestValue
     }
 

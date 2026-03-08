@@ -17,20 +17,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Common auth params for webservice calls
-AUTH='"username":"admin@test.com","password":"testpass123"'
+# Auth params — uses the bootstrap admin created by application.yml apollo.admin config
+AUTH='"username":"admin@local.host","password":"password"'
 CLIENT_TOKEN="test-client-$$"
 
 start_app
-
-echo ""
-echo "=== Setup: Register admin user ==="
-RESPONSE=$(curl -s -X POST "$BASE_URL/login/registerAdmin" \
-    -H 'Content-Type: application/json' \
-    -d '{"username":"admin@test.com","password":"testpass123","firstName":"Admin","lastName":"User"}' \
-    -w "\nHTTP_CODE:%{http_code}")
-HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | sed 's/HTTP_CODE://')
-assert_eq "Register admin returns 200" "200" "$HTTP_CODE"
 
 echo ""
 echo "=== Setup: Create test organism data directory ==="
