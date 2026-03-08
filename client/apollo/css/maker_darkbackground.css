@@ -1,0 +1,357 @@
+/* styles for MAKER tracks and additional customization of WebApollo */
+.Dark .track_jbrowse_view_track_wiggle_xyplot .canvas-track {
+    background-color: hsla(240, 2%, 18%, 1);
+}
+
+.Dark .track_jbrowse_view_track_wiggle_density .canvas-track {
+    background-color: hsla(240, 2%, 18%, 1);
+}
+.Dark .wigglePositionIndicator {
+	background: white;
+}
+
+.Dark div.track  {
+    /* based on CoolWorld color palette from kuler.adobe.com */
+    /*background-color: #142933;*/
+    border:0px;
+}
+.Dark .sequence_blur {
+    background-color: #999;
+}
+.Dark div.pin_underlay {
+    background-color: #142933;
+}
+
+
+.Dark div.outerTrackContainer {
+    background-color: rgb(59, 59, 61);
+}
+
+
+.Dark div.gridline_major {
+    border-color : rgb(41,40,38);
+}
+
+.Dark div.gridline_minor {
+    border-color : rgba(96,96, 104, 0.72);
+}
+
+
+.Dark div#overviewtrack_overview_loc_track {
+    background-color: transparent;
+}
+
+.Dark div#gridtrack {
+    background-color: transparent;
+}
+
+
+.Dark .feature-name {
+    color: #FAFFF9;
+}
+
+.Dark div.feature-description {
+    color: #bbb;
+}
+/* UI elements */
+.Dark div.locationTrap {
+    background-color: #929292;
+	border-bottom-color: #0b2648;
+}
+
+.Dark .pin_underlay.track.block {
+    background-color: rgb(59, 59, 61);
+}
+
+.Dark .dna-residues.forward-strand,
+.Dark .dna-residues.reverse-strand {
+    background-color: transparent;
+}
+
+.Dark div.wa-sequence .dna-residues.forward-strand {
+    color: rgb(240, 240, 240);
+    z-index: 5;
+}
+
+.Dark div.wa-sequence .dna-residues.reverse-strand {
+    color: rgb(170, 169, 169);
+    z-index: 5;
+}
+/*  nucleotide alignments from MAKER */
+.Dark .blastn-part,
+.Dark .plus-blastn-part,
+.Dark .minus-blastn-part  {
+    background-color: rgb(102,204,0);
+}
+
+.Dark .est2genome-part,
+.Dark .plus-est2genome-part,
+.Dark .minus-est2genome-part   {
+    background-color: rgb(250,250,210);
+}
+
+.Dark .est_gff-part,
+.Dark .plus-est_gff-part,
+.Dark .minus-est_gff-part  {
+    background-color: rgb(251,255,179);
+}
+
+.Dark .mike-repeat-part,
+.Dark .plus-mike-repeat-part,
+.Dark .minus-mike-repeat-part  {
+    background-color: rgb(255,0,0);
+}
+
+.Dark .mike-snap-part,
+.Dark .plus-mike-snap-part,
+.Dark .minus-mike-snap-part  {
+    background-color: rgb(153,255,204);
+}
+
+.Dark .mike-augustus-part,
+.Dark .plus-mike-augustus-part,
+.Dark .minus-mike-augustus-part  {
+    background-color: rgb(255,204,255);
+}
+
+/*  protein alignments from MAKER */
+.Dark .blastx-part,
+.Dark .plus-blastx-part,
+.Dark .minus-blastx-part  {
+    background-color: pink;
+}
+
+.Dark .protein2genome-part,
+.Dark .plus-protein2genome-part,
+.Dark .minus-protein2genome-part  {
+    background-color: rgb(255,255,0);
+}
+
+/* ???? not found in gff3.tiers
+.Dark .protein_gff-part,
+.Dark .plus-protein_gff-part,
+.Dark .minus-protein_gff-part  {
+}
+*/
+
+.Dark .tblastx-part,
+.Dark .plus-tblastx-part,
+.Dark .minus-tblastx-part  {
+    background-color: rgb(102,51,102);
+}
+
+/*  ????  couldn't find in gff3.tiers
+.Dark .cdna2genome-part,
+.Dark .plus-cdna2genome-part,
+.Dark .minus-cdna2genome-part  {
+}
+*/
+
+/*  ????  couldn't find in gff3.tiers
+.Dark .altest_gff-part,
+.Dark .plus-altest_gff-part,
+.Dark .minus-altest_gff-part  {
+}
+*/
+
+.Dark .maker-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(51,102,255);
+}
+
+.Dark .maker-UTR {
+    height: 80%;
+    top: 10%;
+    border-style: solid;
+    border-color: rgb(51,102,255);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+.Dark .upd-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(0,204,0);
+}
+
+.Dark .upd-UTR {
+    height: 80%;
+    top: 10%;
+    border-style: solid;
+    border-color: rgb(0,204,0);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+.Dark .TAIR-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(255,140,0);
+}
+
+.Dark .TAIR-UTR {
+    height: 80%;
+    top: 10%;
+    border-style: solid;
+    border-color: rgb(255,140,0);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+.Dark .TAIR-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(255,140,0);
+}
+
+.Dark .TAIR-UTR {
+    height: 80%;
+    top: 10%;
+    border-style: solid;
+    border-color: rgb(255,140,0);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+.Dark .psu-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(153,0,76);
+}
+
+.Dark .psu-UTR {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(153,0,76);
+}
+
+.Dark .nc-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(255,0,127);
+}
+
+.Dark .nc-UTR {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(255,0,127);
+}
+
+.Dark .alt-CDS  {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(138,43,226);
+}
+
+.Dark .alt-UTR {
+    height: 80%;
+    top: 10%;
+    border-style: solid;
+    border-color: rgb(138,43,226);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+
+.Dark .snap-CDS {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(153,255,204);
+}
+
+.Dark .snap-UTR {
+    height: 80%;
+    top: 10%;
+    border: 1px solid rgb(153,255,204);
+    background-color: #142933;
+}
+
+.Dark .genemark-CDS {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(103,155,104);
+}
+
+.Dark .genemark-UTR {
+    height: 80%;
+    top: 10%;
+    border: 1px solid rgb(103,155,104);
+    background-color: #142933;
+}
+
+/* ???? not sure about pred_gff, same as GeneMark?
+.Dark .pred_gff-CDS {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(103,155,104);
+}
+.Dark .pred_gff-UTR {
+    height: 80%;
+    top: 10%;
+    border: 1px solid rgb(103,155,104);
+    background-color: #142933;
+}
+*/
+
+/* ???? couldn't find model_gff in gff3.tiers
+.Dark .model_gff-CDS {
+}
+.Dark .model_gff-UTR {
+    height: 80%;
+    top: 10%;
+    border: 1px solid rgb(103,155,104);
+    background-color: #142933;
+}
+*/
+
+.Dark .fgenesh-CDS {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(55,153,255);
+}
+
+.Dark .fgenesh-UTR {
+    height: 80%;
+    top: 10%;
+    /*    background-color: rgb(255,204,255); */
+    border-style: solid;
+    border-color: rgb(255,153,255);
+    border-width: 1px;
+    background-color: #142933;
+}
+
+/*  for MAKER repeatmasker, using just regular render-class (gray line) */
+/*  ???? for MAKER repeat_gff, just use regular render-class (gray line)? */
+
+/*  ???? repeatrunner is different than repeatmasker in gff3.tiers,
+    should we make it different also for webapollo?
+.Dark .repeatrunner,
+.Dark .plus-repeatrunner,
+.Dark .minus-repeatrunner  {
+}
+*/
+
+.Dark .left-edge-match  {
+    border-left: solid black 2px !important;
+}
+
+.Dark .right-edge-match  {
+    border-right: solid black 2px !important;
+}
+
+.Dark .selected-annotation {
+	outline-color: black;
+}
+
+/* start NeatHTMLFeatures styles */
+
+.Dark div.neat-UTR {
+    background-color: #DDD;
+}
+.Dark polyline.neat-intron {
+    stroke: lightgrey;
+}
+/* end NeatHTMLFeatures styles */
+
+/* end of MAKER styles */

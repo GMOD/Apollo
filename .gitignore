@@ -4,6 +4,8 @@ Thumbs.db
 build/
 target/
 out/
+jbrowse/
+src/main/webapp/jbrowse/
 devDb.*
 .idea
 *.iml

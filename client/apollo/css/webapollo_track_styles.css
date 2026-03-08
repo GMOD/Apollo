@@ -1,0 +1,994 @@
+
+.jbrowse .track .global_highlight {
+    background: rgba( 255, 255, 0, 0.5 );
+}
+
+.jbrowse .feature, .plus-feature, .minus-feature {
+  height: 10px;
+}
+
+.jbrowse .webapollo-CDS {
+    height: 80%;
+    top: 10%;
+    background-color: rgb(218, 170, 241);
+    border-style: solid;
+    border-color: rgb(173, 92, 194);
+    border-width: 1px;
+}
+
+.jbrowse .webapollo-UTR {
+    height: 50%;
+    top: 25%;
+    background-color: rgb(173, 92, 194);
+}
+
+.jbrowse .bam-read{
+    height: 5px;
+    background-color: #AACDDC;
+    z-index: 8;
+}
+
+.jbrowse .plus-bam-read {
+    height: 5px;
+    background-color: #EC8B8B;
+    z-index: 8;
+}
+
+.jbrowse .minus-bam-read {
+    height: 5px;
+    background-color: #898FD8;
+    z-index: 8;
+}
+
+
+.jbrowse .track.track_annotations {
+    background-color: #FFFFDD;
+}
+
+.jbrowse .Dark .track.track_annotations {
+    background-color: #676767;
+}
+
+div.track_localannot {
+    background-color: #DDDDCC;
+}
+
+/* 
+   To support WebApollo with sequence alteration features shown on SequenceTrack, 
+   sequence style MUST NOT have a z-index specified 
+*/
+.jbrowse div.wa-sequence {
+    position: absolute;
+    left: 0px;
+    font-family: 'courier', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding-left: 2px;
+    cursor: pointer; 
+    user-select: none;
+}
+
+/* 
+   block_seq_container are SequenceTrack divs that are child of .block and parent of .dna-residues
+   need to break this out from div.sequence because .sequence is also used for determining 
+        font character width and height in GenomeView.calculateSequenceCharacterSize(), 
+	and for that don't want a specified width
+*/
+div.block-seq-container {
+    top: 15px;
+    width: 100%;
+}
+
+div.wa-sequence .dna-container  {
+    position: absolute;
+    width: 100%;
+}
+
+div.wa-sequence .dna-residues.forward-strand {
+    color: black;
+    z-index: 5;
+}
+.jbrowse .Dark div.wa-sequence .dna-residues.forward-strand {
+	color: white;
+}
+
+div.wa-sequence .dna-residues.reverse-strand {
+    color: gray;
+    border-top: 1px solid lightgray;
+    z-index: 5;
+    /* outline: 1px solid pink; */
+}
+.jbrowse .Dark div.wa-sequence .dna-residues.reverse-strand {
+	color: lightgray;
+}
+
+div.wa-sequence .aa-residues  {
+    color: black;
+    z-index: 5;
+}
+.Dark div.wa-sequence .aa-residues  {
+    color: white;
+}
+
+.aa-residues.cds-frame0 {
+    background-color: #999999; 
+    z-index: 5;
+}
+
+.aa-residues.cds-frame1 {
+    background-color: #BBBBBB; 
+    z-index: 5;
+}
+
+.aa-residues.cds-frame2 {
+    background-color: #DDDDDD; 
+    z-index: 5;
+}
+
+/* highlighting of dna residues in DNA track on mouseover */
+div.wa-sequence .dna-highlighted {
+    background: #F9BF3A
+}
+
+div.wa-sequence .highlighted {
+    background: #ff0;
+}
+
+div.annot-sequence  {
+    position: absolute;
+    left: 0px;
+    font-family: 'courier', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding-left: 2px;
+    z-index: 15;
+    /*  
+	need pointer-events:none so that any events pass through annot-sequence overlay
+	and onto the block or feature div underneath
+    */ 
+    pointer-events: none;
+
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+
+/********************************************************
+*   invisible containers, 
+*   for features that also have a renderClass that gets centered, 
+*      and for subfeatures that have rendered children 
+*      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
+********************************************************/
+.jbrowse .container-16px,
+.jbrowse .plus-container-16px,
+.jbrowse .minus-container-16px  {
+    height: 16px;
+    background-color: transparent;
+}
+
+.jbrowse .container-14px,
+.jbrowse .plus-container-14px,
+.jbrowse .minus-container-14px  {
+    height: 14px;
+    background-color: transparent;
+}
+
+.jbrowse .container-12px,
+.jbrowse .plus-container-12px,
+.jbrowse .minus-container-12px  {
+    height: 12px;
+    background-color: transparent;
+}
+
+.jbrowse .container-10px,
+.jbrowse .plus-container-10px,
+.jbrowse .minus-container-10px  {
+    height: 10px;
+    background-color: transparent;
+}
+
+.jbrowse .container-8px,
+.jbrowse .plus-container-8px,
+.jbrowse .minus-container-8px {
+    height: 8px;
+    background-color: transparent;
+}
+
+/* intended for subfeatures that have rendered children, 
+*  want to size subfeature container to same height as parent feature
+*      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
+*/
+.jbrowse .container-100pct,
+.jbrowse .plus-container-100pct,
+.jbrowse .minus-container-100pct {
+    height: 100%;
+    background-color: transparent;
+}
+
+.jbrowse .feature-render  {
+    position: absolute;
+    min-width: 1px;
+    width: 100%;
+    /* feature render div may be added to feature div _after_ subfeature divs, so 
+       if want subfeature divs in front of feature render div, make sure feature render div has lower 
+       z-index than subfeature divs */
+    z-index: 2;  
+}
+
+/**
+ *   Basic boxes for subfeatures (and for "render-*" rendering div for features with container divs)
+ *   height is % of parent feature, top % determined based on height to ensure vertically centered
+ */
+.jbrowse .gray-center-30pct  {
+    background-color: gray;
+    height: 30%;
+    top: 35%;
+}
+
+
+.jbrowse .gray-center-50pct  {
+    background-color: lightgray;
+    height: 50%;
+    top: 25%;
+}
+
+
+.jbrowse .gray-center-20pct  {
+    position:absolute;
+    background-color: gray;
+    min-width: 1px;
+    width: 100%;
+    height: 20%;
+    top: 40%;
+    /* annotline div may be added to annot div _after_ child feature divs, so 
+       if want child divs in front of annotline, make sure has lower 
+       z-index than child divs */
+    z-index: 2;  
+}
+
+.jbrowse .gray-center-10pct  {
+    position:absolute;
+    background-color: gray;
+    min-width: 1px;
+    width: 100%;
+    height: 10%;
+    top: 45%;
+    /* annotline div may be added to annot div _after_ child feature divs, so 
+       if want child divs in front of annotline, make sure has lower 
+       z-index than child divs */
+    z-index: 2;  
+}
+
+
+
+
+.jbrowse .pink-90pct,
+.jbrowse .plus-pink-90pct,
+.jbrowse .minus-pink-90pct  {
+    height: 90%;
+    top: 5%;
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+}
+
+.jbrowse .pink-12px,
+.jbrowse .plus-pink-12px,
+.jbrowse .minus-pink-12px {
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+    height: 12px;
+}
+
+.jbrowse .pink-16px,
+.jbrowse .plus-pink-16px,
+.jbrowse .minus-pink-16px {
+    background-color: #D8BDEB;
+    border: 1px solid #01F;
+    height: 16px;
+}
+
+.jbrowse .purple-60pct,
+.jbrowse .plus-purple-60pct,
+.jbrowse .minus-purple-60pct  {
+    background-color: #8F408F;
+    height: 60%;
+    top: 20%;
+}
+
+.jbrowse .purple-8px,
+.jbrowse .plus-purple-8px,
+.jbrowse .minus-purple-8px {
+    background-color: #8F408F;
+    height: 8px; 
+}
+
+.jbrowse .darkblue-80pct,
+.jbrowse .plus-darkblue-80pct,
+.jbrowse .minus-darkblue-80pct  {
+    background-color: #1F3DDE;
+    height: 80%;
+    top: 10%;
+}
+
+.jbrowse .bluegreen-80pct,
+.jbrowse .plus-bluegreen-80pct,
+.jbrowse .minus-bluegreen-80pct  {
+    background-color: #3BA08E;
+    height: 80%;
+    top: 10%;
+}
+
+.black-80pct,
+.plus-black-80pct,
+.minus-black-80pct  {
+    background-color: #222;
+    height: 80%;
+    top: 10%;
+}
+
+.jbrowse .brightgreen-80pct,
+.jbrowse .plus-brightgreen-80pct,
+.jbrowse .minus-brightgreen-80pct  {
+    background-color: #21D61F;
+    border: 1px solid #555;
+    height: 80%;
+    top: 10%;
+}
+
+.jbrowse .darkgreen-60pct,
+.jbrowse .plus-darkgreen-60pct,
+.jbrowse .minus-darkgreen-60pct {
+    height: 60%;
+    top: 20%;
+    background-color: #8DB890;
+}
+
+.jbrowse .trellis-CDS,
+.jbrowse .plus-trellis-CDS,
+.jbrowse .minus-trellis-CDS {
+    background-color: gold;
+    border: 1px solid gray;
+    height: 80%;
+    top: 10%;
+}
+
+.jbrowse .trellis-UTR,
+.jbrowse .plus-trellis-UTR,
+.jbrowse .minus-trellis-UTR  {
+    background-color: #B39700;
+    height: 60%;
+    top: 20%;
+}
+
+.jbrowse .trellis-match-part,
+.jbrowse .plus-trellis-match-part,
+.jbrowse .minus-trellis-match-part  {
+    background-color: #1F3DDE;
+    height: 60%;
+    top: 10%;
+}
+
+/* CIGAR string "M" subfeature, indicating "alignment match" (can be a sequence match or mismatch) of aligned sequence relative to viewed sequence */
+.jbrowse .cigarM {
+    height: 100%; 
+    background-color: #1B8A99;
+    z-index: 8;   /* rendered below most other subfeatures */
+    min-width: 1px;
+}
+
+.jbrowse .plus-cigarM {
+    height: 100%;
+    /*background-color: #898FD8;*/
+    background-color: indianred;
+    /*background-color: blue;*/
+    z-index: 8;   /* rendered below most other subfeatures */
+    min-width: 1px;
+}
+
+.jbrowse .minus-cigarM  {
+    height: 100%;
+    /*background-color: #EC8B8B;*/
+    background-color: royalblue;
+    /*background-color: red;*/
+    z-index: 8;   /* rendered below most other subfeatures */
+    min-width: 1px;
+}
+
+/* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
+.jbrowse .cigarEQ,
+.jbrowse .plus-cigarEQ,
+.jbrowse .minus-cigarEQ  {
+    height: 100%; 
+    background-color: #1B8A99;
+    z-index: 10; /* rendered above more generic "M" type */
+    min-width: 1px;
+}
+
+/* CIGAR string "X" subfeature, indicating mismatch of aligned sequence relative to viewed sequence */
+.jbrowse .cigarX,
+.jbrowse .plus-cigarX,
+.jbrowse .minus-cigarX  {
+    height: 100%; 
+    background-color: rgb(182, 167, 0);  
+    z-index: 11;  /* rendered above matches, but below deletions and insertions */
+    min-width: 3px;
+}
+
+
+
+/* align_insertion, align_deletion, align_skip, align_mismatch are assigned to 
+   non-feature child divs of bam-read features in DraggableAlignments._drawMismatches()
+*/
+.jbrowse .align_insertion {
+    background-color: #00FF00;
+    height: 100%;
+    min-width: 2px;
+    z-index: 20;
+}
+
+.jbrowse .align_deletion {
+    background-color: #FF0000;
+    height: 100%;
+    min-width: 2px;
+    z-index: 20;
+}
+
+.jbrowse .align_skip {
+}
+
+.jbrowse .align_mismatch {
+    background-color: #D8C046;
+    height: 100%;
+    min-width: 2px;
+    z-index: 12;
+}
+
+/** container */
+.jbrowse .annot,
+.jbrowse .plus-annot,
+.jbrowse .minus-annot {
+  height: 16px;
+  background-color: transparent;
+  user-select: none;
+}
+
+.jbrowse .annot-render {
+    height: 8px;
+    margin-top: 4px;
+    background-color: #A4BBFF;
+}
+
+.jbrowse .annot-apollo{
+
+}
+ 
+.jbrowse .annot-CDS,
+.jbrowse .plus-annot-CDS,
+.jbrowse .minus-annot-CDS {
+    height: 16px;
+    background-color: #30AAFF;
+    border: 1px solid #01F;
+}
+
+.jbrowse .Dark .annot-CDS,
+.jbrowse .Dark .plus-annot-CDS,
+.jbrowse .Dark .minus-annot-CDS {
+    height: 16px;
+    background-color: #30AAFF;
+    border: 1px solid hsla(205, 100%, 25%, 1);
+}
+
+.jbrowse .annot-UTR,
+.jbrowse .plus-annot-UTR,
+.jbrowse .minus-annot-UTR {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: #2088FF;
+}
+
+.jbrowse .noncanonical-splice-site,
+.jbrowse .plus-noncanonical-splice-site,
+.jbrowse .minus-noncanonical-splice-site  {
+    margin-left: -8px;
+    /* margin-top: -11px;  */
+    /*  moved noncanonical icon to bottom of annotation, prefer top of annotation but 
+	need to have a some padding at top of track before that works */
+    margin-top: 9px;  
+    padding-left: 8px;
+    padding-right: 8px;
+    position: absolute;
+    height: 16px;
+    z-index: 100;
+    background-color: transparent;
+    background-image: url('../img/exclamation_circle_orange.png');
+    pointer-events: none;   /*  attempting to route around issue with centered non-canon splice sites preventing edge-drag */
+/*    background-image: url('img/exclamation_circle_orange.png');  */
+/*    background-image: url('img/warning_exclamation_small.png'); */
+/*    background-image: url('img/warning_exclamation.png');  */
+/*    background-image: url('img/marker_rounded_red.png'); */
+/*    background-image: url('img/marker_squared_red.png'); */
+}
+
+
+/* 
+   for styles of features that are on SequenceTrack, 
+   z-index MUST be > z-index of 
+       (div.sequence .dna-residues.forward-strand) and 
+       (div.sequence .dna-residues.reverse-strand) styles
+*/
+.Apollo .sequence-alteration-artifact.deletion_artifact,
+.Apollo .sequence-alteration-artifact.plus-deletion_artifact,
+.Apollo .sequence-alteration-artifact.minus-deletion_artifact {
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+    height: 100%;
+    background-color: rgba(150,0,0,0.3);
+    z-index: 20;  
+}
+
+.Apollo .variant-effect.deletion_artifact,
+.Apollo .variant-effect.plus-deletion_artifact,
+.Apollo .variant-effect.minus-deletion_artifact {
+    border-style: solid;
+    border-color: red;
+    border-width: 2px;
+    height: 100%;
+    background-color: rgba(150,50,50,0.3);
+    /*background-image: url('../img/warning_exclamation.png');*/
+    z-index: 20;
+}
+
+.Apollo .sequence-alteration-artifact.insertion_artifact,
+.Apollo .sequence-alteration-artifact.plus-insertion_artifact,
+.Apollo .sequence-alteration-artifact.minus-insertion_artifact {
+    border: 1px ridge green;
+    height: 100%;
+    background-color: rgba(0,150,0,0.3);
+    z-index: 20;  
+}
+
+.Apollo .variant-effect.insertion_artifact,
+.Apollo .variant-effect.plus-insertion_artifact,
+.Apollo .variant-effect.minus-insertion_artifact {
+    border: 2px groove red;
+    height: 100%;
+    background-color: rgba(50,150,0,0.3);
+    z-index: 20;
+}
+
+.Apollo .sequence-alteration-artifact.substitution_artifact,
+.Apollo .sequence-alteration-artifact.plus-substitution_artifact,
+.Apollo .sequence-alteration-artifact.minus-substitution_artifact {
+    border: 1px solid blue;
+    height: 100%;
+    background-color: rgba(250,250,0,0.3);
+    z-index: 20;  
+}
+
+
+.Apollo .variant-effect.substitution_artifact,
+.Apollo .variant-effect.plus-substitution_artifact,
+.Apollo .variant-effect.minus-substitution_artifact {
+    border: 2px double red;
+    height: 100%;
+    background-color: rgba(250,250,0,0.3);
+    z-index: 20;
+}
+
+
+.jbrowse .plus-trellis-arrowhead,
+.jbrowse .plus-webapollo-arrowhead,
+.jbrowse .plus-annot-arrowhead  {
+    position: absolute;
+    width: 12px;
+    height: 100%;
+    background-image: url('../img/plus-arrowhead.png');
+    background-repeat: no-repeat;
+    background-position: left center;  /* center image vertically */
+    z-index: 15;
+}
+
+.jbrowse .minus-trellis-arrowhead,
+.jbrowse .minus-webapollo-arrowhead,
+.jbrowse .minus-annot-arrowhead {
+    position: absolute;
+    width: 12px;
+    height: 100%;
+    background-image: url('../img/minus-arrowhead.png');
+    background-repeat: no-repeat;
+    background-position: right center;  /* center image vertically */
+    z-index: 15;
+}
+
+.Apollo.colorCds .cds-frame0 {
+    background-color: #FF8080;
+}
+
+.Apollo.colorCds .cds-frame1 {
+    background-color: #80FF80;
+}
+
+.Apollo.colorCds .cds-frame2 {
+    background-color: #8080FF;
+}
+
+.Apollo.colorCds .neg-cds-frame0 {
+    background-color: #8080FF;
+}
+
+.Apollo.colorCds .neg-cds-frame1 {
+    background-color: #80FF80;
+}
+
+.Apollo.colorCds .neg-cds-frame2 {
+    background-color: #FF8080;
+}
+
+
+.Dark.colorCds .dna-residues.cds-frame0 {
+	background-color: #902748
+}
+
+.Dark.colorCds .dna-residues.cds-frame1 {
+	background-color: #366f4b;
+}
+
+.Dark.colorCds .dna-residues.cds-frame2 {
+	background-color: #4e408e;
+}
+
+.Dark div.block.height_overflow .height_overflow_message {
+	color: white;
+	text-shadow: none;
+}
+
+.jbrowse .Dark div.ruler svg g line {
+	stroke: white;
+}
+
+.Dark.colorCds .feature .cds-frame0 {
+    border: 1px solid hsla(0, 100%, 25%, 1);
+}
+
+.Dark.colorCds .feature .cds-frame1 {
+    border: 1px solid hsla(120, 100%, 25%, 1);
+}
+
+.Dark.colorCds .feature .cds-frame2 {
+    border: 1px solid hsla(240, 100%, 25%, 1);
+}
+
+
+.jbrowse .Dark .track .loading {
+	background: rgb(59, 59, 61);
+	color: white;
+}
+
+/**
+*   appearance of resizing box when dragging annotation edges
+*   if case browser doesn't support transparency via "rgba", fall back on solid background?
+*/
+.ui-resizable-helper  {
+    border: 2px dotted red;
+    background: rgb(100, 150, 255);
+    background: rgba(100, 150, 255, 0.5);
+    
+}
+
+/**
+*  By default, no styling associated with custom multifeature draggable helper
+*  But leaving here for easing toggling of diagnostic rendering
+*/
+.custom-multifeature-draggable-helper  {
+/*  
+    outline-style: dotted; 
+    outline-color: red;
+    outline-width: 4px; 
+*/
+}
+
+/**
+*  appearance of annotations (features in AnnoTracks)  when they are drop targets and are hovered over 
+*/
+.annot-drop-hover  {
+    outline-style: solid; 
+    outline-color: green;
+    outline-width: 4px;
+}
+
+/* 
+*  overriding JQueryUI .ui-resizable style, which changes anything getting resized to "position:absolute"
+*  for this to work this CSS _must_ come after jquery-ui.css in load order
+*/
+.ui-resizable  {
+    position: absolute;
+}
+
+/* style to highlight left feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.jbrowse .left-edge-match  {
+    border-left: solid red 2px !important;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+/* style to highlight right feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.jbrowse .right-edge-match  {
+    border-right: solid red 2px !important;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+
+/* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
+.jbrowse .selected-feature {
+    outline-style: solid; 
+    outline-color: red;
+    outline-width: 3px;
+}
+
+.jbrowse .shadow  {
+    -moz-box-shadow: 5px 5px 5px #444;
+    -webkit-box-shadow: 5px 5px 5px #444;
+    box-shadow: 5px 5px 5px #444;
+}
+
+/* 
+*  selection of annotations is separate from selection of features 
+*/
+.jbrowse .selected-annotation  {
+    outline-style: solid;
+    outline-color: goldenrod;
+    outline-width: 2px;
+}
+
+/* hiding close button for AnnotTracks, so can't be removed */
+div.track_webapollo_view_track_annottrack div.track-label .track-close-button {
+    visibility: hidden;
+}
+
+/* hiding close button for SequenceTracks, so can't be removed */
+div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-button {
+    visibility: hidden;
+}
+/* maker    background-color: rgb(255,204,204); */
+/* blastn   background-color: rgb(102,204,102); */
+/* blastx     background-color: rgb(0,200,204); */
+/* tblastx    background-color: rgb(0,200,104); */
+/* snap       background-color: rgb(153,100,204); */
+/* est2genome     background-color: rgb(100,100,210); */
+/* protein2genome   background-color: rgb(117,150,255); */
+/* repeatmasker     background-color: red; */
+/* repeatrunner     background-color: rgb(255,152,255); */
+/* default-alignment-block    background-color: #C87C8E; */
+/* nvit-alignment    background-color: #848DBF; */
+
+.jbrowse .stop_codon_read_through,
+.jbrowse .plus-stop_codon_read_through,
+.jbrowse .minus-stop_codon_read_through {
+    position: absolute;
+    height: 16px;
+    background-color: purple;
+    border-style: solid;
+    border-color: #01F;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 15;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.jbrowse .pseudogene,
+.jbrowse .plus-pseudogene,
+.jbrowse .minus-pseudogene {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(153,153,255);
+}
+
+.jbrowse .tRNA,
+.jbrowse .plus-tRNA,
+.jbrowse .minus-tRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .snRNA,
+.jbrowse .plus-snRNA,
+.jbrowse .minus-snRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .snoRNA,
+.jbrowse .plus-snoRNA,
+.jbrowse .minus-snoRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .ncRNA,
+.jbrowse .plus-ncRNA,
+.jbrowse .minus-ncRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .miRNA,
+.jbrowse .plus-miRNA,
+.jbrowse .minus-miRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .rRNA,
+.jbrowse .plus-rRNA,
+.jbrowse .minus-rRNA {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.jbrowse .repeat_region,
+.jbrowse .plus-repeat_region,
+.jbrowse .minus-repeat_region {
+    height: 12px; 
+    margin-top: 2px;
+    background-color: magenta;
+}
+
+.jbrowse .Shine_Dalgarno_sequence,
+.jbrowse .plus-Shine_Dalgarno_sequence,
+.jbrowse .minus-Shine_Dalgarno_sequence {
+    height: 12px;
+    margin-top: 2px;
+    background-color: orangered;
+}
+
+
+.jbrowse .terminator {
+    /*position: absolute;*/
+    height: 16px;
+    width: 16px;
+    top: -4px;
+    z-index: 100;
+    /*background-color: black;*/
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+
+
+    /* TODO: remove when we have another strand type */
+    background-image: url('../img/terminator.png');
+    background-position: bottom center;  /* center image vertically */
+}
+
+.jbrowse .terminator-render {
+    /*position: absolute;*/
+    height: 10px;
+    /*z-index: 90;*/
+    background-color: black;
+}
+
+
+.jbrowse .minus-terminator,
+.jbrowse .plus-terminator
+{
+    height: 10px; !important;
+    background-color: transparent;
+}
+
+
+.jbrowse .transposable_element,
+.jbrowse .plus-transposable_element,
+.jbrowse .minus-transposable_element {
+	height: 12px;
+	border-left-color: blue;
+	border-right-color: blue;
+	border-width: 0px 2px 0px 2px;
+	border-style: solid;
+	background-color: transparent;
+	z-index: 10;
+}
+
+.jbrowse .transposable_element-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: blue;
+}
+
+.jbrowse .blue-ibeam {
+	height: 12px;
+	border-left-color: blue;
+	border-right-color: blue;
+	border-width: 0px 2px 0px 2px;
+	border-style: solid;
+	background-color: transparent;
+	z-index: 10;
+}
+
+.jbrowse .blue-ibeam-render {
+	height: 3px;
+    margin-top: 4px;
+    background-color: blue;
+}
+
+.jbrowse .magenta-80pct,
+.jbrowse .plus-magenta-80pct,
+.jbrowse .minus-magenta-80pct {
+	top: 10%;
+	height: 80%;
+    background-color: magenta;
+    border: 1px solid #01F;
+}
+
+.jbrowse .light-purple-80pct,
+.jbrowse .plus-light-purple-80pct,
+.jbrowse .minus-light-purple-80pct {
+	top: 10%;
+	height: 80%;
+    background-color: rgb(153,153,255);
+    border: 1px solid #01F;
+}
+
+.jbrowse .locked-annotation  {
+    outline-style: solid;
+    outline-color: blue;
+    outline-width: 3px;
+}
+
+.jbrowse .sequence-start-protein {
+    background-color: yellow;
+    font-weight: bolder;
+	color: black;
+    display: inline ;
+}
+
+.jbrowse .sequence-stop-protein {
+    background-color: #3b4a20;
+    font-weight: bolder;
+	color: white;
+    display: inline ;
+}
+
+.jbrowse .insertion-variant,
+.jbrowse .deletion-variant,
+.jbrowse .snv-variant,
+.jbrowse .mnv-variant {
+    height: 16px;
+    border-width: 0px 0px 0px 0px;
+    border-style: none;
+    background-color: #ffa000;
+    z-index: 10;
+}
+
+.jbrowse .insertion-variant-render,
+.jbrowse .deletion-variant-render,
+.jbrowse .snv-variant-render,
+.jbrowse .mnv-variant-render {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 12px solid #ffa000;
+    background-color: transparent;
+}

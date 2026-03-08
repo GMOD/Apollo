@@ -1,0 +1,76 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+usage() {
+    echo ""
+    echo "Usage: apollo <command>"
+    echo ""
+    echo "Commands:"
+    echo ""
+    echo "  run-local [port]  Install JBrowse (if needed) and run the application"
+    echo "  run-app [port]    Alias for run-local"
+    echo "  debug [port]      Run with remote debugging enabled on port 5005"
+    echo "  test              Run the test suite"
+    echo "  deploy            Build a WAR file with JBrowse for deployment"
+    echo "  jbrowse           Install/update JBrowse and the WebApollo plugin"
+    echo "  compile           Compile the application"
+    echo "  clean             Remove build artifacts"
+    echo "  clean-all         Remove build artifacts, JBrowse, and database files"
+    echo "  help              This message"
+    echo ""
+}
+
+if [[ $# -eq 0 || $1 == "help" || $1 == "--help" || $1 == "-h" ]]; then
+    usage
+    exit 0
+fi
+
+GRADLE="$SCRIPT_DIR/gradlew"
+
+if [[ ! -x "$GRADLE" ]]; then
+    echo "Error: gradlew not found in $SCRIPT_DIR"
+    exit 1
+fi
+
+case "$1" in
+    run-local|run-app)
+        "$GRADLE" installJBrowseWebOnly
+        if [[ -n "$2" ]]; then
+            "$GRADLE" bootRun --args="--server.port=$2"
+        else
+            "$GRADLE" bootRun
+        fi
+        ;;
+    debug)
+        if [[ -n "$2" ]]; then
+            "$GRADLE" bootRun --debug-jvm --args="--server.port=$2"
+        else
+            "$GRADLE" bootRun --debug-jvm
+        fi
+        ;;
+    test)
+        "$GRADLE" test
+        ;;
+    deploy)
+        "$GRADLE" installJBrowse bootWar
+        ;;
+    jbrowse)
+        "$GRADLE" installJBrowseWebOnly
+        ;;
+    compile)
+        "$GRADLE" classes
+        ;;
+    clean)
+        "$GRADLE" clean
+        ;;
+    clean-all)
+        "$GRADLE" clean cleanJBrowse
+        rm -f "$SCRIPT_DIR"/devDb.* "$SCRIPT_DIR"/apollo2Db.*
+        ;;
+    *)
+        echo "Unknown command: $1"
+        usage
+        exit 1
+        ;;
+esac

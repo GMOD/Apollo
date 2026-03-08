@@ -115,6 +115,96 @@ dependencies {
 
 compileJava.options.release = 17
 
+// JBrowse 1 installation tasks
+
+ext {
+    jbrowseGitUrl = "https://github.com/gmod/jbrowse"
+    jbrowseBranch = "1.16.12-release"
+    jbrowseDir = file("jbrowse")
+    jbrowseWebappDir = file("src/main/webapp/jbrowse")
+}
+
+task cloneJBrowse {
+    description "Clone JBrowse 1 from git"
+    onlyIf { !jbrowseDir.exists() }
+    doLast {
+        exec {
+            commandLine "git", "clone", jbrowseGitUrl, "--branch", jbrowseBranch, "--single-branch", "--depth", "1"
+        }
+    }
+}
+
+task installJBrowseWebOnly {
+    description "Install JBrowse for web (no Perl tools)"
+    doLast {
+        if (!jbrowseDir.exists()) {
+            tasks.cloneJBrowse.execute()
+        }
+        exec {
+            workingDir "jbrowse"
+            commandLine "yarn"
+        }
+        delete "jbrowse/plugins/WebApollo"
+        copy {
+            from "client/apollo"
+            into "jbrowse/plugins/WebApollo"
+        }
+        exec {
+            workingDir "jbrowse/plugins/WebApollo"
+            commandLine "yarn"
+        }
+        exec {
+            workingDir "jbrowse"
+            commandLine "npm", "run", "build"
+        }
+        delete jbrowseWebappDir
+        copy {
+            from("jbrowse") {
+                exclude "sample_data/**", "node_modules/**", "tests/**", ".git/**"
+            }
+            into jbrowseWebappDir
+        }
+    }
+}
+
+task installJBrowse {
+    description "Install JBrowse with Perl tools"
+    doLast {
+        if (!jbrowseDir.exists()) {
+            tasks.cloneJBrowse.execute()
+        }
+        exec {
+            workingDir "jbrowse"
+            commandLine "yarn"
+        }
+        delete "jbrowse/plugins/WebApollo"
+        copy {
+            from "client/apollo"
+            into "jbrowse/plugins/WebApollo"
+        }
+        exec {
+            workingDir "jbrowse/plugins/WebApollo"
+            commandLine "yarn"
+        }
+        exec {
+            workingDir "jbrowse"
+            commandLine "./setup.sh"
+        }
+        delete jbrowseWebappDir
+        copy {
+            from("jbrowse") {
+                exclude "sample_data/**", "node_modules/**", "tests/**", ".git/**"
+            }
+            into jbrowseWebappDir
+        }
+    }
+}
+
+task cleanJBrowse(type: Delete) {
+    description "Remove JBrowse build artifacts"
+    delete jbrowseDir, jbrowseWebappDir
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
