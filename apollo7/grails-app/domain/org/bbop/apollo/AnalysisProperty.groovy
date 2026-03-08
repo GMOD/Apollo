@@ -10,7 +10,7 @@ class AnalysisProperty {
     String value;
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         AnalysisProperty castOther = ( AnalysisProperty ) other;
@@ -18,7 +18,7 @@ class AnalysisProperty {
         return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) ) && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getValue()==castOther.getValue()) || ( this.getValue()!=null && castOther.getValue()!=null && this.getValue().equals(castOther.getValue()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

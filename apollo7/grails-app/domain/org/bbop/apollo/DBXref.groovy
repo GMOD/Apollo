@@ -46,7 +46,7 @@ class DBXref {
 //        return ( (this.getVersion()==castOther.getVersion()) || ( this.getVersion()!=null && castOther.getVersion()!=null && this.getVersion().equals(castOther.getVersion()) ) ) && ( (this.getDb()==castOther.getDb()) || ( this.getDb()!=null && castOther.getDb()!=null && this.getDb().equals(castOther.getDb()) ) ) && ( (this.getAccession()==castOther.getAccession()) || ( this.getAccession()!=null && castOther.getAccession()!=null && this.getAccession().equals(castOther.getAccession()) ) );
 //    }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

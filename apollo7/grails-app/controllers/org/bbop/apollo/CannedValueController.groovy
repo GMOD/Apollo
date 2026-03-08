@@ -180,7 +180,7 @@ class CannedValueController {
                 render error as JSON
                 log.error(error.error)
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: 'problem saving CannedValue: ' + e]
             render error as JSON
             log.error(error.error, e)

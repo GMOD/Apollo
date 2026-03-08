@@ -11,7 +11,7 @@ class PublicationDBXref {
     boolean isCurrent;
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         PublicationDBXref castOther = ( PublicationDBXref ) other;
@@ -19,7 +19,7 @@ class PublicationDBXref {
         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

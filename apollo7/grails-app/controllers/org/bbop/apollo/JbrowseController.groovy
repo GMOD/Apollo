@@ -527,7 +527,7 @@ class JbrowseController {
                 String requestName = names[names.length - 1];
                 return requestName.startsWith("lf-");
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.warn "Problem trying to cache file ${fileName}: ${e}"
         }
 
@@ -557,7 +557,7 @@ class JbrowseController {
      */
     private static long sublong(String value, int beginIndex, int endIndex) {
         String substring = value.substring(beginIndex, endIndex);
-        return (substring.length() > 0) ? Long.parseLong(substring) : -1;
+        return (substring.length() > 0) ? substring as Long : -1
     }
 
     def passthrough() {

@@ -229,7 +229,7 @@ class UserController {
             try {
                 // sets it by default
                 userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(params[FeatureStringEnum.CLIENT_TOKEN.value])
-            } catch (e) {
+            } catch (Exception e) {
                 log.error(e.message, e)
             }
 
@@ -292,7 +292,7 @@ class UserController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -316,7 +316,7 @@ class UserController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -390,7 +390,7 @@ class UserController {
             jsonObject.userId = user.id
             log.debug "rendering json object "
             render jsonObject as JSON
-        } catch (e) {
+        } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to add the user " + e.message)
@@ -446,7 +446,7 @@ class UserController {
             user.save(flush: true )
 
             render new JSONObject() as JSON
-        } catch (e) {
+        } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to inactivate the user " + e.message+". Remove users and groups first.")
@@ -495,7 +495,7 @@ class UserController {
             user.save(flush: true )
 
             render new JSONObject() as JSON
-        } catch (e) {
+        } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to activate the user " + e.message)
@@ -557,7 +557,7 @@ class UserController {
             log.debug "rendering json object "
             render jsonObject as JSON
             user.delete(flush: true)
-        } catch (e) {
+        } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the user " + e.message)
@@ -639,7 +639,7 @@ class UserController {
             log.info "Updated user"
             user.save(flush: true)
             render new JSONObject() as JSON
-        } catch (e) {
+        } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to update the user " + e.message)
@@ -652,7 +652,7 @@ class UserController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -678,7 +678,7 @@ class UserController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -749,7 +749,7 @@ class UserController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return

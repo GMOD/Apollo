@@ -99,7 +99,7 @@ class PreferenceService {
             } else {
                 log.debug "No session found"
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.debug "failed to get the session preference object ${e}"
         }
         return null
@@ -137,7 +137,7 @@ class PreferenceService {
         log.debug "token for org ${token}"
         if (token.isLong()) {
             log.debug "is long "
-            return Organism.findById(Long.parseLong(token))
+            return Organism.findById(token as Long)
         } else {
             log.debug "is NOT long "
             // Cannot use findByCommonNameIlike, because it will fail to update the permission of an organism named orgam
@@ -418,7 +418,7 @@ class PreferenceService {
                     evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
                 }
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.warn("Problem saving preference: " + e)
         }
 
@@ -436,7 +436,7 @@ class PreferenceService {
             } else {
                 log.debug "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
             }
-        } catch (e) {
+        } catch (Exception e) {
             log.error "Problem saving ${e} for ${preferenceDTO as JSON}"
         } finally {
             currentlySavingLocation.remove(preferenceDTO.clientToken)
@@ -566,7 +566,7 @@ class PreferenceService {
         }
 
         def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
-            createAlias('sequence', 'sequence', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
+            createAlias('sequence', 'sequence', org.hibernate.sql.JoinType.LEFT_OUTER_JOIN)
             and {
                 eq("user", user)
                 eq("clientToken", clientToken)
@@ -770,7 +770,7 @@ class PreferenceService {
             }
 
             log.info "Removed ${removalCount} stale preferences"
-        } catch (e) {
+        } catch (Exception e) {
             log.error("Error removing preferences ${e}")
         }
 

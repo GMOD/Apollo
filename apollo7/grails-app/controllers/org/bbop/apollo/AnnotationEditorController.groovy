@@ -293,7 +293,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject inputObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -525,7 +525,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "Organism to string:  ${organism as JSON}"
             render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
         }
-        catch (ae) {
+        catch (Exception ae) {
             def error = [error: ae.message]
             render error as JSON
         }
@@ -549,7 +549,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         catch (IOException e) {
             log.debug("Cannot create a temp file for 'get GFF3' operation", e)
         }
-        catch (ae) {
+        catch (Exception ae) {
             def error = [error: ae.message]
             render error as JSON
         }
@@ -606,7 +606,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 case "logout":
                     try {
                         ApolloSecurityUtils.logout()
-                    } catch (e) {
+                    } catch (Exception e) {
                         log.warn "No thread, so sending through websocket instead ${e}"
                     }
                     finally {
@@ -636,7 +636,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                             Feature.withNewSession {
                                 try {
                                     returnString = method.invoke(requestHandlingService, rootElement)
-                                } catch (e) {
+                                } catch (Exception e) {
                                     log.error("CAUGHT ERROR through websocket call: " + e)
                                     if (e instanceof InvocationTargetException || !e.message) {
                                         log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
@@ -676,17 +676,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * @return
      */
     protected def broadcastMessage(String message,String username){
-        println "bradcasting message: ${message}"
+        log.debug "bradcasting message: ${message}"
         brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification", message)
-        println "broadcast message: ${message}"
+        log.debug "broadcast message: ${message}"
         if(username){
-            println "send error to user"
+            log.debug "send error to user"
             sendError(new RuntimeException("whoops"),username)
-            println "sent error to user"
+            log.debug "sent error to user"
         }
-        println "sending annotation vent"
+        log.debug "sending annotation vent"
         sendAnnotationEvent("annotation event of some kind")
-        println "sent annotation event"
+        log.debug "sent annotation event"
     }
 
 // TODO: handle errors without broadcasting

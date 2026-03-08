@@ -11,18 +11,18 @@ import org.springframework.http.HttpStatus
 abstract class AbstractApolloController {
 
     PermissionService permissionService
-    public static String REST_OPERATION = "operation"
-    public static String REST_TRACK = "track"
-    public static String REST_FEATURES = "features"
-    public static REST_USERNAME = "username"
-    public static REST_PERMISSION = "permission"
-    public static REST_DATA_ADAPTER = "data_adapter"
-    public static REST_DATA_ADAPTERS = "data_adapters"
-    public static REST_KEY = "key"
-    public static REST_OPTIONS = "options"
-    public static REST_TRANSLATION_TABLE = "translation_table"
-    public static REST_START_PROTEINS = "start_proteins"
-    public static REST_STOP_PROTEINS = "stop_proteins"
+    static final String REST_OPERATION = "operation"
+    static final String REST_TRACK = "track"
+    static final String REST_FEATURES = "features"
+    static final String REST_USERNAME = "username"
+    static final String REST_PERMISSION = "permission"
+    static final String REST_DATA_ADAPTER = "data_adapter"
+    static final String REST_DATA_ADAPTERS = "data_adapters"
+    static final String REST_KEY = "key"
+    static final String REST_OPTIONS = "options"
+    static final String REST_TRANSLATION_TABLE = "translation_table"
+    static final String REST_START_PROTEINS = "start_proteins"
+    static final String REST_STOP_PROTEINS = "stop_proteins"
 
     protected String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -41,7 +41,7 @@ abstract class AbstractApolloController {
             } else {
                 render status: HttpStatus.UNAUTHORIZED
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
         }

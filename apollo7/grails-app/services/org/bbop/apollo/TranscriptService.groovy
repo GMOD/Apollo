@@ -111,7 +111,7 @@ class TranscriptService {
      * @param transcript - Transcript to be deleted
      */
     @Transactional
-    public void deleteTranscript(Gene gene, Transcript transcript) {
+    void deleteTranscript(Gene gene, Transcript transcript) {
         featureRelationshipService.removeFeatureRelationship(gene, transcript)
 
         // update bounds
@@ -210,7 +210,7 @@ class TranscriptService {
      * @param cds - CDS to be set to this transcript
      */
     @Transactional
-    public void setCDS(Feature feature, CDS cds, boolean replace = true) {
+    void setCDS(Feature feature, CDS cds, boolean replace = true) {
         if (replace) {
             log.debug "replacing CDS on feature"
             if (featureRelationshipService.setChildForType(feature, cds)) {

@@ -430,7 +430,7 @@ class FeatureEventService {
                 }
             }
             return true
-        } catch (e) {
+        } catch (Exception e) {
             // just pass it through
             if(e instanceof AnnotationException){
                 throw e

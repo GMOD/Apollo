@@ -8,7 +8,7 @@ class OrganismDBXref {
      DBXref dbxref;
      Organism organism;
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         OrganismDBXref castOther = ( OrganismDBXref ) other;
@@ -16,7 +16,7 @@ class OrganismDBXref {
         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) ) && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

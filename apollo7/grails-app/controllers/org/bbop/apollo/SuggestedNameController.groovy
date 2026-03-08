@@ -180,7 +180,7 @@ class SuggestedNameController {
                 render error as JSON
                 log.error(error.error)
             }
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: 'problem saving SuggestedName: ' + e]
             render error as JSON
             log.error(error.error, e)
@@ -344,9 +344,9 @@ class SuggestedNameController {
     def addNames() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
-            println "Adding suggested names ${nameJson}"
+            log.debug "Adding suggested names ${nameJson}"
             if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
-                println "DOES NOT have global permissions"
+                log.debug "DOES NOT have global permissions"
                 render status: UNAUTHORIZED
                 return
             }
@@ -358,7 +358,7 @@ class SuggestedNameController {
                 render  nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']
-                println(error.error)
+                log.debug error.error
                 render error as JSON
             }
         }

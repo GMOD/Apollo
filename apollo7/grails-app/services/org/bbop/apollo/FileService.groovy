@@ -284,7 +284,7 @@ class FileService {
 
             addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
         }
-        catch (e) {
+        catch (Exception e) {
             log.error "${e}"
         }
     }
@@ -304,7 +304,7 @@ class FileService {
 
             addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
         }
-        catch (e) {
+        catch (Exception e) {
             log.error "${e}"
         }
     }

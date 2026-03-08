@@ -149,9 +149,9 @@ class GeneProductNameController {
     def addGeneProductNames() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
-            println "Adding suggested gene product names ${nameJson}"
+            log.debug "Adding suggested gene product names ${nameJson}"
             if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
-                println "DOES NOT have global permissions"
+                log.debug "DOES NOT have global permissions"
                 render status: UNAUTHORIZED
                 return
             }
@@ -170,7 +170,7 @@ class GeneProductNameController {
                 render nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']
-                println(error.error)
+                log.debug error.error
                 render error as JSON
             }
         }

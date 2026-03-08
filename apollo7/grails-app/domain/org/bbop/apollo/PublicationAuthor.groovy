@@ -13,7 +13,7 @@ class PublicationAuthor {
     String suffix;
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         PublicationAuthor castOther = ( PublicationAuthor ) other;
@@ -21,7 +21,7 @@ class PublicationAuthor {
         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && (this.getRank()==castOther.getRank());
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

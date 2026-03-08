@@ -42,7 +42,7 @@ class TrackController {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -57,7 +57,7 @@ class TrackController {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -86,7 +86,7 @@ class TrackController {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -101,7 +101,7 @@ class TrackController {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -191,7 +191,7 @@ class TrackController {
         JSONObject requestObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return

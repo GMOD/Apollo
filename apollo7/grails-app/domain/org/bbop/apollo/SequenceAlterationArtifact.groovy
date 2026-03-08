@@ -12,7 +12,7 @@ class SequenceAlterationArtifact extends SequenceFeature {
     static String ontologyId = "SO:0002172"
     static String alternateCvTerm = "SequenceAlterationArtifact"
 
-    public int getOffset() {
+    int getOffset() {
         return 0
     }
 

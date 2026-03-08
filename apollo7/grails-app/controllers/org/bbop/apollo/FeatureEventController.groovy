@@ -30,7 +30,7 @@ class FeatureEventController {
         JSONObject inputObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(inputObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return

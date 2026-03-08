@@ -12,7 +12,7 @@ class AnalysisFeature {
     Double significance;
     Double identity;
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         AnalysisFeature castOther = ( AnalysisFeature ) other;
@@ -20,7 +20,7 @@ class AnalysisFeature {
         return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) ) && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

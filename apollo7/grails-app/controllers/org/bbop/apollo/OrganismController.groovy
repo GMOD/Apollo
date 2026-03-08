@@ -201,7 +201,7 @@ class OrganismController {
 
       render [:] as JSON
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem removing organism features for organism: ' + e]
       render error as JSON
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
@@ -218,7 +218,7 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -359,7 +359,7 @@ class OrganismController {
                   log.info "executing command '${indexCommand}"
                   indexCommand.execute()
                   organism.blatdb = searchPath
-                } catch (e) {
+                } catch (Exception e) {
                   log.error("Failed to create a twobit file ${e.message}")
                   organism.blatdb = ''
                 }
@@ -400,7 +400,7 @@ class OrganismController {
         response.status = HttpStatus.UNAUTHORIZED.value()
       }
     }
-    catch (e) {
+    catch (Exception e) {
       log.error e.message, e
       response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       returnObject.put("error", e.message)
@@ -415,7 +415,7 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -507,7 +507,7 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -794,7 +794,7 @@ class OrganismController {
         returnObject.put("error", "Organism not found.")
       }
 
-    } catch (e) {
+    } catch (Exception e) {
       log.error e.message
       returnObject.put("error", e.message)
     }
@@ -927,7 +927,7 @@ class OrganismController {
     JSONObject requestObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(requestObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -1134,7 +1134,7 @@ class OrganismController {
       render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
 
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
       log.error(error.error, e)
@@ -1145,7 +1145,7 @@ class OrganismController {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(organismJson,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -1163,7 +1163,7 @@ class OrganismController {
       if (!organism) {
         organism = Organism.findById(organismJson.organism)
       }
-    } catch (e) {
+    } catch (Exception e) {
       log.error("Problem finding organism ${organismJson.organism}: ${e}")
       organism = null
     }
@@ -1308,7 +1308,7 @@ class OrganismController {
       render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
       log.error(error.error)
@@ -1361,7 +1361,7 @@ class OrganismController {
 ////      render new JSONObject() as JSON
 //      render organism as JSON
 //    }
-//    catch (e) {
+//    catch (Exception e) {
 //      def error = [error: 'problem saving organism: ' + e]
 //      render error as JSON
 //      log.error(error.error)
@@ -1390,7 +1390,7 @@ class OrganismController {
       }
       render new JSONObject() as JSON
     }
-    catch (e) {
+    catch (Exception e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
       log.error("Error updating organism metadata: ${error.error}")
@@ -1401,7 +1401,7 @@ class OrganismController {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(organismJson,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -1439,7 +1439,7 @@ class OrganismController {
         try {
           organism = Organism.findByCommonName(requestObject.organism)
           if (!organism) organism = Organism.findById(requestObject.organism)
-        } catch (e) {
+        } catch (Exception e) {
           log.warn("Unable to find organism for ${requestObject.organism}")
           organism = null
         }
@@ -1462,7 +1462,7 @@ class OrganismController {
           if(permissionService.hasPermissions(requestObject,PermissionEnum.READ)) {
             organismList = permissionService.getOrganismsForCurrentUser(requestObject).findAll() { o -> !o.obsolete }
           }
-        } catch (e) {
+        } catch (Exception e) {
           log.error(e.message, e)
           render status: UNAUTHORIZED
           return

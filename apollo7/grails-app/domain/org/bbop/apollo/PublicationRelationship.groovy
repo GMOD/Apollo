@@ -9,7 +9,7 @@ class PublicationRelationship {
     Publication objectPublication;
     CVTerm type;
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         PublicationRelationship castOther = (PublicationRelationship) other;
@@ -17,7 +17,7 @@ class PublicationRelationship {
         return ((this.getSubjectPublication() == castOther.getSubjectPublication()) || (this.getSubjectPublication() != null && castOther.getSubjectPublication() != null && this.getSubjectPublication().equals(castOther.getSubjectPublication()))) && ((this.getType() == castOther.getType()) || (this.getType() != null && castOther.getType() != null && this.getType().equals(castOther.getType()))) && ((this.getObjectPublication() == castOther.getObjectPublication()) || (this.getObjectPublication() != null && castOther.getObjectPublication() != null && this.getObjectPublication().equals(castOther.getObjectPublication())));
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

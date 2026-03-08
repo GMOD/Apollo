@@ -475,7 +475,7 @@ class PermissionService {
                 log.debug "No session found"
             }
 
-        } catch (e) {
+        } catch (Exception e) {
             log.error("Error checking permissions from session: ${e.message}", e)
             return false
         }

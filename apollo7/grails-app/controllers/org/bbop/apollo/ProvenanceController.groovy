@@ -24,7 +24,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -55,7 +55,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -106,7 +106,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return
@@ -157,7 +157,7 @@ class ProvenanceController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     try {
       permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-    } catch (e) {
+    } catch (Exception e) {
       def error = [error: e.message]
       render error as JSON
       return

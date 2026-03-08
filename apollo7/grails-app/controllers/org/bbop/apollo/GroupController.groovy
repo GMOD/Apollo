@@ -18,7 +18,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -50,7 +50,7 @@ class GroupController {
             JSONObject dataObject = permissionService.handleInput(request, params)
             try {
                 permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-            } catch (e) {
+            } catch (Exception e) {
                 def error = [error: e.message]
                 render error as JSON
                 return
@@ -171,7 +171,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -189,8 +189,7 @@ class GroupController {
         log.info( "adding groups ${names as JSON}")
 
         List<UserGroup> groups = groupService.createGroups(dataObject?.metadata?.toString(), currentUser, names)
-        println "usring add groups ${groups as JSON}"
-
+        log.debug "usring add groups ${groups as JSON}"
         if(groups.size()==1){
             render groups[0] as JSON
         }
@@ -204,7 +203,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -230,8 +229,8 @@ class GroupController {
         else
         if(dataObject.name){
             List<String> splitGroups = dataObject.name.split(",") as List<String>
-            println splitGroups
-            println splitGroups.size()
+            log.debug "splitGroups"
+            log.debug "splitGroups.size()"
             groupList = UserGroup.findAllByNameInList(splitGroups)
         }
         if (!groupList) {
@@ -252,7 +251,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -295,7 +294,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -384,7 +383,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -418,7 +417,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -465,12 +464,12 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
         }
-        println "data: ${dataObject}"
+        log.debug "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)
@@ -487,7 +486,7 @@ class GroupController {
         }
         JSONArray returnArray = new JSONArray()
         def adminList = groupInstance.admin
-        println "admin = ${adminList}"
+        log.debug "admin = ${adminList}"
         adminList.each {
             JSONObject user = new JSONObject()
             user.id = it.id
@@ -505,12 +504,12 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
         }
-        println "data: ${dataObject}"
+        log.debug "data: ${dataObject}"
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             def error = [error: 'not authorized to view the metadata']
             log.error(error.error)

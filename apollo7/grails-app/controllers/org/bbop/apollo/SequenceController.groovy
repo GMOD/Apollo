@@ -143,7 +143,7 @@ class SequenceController {
               it.name
           }
           render sequences as JSON
-        } catch (e) {
+        } catch (Exception e) {
           log.warn(e.getMessage())
           render new JSONArray() as JSON
         }
@@ -244,8 +244,7 @@ class SequenceController {
     @Transactional
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
-        println "sequence by location "
-
+        log.debug "sequence by location "
         // handle post data
         def inputJSON = request.JSON as JSONObject
         organismString = organismString ?: inputJSON.organismString

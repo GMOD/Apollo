@@ -113,7 +113,7 @@ class AnnotatorController {
                     try {
                         fmin = minMax[0] as Integer
                         fmax = minMax[1] as Integer
-                    } catch (e) {
+                    } catch (Exception e) {
                         log.error "error parsing ${e}"
                         fmin = sequence.start
                         fmax = sequence.end
@@ -133,7 +133,7 @@ class AnnotatorController {
             }
         }
 
-        catch (e) {
+        catch (Exception e) {
             log.error "problem parsing the string ${e}"
         }
 
@@ -198,7 +198,7 @@ class AnnotatorController {
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -319,7 +319,7 @@ class AnnotatorController {
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -380,7 +380,7 @@ class AnnotatorController {
         JSONObject data = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(data,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -459,7 +459,7 @@ class AnnotatorController {
 
             Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             Organism organism = sequenceObj.organism
-            Integer index = Integer.parseInt(request)
+            Integer index = request as Integer
 
             List<String> viewableTypes
 
@@ -513,8 +513,8 @@ class AnnotatorController {
                     }
                     if (range) {
                         Sequence sequenceNameRange = Sequence.findByNameAndOrganism(range.split(":")[0], organism)
-                        Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
-                        Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
+                        Integer fmin = range.split(":")[1].split("\\.\\.")[0] as Integer
+                        Integer fmax = range.split(":")[1].split("\\.\\.")[1] as Integer
                         eq('sequence', sequenceNameRange)
                         or {
                             // case A, left-edge or overlaps
@@ -712,7 +712,7 @@ class AnnotatorController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -748,7 +748,7 @@ class AnnotatorController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -767,7 +767,7 @@ class AnnotatorController {
             }
             render getSystemInfo()
             return
-        } catch (e) {
+        } catch (Exception e) {
             returnObject.error = e.getMessage()
         }
         render returnObject as JSON
@@ -778,7 +778,7 @@ class AnnotatorController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
@@ -806,7 +806,7 @@ class AnnotatorController {
             returnObject.put("usableSpace",file.getUsableSpace())
             returnObject.put("root",new File("").absolutePath)
             returnObject.put("realPath",servletContext.getRealPath("/"))
-        } catch (e) {
+        } catch (Exception e) {
             returnObject.error = e.getMessage()
         }
         render returnObject as JSON
@@ -975,12 +975,12 @@ class AnnotatorController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return
         }
-        println "input data object ${dataObject as JSON}"
+        log.debug "input data object ${dataObject as JSON}"
         if(!permissionService.checkLoginGlobalAndLocalPermissions(dataObject,GlobalPermissionEnum.USER,PermissionEnum.WRITE)){
             render status : UNAUTHORIZED
             return
@@ -1095,7 +1095,7 @@ class AnnotatorController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         try {
             permissionService.hasPermissions(dataObject,PermissionEnum.READ)
-        } catch (e) {
+        } catch (Exception e) {
             def error = [error: e.message]
             render error as JSON
             return

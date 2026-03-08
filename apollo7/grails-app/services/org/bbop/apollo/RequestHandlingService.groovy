@@ -1396,7 +1396,7 @@ class RequestHandlingService {
         }
         try {
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
-        } catch (e) {
+        } catch (Exception e) {
             log.error("problem sending message: ${e}")
         }
     }
@@ -2457,7 +2457,7 @@ class RequestHandlingService {
                         , featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value)
                         , permissionService.getCurrentUser(inputObject)
                 )
-            } catch (e) {
+            } catch (Exception e) {
                 log.error "There was an error adding history ${e}"
             }
         }
@@ -2572,7 +2572,7 @@ class RequestHandlingService {
                         , permissionService.getCurrentUser(inputObject)
                 )
                 log.debug "ADDED history"
-            } catch (e) {
+            } catch (Exception e) {
                 log.error " There was a problem adding history for this merge event ${e}"
             }
         }

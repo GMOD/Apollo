@@ -171,7 +171,7 @@ class LoginController extends AbstractApolloController {
         log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
         try {
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + username, jsonObject.toString()
-        } catch (e) {
+        } catch (Exception e) {
             log.error("working?: "+e)
         }
         return jsonObject.toString()
