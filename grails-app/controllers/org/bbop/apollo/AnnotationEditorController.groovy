@@ -81,12 +81,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
             }
-            Map<String, Integer> permissions
-            List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
-            permission = permissionService.findHighestEnumValue(permissionEnumList)
-            permissions = new HashMap<>()
-            permissions.put(username, permission)
-            permissions = permissionService.getPermissionsForUser(user)
+            Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
             if (permissions) {
                 session.setAttribute("permissions", permissions);
             }

@@ -548,15 +548,13 @@ class UserController {
 
             log.info "Removed user ${user.username}"
 
-            JSONObject jsonObject = user.properties
-            log.debug "json object ${jsonObject as JSON}"
+            JSONObject jsonObject = new JSONObject()
             jsonObject.email = user.username
             jsonObject.username = user.username
             jsonObject.id = user.id
             jsonObject.userId = user.id
-            log.debug "rendering json object "
-            render jsonObject as JSON
             user.delete(flush: true)
+            render jsonObject as JSON
         } catch (Exception e) {
             log.error(e.message, e)
             JSONObject jsonObject = new JSONObject()

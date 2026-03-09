@@ -2039,7 +2039,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (gsolFeature.owners) {
                 String ownerString = ""
                 for (owner in gsolFeature.owners) {
-                    ownerString += gsolFeature.owner.username + " "
+                    ownerString += owner.username + " "
                 }
                 finalOwnerString = ownerString?.trim()
             } else if (gsolFeature.owner) {
@@ -2183,18 +2183,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (gsolFeature instanceof SequenceAlteration) {
             JSONArray alternateAllelesArray = new JSONArray()
-            gsolFeature.alleles.each { allele ->
+            for (def allele in gsolFeature.alleles) {
                 JSONObject alleleObject = new JSONObject()
                 alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
-//                if (allele.alleleFrequency) {
-//                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
-//                }
-//                if (allele.provenance) {
-//                    alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance);
-//                }
                 if (allele.alleleInfo) {
                     JSONArray alleleInfoArray = new JSONArray()
-                    allele.alleleInfo.each { alleleInfo ->
+                    for (def alleleInfo in allele.alleleInfo) {
                         JSONObject alleleInfoObject = new JSONObject()
                         alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
                         alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
@@ -3348,27 +3342,27 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 newGene.status = new Status(value: parentStatus.value, feature: newGene).save()
             }
 
-            parentGeneDbxrefs.each { it ->
+            for (def dbxrefSource in parentGeneDbxrefs) {
                 DBXref dbxref = new DBXref(
-                        db: it.db,
-                        accession: it.accession,
-                        version: it.version,
-                        description: it.description
+                        db: dbxrefSource.db,
+                        accession: dbxrefSource.accession,
+                        version: dbxrefSource.version,
+                        description: dbxrefSource.description
                 ).save()
                 newGene.addToFeatureDBXrefs(dbxref)
             }
 
-            parentGeneFeatureProperties.each { it ->
-                if (it instanceof Comment) {
-                    featurePropertyService.addComment(newGene, it.value)
-                } else if (it instanceof Status) {
+            for (def prop in parentGeneFeatureProperties) {
+                if (prop instanceof Comment) {
+                    featurePropertyService.addComment(newGene, prop.value)
+                } else if (prop instanceof Status) {
                     // do nothing
                 } else {
                     FeatureProperty fp = new FeatureProperty(
-                            type: it.type,
-                            value: it.value,
-                            rank: it.rank,
-                            tag: it.tag,
+                            type: prop.type,
+                            value: prop.value,
+                            rank: prop.rank,
+                            tag: prop.tag,
                             feature: newGene
                     ).save()
                     newGene.addToFeatureProperties(fp)

@@ -262,8 +262,8 @@ class TranscriptService {
             if (transcriptFeatureLocation.fmax > geneFeatureLocation.fmax) {
                 geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
             }
+            gene.save()
         }
-        gene.save()
 
         int initialSize = transcript.parentFeatureRelationships?.size() ?: 0
         log.debug "initial size: ${initialSize}" // 3

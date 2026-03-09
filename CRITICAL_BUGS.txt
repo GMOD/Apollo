@@ -215,6 +215,88 @@ FIXED ISSUES
     FIX: Changed to `if (!onlySaveToken || onlySaveToken == ...)` with
     a single `evaluateSave()` call, so non-matching tokens are skipped.
 
+30. FeatureService.convertFeatureToJSONLite wrong variable in owner loop
+    (line 2042) [FIXED]
+    Loop iterates `for (owner in gsolFeature.owners)` but body uses
+    `gsolFeature.owner.username` instead of `owner.username`.
+    CONSEQUENCE: When a feature has multiple owners, the same owner name
+    (gsolFeature.owner) is repeated N times instead of listing each owner.
+    If gsolFeature.owner is null but gsolFeature.owners is non-empty, NPE.
+    FIX: Changed to `owner.username`.
+
+31. AnnotationEditorController.getUserPermission dead code (lines 85-88) [FIXED]
+    Built a permissions HashMap with one entry, then immediately overwrote
+    it with `permissionService.getPermissionsForUser(user)`.
+    CONSEQUENCE: No runtime bug — 4 lines of dead code wasting CPU on
+    an unused organism permission lookup every time getUserPermission runs.
+    FIX: Removed the dead lines; kept only the effective call.
+
+32. @Transactional closure conversions — second pass [FIXED]
+    Converted remaining .each{}, .collect{}, .findAll{} closures to for
+    loops in three more files:
+    - RequestHandlingService: 8 closures (transcriptsToUpdate.each,
+      jsonObject.keySet().each)
+    - FeatureService: 4 closures (alleles.each, alleleInfo.each,
+      parentGeneDbxrefs.each, parentGeneFeatureProperties.each)
+    - FeatureRelationshipService: 8 closures (parentFeatureRelationships.each,
+      childFeatureRelationships.each, findAll{}, collect{}, deleteParentForTypes
+      chained .findAll().each, addChildFeature chained .findAll().each,
+      deleteFeatureAndChildren .each)
+    CONSEQUENCE: ClassNotFoundException at runtime when any of these code
+    paths execute, due to GORM @Transactional AST method renaming.
+
+33. VariantService.updateAlternateAlleles copy-paste bug (lines 236-237) [FIXED]
+    Both `oldAllele` and `newAllele` were looked up using the same `bases`
+    variable instead of `oldAlleleBases` / `newAlleleBases`.
+    CONSEQUENCE: When updating an allele's bases, the old allele info is
+    deleted from the wrong allele (or the same allele), and new info is
+    added to the wrong allele. Allele updates are silently corrupted.
+    FIX: Changed to use `oldAlleleBases` and `newAlleleBases` respectively.
+
+34. VariantService.updateAlternateAlleles undefined variables in log (line 101) [FIXED]
+    Log message referenced `${oldAltAlleleFrequency}` and `${oldProvenance}`
+    which are never defined in the method.
+    CONSEQUENCE: Groovy resolves undefined variables as null, so the log
+    message prints "null" instead of useful information. Not a crash.
+    FIX: Simplified log message to use defined variables.
+
+35. VariantService.deleteAlleleInfo missing save (line 216) [FIXED]
+    Method returns `feature` without calling `feature.save()`. Every other
+    similar method in VariantService calls `save(flush: true, failOnError: true)`.
+    CONSEQUENCE: Allele info deletions are not persisted to the database.
+    Changes appear to succeed but are lost on next session flush or rollback.
+    FIX: Added `feature.save(flush: true, failOnError: true)` before return.
+
+36. TranscriptService.addExon gene.save() outside null check (line 266) [FIXED]
+    `gene.save()` was outside the `if (gene)` block, so it executes even
+    when gene is null.
+    CONSEQUENCE: NPE crash when adding an exon to a transcript that has
+    no parent gene (e.g. orphaned transcripts during complex editing).
+    FIX: Moved `gene.save()` inside the `if (gene)` block.
+
+37. UserController.deleteUser render before delete (lines 558-559) [FIXED]
+    `render jsonObject as JSON` was called before `user.delete()`. The
+    jsonObject was built from `user.properties` which includes internal
+    Hibernate state. After render, the user object is deleted, but the
+    response may reference stale/detached state.
+    CONSEQUENCE: Response may include internal Hibernate properties. If
+    delete fails, the response already told the client it succeeded.
+    FIX: Build a clean JSONObject, delete first, then render.
+
+38. GroupController.updateGroup wrong type conversion (line 225) [FIXED]
+    `dataObject.id.split(',').collect() as Long` casts the entire list
+    to Long instead of converting each element.
+    CONSEQUENCE: ClassCastException crash when updating a group by
+    comma-separated ID string (e.g. "1,2,3"). The admin group
+    management UI breaks for multi-group operations.
+    FIX: Changed to `.collect { Long.parseLong(it.trim()) }`.
+
+39. GroupController.updateGroup wrong error message (line 265) [FIXED]
+    Error message says "Failed to delete the group" in the updateGroup
+    method. Copy-paste from deleteGroup.
+    CONSEQUENCE: Misleading error message shown to admin users.
+    FIX: Changed to "Failed to find the group".
+
 REMAINING ISSUES
 -----------------
 

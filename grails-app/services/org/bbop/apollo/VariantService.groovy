@@ -98,7 +98,7 @@ class VariantService {
                     "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases AND a.variant = :variant",
                     [queryBases: oldAltAlleleBases, variant: feature])
             if (alternateAlleles.size() == 0) {
-                log.error "Cannot find alternate allele ${oldAltAlleleBases} with AF: ${oldAltAlleleFrequency} and provenance: ${oldProvenance}"
+                log.error "Cannot find alternate allele ${oldAltAlleleBases} for variant: ${uniqueName}"
             }
             else if (alternateAlleles.size() == 1) {
                 Allele allele = alternateAlleles.iterator().next()
@@ -213,6 +213,7 @@ class VariantService {
                 log.error "Could not find AlleleInfo ${tag}:${value} for Allele: ${alleleBase}"
             }
         }
+        feature.save(flush: true, failOnError: true)
         return feature
     }
 
@@ -233,8 +234,8 @@ class VariantService {
             String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             if (oldAlleleBases != newAlleleBases) {
-                Allele oldAllele = Allele.findByVariantAndBases(variant, bases)
-                Allele newAllele = Allele.findByVariantAndBases(variant, bases)
+                Allele oldAllele = Allele.findByVariantAndBases(variant, oldAlleleBases)
+                Allele newAllele = Allele.findByVariantAndBases(variant, newAlleleBases)
 
                 AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
                 oldAlleleInfo.delete()

@@ -9,9 +9,9 @@ class FeatureRelationshipService {
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         def list = new ArrayList<Feature>()
         if (feature?.parentFeatureRelationships != null) {
-            feature.parentFeatureRelationships.each { it ->
-                if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
-                    list.push((Feature) Hibernate.unproxy(it.childFeature))
+            for (FeatureRelationship fr in feature.parentFeatureRelationships) {
+                if (ontologyIds.size() == 0 || (fr && ontologyIds.contains(fr.childFeature.ontologyId))) {
+                    list.add((Feature) Hibernate.unproxy(fr.childFeature))
                 }
             }
         }
@@ -54,9 +54,9 @@ class FeatureRelationshipService {
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
         def list = new ArrayList<Feature>()
         if (feature?.childFeatureRelationships != null) {
-            feature.childFeatureRelationships.each { it ->
-                if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
-                    list.push((Feature) Hibernate.unproxy(it.parentFeature))
+            for (FeatureRelationship fr in feature.childFeatureRelationships) {
+                if (ontologyIds.size() == 0 || (fr && ontologyIds.contains(fr.parentFeature.ontologyId))) {
+                    list.add((Feature) Hibernate.unproxy(fr.parentFeature))
                 }
             }
         }
@@ -72,10 +72,13 @@ class FeatureRelationshipService {
 
     @Transactional
     def setChildForType(Feature parentFeature, Feature childFeature) {
-        List<FeatureRelationship> results = FeatureRelationship.findAllByParentFeature(parentFeature).findAll() {
-            it.childFeature.ontologyId == childFeature.ontologyId
+        List<FeatureRelationship> allResults = FeatureRelationship.findAllByParentFeature(parentFeature)
+        List<FeatureRelationship> results = []
+        for (FeatureRelationship fr in allResults) {
+            if (fr.childFeature.ontologyId == childFeature.ontologyId) {
+                results.add(fr)
+            }
         }
-
 
         if (results.size() == 1) {
             results.get(0).childFeature = childFeature
@@ -96,10 +99,14 @@ class FeatureRelationshipService {
     def deleteChildrenForTypes(Feature feature, String... ontologyIds) {
         def criteria = FeatureRelationship.createCriteria()
 
-        def featureRelationships = criteria {
+        def allRelationships = criteria {
             eq("parentFeature", feature)
-        }.findAll() {
-            ontologyIds.length == 0 || it.childFeature.ontologyId in ontologyIds
+        }
+        List<FeatureRelationship> featureRelationships = []
+        for (FeatureRelationship fr in allRelationships) {
+            if (ontologyIds.length == 0 || fr.childFeature.ontologyId in ontologyIds) {
+                featureRelationships.add(fr)
+            }
         }
 
         int numRelationships = featureRelationships.size()
@@ -114,12 +121,13 @@ class FeatureRelationshipService {
         // delete transcript -> non canonical 3' splice site child relationship
         def criteria = FeatureRelationship.createCriteria()
 
-        criteria {
+        def allRelationships = criteria {
             eq("childFeature", feature)
-        }.findAll() {
-            it.parentFeature.ontologyId in ontologyIds
-        }.each {
-            feature.removeFromChildFeatureRelationships(it)
+        }
+        for (FeatureRelationship fr in allRelationships) {
+            if (fr.parentFeature.ontologyId in ontologyIds) {
+                feature.removeFromChildFeatureRelationships(fr)
+            }
         }
 
     }
@@ -132,17 +140,16 @@ class FeatureRelationshipService {
         if (replace) {
             boolean found = false
             def criteria = FeatureRelationship.createCriteria()
-            criteria {
+            def allRelationships = criteria {
                 eq("parentFeature", parent)
             }
-            .findAll() {
-                it.childFeature.ontologyId == child.ontologyId
-            }
-            .each {
-                found = true
-                it.childFeature = child
-                it.save()
-                return
+            for (FeatureRelationship fr in allRelationships) {
+                if (fr.childFeature.ontologyId == child.ontologyId) {
+                    found = true
+                    fr.childFeature = child
+                    fr.save()
+                    break
+                }
             }
 
             if (found) {
@@ -180,10 +187,11 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getChildren(Feature feature) {
-        def exonRelations = feature.parentFeatureRelationships.findAll()
-        return exonRelations.collect { it ->
-            (Feature) Hibernate.unproxy(it.childFeature)
+        List<Feature> children = new ArrayList<>()
+        for (FeatureRelationship fr in feature.parentFeatureRelationships) {
+            children.add((Feature) Hibernate.unproxy(fr.childFeature))
         }
+        return children
     }
 
     /**
@@ -210,10 +218,10 @@ class FeatureRelationshipService {
         }
 
         // actually delete those
-        relationshipsToRemove.each {
-            it.childFeature.delete()
-            feature.removeFromParentFeatureRelationships(it)
-            it.delete()
+        for (FeatureRelationship fr in relationshipsToRemove) {
+            fr.childFeature.delete()
+            feature.removeFromParentFeatureRelationships(fr)
+            fr.delete()
         }
 
         // last, delete self or save updated relationships

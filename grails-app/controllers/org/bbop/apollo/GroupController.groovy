@@ -222,7 +222,7 @@ class GroupController {
                 ids = [dataObject.id as Integer]
             }
             if(dataObject.id instanceof String){
-                ids = dataObject.id.split(',').collect() as Long
+                ids = dataObject.id.split(',').collect { Long.parseLong(it.trim()) }
             }
             groupList = UserGroup.findAllByIdInList(ids)
         }
@@ -262,7 +262,7 @@ class GroupController {
         }
         if (!group) {
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to find the group")
             render jsonObject as JSON
             return
         }
