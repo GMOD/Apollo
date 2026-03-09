@@ -8,6 +8,7 @@ class MetricsController {
 
     def metrics() {
         JSONObject result = new JSONObject()
+        result.put("version", "4.0.0")
         result.put("timers", new JSONObject())
         result.put("counters", new JSONObject())
         result.put("gauges", new JSONObject())

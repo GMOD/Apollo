@@ -181,7 +181,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def addTranscript() {
-        withPermission(PermissionEnum.WRITE) { requestHandlingService.addFeature(it) }
+        withPermission(PermissionEnum.WRITE) { requestHandlingService.addTranscript(it) }
     }
 
     def duplicateTranscript() {

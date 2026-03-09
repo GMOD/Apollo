@@ -77,8 +77,49 @@ jobs:
           arrow organisms get_organisms
           echo "=== Sequences for test_organism ==="
           arrow organisms get_sequences test_organism || true
+          echo "=== Features for test_organism on Merlin ==="
+          arrow annotations get_features test_organism Merlin || true
+
+          echo ""
+          echo "=== Direct curl: addTranscript on test_organism ==="
+          ORG_DIR=$(cd .. && pwd)/python-apollo/apollo_shared_dir
+          curl -s -X POST http://localhost:8080/apollo/annotationEditor/addTranscript \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"username\": \"admin@local.host\",
+              \"password\": \"password\",
+              \"organism\": \"test_organism\",
+              \"sequence\": \"Merlin\",
+              \"suppressHistory\": true,
+              \"suppressEvents\": true,
+              \"features\": [{
+                \"location\": {\"fmin\": 100, \"fmax\": 500, \"strand\": 1},
+                \"type\": {\"name\": \"mRNA\", \"cv\": {\"name\": \"sequence\"}},
+                \"children\": [{
+                  \"location\": {\"fmin\": 100, \"fmax\": 500, \"strand\": 1},
+                  \"type\": {\"name\": \"exon\", \"cv\": {\"name\": \"sequence\"}}
+                }]
+              }]
+            }" || true
+
+          echo ""
+          echo "=== Direct curl: addFeature on test_organism ==="
+          curl -s -X POST http://localhost:8080/apollo/annotationEditor/addFeature \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"username\": \"admin@local.host\",
+              \"password\": \"password\",
+              \"organism\": \"test_organism\",
+              \"sequence\": \"Merlin\",
+              \"features\": [{
+                \"location\": {\"fmin\": 1000, \"fmax\": 2000, \"strand\": 1},
+                \"type\": {\"name\": \"repeat_region\", \"cv\": {\"name\": \"sequence\"}}
+              }]
+            }" || true
+
+          echo ""
           echo "=== Apollo ERROR/WARN log lines ==="
-          grep -E 'ERROR|WARN' ../apollo.log | tail -50 || true
+          grep -E 'ERROR|WARN' ../apollo.log | tail -100 || true
 
       - name: Run tests
         run: |
@@ -89,5 +130,5 @@ jobs:
       - name: Print Apollo log on failure
         if: failure()
         run: |
-          echo "=== Last 200 lines of Apollo log ==="
-          tail -200 apollo.log
+          echo "=== Last 500 lines of Apollo log ==="
+          tail -500 apollo.log
