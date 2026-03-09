@@ -89,7 +89,7 @@ class HomeController {
 
     def downloadReport() {
 
-        String returnString = "class,method,total,count,mean,max,min,stddev\n"
+        String returnString = "class,method,total,count,min,max,mean,stddev\n"
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         def restTemplate = new org.springframework.web.client.RestTemplate()
         def restResponse = restTemplate.getForEntity(link, String)

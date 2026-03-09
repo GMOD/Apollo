@@ -327,6 +327,43 @@ FIXED ISSUES
     FIX: If setChildForType succeeds (returns true), save and return
     early without creating a new relationship.
 
+43. ReportService wrong domain class in HQL queries (lines 82, 84, 162, 163) [FIXED]
+    Four HQL queries used `TransposableElement.executeQuery(...)` to run
+    queries for `RepeatRegion` and `Exon` counts. GORM dispatches queries
+    through the calling domain class's session context.
+    CONSEQUENCE: RepeatRegion and Exon counts in annotator reports may
+    return incorrect results or fail if TransposableElement's mapping
+    doesn't cover those HQL paths.
+    FIX: Changed to `RepeatRegion.executeQuery(...)` and
+    `Exon.executeQuery(...)` respectively.
+
+44. ReportService transcriptCount overwritten (lines 28-34) [FIXED]
+    Lines 28-31 calculated transcriptCount from a type map, then line 34
+    unconditionally overwrote it with `Transcript.count`. The conditional
+    calculation was dead code.
+    FIX: Removed the dead conditional block.
+
+45. ReportService unreachable admin branch (lines 188-200) [FIXED]
+    Inside `if (!isUserGlobalAdmin(owner))`, a nested
+    `if (isUserGlobalAdmin(owner))` is always false. The entire
+    Organism.listOrderByCommonName branch was dead code.
+    FIX: Removed the dead branch, kept only the non-admin path,
+    and converted the .each closure to a for loop.
+
+46. HomeController CSV column order mismatch (line 92) [FIXED]
+    Header said `total,count,mean,max,min,stddev` but data was written
+    as `total,count,min,max,mean,stddev`.
+    CONSEQUENCE: CSV downloads have swapped min/mean columns. Any
+    pipeline parsing by column name would get wrong values.
+    FIX: Changed header to match data order: `total,count,min,max,mean,stddev`.
+
+47. ProxyController null queryString (line 62) [FIXED]
+    `targetUrl += "?" + request.queryString` concatenates "?null" when
+    there are no query parameters.
+    CONSEQUENCE: Proxy requests without query params produce malformed
+    URLs ending in "?null", which may confuse downstream services.
+    FIX: Added null check on request.queryString before appending.
+
 REMAINING ISSUES
 -----------------
 

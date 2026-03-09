@@ -57,9 +57,11 @@ class ProxyController {
 
         log.info "using proxy ${proxy?.targetUrl}"
 
-        String targetUrl = proxy ? proxy.targetUrl : referenceUrl
+        String targetUrl = proxy.targetUrl
 
-        targetUrl += "?" + request.queryString
+        if (request.queryString) {
+            targetUrl += "?" + request.queryString
+        }
         log.debug "target url: ${targetUrl}"
         URL returnUrl = new URL(targetUrl)
 
