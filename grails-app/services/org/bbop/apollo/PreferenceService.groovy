@@ -138,6 +138,9 @@ class PreferenceService {
 
     Organism getOrganismForTokenInDB(String token) {
         log.debug "token for org ${token}"
+        if (!token) {
+            return null
+        }
         if (token.isLong()) {
             log.debug "is long "
             return Organism.findById(token as Long)

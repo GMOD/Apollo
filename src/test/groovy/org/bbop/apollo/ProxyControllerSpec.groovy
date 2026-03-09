@@ -12,9 +12,9 @@ class ProxyControllerSpec extends Specification implements ControllerUnitTest<Pr
     }
 
     def setup() {
-        controller.permissionService = [
-                checkPermissions: { PermissionEnum perm -> true }
-        ]
+        controller.permissionService = Stub(PermissionService) {
+            checkPermissions(_) >> true
+        }
     }
 
     void "Test the index action returns the correct model"() {

@@ -24,27 +24,22 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install yarn
-        run: npm install -g yarn
+      - name: Build Apollo
+        run: ./gradlew classes
 
       - name: Start Apollo
         run: |
-          ./gradlew installJBrowseWebOnly compileGwt bootRun > apollo.log 2>&1 &
+          ./gradlew bootRun > apollo.log 2>&1 &
 
           # Wait for health endpoint
-          for i in $(seq 1 180); do
-            response=$(curl -s 'http://localhost:8080/apollo/health/index' 2>/dev/null)
+          for i in $(seq 1 300); do
+            response=$(curl -s 'http://localhost:8080/apollo/health/index' 2>/dev/null || true)
             if echo "$response" | grep -q '"status":"ready"'; then
               echo "Apollo is ready (${i}s)"
               break
             fi
-            if [ $i -eq 180 ]; then
-              echo "FAIL: Apollo not ready after 180 seconds"
+            if [ $i -eq 300 ]; then
+              echo "FAIL: Apollo not ready after 300 seconds"
               cat apollo.log
               exit 1
             fi
@@ -66,17 +61,33 @@ jobs:
       - name: Install python-apollo
         run: |
           cd python-apollo
-          pip install apollo
+          pip install apollo pytest
 
       - name: Bootstrap test data
         run: |
           cd python-apollo
           export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
-          arrow users get_users
           ./bootstrap_apollo.sh --nodocker
+
+      - name: Diagnose organism state
+        run: |
+          cd python-apollo
+          export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
+          echo "=== Organisms ==="
+          arrow organisms get_organisms
+          echo "=== Sequences for test_organism ==="
+          arrow organisms get_sequences test_organism || true
+          echo "=== Apollo ERROR/WARN log lines ==="
+          grep -E 'ERROR|WARN' ../apollo.log | tail -50 || true
 
       - name: Run tests
         run: |
           cd python-apollo
           export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
-          python -m pytest || python setup.py nosetests
+          python -m pytest -v
+
+      - name: Print Apollo log on failure
+        if: failure()
+        run: |
+          echo "=== Last 200 lines of Apollo log ==="
+          tail -200 apollo.log

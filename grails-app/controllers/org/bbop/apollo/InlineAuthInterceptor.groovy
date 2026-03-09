@@ -17,12 +17,19 @@ class InlineAuthInterceptor {
             return true
         }
 
+        String username = null
+        String password = null
+
         if (request.JSON?.username && request.JSON?.password) {
-            permissionService.authenticateWithToken(
-                request.JSON.username as String,
-                request.JSON.password as String,
-                request
-            )
+            username = request.JSON.username as String
+            password = request.JSON.password as String
+        } else if (params.username && params.password) {
+            username = params.username as String
+            password = params.password as String
+        }
+
+        if (username && password) {
+            permissionService.authenticateWithToken(username, password, request)
         }
 
         return true

@@ -44,7 +44,8 @@ class SequenceService {
      */
     String getResiduesFromFeature(Feature feature) {
         String returnResidues = ""
-        def orderedFeatureLocations = feature.featureLocations.sort { it.fmin }
+        List<FeatureLocation> orderedFeatureLocations = new ArrayList<>(feature.featureLocations)
+        orderedFeatureLocations.sort(Comparator.comparingInt { FeatureLocation fl -> fl.fmin })
         for (FeatureLocation featureLocation in orderedFeatureLocations) {
             String residues = getResidueFromFeatureLocation(featureLocation)
             if (featureLocation.strand == Strand.NEGATIVE.value) {
@@ -325,7 +326,7 @@ class SequenceService {
 
           def sequences = Sequence.findAllByOrganism(organism)
           def seqsMap = [:]
-          sequences.each { sequence ->
+          for (Sequence sequence in sequences) {
               seqsMap[sequence.name] = sequence.length
           }
 
@@ -339,7 +340,7 @@ class SequenceService {
           // otherwise if we remove all of the sequences annotations will need to be removed as well
 //          Sequence.deleteAll(Sequence.findAllByOrganism(organism))
 
-            refSeqs.each { refSeq ->
+            for (def refSeq in refSeqs) {
                 int length;
                 if (refSeq.length) {
                     length = refSeq.length
@@ -362,25 +363,13 @@ class SequenceService {
                   Sequence sequence = Sequence.findByNameAndOrganism(refSeq.name,organism)
                   if (!sequence) {
                       log.error "Sequence not found for name '${refSeq.name}' and organism '${organism.commonName}'"
-                      return
+                      continue
                   }
                   sequence.length = length
                   sequence.seqChunkSize = refSeq.seqChunkSize
                   sequence.start = refSeq.start
                   sequence.end = refSeq.end
-//                  sequence.name = refSeq.name
                   sequence.save(failOnError: true,insert:false)
-//                    def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:seqsMap[refSeq.name]])
-//                    Preference.deleteAll(preferences)
-//                    Sequence.delete(seqsMap[refSeq.name])
-//                    Sequence sequence = new Sequence(
-//                            organism: organism
-//                            , length: length
-//                            , seqChunkSize: refSeq.seqChunkSize
-//                            , start: refSeq.start
-//                            , end: refSeq.end
-//                            , name: refSeq.name
-//                    ).save(failOnError: true)
                     log.debug "uddated sequence ${sequence}"
                 }
                 else {
@@ -411,7 +400,7 @@ class SequenceService {
                 log.info "an indexed fasta size ${index.size()}"
                 def knownSequences = Sequence.findAllByOrganism(organism)
                 def seqsMap = [:]
-                knownSequences.each { sequence ->
+                for (Sequence sequence in knownSequences) {
                     seqsMap[sequence.name] = sequence.length
                 }
                 // reading the index
