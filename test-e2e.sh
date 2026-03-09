@@ -244,7 +244,7 @@ echo "=== User can set current sequence ==="
 RESPONSE=$(curl -s -X POST "$BASE_URL/sequence/setCurrentSequence" \
     -H 'Content-Type: application/json' \
     -d "{$USER_AUTH, \"clientToken\":\"$CLIENT_TOKEN\", \"sequenceName\":\"chr1\"}")
-echo "  INFO: setCurrentSequence: $(echo "$RESPONSE" | head -c 200)"
+assert_contains "setCurrentSequence returns sequence" "chr1" "$RESPONSE"
 
 echo ""
 echo "=== User can get features (empty) ==="

@@ -18,7 +18,7 @@ class CannedValueController {
     PermissionService permissionService
     def beforeInterceptor = {
       // if a non-JSON method
-      if (SecurityFilters.WEB_ACTION_LIST.contains(params.action)) {
+      if (SecurityInterceptor.WEB_ACTION_LIST.contains(params.action)) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
           forward action: "notAuthorized", controller: "annotator"
           return

@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.bbop.apollo.security.ApolloSecurityUtils
 import org.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
+import java.net.URLEncoder
 
 class SecurityInterceptor {
 
@@ -41,32 +42,20 @@ class SecurityInterceptor {
             }
 
             log.warn "Authentication failed"
-            def targetUri = "/${controllerName}/${actionName}"
-            def paramString = "?"
-            for (p in request.parameterMap) {
-                if (p.key != "controller" && p.key != "action") {
-                    String key = p.key
-                    if (p.key.contains("?loc")) {
-                        def lastIndex = p.key.lastIndexOf("loc")
-                        key = p.key.substring(lastIndex)
-                    }
-                    p.value.each {
-                        paramString += "&${key}=${it}"
-                    }
-                }
-            }
-            targetUri = targetUri + paramString
 
             if (request.JSON?.size() > 0) {
                 response.status = HttpStatus.UNAUTHORIZED.value()
                 render new JSONObject("error": "Failed to authenticate")
                 return false
             }
-            if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
-                redirect(uri: "${request.contextPath}/auth/login?targetUri=${targetUri}")
-            } else {
-                redirect(uri: "/auth/login?targetUri=${targetUri}")
+
+            String queryString = request.queryString
+            String targetUri = "/${controllerName}/${actionName}"
+            if (queryString) {
+                targetUri += "?" + queryString
             }
+            String encodedUri = URLEncoder.encode(targetUri, "UTF-8")
+            redirect(uri: "${request.contextPath}/auth/login?targetUri=${encodedUri}")
             return false
         } catch (Exception e) {
             render([error: e.message] as JSON)

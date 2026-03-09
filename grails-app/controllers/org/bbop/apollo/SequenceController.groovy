@@ -59,10 +59,16 @@ class SequenceController {
     }
 
     @Transactional
-    def setCurrentSequenceForNameAndOrganism(Organism organism) {
+    def setCurrentSequenceForNameAndOrganism() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName, organism)
-        setCurrentSequence(sequence)
+        Organism organism = params.id ? Organism.findById(params.id as Long) : null
+        if (organism) {
+            Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName, organism)
+            if (sequence) {
+                params.id = sequence.id.toString()
+            }
+        }
+        setCurrentSequence()
     }
 
     /**
@@ -76,8 +82,9 @@ class SequenceController {
      */
 
     @Transactional
-    def setCurrentSequence(Sequence sequenceInstance) {
+    def setCurrentSequence() {
         JSONObject inputObject = permissionService.handleInput(request, params)
+        Sequence sequenceInstance = params.id ? Sequence.findById(params.id as Long) : null
         if (!sequenceInstance && inputObject.has("sequenceName")) {
             sequenceInstance = Sequence.findByName(inputObject.getString("sequenceName"))
         }
@@ -91,7 +98,7 @@ class SequenceController {
         User currentUser = permissionService.currentUser
         UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser, sequenceInstance, token)
 
-        def session = ApolloSecurityUtils.getSession(false)
+        def session = ApolloSecurityUtils.getSession(true)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)

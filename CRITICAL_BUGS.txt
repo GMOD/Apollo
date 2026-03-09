@@ -146,13 +146,23 @@ FIXED ISSUES
     FIX: Replaced with `dataObject.optBoolean(perm.name(), false)` and
     simplified 4 repeated if-blocks into a loop.
 
-23. SequenceController.setCurrentSequence null binding [FIXED]
-    Method signature `setCurrentSequence(Sequence sequenceInstance)` relies
-    on Grails data binding by ID in URL path. API callers sending
-    `sequenceName` in JSON body get null for sequenceInstance.
-    CONSEQUENCE: NPE → 500 error when setting current sequence via API
-    with sequenceName instead of ID. Breaks e2e test workflow.
-    FIX: Added fallback lookup by name from JSON body when binding fails.
+23. SequenceController.setCurrentSequence null binding + session NPE [FIXED]
+    Two issues:
+    a) Method signature `setCurrentSequence(Sequence sequenceInstance)`
+       relies on Grails 7 domain class data binding, which fails when no
+       ID is in the URL path. API callers sending `sequenceName` in JSON
+       body get null → NPE.
+    b) `ApolloSecurityUtils.getSession(false)` returns null when using
+       inline credentials (no session cookie), causing NPE on
+       session.setAttribute().
+    c) `permissionService.currentUser` returns null for inline-auth
+       requests (no Spring Security context).
+    CONSEQUENCE: 500 HTML error page when setting current sequence via
+    API. Breaks the annotation workflow for API/script callers.
+    FIX: Removed domain class binding from method signature, explicit
+    lookup by params.id or sequenceName. Changed getSession(false) to
+    getSession(true). Changed to getCurrentUser(inputObject) which
+    supports inline credentials.
 
 24. Spring Security 6 session not persisted [FIXED]
     Spring Security 6 no longer auto-saves SecurityContext to HTTP session.

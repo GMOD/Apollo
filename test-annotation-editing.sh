@@ -113,7 +113,7 @@ echo "=== Test 4: Set current sequence ==="
 RESPONSE=$(curl -s -X POST "$BASE_URL/sequence/setCurrentSequence" \
     -H 'Content-Type: application/json' \
     -d "{$AUTH, \"clientToken\":\"$CLIENT_TOKEN\", \"sequenceName\":\"chr1\"}")
-echo "  INFO: setCurrentSequence response: $(echo "$RESPONSE" | head -c 200)"
+assert_contains "setCurrentSequence returns sequence" "chr1" "$RESPONSE"
 
 echo ""
 echo "=== Test 5: Get features (empty initially) ==="
