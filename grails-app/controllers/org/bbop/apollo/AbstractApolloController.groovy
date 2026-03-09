@@ -35,13 +35,13 @@ abstract class AbstractApolloController {
     protected def withPermission(PermissionEnum permission, Closure action) {
         try {
             JSONObject inputObject = permissionService.handleInput(request, params)
-            permissionService.hasPermissions(inputObject, PermissionEnum.READ)
             if (permissionService.hasPermissions(inputObject, permission)) {
                 render action(inputObject) as JSON
             } else {
                 render status: HttpStatus.UNAUTHORIZED
             }
         } catch (Exception e) {
+            log.error("Permission check or action failed: ${e.message}", e)
             def error = [error: e.message]
             render error as JSON
         }

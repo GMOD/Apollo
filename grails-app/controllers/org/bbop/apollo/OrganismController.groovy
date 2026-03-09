@@ -301,6 +301,7 @@ class OrganismController {
               sequenceService.loadRefSeqs(organism)
               preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
               findAllOrganisms()
+              return
             }
             catch (IOException e) {
               log.error e.message, e
@@ -379,6 +380,7 @@ class OrganismController {
               sequenceService.loadRefSeqs(organism)
               preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
               findAllOrganisms()
+              return
             }
             catch (IOException e) {
               log.error e.message, e
