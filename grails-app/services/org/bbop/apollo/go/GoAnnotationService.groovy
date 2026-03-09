@@ -46,6 +46,7 @@ class GoAnnotationService {
             for (String attribute in attributes) {
                 if (attribute.contains("=")) {
                     def (key, value) = attribute.split("=")
+                    value = URLDecoder.decode(value as String, "UTF-8")
                     switch (key) {
                         case Gff3ConstantEnum.ASPECT.value:
                             goAnnotation.aspect = value

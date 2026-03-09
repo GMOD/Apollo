@@ -30,4 +30,19 @@ class GeneProductServiceSpec extends Specification implements ServiceUnitTest<Ge
         then: "we should be able to"
         assert geneProducts.size() == 2
     }
+
+    void "test parsing URL-encoded values"() {
+        given: "a GFF3 string with percent-encoded special characters in values"
+        String inputString = "term=ATP%20synthase%20subunit;db_xref=UniProtKB%3AQ8I3E7;evidence=ECO%3A0000318;note=contains%20a%20colon%3A%20important"
+
+        when:
+        List<GeneProduct> geneProducts = service.convertGff3StringToGeneProducts(inputString)
+
+        then:
+        assert geneProducts.size() == 1
+        assert geneProducts[0].productName == "ATP synthase subunit"
+        assert geneProducts[0].reference == "UniProtKB:Q8I3E7"
+        assert geneProducts[0].evidenceRef == "ECO:0000318"
+        assert geneProducts[0].notesArray == "contains a colon: important"
+    }
 }
