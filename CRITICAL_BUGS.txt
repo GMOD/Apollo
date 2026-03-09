@@ -193,6 +193,28 @@ FIXED ISSUES
     cannot start at all with a PostgreSQL database.
     FIX: Added `failOnError: true, flush: true` and null checks.
 
+28. PermissionService.getOrganismsWithMinimumPermission/getOrganismsWithPermission
+    wrong user (lines 101, 128) [FIXED]
+    Both methods accept a `User user` parameter but call
+    `getOrganismPermissionsForUser(organism, currentUser)` instead of
+    using the passed-in `user`. `currentUser` resolves to `getCurrentUser()`
+    which returns whoever is currently logged in.
+    CONSEQUENCE: When checking permissions for a different user (e.g. admin
+    viewing another user's organism list), the check runs against the admin's
+    own permissions instead. Could show incorrect organism lists in the
+    admin user management UI.
+    FIX: Changed `currentUser` to `user` on both lines.
+
+29. PreferenceService.evaluateSaves dead branch (lines 418-422) [FIXED]
+    Both branches of the `if (onlySaveToken && ...)` / `else` call
+    `evaluateSave()` with identical arguments. The `onlySaveToken` filter
+    has no effect — all tokens are always saved regardless.
+    CONSEQUENCE: When `onlySaveToken` is set (intended to save only one
+    specific client token's preferences), all tokens are saved instead.
+    Minor — causes unnecessary database writes but no data corruption.
+    FIX: Changed to `if (!onlySaveToken || onlySaveToken == ...)` with
+    a single `evaluateSave()` call, so non-matching tokens are skipped.
+
 REMAINING ISSUES
 -----------------
 

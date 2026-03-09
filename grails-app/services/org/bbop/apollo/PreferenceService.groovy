@@ -415,9 +415,7 @@ class PreferenceService {
                 log.debug "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
                 log.debug "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
                 log.debug "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
-                if (onlySaveToken && onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
-                    evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
-                } else {
+                if (!onlySaveToken || onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
                     evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
                 }
             }

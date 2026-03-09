@@ -98,7 +98,7 @@ class PermissionService {
         List<Organism> sortedList2 = new ArrayList<>(organismList)
         sortedList2.sort(Comparator.comparing { Organism o -> o.commonName })
         for (Organism organism in sortedList2) {
-            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism,currentUser)
+            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism, user)
             PermissionEnum highestPermission = findHighestEnum(perms)
             if(highestPermission.rank>=permissionEnum.rank){
                 returnOrganismList.add(organism)
@@ -125,7 +125,7 @@ class PermissionService {
         List<Organism> sortedList3 = new ArrayList<>(organismList)
         sortedList3.sort(Comparator.comparing { Organism o -> o.commonName })
         for (Organism organism in sortedList3) {
-            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism,currentUser)
+            List<PermissionEnum> perms = getOrganismPermissionsForUser(organism, user)
             PermissionEnum highestPermission = findHighestEnum(perms)
             returnOrganismMap.put(organism,highestPermission)
         }
