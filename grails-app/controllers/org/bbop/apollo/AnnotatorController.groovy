@@ -256,8 +256,8 @@ class AnnotatorController {
 
         if (data.status == null) {
             // delete old status if it existed
-            Status oldStatus = data.status
-            feature.status == null
+            Status oldStatus = feature.status
+            feature.status = null
             if (oldStatus != null) {
                 oldStatus.delete()
             }

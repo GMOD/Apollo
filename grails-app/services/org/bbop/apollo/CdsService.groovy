@@ -118,20 +118,22 @@ class CdsService {
     }
 
     def setStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough, boolean replace = true) {
-        if (replace) {
-            featureRelationshipService.setChildForType(cds,stopCodonReadThrough)
+        if (replace && featureRelationshipService.setChildForType(cds, stopCodonReadThrough)) {
+            stopCodonReadThrough.save(failOnError: true)
+            cds.save(flush: true, failOnError: true)
+            return
         }
 
         FeatureRelationship fr = new FeatureRelationship(
                 parentFeature: cds
                 , childFeature: stopCodonReadThrough
-                , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
-        ).save(insert: true,failOnError: true)
-        cds.addToParentFeatureRelationships(fr);
+                , rank: 0
+        ).save(insert: true, failOnError: true)
+        cds.addToParentFeatureRelationships(fr)
         stopCodonReadThrough.addToChildFeatureRelationships(fr)
 
         stopCodonReadThrough.save(failOnError: true)
-        cds.save(flush: true,failOnError: true)
+        cds.save(flush: true, failOnError: true)
 
     }
 

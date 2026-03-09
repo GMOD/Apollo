@@ -297,6 +297,36 @@ FIXED ISSUES
     CONSEQUENCE: Misleading error message shown to admin users.
     FIX: Changed to "Failed to find the group".
 
+40. AnnotatorController.updateFeature status handling (lines 257-260) [FIXED]
+    Two bugs in status deletion:
+    a) `Status oldStatus = data.status` — should be `feature.status` (data.status
+       is already known to be null from the enclosing if-condition)
+    b) `feature.status == null` — comparison operator, not assignment. This
+       line does nothing. Should be `feature.status = null`.
+    CONSEQUENCE: When a user clears a feature's status, the old Status
+    object is never deleted (orphaned in DB) and the feature's status
+    field is never set to null. Status appears cleared in the UI but
+    persists in the database and may reappear.
+    FIX: Changed to `feature.status` and `=` assignment.
+
+41. FastaHandlerService.writeFeature NPE on null sequence (line 88) [FIXED]
+    `seq.length()` called without null check. If
+    `getSequenceForFeature()` returns null, NPE before the length==0
+    guard can protect against it.
+    CONSEQUENCE: FASTA export crashes with NPE for features that have
+    no retrievable sequence (e.g. features on unloaded sequences).
+    FIX: Combined null and empty check: `if (seq == null || seq.length() == 0)`.
+
+42. CdsService.setStopCodonReadThrough duplicate relationship (lines 120-135) [FIXED]
+    When `replace=true`, `setChildForType()` replaces the existing
+    relationship. But then lines 125-131 ALWAYS create a new
+    FeatureRelationship regardless, resulting in a duplicate.
+    CONSEQUENCE: Two identical CDS→StopCodonReadThrough relationships
+    exist in the database. Downstream code that expects exactly one
+    (like `hasStopCodonReadThrough()`) may behave incorrectly.
+    FIX: If setChildForType succeeds (returns true), save and return
+    early without creating a new relationship.
+
 REMAINING ISSUES
 -----------------
 
