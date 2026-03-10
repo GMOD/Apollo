@@ -69,53 +69,67 @@ jobs:
           export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
           ./bootstrap_apollo.sh --nodocker
 
-      - name: Diagnose organism state
+      - name: Diagnose load_gff3 failure
         run: |
           cd python-apollo
           export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
-          echo "=== Organisms ==="
-          arrow organisms get_organisms
-          echo "=== Sequences for test_organism ==="
-          arrow organisms get_sequences test_organism || true
-          echo "=== Features for test_organism on Merlin ==="
-          arrow annotations get_features test_organism Merlin || true
+          python3 -c "
+          import traceback, json, sys
+          try:
+              from apollo import ApolloInstance
+              wa = ApolloInstance('http://localhost:8080/apollo', 'admin@local.host', 'password')
 
-          echo ""
-          echo "=== Direct curl: addTranscript on test_organism ==="
-          ORG_DIR=$(cd .. && pwd)/python-apollo/apollo_shared_dir
-          curl -s -X POST http://localhost:8080/apollo/annotationEditor/addTranscript \
-            -H 'Content-Type: application/json' \
-            -d "{
-              \"username\": \"admin@local.host\",
-              \"password\": \"password\",
-              \"organism\": \"test_organism\",
-              \"sequence\": \"Merlin\",
-              \"suppressHistory\": true,
-              \"suppressEvents\": true,
-              \"features\": [{
-                \"location\": {\"fmin\": 100, \"fmax\": 500, \"strand\": 1},
-                \"type\": {\"name\": \"mRNA\", \"cv\": {\"name\": \"sequence\"}},
-                \"children\": [{
-                  \"location\": {\"fmin\": 100, \"fmax\": 500, \"strand\": 1},
-                  \"type\": {\"name\": \"exon\", \"cv\": {\"name\": \"sequence\"}}
-                }]
-              }]
-            }" || true
+              print('=== Organisms ===')
+              orgs = wa.organisms.get_organisms()
+              for o in orgs:
+                  print(f\"  {o.get('commonName')}: sequences={o.get('sequences')}\")
 
-          echo ""
-          echo "=== Direct curl: addFeature on test_organism ==="
-          curl -s -X POST http://localhost:8080/apollo/annotationEditor/addFeature \
-            -H 'Content-Type: application/json' \
-            -d "{
-              \"username\": \"admin@local.host\",
-              \"password\": \"password\",
-              \"organism\": \"test_organism\",
-              \"sequence\": \"Merlin\",
-              \"features\": [{
-                \"location\": {\"fmin\": 1000, \"fmax\": 2000, \"strand\": 1},
-                \"type\": {\"name\": \"repeat_region\", \"cv\": {\"name\": \"sequence\"}}
-              }]
-            }" || true
+              print()
+              print('=== Attempting load_gff3 with full traceback ===')
+              print('Installed apollo version:', end=' ')
+              import apollo; print(getattr(apollo, '__version__', 'unknown'))
+              print('BCBio.GFF available:', end=' ')
+              try:
+                  from BCBio import GFF
+                  print('yes')
+              except ImportError as e:
+                  print(f'NO - {e}')
+
+              print()
+              print('=== Manual GFF3 parsing test ===')
+              from BCBio import GFF
+              with open('test-data/mrna-top.gff') as f:
+                  for rec in GFF.parse(f):
+                      print(f'Record: {rec.id}, features: {len(rec.features)}')
+                      for feat in rec.features[:2]:
+                          print(f'  Feature: {feat.id}, type: {feat.type}, loc: {feat.location}')
+
+              print()
+              print('=== Manual addTranscript via python-apollo ===')
+              wa.annotations.set_sequence('test_organism', 'Merlin')
+              result = wa.annotations.add_transcripts([{
+                  'location': {'fmin': 5000, 'fmax': 6000, 'strand': 1},
+                  'type': {'name': 'mRNA', 'cv': {'name': 'sequence'}},
+                  'children': [{
+                      'location': {'fmin': 5000, 'fmax': 6000, 'strand': 1},
+                      'type': {'name': 'exon', 'cv': {'name': 'sequence'}}
+                  }]
+              }])
+              print(f'addTranscript result: {json.dumps(result, indent=2)[:500]}')
+
+              print()
+              print('=== Full load_gff3 attempt with traceback ===')
+              try:
+                  feature_data = wa.annotations.load_gff3('test_organism', 'test-data/mrna-top.gff')
+                  print(f'load_gff3 returned: {feature_data}')
+              except Exception as e:
+                  print(f'load_gff3 raised: {type(e).__name__}: {e}')
+                  traceback.print_exc()
+
+          except Exception as e:
+              print(f'DIAGNOSTIC FAILED: {type(e).__name__}: {e}')
+              traceback.print_exc()
+          " || true
 
           echo ""
           echo "=== Apollo ERROR/WARN log lines ==="
