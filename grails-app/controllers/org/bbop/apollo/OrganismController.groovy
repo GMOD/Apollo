@@ -285,7 +285,7 @@ class OrganismController {
 
           if (organismDataFile) {
             log.debug "Successfully created directory ${directory.absolutePath}"
-            File archiveFile = new File(organismDataFile.getOriginalFilename())
+            File archiveFile = File.createTempFile("organism-upload-", "-" + organismDataFile.getOriginalFilename())
             organismDataFile.transferTo(archiveFile)
             try {
               fileService.decompress(archiveFile, directory.absolutePath, null, false)
@@ -597,7 +597,7 @@ class OrganismController {
               // add track config to trackList.json
               tracksArray.add(trackConfigObject)
               // unpack track data into organism directory
-              File archiveFile = new File(trackDataFile.getOriginalFilename())
+              File archiveFile = File.createTempFile("track-upload-", "-" + trackDataFile.getOriginalFilename())
               trackDataFile.transferTo(archiveFile)
               try {
                 String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
@@ -711,7 +711,7 @@ class OrganismController {
                 // add track config to extendedTrackList.json
                 extendedTracksArray.add(trackConfigObject)
                 // unpack track data into organism directory
-                File archiveFile = new File(trackDataFile.getOriginalFilename())
+                File archiveFile = File.createTempFile("track-upload-", "-" + trackDataFile.getOriginalFilename())
                 trackDataFile.transferTo(archiveFile)
                 try {
                   String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
@@ -1268,7 +1268,7 @@ class OrganismController {
         }
         String foundBlatdb = null
         if (organismDataFile) {
-          File archiveFile = new File(organismDataFile.getOriginalFilename())
+          File archiveFile = File.createTempFile("organism-upload-", "-" + organismDataFile.getOriginalFilename())
           organismDataFile.transferTo(archiveFile)
           File organismDirectory = new File(organism.directory)
           assert organismDirectory.deleteDir()
@@ -1535,7 +1535,7 @@ class OrganismController {
   }
 
   private def decompressFileToRawDirectory(MultipartFile trackFile, String path, JSONObject trackConfigObject, String newFileName) {
-    File archiveFile = new File(trackFile.getOriginalFilename())
+    File archiveFile = File.createTempFile("track-upload-", "-" + trackFile.getOriginalFilename())
     trackFile.transferTo(archiveFile)
     List<String> fileNames = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), false)
     File inputFile = new File(fileNames.get(0))
