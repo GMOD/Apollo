@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.gorm.transactions.Transactional
 import groovy.io.FileType
+import org.springframework.transaction.annotation.Propagation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
@@ -42,6 +43,7 @@ class OrganismService {
         return null
 
     }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     def deleteAllFeaturesForSequences(List<Sequence> sequences) {
 
         int totalDeleted = 0
@@ -98,6 +100,7 @@ class OrganismService {
         return totalDeleted
 
     }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     def deleteAllFeaturesForOrganism(Organism organism) {
 
         int totalDeleted = 0

@@ -167,9 +167,9 @@ class OrganismController {
     render responseObject as JSON
   }
 
-  @Transactional
   def deleteOrganismFeatures() {
     JSONObject organismJson = permissionService.handleInput(request, params)
+    log.info "deleteOrganismFeatures called with organism: ${organismJson.organism}"
     try {
       permissionService.hasPermissions(organismJson,PermissionEnum.READ)
       if ( !permissionService.hasGlobalPermissions(organismJson, PermissionEnum.ADMINISTRATE)
@@ -188,13 +188,15 @@ class OrganismController {
         throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
       }
 
+      log.info "Found organism: ${organism.commonName} (id=${organism.id})"
+
       if (organismJson.sequences) {
         List<String> sequenceNames = organismJson.sequences.toString().split(",")
         List<Sequence> sequences = Sequence.findAllByOrganismAndNameInList(organism, sequenceNames)
-        int deleted = organismService.deleteAllFeaturesForSequences(sequences)
+        def deleted = organismService.deleteAllFeaturesForSequences(sequences)
         log.info "Deleted ${deleted} features for sequences ${sequenceNames} of organism ${organism.commonName}"
       } else {
-        int deleted = organismService.deleteAllFeaturesForOrganism(organism)
+        def deleted = organismService.deleteAllFeaturesForOrganism(organism)
         log.info "Deleted ${deleted} features for organism ${organism.commonName}"
       }
 
