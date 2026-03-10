@@ -75,11 +75,11 @@ class OrganismService {
                         def features = Feature.findAllByIdInList(ids)
                         log.debug "Found ${features.size()} features for deletion"
                         for (f in features) {
-                            f.delete(flush: true)
+                            f.delete()
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
                         for (fe in featureEvents) {
-                            fe.delete(flush: true)
+                            fe.delete()
                         }
                         count += featureList.size()
                         log.info "${count} / ${featurePairs.size()}  =  ${100 * count / featurePairs.size()}% "
@@ -133,11 +133,11 @@ class OrganismService {
                         def features = Feature.findAllByIdInList(ids)
                         log.debug "Found ${features.size()} features for deletion"
                         for (f in features) {
-                            f.delete(flush: true)
+                            f.delete()
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
                         for (fe in featureEvents) {
-                            fe.delete(flush: true)
+                            fe.delete()
                         }
                         count += featureList.size()
                         log.info "${count} / ${featurePairs.size()}  =  ${100 * count / featurePairs.size()}% "
