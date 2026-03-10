@@ -167,6 +167,7 @@ class OrganismController {
     render responseObject as JSON
   }
 
+  @Transactional
   def deleteOrganismFeatures() {
     JSONObject organismJson = permissionService.handleInput(request, params)
     try {
@@ -181,11 +182,7 @@ class OrganismController {
         return
       }
 
-      Organism organism = Organism.findByCommonName(organismJson.organism)
-
-      if (!organism) {
-        organism = Organism.findById(organismJson.organism)
-      }
+      Organism organism = preferenceService.getOrganismForTokenInDB(organismJson.organism as String)
 
       if (!organism) {
         throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
@@ -194,18 +191,20 @@ class OrganismController {
       if (organismJson.sequences) {
         List<String> sequenceNames = organismJson.sequences.toString().split(",")
         List<Sequence> sequences = Sequence.findAllByOrganismAndNameInList(organism, sequenceNames)
-        organismService.deleteAllFeaturesForSequences(sequences)
+        int deleted = organismService.deleteAllFeaturesForSequences(sequences)
+        log.info "Deleted ${deleted} features for sequences ${sequenceNames} of organism ${organism.commonName}"
       } else {
-        organismService.deleteAllFeaturesForOrganism(organism)
+        int deleted = organismService.deleteAllFeaturesForOrganism(organism)
+        log.info "Deleted ${deleted} features for organism ${organism.commonName}"
       }
 
       render [:] as JSON
     }
     catch (Exception e) {
       def error = [error: 'problem removing organism features for organism: ' + e]
-      render error as JSON
-      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
       log.error(error.error, e)
+      response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+      render error as JSON
     }
   }
 

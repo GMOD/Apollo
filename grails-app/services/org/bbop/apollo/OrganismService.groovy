@@ -71,12 +71,13 @@ class OrganismService {
                     log.debug "uniqueNames ${uniqueNames.size()}"
                     Feature.withNewTransaction{
                         def features = Feature.findAllByIdInList(ids)
+                        log.debug "Found ${features.size()} features for deletion"
                         for (f in features) {
-                            f.delete()
+                            f.delete(flush: true)
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
                         for (fe in featureEvents) {
-                            fe.delete()
+                            fe.delete(flush: true)
                         }
                         count += featureList.size()
                         log.info "${count} / ${featurePairs.size()}  =  ${100 * count / featurePairs.size()}% "
@@ -102,7 +103,7 @@ class OrganismService {
         int totalDeleted = 0
         log.debug "organism ${organism}"
         def featureCount = Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [organism: organism])[0]
-        log.debug "features to delete ${featureCount}"
+        log.info "features to delete ${featureCount} for organism ${organism.commonName}"
         while(featureCount>0){
             def featurePairs = Feature.executeQuery("select f.id,f.uniqueName from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [max:MAX_DELETE_SIZE,organism: organism])
             // maximum transaction size  30
@@ -127,14 +128,14 @@ class OrganismService {
                     log.debug "uniqueNames ${uniqueNames.size()}"
                     Feature.withNewTransaction{
                         def features = Feature.findAllByIdInList(ids)
+                        log.debug "Found ${features.size()} features for deletion"
                         for (f in features) {
-                            f.delete()
+                            f.delete(flush: true)
                         }
                         def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
                         for (fe in featureEvents) {
-                            fe.delete()
+                            fe.delete(flush: true)
                         }
-                        organism.save(flush: true)
                         count += featureList.size()
                         log.info "${count} / ${featurePairs.size()}  =  ${100 * count / featurePairs.size()}% "
                     }

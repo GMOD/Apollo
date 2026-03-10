@@ -128,5 +128,8 @@ jobs:
       - name: Print Apollo log on failure
         if: failure()
         run: |
+          echo "=== Delete-related log lines ==="
+          grep -iE 'deleteOrganism|features to delete|Deleted.*features|problem removing|not authorized to delete' apollo.log | tail -50 || true
+          echo ""
           echo "=== Last 500 lines of Apollo log ==="
           tail -500 apollo.log
