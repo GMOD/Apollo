@@ -200,7 +200,8 @@ class OrganismController {
         log.info "Deleted ${deleted} features for organism ${organism.commonName}"
       }
 
-      render [:] as JSON
+      def result = new JSONObject()
+      render result as JSON
     }
     catch (Exception e) {
       def error = [error: 'problem removing organism features for organism: ' + e]
