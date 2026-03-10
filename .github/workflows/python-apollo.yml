@@ -74,9 +74,12 @@ jobs:
           cd python-apollo
           export ARROW_GLOBAL_CONFIG_PATH=$(pwd)/test-data/local-apollo2-arrow.yml
           python3 -c "
-          import traceback, json, sys
+          import traceback, json, sys, logging
+          logging.basicConfig(level=logging.DEBUG)
           try:
               from apollo import ApolloInstance
+              from apollo import util
+              from BCBio import GFF
               wa = ApolloInstance('http://localhost:8080/apollo', 'admin@local.host', 'password')
 
               print('=== Organisms ===')
@@ -85,51 +88,77 @@ jobs:
                   print(f\"  {o.get('commonName')}: sequences={o.get('sequences')}\")
 
               print()
-              print('=== Attempting load_gff3 with full traceback ===')
-              print('Installed apollo version:', end=' ')
-              import apollo; print(getattr(apollo, '__version__', 'unknown'))
-              print('BCBio.GFF available:', end=' ')
-              try:
-                  from BCBio import GFF
-                  print('yes')
-              except ImportError as e:
-                  print(f'NO - {e}')
-
-              print()
               print('=== Manual GFF3 parsing test ===')
-              from BCBio import GFF
               with open('test-data/mrna-top.gff') as f:
                   for rec in GFF.parse(f):
                       print(f'Record: {rec.id}, features: {len(rec.features)}')
-                      for feat in rec.features[:2]:
+                      for feat in rec.features:
                           print(f'  Feature: {feat.id}, type: {feat.type}, loc: {feat.location}')
+                          print(f'  Sub-features: {[(sf.type, sf.location) for sf in feat.sub_features]}')
 
               print()
-              print('=== Manual addTranscript via python-apollo ===')
+              print('=== Replicate load_gff3 step by step ===')
               wa.annotations.set_sequence('test_organism', 'Merlin')
-              result = wa.annotations.add_transcripts([{
-                  'location': {'fmin': 5000, 'fmax': 6000, 'strand': 1},
-                  'type': {'name': 'mRNA', 'cv': {'name': 'sequence'}},
-                  'children': [{
-                      'location': {'fmin': 5000, 'fmax': 6000, 'strand': 1},
-                      'type': {'name': 'exon', 'cv': {'name': 'sequence'}}
-                  }]
-              }])
-              print(f'addTranscript result: {json.dumps(result, indent=2)[:500]}')
+
+              # Parse GFF3 and build Apollo JSON like load_gff3 does
+              with open('test-data/mrna-top.gff') as f:
+                  for rec in GFF.parse(f):
+                      print(f'Processing record: {rec.id}')
+                      for feature in rec.features:
+                          print(f'  Feature type: {feature.type}')
+                          try:
+                              apollo_data = util.yieldApolloData(feature)
+                              print(f'  Apollo data: {json.dumps(apollo_data, indent=2, default=str)[:1000]}')
+                          except Exception as e:
+                              print(f'  yieldApolloData FAILED: {e}')
+                              traceback.print_exc()
+                              continue
+
+                          # Try sending as transcript
+                          try:
+                              print(f'  Calling add_transcripts...')
+                              result = wa.annotations.add_transcripts([apollo_data])
+                              print(f'  add_transcripts result: {json.dumps(result, indent=2, default=str)[:500]}')
+                          except Exception as e:
+                              print(f'  add_transcripts FAILED: {type(e).__name__}: {e}')
+                              traceback.print_exc()
 
               print()
-              print('=== Full load_gff3 attempt with traceback ===')
+              print('=== Test addFeature endpoint ===')
+              with open('test-data/mrna-top.gff') as f:
+                  for rec in GFF.parse(f):
+                      for feature in rec.features:
+                          apollo_data = util.yieldApolloData(feature)
+                          try:
+                              print(f'  Calling add_feature...')
+                              result = wa.annotations.add_feature(apollo_data)
+                              print(f'  add_feature result: {json.dumps(result, indent=2, default=str)[:500]}')
+                          except Exception as e:
+                              print(f'  add_feature FAILED: {type(e).__name__}: {e}')
+                              traceback.print_exc()
+
+              print()
+              print('=== Remote API test ===')
               try:
-                  feature_data = wa.annotations.load_gff3('test_organism', 'test-data/mrna-top.gff')
-                  print(f'load_gff3 returned: {feature_data}')
+                  import tempfile, tarfile, glob
+                  with tempfile.NamedTemporaryFile(suffix='.tar.gz') as archive:
+                      with tarfile.open(archive.name, mode='w:gz') as tar:
+                          for file in glob.glob('test-data/dataset_1_files/data/*'):
+                              tar.add(file, arcname=file.replace('test-data/dataset_1_files/data/', './'))
+                      print(f'  Archive contents:')
+                      with tarfile.open(archive.name, mode='r:gz') as tar:
+                          for m in tar.getmembers()[:10]:
+                              print(f'    {m.name}')
+                      result = wa.remote.add_organism('diag_remote_org', archive)
+                      print(f'  add_organism result: {json.dumps(result, indent=2, default=str)[:500]}')
               except Exception as e:
-                  print(f'load_gff3 raised: {type(e).__name__}: {e}')
+                  print(f'  remote add_organism FAILED: {type(e).__name__}: {e}')
                   traceback.print_exc()
 
           except Exception as e:
               print(f'DIAGNOSTIC FAILED: {type(e).__name__}: {e}')
               traceback.print_exc()
-          " || true
+          " 2>&1 || true
 
           echo ""
           echo "=== Apollo ERROR/WARN log lines ==="
