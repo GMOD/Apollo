@@ -69,14 +69,30 @@ grails.project.dependency.resolution = {
     dependencies {
 
 
-        runtime 'org.apache.logging.log4j:log4j-api:2.19.0'
-        runtime 'org.apache.logging.log4j:log4j-core:2.19.0'
-        runtime 'org.apache.logging.log4j:log4j-1.2-api:2.19.0'
+        runtime 'org.apache.logging.log4j:log4j-api:2.25.4'
+        runtime 'org.apache.logging.log4j:log4j-core:2.25.4'
+        runtime 'org.apache.logging.log4j:log4j-1.2-api:2.25.4'
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         runtime 'mysql:mysql-connector-java:5.1.29'
         runtime 'org.postgresql:postgresql:9.4.1212'
 //        runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
 //        runtime group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
+        compile('org.apache.shiro:shiro-core:1.13.0') {
+            excludes 'slf4j-api', 'commons-beanutils'
+        }
+        compile('org.apache.shiro:shiro-web:1.13.0') {
+            excludes 'slf4j-api'
+        }
+        compile('org.apache.shiro:shiro-spring:1.13.0') {
+            excludes 'slf4j-api'
+        }
+        compile('org.apache.shiro:shiro-ehcache:1.13.0') {
+            excludes 'slf4j-api', 'ehcache-core'
+        }
+        compile('org.apache.shiro:shiro-quartz:1.13.0') {
+            excludes 'slf4j-api', 'quartz'
+        }
+
         compile 'commons-codec:commons-codec:1.2'
         compile 'commons-collections:commons-collections:3.2.1'
         compile group: 'commons-io', name: 'commons-io', version: '2.7'
@@ -136,6 +152,7 @@ grails.project.dependency.resolution = {
         compile ":spring-websocket:1.3.1"
         compile(":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
+            excludes 'shiro-core', 'shiro-web', 'shiro-spring', 'shiro-ehcache', 'shiro-quartz'
         }
         compile ":audit-logging:1.0.3"
 

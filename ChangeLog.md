@@ -1,3 +1,16 @@
+## 2.9.0
+
+Infrastructure Changes
+
+- Update Docker container to use Ubuntu 22.04 as the base image (was 20.04).
+- Upgrade Log4j to 2.25.4.
+- Upgrade Shiro to 1.13.0.
+- Upgrade to [JBrowse 1.17.0](https://github.com/GMOD/jbrowse/releases/tag/1.17.0-release).
+
+Bug Fixes
+
+- Fix sequence translation not working on public genomes. [#2675](https://github.com/GMOD/Apollo/pull/2675).
+
 ## 2.8.1
 
 Bug Fixes

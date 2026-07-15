@@ -1,7 +1,11 @@
 println "WEBAPOLLO environment"
 System.getenv().each {
     if (it.key.contains("APOLLO") || it.key.contains("CHADO")) {
-        println it.key + " " + it.value
+        if (it.key.contains("PASSWORD") && it.value) {
+            println it.key + " ***"
+        } else {
+            println it.key + " " + it.value
+        }
     }
 }
 
@@ -144,7 +148,7 @@ apollo {
 jbrowse {
     git {
         url = "https://github.com/GMOD/jbrowse"
-        branch = "1.16.12-release"
+        branch = "1.17.0-release"
     }
     plugins {
         ScreenShotPlugin{

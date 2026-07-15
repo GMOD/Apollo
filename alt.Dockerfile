@@ -1,5 +1,5 @@
 # Apollo2.X
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 
@@ -29,7 +29,7 @@ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /apollo/
 
 curl -sL https://deb.nodesource.com/setup_12.x | bash -
 apt-get -qq update --fix-missing
-apt-get --no-install-recommends -y install nodejs
+apt-get --no-install-recommends -y install nodejs npm
 
 curl -s "https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v385/blat/blat" -o /usr/local/bin/blat
 chmod +x /usr/local/bin/blat
@@ -76,7 +76,7 @@ ENV LANGUAGE=en_US.UTF-8
 RUN <<EOF
 pip3 install setuptools
 pip3 install wheel
-pip3 install nose apollo==4.2.10
+pip3 install nose apollo==4.2.13
 EOF
 
 # install grails
