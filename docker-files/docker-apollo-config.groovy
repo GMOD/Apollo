@@ -148,7 +148,7 @@ apollo {
 jbrowse {
     git {
         url = "https://github.com/GMOD/jbrowse"
-        branch = "1.16.12-release"
+        branch = "1.17.0-release"
     }
     plugins {
         ScreenShotPlugin{
