@@ -69,9 +69,9 @@ grails.project.dependency.resolution = {
     dependencies {
 
 
-        runtime 'org.apache.logging.log4j:log4j-api:2.19.0'
-        runtime 'org.apache.logging.log4j:log4j-core:2.19.0'
-        runtime 'org.apache.logging.log4j:log4j-1.2-api:2.19.0'
+        runtime 'org.apache.logging.log4j:log4j-api:2.25.4'
+        runtime 'org.apache.logging.log4j:log4j-core:2.25.4'
+        runtime 'org.apache.logging.log4j:log4j-1.2-api:2.25.4'
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         runtime 'mysql:mysql-connector-java:5.1.29'
         runtime 'org.postgresql:postgresql:9.4.1212'
